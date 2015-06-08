@@ -1,0 +1,35 @@
+[[@txDefs,txSession,SQLiteData,]][[!
+var
+  i,j,icon:integer;
+  qr:TSQLiteStatement;
+const
+  qry:array[0..2] of string=('ObjType','TokType','RefType');
+  pfx:array[0..2] of string=('ot','tt','rt');
+  lbl:array[0..2] of string=(lblDescendants,lblTokens,lblReferences);
+]][[
+
+CheckCallProtect(Context);
+icon:=Context['icon'].AsInteger;
+
+i:=0;
+j:=0;
+while (i<3) and Context.Connected do
+ begin
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id,name FROM '+qry[i]+' WHERE icon=? ORDER BY name',[icon]);
+  try
+    while qr.Read and Context.Connected do
+     begin
+	  ]][[#lbl[i]]]<a href="Item.xxm?x=[[=pfx[i]]][[.id]]">>.name<</a>
+	  [[
+	  inc(j);
+     end;
+  finally
+    qr.Free;
+  end;   
+  inc(i);
+ end;
+if j=0 then
+ begin
+  <<i style="color:#999999;">not in use</i>>
+ end;
+]]

@@ -1,0 +1,23 @@
+[[@txSession,]][[Context.Include('dHead.xxmi',['Overview']);]][[!
+var
+  x,y:string;
+  i:integer;
+]][[
+  x:=Context['x'].Value;
+  i:=1;
+  while (i<=Length(x)) and not(x[i] in ['0'..'9']) do inc(i);
+  y:=Copy(x,1,i-1);
+  if y='' then y:='i';
+]]
+<div id="selbox" style="white-space: nowrap;"><i>Loading...</i></div>
+<script><!--
+$().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"+request.statusText+"</p>");});
+$().ajaxComplete(function(){safeScrollToX("mastertree_selectScrollTo");});
+$("#selbox").load("iSelect.xxm?x=[[=x]]&name=mastertree[[#txCallProtect]]");
+function treenode_select(e,name,id)
+{
+	document.location="Item.xxm?x=[[=y]]"+id;
+	return (e||window.event||this).shiftKey;
+}
+//--></script>
+[[Context.Include('dFoot.xxmi');]]

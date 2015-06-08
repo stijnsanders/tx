@@ -1,0 +1,17 @@
+[[@txDefs,txSession,]][[
+Context.Include('dHead.xxmi',['Account Password']);
+
+<<h2>Password Reset</h2>
+[[#txForm('aLogonPwd.xxm',[])]]
+[[#txFormProtect]]
+<dl>
+<dt>E-mail address</dt>
+<dd><input type="text" name="email" id="email1" value="" size="50" /></dd>
+</dl>
+[[#txFormButton]]
+<a href="Logon.xxm">back</a>
+</form>
+<script>$("#email1")[0].focus();</script>>
+
+Context.Include('dFoot.xxmi');
+]]

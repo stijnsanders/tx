@@ -1,0 +1,22 @@
+	function pwd1Check(x)
+	{
+	  if(x.length<8)
+	    $("#pwd1Check").html('<span style="background-color:#CC0000;color:#FFCC00;padding:0.2em;">too short</span>');
+	  else if(!new RegExp("[A-Z]","").test(x))
+	    $("#pwd1Check").html('<span style="background-color:#FFCC00;padding:0.2em;">use at least one capital letter</span>');
+	  else if(!new RegExp("[a-z]","").test(x))
+	    $("#pwd1Check").html('<span style="background-color:#FFCC00;padding:0.2em;">use at least one miniscule</span>');
+	  else if(!new RegExp("[0-9]","").test(x))
+	    $("#pwd1Check").html('<span style="background-color:#FFCC00;padding:0.2em;">use at least one digit</span>');
+	  else if(new RegExp("^[0-9A-Za-z]+$","").test(x))
+	    $("#pwd1Check").html('<span style="background-color:#FFCC00;padding:0.2em;">use at least one punctuation character</span>');
+	  else
+	    $("#pwd1Check").html('<span style="background-color:#00CC00;padding:0.2em;">strong password</span>');
+	}
+	function pwd2Check(x)
+	{
+	  if(x==$("#pwd1")[0].value)
+	    $("#pwd2Check").html('<span style="background-color:#00CC00;padding:0.2em;">ok</span>');
+	  else
+	    $("#pwd2Check").html('<span style="background-color:#CC0000;color:#FFCC00;padding:0.2em;">mismatch</span>');
+	}

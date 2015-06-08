@@ -1,0 +1,66 @@
+[[@txDefs,SQLiteData,txSession,txTerms,]][[!var
+qr:TSQLiteStatement;
+IsAdmin,IsRef:boolean;
+d,id,id1,hr:integer;
+s:string;
+]][[
+qr:=Objects[0] as TSQLiteStatement;
+d:=Values[0];
+IsAdmin:=Values[1];
+id:=qr.GetInt('id');
+IsRef:=false;//see below
+hr:=Context['hr'].AsInteger;
+if hr=id then begin]]<div class="highlighteditem">[[end;
+<<p class="reportheader"><a name="rpt[[=id]]"></a><a href="Item.xxm?x=i[[.usrid]]" title="[[.usrtypename]]">>#txImg(qr.GetInt('usricon'))]] [[.usrname<</a>
+<span class="date">reported on [[=NiceDateTime(qr['ts'])]]</span>>
+//TODO: revoke only own? only last?
+if IsAdmin then
+ begin
+  ]]
+  <a href="fRevoke.xxm?id=[[=id]]" class="linkbutton">revoke</a>
+  <a href="fPromote.xxm?id=[[=id]]" class="linkbutton">promote</a>
+  [[
+ end;
+
+if not(qr.IsNull('tokicon')) then
+ begin
+  <<br />
+  [[#lblTokens]]
+  [[
+  s:=qr.GetStr('toksystem');
+  if (s<>'') and (s[1]=':') then
+   begin
+    <<a href="Log.xxm?filter=tt[[.toktype_id]]*" title="[[.tokname]]"><img src="img/cat_[[=Copy(s,2,Length(s)-1)]].png" width="54" height="16" alt="[[.tokname]]" [[#globalIconAlign]]/></a>>
+   end
+  else
+   begin
+    ]]
+    [[#txImg(qr.GetInt('tokicon'))]]
+    [[.tokname]]
+    [[
+   end;
+ end;
+if not(qr.IsNull('reficon')) then
+ begin
+  IsRef:=true;
+  id1:=qr.GetInt('obj2_id');
+  <<br />
+  [[#lblReferences]]
+  [[#txImg(qr.GetInt('reficon'))]]
+  [[.refname]]
+  <a href="Item.xxm?x=i[[=id1]]" title="[[.reltypename]]">>#txImg(qr.GetInt('relicon'))]] [[.relname<</a>>
+  Context.Include('dObjTokRef.xxmi',[id1],[qr]);
+ end;
+<</p>
+[[#TermStore.TermLinks(itReport,id,d,qr.GetStr('desc'))]]
+[[
+if not(IsRef) and not(qr.IsNull('relicon')) then
+ begin
+  id1:=qr.GetInt('obj2_id');
+  <<p>
+  <a href="Item.xxm?x=i[[=id1]]" title="[[.reltypename]]">>#txImg(qr.GetInt('relicon'))]] [[.relname<</a>>
+  Context.Include('dObjTokRef.xxmi',[id1],[qr]);
+  <</p>>
+ end;
+if hr=id then begin <</div>> end;
+]]

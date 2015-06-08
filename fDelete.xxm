@@ -1,0 +1,31 @@
+[[@txDefs,SQLiteData,txSession,]][[!
+var
+  ItemType:TtxItemType;
+  ItemID:integer;
+]][[
+
+txItem(Context['x'].Value,ItemType,ItemID);
+
+  Context.Include('dHead.xxmi',['Delete '+txItemTypeName[ItemType]]);
+
+  //now display item data
+  case ItemType of
+
+    itObj:Context.Include('fObjDelete.xxmi',[ItemID]);
+	itObjType:Context.Include('fObjTypeDelete.xxmi',[ItemID]);
+	itTok:Context.Include('fTokDelete.xxmi',[ItemID]);
+	itTokType:Context.Include('fTokTypeDelete.xxmi',[ItemID]);
+	itRef:Context.Include('fRefDelete.xxmi',[ItemID]);
+	itRefType:Context.Include('fRefTypeDelete.xxmi',[ItemID]);
+    itFilter:Context.Include('fFltDelete.xxmi',[ItemID]);
+	//itUser:Context.Include('fUsrDelete.xxmi',[ItemID]);//TODO
+
+    else
+      ]]
+      <p>Delete not supported for [[=txItemTypeName[ItemType]]]</p>
+      [[
+  end;
+
+]]
+
+[[Context.Include('dFoot.xxmi');]]

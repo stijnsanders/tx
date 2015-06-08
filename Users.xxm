@@ -1,0 +1,133 @@
+[[@txDefs,SQLiteData,txSession,Variants,]][[!var
+IsAdmin:boolean;
+qr:TSQLiteStatement;
+id:integer;
+pwd:string;
+const
+sqlListUsr=
+  'SELECT Usr.id, Usr.[login], Usr.[pwd], Usr.[auth], Usr.[email], Usr.[uid], Obj.[name], ObjType.[icon], ObjType.[name] AS [typename] '+
+  'FROM Usr '+
+  'LEFT JOIN Obj ON Obj.id=Usr.uid '+
+  'LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id ';
+csel:array[boolean] of string=('',' checked="1"');
+]][[
+
+if Context['UpdatePrefs'].AsInteger=1 then
+ begin
+  Session.CssPrefs.BaseSizePt:=Context['BaseFontSize'].AsInteger;
+  Session.CssPrefs.FontName:=Context['FontName'].Value;
+  Session.CssPrefs.DemoMode:=Context['demo'].AsInteger=1;
+  Session.CssModSince:='';
+  if Use_Unread then
+   begin
+    Session.QryUnread:=Context['Unread'].AsInteger=1;
+    Session.Stealth:=Context['Stealth'].AsInteger=1;
+   end;
+ end;
+
+IsAdmin:=Session.IsAdmin('logins');
+Context.Include('dHead.xxmi',['Accounts']);
+
+if IsAdmin then
+ begin
+  <<p class="buttons"><a href="fUser.xxm" class="linkbutton">add...</a></p>>
+ end;
+
+if IsAdmin then
+  qr:=TSQLiteStatement.Create(Session.DbCon,sqlListUsr+'ORDER BY Usr.login, Usr.auth',[])
+else
+  qr:=TSQLiteStatement.Create(Session.DbCon,sqlListUsr+'WHERE Usr.uid=?',[Session.UserID]);
+
+//TODO: fUser.xxm fUserPwd.xxm fDelete.xxm?x=u?
+try
+   <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+   <tr><th>&nbsp;</th><th>user</th><th>login</th><th>pwd</th><th>auth</th><th>e-mail</th></tr>>
+   while qr.Read do
+    begin
+	 id:=qr.GetInt('id');
+	 <<tr>
+	 <td style="white-space:nowrap;">
+	 <a href="fUser.xxm?id=[[=id]]" class="linkbutton">edit</a>>
+	 if IsAdmin then begin ]] <a href="fDelete.xxm?x=u[[=id]]" class="linkbutton">delete</a>> end;
+	 <</td>
+	 <td><a href="Item.xxm?x=i[[.uid]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a></td>
+	 <td>>.login<</td>
+	 <td style="text-align: center;">>
+	 pwd:=VarToStr(qr['pwd']);
+	 if pwd='' then
+	  begin
+	   <<a href="fUserPwd.xxm?id=[[=id]]" class="linkbutton">set</a>>
+	  end
+	 else
+	  begin
+       if IsAdmin then
+        begin
+	     <<a href="aUserPwd.xxm?reset=[[=id]]&amp;uid=[[.uid]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to reset the password for [[.login]]?');">clear</a>>
+		 if pwd[1] in ['-','?'] then
+		  begin
+		   //assert Use_NewUserEmailActivation
+		   ]] <a href="aLogonPwd.xxm?id=[[=id]]" class="linkbutton" title="re-send activation e-mail">mail</a>>
+		  end;
+        end;
+       ]] <a href="fUserPwd.xxm?id=[[=id]]" class="linkbutton">change</a>>
+	  end;
+	 <</td>
+	 <td>>.auth<</td>
+	 <td><a href="mailto:[[.email]]">>.email<</a></td>
+	 </tr>>
+    end;
+   <</table>>
+finally
+  qr.Free;
+end;
+
+if IsAdmin then
+ begin
+  <<p class="buttons"><a href="fUser.xxm" class="linkbutton">add...</a></p>>
+ end;
+
+<<h2>Preferences</h2>
+[[#txForm('Users.xxm?'+Context.ContextString(csQueryString),['UpdatePrefs',1])]]
+<dl>
+<dt>Base Font Size (pt)</dt><dd><input type="text" name="BaseFontSize" size="10" value="[[=Session.CssPrefs.BaseSizePt]]" /></dd>
+<dt>Font Name</dt><dd><input type="text" name="FontName" size="50" value="[[=Session.CssPrefs.FontName]]" /></dd>>
+if Use_Unread then
+ begin
+  <<dt>Unread</dt><dd>
+  <input type="checkbox" name="Unread" id="unread1" value="1"[[#csel[Session.QryUnread]]]/>
+  <label for="unread1">Show unread<label><br />
+  <input type="checkbox" name="Stealth" id="stealth1" value="1"[[#csel[Session.Stealth]]]/>
+  <label for="stealth1">Stealth edits</label>
+  </dd>>
+  //Todo: stealth only for admins
+ end;
+<</dl>
+[[#txFormButton]]
+</form>
+
+<h2>Previous auto-logons</h2>>
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Ust.* FROM Usr INNER JOIN Usl ON Usl.usr_id=Usr.id INNER JOIN Ust ON Ust.usl_id=Usl.id WHERE Usr.uid=? ORDER BY Ust.c_ts DESC',[Session.UserID]);
+try
+  <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+  <tr>
+  <th>#</th>
+  <th>When</th>
+  <th>Address</th>
+  <th>Agent</th>
+  </tr>>
+  while qr.Read and Context.Connected do
+   begin
+    <<tr>
+	<td>>.seq<</td>
+	<td>>=NiceDateTime(qr['c_ts'])<</td>
+	<td>>.address<</td>
+	<td>>.agent<</td>
+	</tr>>
+   end;
+  <</table>>
+finally
+  qr.Free;
+end;
+
+Context.Include('dFoot.xxmi');
+]]

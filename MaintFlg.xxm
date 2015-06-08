@@ -1,0 +1,82 @@
+[[@txDefs,txSession,SQLiteData,txFilter,txFilterSql,]][[!var
+qr:TSQLiteStatement;
+i,ItemCount,TotalWeight:integer;
+fl:array of record
+  id:integer;
+  ex,name:string;
+end;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+fs:string;
+]][[
+Context.ContentType:='text/plain';
+Context.BufferSize:=0;
+
+//ATTENTION: run under a specific user to get realms selection right!
+
+i:=0;
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT [id], [name], [expression] FROM Flt');
+try
+  while qr.Read do
+   begin
+    SetLength(fl,i+1);
+    fl[i].id:=qr.GetInt('id');
+    fl[i].name:=qr.GetStr('name');
+    fl[i].ex:=qr.GetStr('expression');
+    inc(i);
+   end;
+finally
+  qr.Free;
+end;
+
+for i:=0 to Length(fl)-1 do
+ begin
+  Context.SendHTML('['+IntToStr(fl[i].id)+']'+fl[i].name+#13#10'...');
+  try
+    f:=TtxFilter.Create;
+    fq:=TtxSqlQueryFragments.Create(itObj);
+    try
+      f.FilterExpression:=fl[i].ex;
+      if f.ParseError<>'' then
+       begin
+        ]]
+        PARSE_ERROR!!!
+        [[#f.ParseError]]
+        [[
+       end;
+      fq.AddFilter(f);
+      fq.Fields:='Count(*) AS ItemCount, SUM(Obj.weight) AS TotalWeight';
+      fq.Where:='Obj.rlm_id'+Session.Realms[rpView].SQL+' AND ('+fq.Where+')';
+      fq.OrderBy:='';
+      //fq.GroupBy
+      fs:=fq.SQL;
+    finally
+      f.Free;
+      fq.Free;
+    end;
+	
+    qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+    try
+      ItemCount:=qr.GetInt('ItemCount');
+      TotalWeight:=qr.GetInt('TotalWeight');
+    finally
+      qr.Free;
+    end;
+
+    Context.SendHTML(' '+IntToStr(ItemCount)+' ('+IntToStr(TotalWeight)+')');
+    Session.DbCon.Execute('INSERT INTO Flg (flt_id,count,weight,ts) VALUES (?,?,?,?)',[fl[i].id,ItemCount,TotalWeight,VNow]);
+    Context.SendHTML(' !'#13#10#13#10);
+  except
+    on e:Exception do
+     begin
+       ]]
+       EXCEPTION!!!
+       [[#e.Message]]
+       [[
+     end;
+  end;
+ end;
+
+Context.SendHTML('---'#13#10);
+
+]]

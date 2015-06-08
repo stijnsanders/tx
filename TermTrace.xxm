@@ -1,0 +1,13 @@
+[[@txDefs,txSession,]][[Context.Include('dHead.xxmi',['Trace Terms']);]]
+<div id="selbox" style="white-space: nowrap;">>#lblLoading<</div>
+<script><!--
+$().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"+request.statusText+"</p>");});
+$().ajaxComplete(function(){safeScrollToX("tracetree_selectScrollTo");});
+$("#selbox").load("iTraceTerm.xxm?name=tracetree[[#txCallProtect]]&[[#Context.ContextString(csQueryString)]]");
+function treenode_select(e,name,x1,x2)
+{
+	document.location="TermTrace.xxm?"+x1+"="+x2;
+	return (e||window.event||this).shiftKey;
+}
+//--></script>
+[[Context.Include('dFoot.xxmi');]]

@@ -1,0 +1,46 @@
+[[@txDefs,txSession,SQLiteData,xxmString,]][[!var
+id,id1:integer;
+qr:TSQLiteStatement;
+sc:TStringContext;
+s:string;
+]][[
+
+id:=Context['id'].AsInteger;
+id1:=0;
+if id=0 then
+ begin
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.email=?',[Context['email'].Value]);
+  s:='New';
+ end
+else
+ begin
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.id=?',[id]);
+  s:='Reset';
+ end;
+try
+  if not qr.EOF then
+   begin
+    id1:=qr.GetInt('id');
+    sc:=TStringContext.Create(Context,Self);
+    try
+      sc.AutoEncoding:=aeIso8859;
+      sc.Include('LogonMail_'+s+'.xxmi',[id1,qr.GetStr('login'),qr.GetStr('name'),qr.GetStr('email')],[]);
+      sc.SaveToFile('C:\InetPub\mailroot\PickUp\txLogonPwd_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
+    finally
+      sc.Free;
+    end;
+   end;
+finally
+  qr.Free;
+end;
+if id=0 then //reset pwd
+  Session.DbCon.Execute('UPDATE Usr SET pwd=''?''||pwd WHERE id=?',[id1]);
+
+Context.Include('dHead.xxmi',['PageTitle']);
+
+//security: report success in any case to avoid abuse of the remember password function
+<<h3>New user account activation mail</h3>
+<p>New user account activation mail re-sent.</p>>
+
+Context.Include('dFoot.xxmi');
+]]

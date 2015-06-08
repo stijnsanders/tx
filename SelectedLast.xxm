@@ -1,0 +1,55 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+  qr:TSQLiteStatement;
+  ItemType:TtxItemType;
+  i,id:integer;
+]][[
+
+Context.Include('dHead.xxmi',['Viewed recently']);
+txItem(Context['x'].Value+'0',ItemType,id);
+if {(FilterRecentCount=0) or} (Session.FilterRecent[ItemType,0]=0) then
+ begin
+  <<p class="information">No items selected yet.</p>
+  <p>
+  <a href="Item.xxm?x=[[=txItemTypeKey[ItemType]]]0">browse...</a>,
+  <a href="Filter.xxm">filter...</a>,
+  <a href="Search.xxm">search...</a>,
+  <a href="Log.xxm">log...</a>
+  </p>>
+ end;
+
+i:=0;
+while (i<>FilterRecentCount) and (Session.FilterRecent[ItemType,i]<>0) and Context.Connected do
+ begin
+  id:=Session.FilterRecent[ItemType,i];
+  if ItemType=itObj then
+   begin
+    qr:=TSQLiteStatement.Create(Session.DbCon,
+      'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+      'FROM Obj '+
+      'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+      'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
+      'WHERE Obj.id=?',[id]);
+    try
+      Context.Include('dObjLink.xxmi',[],[qr]);
+	  Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
+      Context.Include('d_cmw.xxmi',[],[qr]);
+      <<br />>
+    finally
+	  qr.Free;
+    end;
+   end
+  else
+   begin
+    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[id]);
+	try
+	  Context.Include('dTypeLinkList.xxmi',[ItemType],[qr]);
+	  <<br />>
+	finally
+	  qr.Free;
+	end;
+   end;
+  inc(i);
+ end;
+
+Context.Include('dFoot.xxmi');
+]]

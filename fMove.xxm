@@ -1,0 +1,50 @@
+[[@txDefs,txSession,SQLiteData,]][[!var
+x:string;
+ItemType:TtxItemType;
+ItemID,pid:integer;
+qr:TSQLiteStatement;
+]][[
+Context.Include('dHead.xxmi',['Move']);
+x:=Context['x'].Value;
+txItem(x,ItemType,ItemID);
+<<h2>Move</h2>
+[[#txForm('aMove.xxm',[])]]
+[[#txFormProtect]]
+[[
+if ItemType=itObj then
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.pid, Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ItemID])
+else
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[ItemID]);
+try
+  <<p class="objecttitle">>
+  if ItemType=itObj then
+   begin
+    Context.Include('dObjLink.xxmi',[],[qr]);
+	pid:=qr.GetInt('pid');
+   end
+  else
+   begin
+    Context.Include('dTypeLink.xxmi',[ItemType],[qr]);
+	pid:=qr.GetInt('pid');
+   end;
+  <</p>>
+finally
+  qr.Free;
+end;
+<<input type="hidden" name="x" value="[[=x]]" />
+<p>>
+if ItemType=itObj then
+  Context.Include('dObjSelect.xxmi',['parent',pid,ItemID,0,'',true])
+else
+  Context.Include('dTypeSelect.xxmi',[ItemType,'parent',pid,ItemID]);
+//TODO: type: skip self in list
+<</p>
+[[#txFormButton]] <a href="Item.xxm?x=[[=x]]">back</a>>
+if (ItemType=itObj) and (pid<>0) then
+ begin
+  ]] | <a class="linkbutton" href="fMoveRef.xxm?x=[[=x]]">keep a reference...</a>>
+ end;
+<</form>>
+
+Context.Include('dFoot.xxmi');
+]]

@@ -1,0 +1,83 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+x:string;
+ItemType:TtxItemType;
+ItemID,newPid,aid,RlmID,i:integer;
+url:string;
+]][[
+
+//TODO: transaction?
+//TODO: Session.UpdateID to move node
+
+CheckFormProtect(Context);
+x:=Context['x'].Value;
+txItem(x,ItemType,ItemID);
+newPid:=Context['parent'].AsInteger;
+
+//check not creating invalid path
+aid:=newPid;
+while (aid<>0) and (aid<>ItemID) do
+  aid:=DBSingleValue(txItemSQL_PidById[ItemType],[aid],0);
+if aid<>0 then raise Exception.Create('Can''t move item to a branch under itself.');
+
+if ItemType=itObj then
+ begin
+
+	//check realm
+	RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ItemID],0);
+    Session.HasRealmPermission(rpEdit,RlmID);
+	if newPid=0 then RlmID:=0 else RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[newPid],0);
+    Session.HasRealmPermission(rpEdit,RlmID);
+	//TODO: else RealmPermission(rpEdit,0)?
+
+	Session.DbCon.Execute('BEGIN TRANSACTION');
+	try
+	  //perform doesn't set c_ts, c_uid
+	  Session.DbCon.Execute(txItemSQL_Move[ItemType],[newPid,ItemID]);
+	  Session.AddFilterRecent(itObj,newPid);
+
+	  if Use_ObjPath then
+	   begin
+	    Session.DbCon.Execute('DELETE FROM ObjPath WHERE oid=?',[ItemID]);
+		Session.DbCon.Execute('DELETE FROM ObjPath WHERE pid=?',[ItemID]);
+
+		//parents
+	    i:=0;
+	    while newPid<>0 do
+	     begin
+	      inc(i);
+	      Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) VALUES (?,?,?)',[newPid,ItemID,i]);
+		  newPid:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[newPid],0);
+	     end;
+
+		//children
+		//TODO: perform async in background
+		Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT pid,id,1 FROM Obj WHERE pid=?',[ItemID]);
+		i:=0;
+		while Session.DbCon.Changes<>0 do
+		 begin
+		  inc(i);
+		  Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT ObjPath.pid,Obj.id,ObjPath.lvl+1 FROM ObjPath '+
+			'INNER JOIN Obj ON Obj.pid=ObjPath.oid WHERE ObjPath.pid=? AND ObjPath.lvl=?',[ItemID,i]);
+		 end;
+
+	   end;
+
+      if Use_Unread and not Session.Stealth then
+        Session.DbCon.Execute('INSERT INTO Obx (obj_id) VALUES (?)',[ItemID]);
+
+      Session.DbCon.Execute('COMMIT TRANSACTION');
+	except
+	  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+      raise;
+	end;
+ end
+else
+ begin
+    Session.HasRealmPermission(rpEdit,0);
+    Session.DbCon.Execute(txItemSQL_Move[ItemType],[newPid,ItemID]);
+	Session.AddFilterRecent(ItemType,newPid);
+ end;
+
+url:='Item.xxm?x='+x;
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

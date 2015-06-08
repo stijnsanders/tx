@@ -1,0 +1,31 @@
+[[@txDefs,txSession,]][[!var
+id:integer;
+]][[
+id:=Values[0];
+<<h2>Delete reference type [[=id]]</h2>
+[[#txForm('aRefTypeDelete.xxm',['id',id],'confirm(''Are you sure to permanently delete this reference type?'')')]]
+[[#txFormProtect]]
+<dl>
+<dt>Children</dt>
+<dd>
+    <input type="radio" name="children" value="0" id="children0" checked="1" />
+    <label for="children0">Delete children <b>(!)</b></label>
+    <br />
+    <input type="radio" name="children" value="1" id="children1" />
+    <label for="children1">Move children to:</b></label>
+    <br />
+	[[Context.Include('dTypeSelect.xxmi',[itRefType,'movechto',0]);]]</dd>
+</dd>
+<dt>References</dt>
+<dd>
+    <input type="radio" name="refs" value="0" id="refs0" checked="1" />
+    <label for="refs0">Delete references <b>(!)</b></label>
+    <br />
+    <input type="radio" name="refs" value="1" id="refs1" />
+    <label for="refs1">Change reference type to:</b></label>
+    <br />
+	[[Context.Include('dTypeSelect.xxmi',[itRefType,'moverefto',0]);]]</dd>
+</dd>
+</dl>
+[[#txFormButton]] <a href="Item.xxm?x=rt[[=id]]">back</a>
+</form>

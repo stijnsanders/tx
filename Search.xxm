@@ -1,0 +1,47 @@
+[[@txDefs,txFilter]][[!var
+pid:integer;
+o:TtxFilterOperator;
+xf:string;
+]][[
+Context.Include('dHead.xxmi',['Search']);
+pid:=Context['pid'].AsInteger;
+xf:=Context['filter'].Value;
+if xf<>'' then
+ begin
+  o:=TtxFilterOperator(0);
+  while (o<>fo_Unknown) and (xf[1]<>txFilterOperatorChar[o]) do inc(o);
+  if o=fo_Unknown then xf:=txFilterOperatorChar[foAnd]+xf;
+ end;
+<<h2>Search</h2>
+[[#txForm('aSearch.xxm',['f',xf])]]
+[[if pid<>0 then begin <<input type="hidden" name="pid" value="[[=pid]]" />> end;
+<<dl>
+<dt>Keywords</dt>
+<dd><input type="text" id="searchText" name="keywords" value="" class="textfield" /></dd>
+<dt>Items</dt>
+<dd>
+	<input type="radio" id="searchItems0" name="action" value="search" checked="1" />
+	<label for="searchItems0">Objects (name, description)</label><br />
+	<input type="radio" id="searchItems1" name="action" value="name" />
+	<label for="searchItems1">Objects (match whole name)</label><br />
+	<input type="radio" id="searchItems2" name="action" value="rsearch" />
+	<label for="searchItems2">Reports (text)</label><br />
+	<input type="radio" id="searchItems3" name="action" value="term" />
+	<label for="searchItems3">Terms</label><br />
+</dd>>
+if pid=0 then
+ begin
+  <<dt>Branch (optional)</dt>
+  <dd>>Context.Include('dObjSelect.xxmi',['pid',0,0,0,'',true]);<</dd>>
+ end;
+<</dl>
+[[#txFormButton]]
+| <a href="FilterBuild.xxm">filter objects...</a>
+| <a href="ViewedLast.xxm">viewed recently...</a>
+| <a href="SelectedLast.xxm">selected recently...</a>
+| <a href="fLog.xxm[[if pid<>0 then Context.SendHTML('?f='+URLEncode('i'+IntToStr(pid)+'*'+xf));]]">advanced log view...</a>
+</form>
+<script><!--
+$("#searchText")[0].focus();
+//--></script>>
+Context.Include('dFoot.xxmi');

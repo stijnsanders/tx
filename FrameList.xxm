@@ -1,0 +1,93 @@
+[[@Windows,txDefs,SQLiteData,txSession,txFilter,txFilterSql,txCache,]][[!var
+qr:TSQLiteStatement;
+filter,fs:string;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+ic:TItemCache;
+]][[
+Context.Include('dFrameHead.xxmi');
+filter:=Context['filter'].Value;
+<<script><!--
+	function frametree_expandto(t,p)
+	{
+		if(t=="i")
+		{
+			$(".highlight").removeClass("highlight");
+			var x=new String(p).split(",");
+			var y=$("#listitem_"+x[x.length-1]);
+			if(y.length==1)
+			{
+					window.scrollTo(0,y[0].offsetTop-((window.innerHeight||document.body.clientHeight)/3));
+					y.addClass("highlight");
+			}
+		}
+	}
+	function frametree_update(t,p)
+	{
+		if(t=="i") $("#listitem_"+p).load("iFrameList.xxm",{id:p,xxx:"[[=Session.SessionCrypt]]"});
+	}
+	function frametree_updatedelete(t,p)
+	{
+		if(t=="i") $("#listitemfull_"+p).remove();
+	}
+	function listitem_select(e,id)
+	{
+		if(window.parent.frames["MainFrame"].window.catchTreeClick)
+			window.parent.frames["MainFrame"].window.catchTreeClick(id,$("#listitem_"+id)[0]);
+		else
+			window.parent.frames["MainFrame"].location="Item.xxm?x=i"+id;
+		return (e||window.event||this).shiftKey;
+	}
+//--></script>
+<span style="white-space:nowrap;">>
+
+  f:=TtxFilter.Create;
+  fq:=TtxSqlQueryFragments.Create(itObj);
+  try
+    f.FilterExpression:=filter;
+	if f.ParseError<>'' then
+	 begin
+	  <<p style="color:red;">>=f.ParseError<</p>>
+	 end;
+	fq.AddFilter(f);
+    fq.Where:='Obj.rlm_id'+Session.Realms[rpView].SQL+' AND ('+fq.Where+')';
+    fs:=fq.SQL;
+  finally
+    f.Free;
+    fq.Free;
+  end;
+
+  <<p id="fliTitle" class="highlight1" style="position:absolute;margin:0em;font-weight:bold;"></p>
+  <p>
+  <span class="litref">>=filter<</span>
+  <a class="linkbutton" href="Filter.xxm?filter=[[=URLEncode(filter)]]" target="MainFrame">filter</a>
+  <a class="linkbutton" href="FilterBuild.xxm?filter=[[=URLEncode(filter)]]" target="MainFrame">build</a>
+  </p>>
+
+  qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+  try
+    if qr.EOF then
+	 begin
+	  <<p><i>No items found.</i></p>>
+	 end
+	else
+	 begin
+      ic:=TItemCache.Create;
+	  try
+        while qr.Read and Context.Connected do Context.Include('FrameListItem.xxmi',[],[qr,ic]);
+	  finally
+	    ic.Free;
+	  end;
+	 end;
+  finally
+	qr.Free;
+  end;
+
+<</span>
+<script><!--
+$(".fli")
+.mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#fliTitle").text(this.title);})
+.mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#fliTitle").text("");});
+//--></script>>
+Context.Include('dFrameFoot.xxmi');
+]]

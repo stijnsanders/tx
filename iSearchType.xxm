@@ -1,0 +1,69 @@
+[[@txDefs,SQLiteData,txSession,txCache,]][[!var
+  ItemType:TtxItemType;
+  name,keywords:string;
+  qr:TSQLiteStatement;
+  id,exclude,c,limit:integer;
+  ic:TItemCache;
+const
+  recentID:array[TtxItemType] of integer=(0,2,3,3,4,4,-1,-1,-1,-1,-1);
+]][[
+CheckCallProtect(Context);
+name:=Context['name'].Value;
+keywords:=Context['keywords'].Value;
+txItem(Context['idx'].Value,ItemType,id);
+exclude:=Context['ex'].AsInteger;
+limit:=Context['limit'].AsInteger;
+if limit=0 then limit:=50;//default
+if (keywords='') then
+ begin
+  <<div style="margin:0em;">
+  <input type="text" id="searchText_[[=name]]" name="keywords" value="[[=Context['dss'].Value]]" size="50"
+  onfocus="search_typeEnter('[[=name]]','[[=txItemTypeKey[ItemType]]]',[[=exclude]],this);" onblur="search_typeLeave(this);" />
+  <input type="checkbox" id="searchTextName_[[=name]]" name="wholename" value="1" />
+  <label for="searchTextName_[[=name]]">match whole name</label>
+  <br />
+  <button id="searchButton_[[=name]]" onclick="return search_typeSubmit('[[=name]]','[[=txItemTypeKey[ItemType]]]',[[=exclude]]);">Search</button>
+  |
+  <a href="SelectedLast.xxm?x=[[=txItemTypeKey[ItemType]]]" onclick="return selectnode_viewedLast(event,'[[=name]]',[[=recentID[ItemType]]],[[=exclude]]);" class="linkbutton">selected recently...</a>
+  <br />
+  <span id="search_[[=name]]_loading" style="display: none;">>#lblLoading<</span>
+  </div>>
+ end
+else
+ begin
+  <<span class="litref">>=keywords<</span><br />>
+  Context.Flush;
+  //TODO: split keywords?
+  if Context['wholename'].AsInteger<>1 then keywords:='%'+keywords+'%';
+
+  ic:=TItemCache.Create;
+  if ItemType=itObj then
+    qr:=TSQLiteStatement.Create(Session.DbCon,
+	  'SELECT Obj.id, Obj.pid, Obj.[name], Obj.[desc], ObjType.[icon], ObjType.[name] AS [typename] '+
+	  'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+    'WHERE Obj.name LIKE ? AND Obj.id <> ? AND Obl.rlm_id'+Session.Realms[rpView].SQL,[keywords,exclude])
+  else
+    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id,pid,[name],[icon] FROM '+txItemTypeTable[ItemType]+' WHERE name LIKE ? AND id<>? ORDER BY weight, name, c_ts',[keywords,exclude]);
+  try
+    if qr.EOF then
+	 begin
+	  <<i>none found</i>>
+	 end;
+    c:=0;
+    while qr.Read and Context.Connected and (c<limit) do
+	 begin
+      inc(c);
+	  id:=qr.GetInt('id');
+	  <<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=[[=txItemTypeKey[ItemType]]][[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a>>
+	  Context.Include('dTypeLocMini.xxmi',[ItemType],[qr,ic]);
+	  <<br />>
+	 end;
+    if c=limit then
+     begin
+      <<i>&nbsp;(results limited to [[=limit]])</i>>
+     end;
+  finally
+	qr.Free;
+	ic.Free;
+  end;
+ end;

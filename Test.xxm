@@ -1,0 +1,144 @@
+[[Context.Include('dHead.xxmi',['System Status']);]]
+
+<h1>diagnostic</h1>
+<dl>
+<dt>url</dt><dd>>=Context.URL<</dd>
+<dt>sessionID</dt><dd>>=Context.SessionID<</dd>
+<dt>>=AutoLogonCookieName<</dt><dd>>=Context.GetCookie(AutoLogonCookieName)<</dd>
+<dt>csVersion</dt><dd>>=Context.ContextString(csVersion)<</dd>
+<dt>csExtraInfo</dt><dd>>=Context.ContextString(csExtraInfo)<</dd>
+<dt>csVerb</dt><dd>>=Context.ContextString(csVerb)<</dd>
+<dt>csQueryString</dt><dd>>=Context.ContextString(csQueryString)<</dd>
+<dt>csUserAgent</dt><dd>>=Context.ContextString(csUserAgent)<</dd>
+<dt>csAcceptedMimeTypes</dt><dd>>=Context.ContextString(csAcceptedMimeTypes)<</dd>
+<dt>csPostMimeType</dt><dd>>=Context.ContextString(csPostMimeType)<</dd>
+<dt>csURL</dt><dd>>=Context.ContextString(csURL)<</dd>
+<dt>csReferer</dt><dd>>=Context.ContextString(csReferer)<</dd>
+<dt>csLanguage</dt><dd>>=Context.ContextString(csLanguage)<</dd>
+<dt>csRemoteAddress</dt><dd>>=Context.ContextString(csRemoteAddress)<</dd>
+<dt>csRemoteHost</dt><dd>>=Context.ContextString(csRemoteHost)<</dd>
+<dt>csAuthUser</dt><dd>>=Context.ContextString(csAuthUser)<</dd>
+<dt>csAuthPassword</dt><dd>>=Context.ContextString(csAuthPassword)<</dd>
+<dt>csProjectName</dt><dd>>=Context.ContextString(csProjectName)<</dd>
+<dt>csLocalURL</dt><dd>>=Context.ContextString(csLocalURL)<</dd>
+</dl>
+
+<h1>parameters</h1>
+<dl>>
+for i:=0 to Context.ParameterCount-1 do
+ begin
+  <<dt>>=Context[i].Name<</dt><dd>>=Context[i].Value<</dd>>
+ end;
+<</dl>
+
+<h1>headers</h1>
+[[@xxmHeaders]][[!var
+d1:IXxmDictionaryEx;
+di:integer;
+<<dl>>
+d1:=(Context as IxxmHttpHeaders).RequestHeaders;
+for di:=0 to d1.Count-1 do
+ begin
+  <dt>>=d1.Name[di]<</dt>
+  <dd>>=d1[di]<</dd>
+ end;
+<</dl>
+
+
+<h1>realm permissions</h1>
+[[@Windows,txDefs,txSession,SQLiteData,txFilter,txFilterSql]][[!var
+  qr:TSQLiteStatement;
+  fx,fr:string;
+  f:TtxFilter;
+  fq:TtxSqlQueryFragments;
+  i,fi,fcl:integer;
+  tc1,tc2:cardinal;
+  b:boolean;
+  fc:array of record
+    x:string;
+	b:boolean;
+  end;
+const
+  rname:array[0..1] of string=('view','edit');
+]][[
+//test: get realms for user
+tc1:=GetTickCount;
+fcl:=0;
+SetLength(fc,fcl);
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT name, view_expression, edit_expression FROM Rlm',[]);
+try
+  while qr.Read do
+   begin
+    <<p><b>>.name<</b>:
+	[[
+	for fi:=0 to 1 do
+	 begin
+      fx:=qr.GetStr(rname[fi]+'_expression');
+	  if fx='' then Context.SendHTML('<s style="color:#0000CC;">'+rname[fi]+'</s> <i>not set</i> ') else
+	   begin
+	    i:=0;
+		while (i<fcl) and (fc[i].x<>fx) do inc(i);
+		if i<fcl then
+		 begin
+		  b:=fc[i].b;
+		  fr:='<i>cached</i>';
+		 end
+		else
+		 begin
+		  tc2:=GetTickCount;
+	      f:=TtxFilter.Create;
+	      fq:=TtxSqlQueryFragments.Create(itObj);
+	      try
+            fq.Fields:='Obj.id';
+            fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id';
+            fq.Where:='Obj.id='+IntToStr(Session.UserID)+' AND ';
+            fq.GroupBy:='';
+            fq.Having:='';
+            fq.OrderBy:='';
+	        f.FilterExpression:=fx;
+	        fq.AddFilter(f);
+			b:=Session.DbCon.Exists(fq.Sql);
+	      finally
+    	    f.Free;
+            fq.Free;
+	      end;
+		  //add result to cache
+		  SetLength(fc,fcl+1);
+		  fc[fcl].x:=fx;
+		  fc[fcl].b:=b;
+		  inc(fcl);
+		  //
+		  fr:=IntToStr(GetTickCount-tc2)+'ms';
+		 end;
+		if b then
+		  Context.SendHTML('<b style="color:#00CC00;">'+rname[fi]+'</b> '+fr+' ')
+		else
+		  Context.SendHTML('<s style="color:#CC0000;">'+rname[fi]+'</s> '+fr+' ');
+	  end;
+	end;
+	<</p>>
+   end;
+finally
+  qr.Free;
+end;
+<<p>Total: [[=GetTickCount-tc1]]ms, <a href="Item.xxm?x=i[[=Session.UserID]]">user obj...</a></p>
+
+<h1>settings</h1>
+<dl>
+<dt>Use_Terms</dt><dd>[[=Use_Terms]] (init:[[=TermStore.InitTimeMS]]ms, <a href="MaintTrl.xxm" rel="nofollow" onclick="return confirm('Are you sure to redo Trl?');">redo links..</a>) [[
+if TermStore.InitError<>'' then
+ begin
+  <<b style="color:red;">WikiEngine initialization error:</b>
+  [[=TermStore.InitError]]
+  [[
+ end;
+</dd>
+[[//TODO: dynamic settings]]
+<dt>Use_ObjTokRefCache</dt><dd>>=Use_ObjTokRefCache]] (<a href="MaintObjTokRefCache.xxm" rel="nofollow">pending...</a>, <a href="MaintObjTokRefCache.xxm?redo=1" rel="nofollow" onclick="return confirm('Are you sure to redo the ObjTokRefCache?');">redo...</a>)</dd>
+<dt>Use_ObjHist</dt><dd>>=Use_ObjHist<</dd>
+<dt>Use_ObjPath</dt><dd>>=Use_ObjPath]] (<a href="MaintPath.xxm" rel="nofollow" onclick="return confirm('Are you sure to redo ObjPath?');">redo...</a>)</dd>
+<dt>Use_NewUserEmailActivation</dt><dd>>=Use_NewUserEmailActivation<</dd>
+<dt>Use_Unread</dt><dd>>=Use_Unread]] (<a href="MaintUrx.xxm" rel="nofollow">collapse...</a>)</dd>
+</dl>
+
+Context.Include('dFoot.xxmi');

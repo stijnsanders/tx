@@ -1,0 +1,36 @@
+[[@txDefs,txSession,SQLiteData,]][[!var
+id,pid,xid:integer;
+qr:TSQLiteStatement;
+]][[
+
+Context.Include('dHead.xxmi',['Token Type']);
+
+id:=Context['id'].AsInteger;
+pid:=Context['pid'].AsInteger;
+if pid=0 then xid:=id else xid:=pid;
+
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM TokType WHERE id=?',[id]);
+try
+
+<<h2>Token Type</h2>
+[[#txForm('aTokType.xxm',['id',id,'pid',pid])]]
+[[#txFormProtect]]
+<dl>
+<dt>Name</dt><dd><input type="text" name="name" id="TokTypeName" value="[[=qr.GetDefault('name','')]]" class="textfield" /></dd>>
+if Session.IsAdmin('config') then
+ begin
+  <<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetDefault('system','')]]" class="systemfield" /></dd>>
+ end;
+<<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetDefault('weight',0)]]" class="weightfield" /></dd>
+<dt>Icon</dt><dd>[[Context.Include('fIcons.xxmi',['icon',qr.GetDefault('icon',0)]);]]</dd>
+<dt>Limit one token per branch</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itTokType,'default',qr.GetInt('dft')]);]]</dd>
+</dl>
+[[#txFormButton]]
+<a href="Item.xxm?x=tt[[=xid]]">back</a>
+</form>
+<script>$("#TokTypeName")[0].focus();</script>>
+finally
+  qr.Free;
+end;
+Context.Include('dFoot.xxmi');
+]]

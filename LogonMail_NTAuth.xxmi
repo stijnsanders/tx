@@ -1,0 +1,17 @@
+From: tx@yoy.be
+To: [[@txSession]][[#AdministratorEmailAddress]]
+Subject: tx NT user account request
+Content-Type: text/html
+
+<html><body style="font-family:serif;font-size:12pt;">
+<h3>tx NT user account request</h3>
+<dl>
+<dt>user</dt><dd>>=Context.ContextString(csAuthUser)<</dd>
+<dt>name</dt><dd>>=Context['name'].Value<</dd>
+<dt>comment</dt><dd>>=Context['comment'].Value<</dd>
+<dt>url</dt><dd>>=Context['url'].Value<</dd>
+<dt>referer</dt><dd>>=Context.ContextString(csReferer)<</dd>
+<dt>address</dt><dd>[[=Context.ContextString(csRemoteAddress)]] ([[=Context.ContextString(csRemoteHost)]])</dd>
+<dt>now</dt><dd>>=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',Now)<</dd>
+</dl>
+</body></html>

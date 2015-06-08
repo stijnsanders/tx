@@ -1,0 +1,26 @@
+[[@txDefs,SQLiteData,txCache,txNodes,]][[!var
+qr:TSQLiteStatement;
+pid:integer;
+ic:TItemCache;
+s:string;
+ln:TLocationNode;
+]][[
+qr:=Objects[0] as TSQLiteStatement;
+if Length(Objects)>1 then ic:=Objects[1] as TItemCache else ic:=nil;
+pid:=qr.GetInt('pid');
+Context.SendHTML(lblLocation+' ');
+s:='';
+while (pid<>0) and Context.Connected do
+ begin
+  if ic=nil then ln:=nil else ln:=ic[pid] as TLocationNode;
+  if s<>'' then s:=' &gt; '+s;
+  if ln=nil then
+   begin
+    ln:=TLocationNode.Create(itObj,pid);
+    if ic<>nil then ic.Add(pid,ln);
+   end; 
+  s:=ln.GetHTML([ghIcon,ghName],pid)+s;
+  if ic=nil then ln.Free;
+ end;
+Context.SendHTML(s);
+]]

@@ -1,0 +1,50 @@
+[[@txDefs,txSession,SQLiteData,txTerms,]][[!var
+  id:integer;
+  qr:TSQLiteStatement;
+  name,filter,filterU:string;
+]][[
+if Length(Objects)=0 then
+ begin
+  id:=Values[0];
+  name:=Values[1];
+  filter:=name;
+  qr:=nil;
+ end
+else
+ begin
+  qr:=Objects[0] as TSQLiteStatement;
+  name:=qr.GetStr('name');
+  filter:=qr.GetStr('expression');
+  id:=qr.GetInt('id');
+ end;
+filterU:=URLEncode(filter);
+]]
+<div class="filtername">>
+if (qr<>nil) and (Length(Values)>1) then
+ begin
+  <<span class="date">>=id<</span> [[
+ end;
+<<a href="Filter.xxm?filter=[[#filterU]]">>=name<</a></div>
+<div class="filterbuttons">
+<a href="Filter.xxm?filter=[[#filterU]]" class="linkbutton">filter</a>
+<a href="FilterBuild.xxm?filter=[[#filterU]]" class="linkbutton">build</a>
+<a class="linkbutton" href="FrameTree.xxm?filter=[[#filterU]]" target="TreeFrame">tree</a>
+<a class="linkbutton" href="FrameList.xxm?filter=[[#filterU]]" target="TreeFrame">list</a>
+<a class="linkbutton" href="Log.xxm?filter=[[#filterU]]">log</a>
+<a class="linkbutton" href="Summary.xxm?filter=[[#filterU]]">summary</a>
+[[
+if (qr<>nil) and (Length(Values)>0) and Values[0] then
+  begin ]] | <a href="fFilter.xxm?id=[[=id]]" class="linkbutton">edit</a>> end;
+if qr=nil then
+  begin ]] | <a href="aFilterRecent.xxm?drf=[[=id]]" class="linkbutton">remove</a>> end;]]
+[[/
+<span class="date">created on [[=NiceDateTime(qr['c_ts'])]] <a href="Item.xxm?x=i[[.c_uid]]">by&#x2026;</a></span>
+<span class="date">modified on [[=NiceDateTime(qr['m_ts'])]] <a href="Item.xxm?x=i[[.m_uid]]">by&#x2026;</a></span>
+]]
+</div>
+<p class="objecttitle">&nbsp;</p>>
+if qr<>nil then
+ begin
+  <<div>>#TermStore.TermLinks(itFilter,id,0,qr.GetStr('desc'))<</div>>
+ end;
+ ]]

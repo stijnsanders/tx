@@ -1,0 +1,34 @@
+[[@Variants,]][[!var
+sy,sm,sd,ey,em,ed:word;
+fx,v:string;
+d1,d2:OleVariant;
+]][[
+
+Context.Include('dHead.xxmi',['Log',Context.ContextString(csQueryString)]);
+
+sy:=Context['sy'].AsInteger;
+sm:=Context['sm'].AsInteger;
+sd:=Context['sd'].AsInteger;
+ey:=Context['ey'].AsInteger;
+em:=Context['em'].AsInteger;
+ed:=Context['ed'].AsInteger;
+
+v:=Context['view'].Value;
+
+if sy=0 then d1:=Null else d1:=VarFromDateTime(EncodeDate(sy,sm,sd));
+if ey=0 then d2:=Null else d2:=VarFromDateTime(EncodeDate(ey,em,ed));
+
+fx:=Context['filter1'].Value;
+if fx='' then fx:=Context['filter'].Value;
+
+Context.Include('dLog.xxmi',[
+	fx,//filter
+	(v='any') or (v='all') or (v='both'),//view 'view realms' and 'control realms'? (or only 'views realms')
+	Context['limit'].Value,//limit
+	d1,//startdate
+	d2,//enddate
+	Context['sort'].AsInteger=1//sort ascending
+]);
+
+Context.Include('dFoot.xxmi');
+]]

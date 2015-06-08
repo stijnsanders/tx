@@ -1,0 +1,16 @@
+[[@SQLiteData,Variants,txDefs,]][[!var
+  qr:TSQLiteStatement;
+  prefix:string;
+]][[
+qr:=Objects[0] as TSQLiteStatement;
+if Length(Values)=0 then prefix:='' else prefix:=VarToStr(Values[0]);
+]]
+<span style="white-space: nowrap;"><span class="weight">weight: [[=qr[prefix+'weight']]]</span>
+<span class="date">
+<a href="Item.xxm?x=i[[=qr[prefix+'c_uid']]]" title="created on [[=NiceDateTime(qr[prefix+'c_ts'])]] by&#x2026;">c</a>
+<a href="Item.xxm?x=i[[=qr[prefix+'m_uid']]]" title="modified on [[=NiceDateTime(qr[prefix+'m_ts'])]] by&#x2026;">m</a>>
+if (Length(Values)>1) and Use_ObjHist then
+ begin
+  ]] <a href="Diff.xxm?id=[[=Values[1]]]" title="diff..." rel="nofollow">d</a>>
+ end;
+<</span></span>

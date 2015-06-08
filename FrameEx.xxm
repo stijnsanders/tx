@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+BODY{background-color:#808080;color:white;margin:0pt;border:0pt;text-align:center;overflow:hidden;}
+P{font-family:sans-serif;font-size:11pt;font-weight:bold;margin:0pt;}
+</style>
+</head>
+<body onresize="if(event.target.innerHeight>24)document.location.replace('FrameSelect.xxm');">
+<p>&#x2191;&nbsp;&#x2191;&nbsp;&#x2191;<br /><a href="FrameSelect.xxm">select...</a></p>
+</body>
+</html>

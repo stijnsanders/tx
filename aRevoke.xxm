@@ -1,0 +1,26 @@
+[[@txSession,]][[!var
+id,objid:integer;
+url:string;
+]][[
+id:=Context['id'].AsInteger;
+objid:=DBSingleValue('SELECT obj_id FROM Rpt WHERE id=?',[id],0);
+CheckFormProtect(Context);
+
+if not(Session.IsAdmin('reports')) then
+  raise Exception.Create('You''re not allowed to modify reports.');
+
+//TODO: only if last report? own report?
+//TODO: replace with something?
+Session.DbCon.Execute('BEGIN TRANSACTION');
+try
+	Session.DbCon.Execute('DELETE FROM Rpt WHERE id=?',[id]);
+    Session.DbCon.Execute('COMMIT TRANSACTION');
+except
+    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    raise;
+end;
+
+//TODO: check object realm?
+url:='Item.xxm?x=i'+IntToStr(objid);
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

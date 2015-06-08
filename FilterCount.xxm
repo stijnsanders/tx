@@ -1,0 +1,76 @@
+[[@Windows,txDefs,SQLiteData,txSession,txFilter,txFilterSql,]][[!var
+fv:TtxFilterViewInfo;
+fs:string;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+i:integer;
+qr:TSQLiteStatement;
+tc1,tc2,tc3,tc4:cardinal;
+]][[
+GetFilterViewInfo(Context,fv);
+Context.Include('dHead.xxmi',['Filter Count','filter='+fv.filterU]);
+if fv.filter='' then
+ begin
+  <<p class="information">No current filter.<br /><a href="FilterBuild.xxm">Click here</a> to create a filter.</p>>
+ end
+else
+ begin
+  f:=TtxFilter.Create;
+  fq:=TtxSqlQueryFragments.Create(itObj);
+  try
+    tc1:=GetTickCount;  
+    f.FilterExpression:=fv.filter;
+	if f.ParseError<>'' then
+	 begin
+	  <<p style="color:red;">>=f.ParseError<</p>>
+	 end;
+	 
+	i:=Session.FilterCache.IndexOf(fv.filter);
+	if i>0 then Session.FilterCache.Delete(i);
+	if i<>0 then Session.FilterCache.Insert(0,fv.filter);
+  
+    tc2:=GetTickCount;
+    <<p class="buttons">
+	<a href="Filter.xxm?filter=[[#fv.filterU]]" class="linkbutton">filter...</a>
+	<a href="FilterBuild.xxm?filter=[[#fv.filterU]]" class="linkbutton">edit filter</a>
+    <a class="linkbutton" href="FrameTree.xxm?filter=[[#fv.filterU]]" target="TreeFrame">tree</a>
+	<a class="linkbutton" href="FrameList.xxm?filter=[[#fv.filterU]]" target="TreeFrame">list</a>
+    <a class="linkbutton" href="Log.xxm?filter=[[#fv.filterU]]">log...</a>
+    <a class="linkbutton" href="Summary.xxm?filter=[[#fv.filterU]]">summary...</a>
+    <a class="linkbutton" href="Modify.xxm?filter=[[#fv.filterU]]">modify...</a>
+	</p>
+	<p>
+	<span id="filterCount">>#lblLoading<</span>
+	<span class="weight">parse: [[=tc2-tc1]]ms</span>>
+	Context.Flush;
+	fq.AddFilter(f);
+    fq.Where:='Obj.rlm_id'+Session.Realms[fv.rp].SQL+' AND ('+fq.Where+')';
+    fq.Fields:='COUNT(*)';
+	fq.OrderBy:='';
+    fs:=fq.SQL;
+  finally
+    f.Free;
+    fq.Free;
+  end;
+  
+  tc3:=GetTickCount;
+  <<span class="weight">build: [[=tc3-tc1]]ms</span>>
+  Context.Flush;
+  qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+  try
+	tc4:=GetTickCount;
+	<<span class="weight">query: [[=tc4-tc3]]ms</span>
+	</p>
+	<p style="font-size:100pt;margin:4pt;font-weight:bold;">>=qr.GetInt(0)<</p>>
+	 
+  finally
+	qr.Free;
+  end;
+ end;
+  
+<<script><!--
+$("#filterCount").remove();
+//--></script>>
+  
+Context.Include('dFoot.xxmi');
+]]

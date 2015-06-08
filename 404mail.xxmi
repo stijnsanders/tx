@@ -1,0 +1,14 @@
+From: tx@yoy.be
+To: [[@txSession]][[#AdministratorEmailAddress]]
+Subject: tx 404 [[=Values[0]]]
+Content-Type: text/html
+
+<html><body>
+<h3>tx 404 Page not found</h3>
+<dl>
+<dt>URL</dt><dd>>=Context.URL<</dd>
+<dt>referer</dt><dd>>=Context.ContextString(csReferer)<</dd>
+<dt>address</dt><dd>[[=Context.ContextString(csRemoteAddress)]] ([[=Context.ContextString(csRemoteHost)]])
+<dt>user</dt><dd>>=Context.ContextString(csAuthUser)<</dd>
+<dt>now</dt><dd>>=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',Now)<</dd>
+</body></html>

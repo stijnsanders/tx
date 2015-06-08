@@ -1,0 +1,853 @@
+[[@Windows,txDefs,SQLiteData,txSession,txFilter,txFilterSql,txCache,txNodes,]][[:
+type
+  TSQLiteStatementX=class(TSQLiteStatement)
+  private
+    Queue:TSQLiteStatementX;
+  end;
+]][[!var
+fv:TtxFilterViewInfo;
+fs1,fs2,s:string;
+f:TtxFilter;
+fq1,fq2:TtxSqlQueryFragments;
+id:integer;
+qr1,qrDsc:TSQLiteStatementX;
+qr2,qrRef,qrTok:TSQLiteStatement;
+tc1,tc2,tc3,tc4,tc5:cardinal;
+d1,d2:TDateTime;
+]][[
+Context.Include('dHead.xxmi',['Summary']);
+GetFilterViewInfo(Context,fv);
+
+if fv.filter='' then
+ begin
+  <<p>No current filter. <a href="FilterBuild.xxm">Click here</a> to create a filter.</p>>
+
+  if Session.FilterCache.Count<>0 then
+   begin
+    <<p class="midnav">recent filters:</p>
+	<ul>>
+	for i:=0 to Session.FilterCache.Count-1 do
+	 begin
+	  <<li><a href="Summary.xxm?f=[[=URLEncode(Session.FilterCache[i])]]">>=Session.FilterCache[i]<</a></li>>
+	 end;
+	<</ul>>
+   end;
+
+ end
+else if Context['go'].AsInteger=0 then
+ begin
+	<<h2>Summary of filter</h2>
+
+	<p><span class="litref">>=fv.filter<</span>
+	  <a class="linkbutton" href="Filter.xxm?filter=[[#fv.filterU]]">filter...</a>
+	  <a class="linkbutton" href="FilterBuild.xxm?filter=[[#fv.filterU]]">build...</a>
+	  <a class="linkbutton" href="FrameTree.xxm?filter=[[#fv.filterU]]" target="TreeFrame">tree</a>
+	  <a class="linkbutton" href="FrameList.xxm?filter=[[#fv.filterU]]" target="TreeFrame">list</a>
+	  <a class="linkbutton" href="Log.xxm?filter=[[#fv.filterU]]">log...</a>
+	</p>
+
+	<style type="text/css"><!--
+		SPAN.objdesc1 { display:none;}
+		SPAN.objpath1 {}
+		SPAN.objpathlabel1 {}
+		SPAN.objtypename1 { display:none; }
+		SPAN.objdate1 {}
+		SPAN.objweight1 {}
+		SPAN.brdateweight {}
+		SPAN.tok1 { display:none; }
+		SPAN.tok2 {}
+		SPAN.tok3 { display:none; }
+		SPAN.ref1 { display:none; }
+		SPAN.ref2 {}
+		SPAN.ref3 { display:none; }
+		SPAN.objnst0 {}
+		SPAN.objnst1 { display:none; }
+		SPAN.objnst2 { display:none; }
+		SPAN.objnst3 { display:none; }
+		SPAN.children0 { }
+		SPAN.children1 { display:none; }
+		SPAN.children2 { display:none; }
+
+		DIV.treestructureOFF {
+			margin: 0em;
+			padding: 0em;
+		}
+		DIV.treestructureON {
+			border-left:0.1em solid #CCCCCC;
+			margin: 0em;
+			padding: 0em;
+			margin-top: -0.6em;
+			padding-top: 0.6em;
+			padding-left: 1em;
+		}
+
+		DIV.toprightbox {
+			position:absolute;
+			left: -1em;
+			width:100%;
+			text-align:right;
+			margin:0em;
+			padding:0em;
+			height:2em;
+		}
+		DIV.objectbox {
+			border-bottom:0.1em solid #CCCCCC;
+			margin-left:0em;
+			margin-right:0em;
+			margin-top:0em;
+			margin-bottom:0.6em;
+			padding: 0em;
+		}
+
+	//--></style>
+	<div style="position: absolute; right: 1em; width: 50%; background-color: white;">
+	<br /><br /><br />
+	<p><b>Preview</b></p>
+	<div style="height: 30em; padding: 1em; border: 2px inset; overflow: hidden;">
+		[[!var i:integer;]]
+		[[
+		for i:=0 to 7 do
+		 begin
+		  if i=1 then
+		   begin
+		    <<div class="treestructureOFF">>
+		   end;
+			<<div class="toprightbox"><span style="background-color:#FFFFFF;">
+			<span class="objtypename1"><span class="small">object type name</span></span>
+			<span class="tok1">
+				<img src="img/ic54.png" width="16" height="16" border="0" align="top" />
+				<img src="img/ic77.png" width="16" height="16" border="0" align="top" />
+			</span>
+
+			<span class="ref1">&nbsp;<img src="img/ic62.png" width="16" height="16" border="0" align="top" /><img src="img/ic0.png" width="16" height="16" border="0" align="top" /></span>
+
+			</span></div>
+			<div class="objectbox">
+				<span class="objpath1">
+				<nobr><img src="img/ic12.png" width="16" height="16" border="0" align="top" /> Main project</nobr><br />
+				<nobr><img src="img/ic10.png" width="16" height="16" border="0" align="top" /> Project [[=i+1]]</nobr><br />
+				</span>
+				<img src="img/ic[[=i]].png" width="16" height="16" border="0" align="top" />
+				<span class="objnst0"><b>Object name</b></span><span class="objnst1"><u>Object name</u></span><span class="objnst2"><i>Object name</i></span><span class="objnst3">Object name</span>
+			<br />
+			<span class="objdesc1">Object description.<br />More information about the object.<br /></span>
+
+			<span class="objpath3">>#lblLocation]] </span><span class="objpath2"><nobr><img src="img/ic12.png" width="16" height="16" border="0" align="top" /> Main project</nobr> &gt; <nobr><img src="img/ic10.png" width="16" height="16" border="0" align="top" /> Project [[=i+1<</nobr>&nbsp;<br /></span>
+			<span class="objdate1">
+				<span class="date">created: [[=DateTimeToStr(Now)]]</span>
+				<span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">
+				<span class="weight">weight: 0</span></span><span class="brdateweight"><br /></span>
+			<span class="tok2">
+				[[#lblTokens]]
+				<img src="img/ic54.png" width="16" height="16" border="0" align="top" />
+				<img src="img/ic77.png" width="16" height="16" border="0" align="top" />
+			</span>
+			<span class="ref2">
+				[[#lblReferences]]
+				<img src="img/ic62.png" width="16" height="16" border="0" align="top" /><img src="img/ic0.png" width="16" height="16" border="0" align="top" />
+				<br />
+			</span>
+			<span class="children1">
+				[[#lblDescendants]]
+				<img src="img/ic0.png" width="16" height="16" border="0" align="top" />
+				<img src="img/ic0.png" width="16" height="16" border="0" align="top" />
+			</span>
+
+			<span class="tok3">
+				<br />
+				<img src="img/ic54.png" width="16" height="16" border="0" align="top" /> token type
+				<span class="objdate1">
+				<span class="date">created: [[=DateTimeToStr(Now)]]</span>
+				<span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">
+				<span class="weight">weight: 0</span></span><br />
+				<img src="img/ic77.png" width="16" height="16" border="0" align="top" /> token type
+				<span class="objdate1">
+				<span class="date">created: [[=DateTimeToStr(Now)]]</span>
+				<span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">
+				<span class="weight">weight: 0</span></span><br />
+				<!-- token comment? -->
+			</span>
+			<span class="ref3">
+				<br />
+				<img src="img/ic62.png" width="16" height="16" border="0" align="top" /><img src="img/ic0.png" width="16" height="16" border="0" align="top" />
+				reference type Object referred to
+				<span class="objdate1">
+				<span class="date">created: [[=DateTimeToStr(Now)]]</span>
+				<span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">
+				<span class="weight">weight: 0</span></span><br />
+			</span>
+
+			<span class="children2">
+				<br />
+				<img src="img/ic0.png" width="16" height="16" border="0" align="top" /> Child object one
+				<span class="objdate1">
+				<span class="date">created: [[=DateTimeToStr(Now)]]</span>
+				<span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">
+				<span class="weight">weight: 0</span></span><br />
+				<img src="img/ic0.png" width="16" height="16" border="0" align="top" />  Child object two
+				<span class="objdate1">
+				<span class="date">created: [[=DateTimeToStr(Now)]]</span>
+				<span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">
+				<span class="weight">weight: 0</span></span><br />
+			</span>
+			</div>>
+
+			if i=2 then
+			 begin
+			  <</div>>
+			 end;
+		 end;
+	<</div>
+	</div>
+
+	<script language="javascript"><!--
+		var ss=document.styleSheets[1];
+		function GetRule(x)
+		{
+			var i=0;
+			var r=(ss.cssRules||ss.rules);
+			while(i<r.length&&r[i].selectorText!=x)i++;
+			if(i==r.length)if(ss.insertRule){ss.insertRule(x+"{display:inline;}",r.length);}else{ss.addRule(x,"display:inline;");}
+			return r[i];
+		}
+		function SetDisplay(rule,x)
+		{
+			rule.style.display=x?"inline":"none";
+		}
+		function DoCheckBox(cb)
+		{
+			SetDisplay(GetRule("SPAN."+cb.id),cb.checked);
+			if(cb.id=="objdate1"||cb.id=="objweight1")SetDisplay(GetRule("SPAN.brdateweight"),document.getElementById("objdate1").checked||document.getElementById("objweight1").checked);
+		}
+		function DoRadioTokRef(rb)
+		{
+			SetDisplay(GetRule("SPAN.tok1"),rb.id=="tokref1"||rb.id=="tokref2");
+			SetDisplay(GetRule("SPAN.tok2"),rb.id=="tokref3");
+			SetDisplay(GetRule("SPAN.tok3"),rb.id=="tokref4"||rb.id=="tokref5");
+			SetDisplay(GetRule("SPAN.ref1"),rb.id=="tokref2");
+			SetDisplay(GetRule("SPAN.ref2"),rb.id=="tokref3");
+			SetDisplay(GetRule("SPAN.ref3"),rb.id=="tokref5");
+		}
+		function DoRadioObjNSt(rb)
+		{
+			for(var i=0;i<4;i++) SetDisplay(GetRule("SPAN.objnst"+i),rb.id==("objnst"+i));
+		}
+		function DoRadioChildren(rb)
+		{
+			for(var i=0;i<3;i++) SetDisplay(GetRule("SPAN.children"+i),rb.id==("children"+i));
+		}
+		function DoRadioObjPath(rb)
+		{
+			SetDisplay(GetRule("SPAN.objpath1"),rb.id=="objpath2");
+			SetDisplay(GetRule("SPAN.objpath2"),rb.id=="objpath3"||rb.id=="objpath4");
+			SetDisplay(GetRule("SPAN.objpath3"),rb.id=="objpath4");
+		}
+
+		function DoCheckBoxClass(cb)
+		{
+			var i;
+			var x=(document.body.getElementsByTagName||document.all.tags)("DIV");
+			for(i=0;i<x.length;i++)
+			{
+				if(x[i].className==cb.id+(!cb.checked?"ON":"OFF"))
+					x[i].className=cb.id+(cb.checked?"ON":"OFF");
+			}
+		}
+	//--></script>
+
+	<form action="Summary.xxm" method="get" id="form1" onsubmit="return default_form_submit(true);">
+		<input type="hidden" name="filter" value="[[=fv.filter]]" />
+		[[if fv.view<>'' then begin <<input type="hidden" name="view" value="[[=fv.view]]" />> end;]]
+		<dl>
+			<dt>Summary Title</dt>
+			<dd><input type="text" name="summarytitle" size="40" value="" /></dd>
+			<dt>
+				<!--
+				<input type="checkbox" name="objname" id="objname1" value="1" onclick="DoCheckBox(this);" checked="1" />
+				<label for="objname1">Object name (and icon)</label>
+				-->
+				Object name
+			</dt>
+			<dd>
+				<input type="radio" name="objnst" id="objnst0" value="0" onclick="DoRadioObjNSt(this);" checked="1" />
+				<label for="objnst0">Bold</label>
+				<br />
+
+				<input type="radio" name="objnst" id="objnst1" value="1" onclick="DoRadioObjNSt(this);" />
+				<label for="objnst1">Underlined</label>
+				<br />
+
+				<input type="radio" name="objnst" id="objnst2" value="2" onclick="DoRadioObjNSt(this);" />
+				<label for="objnst2">Italic</label>
+				<br />
+
+				<input type="radio" name="objnst" id="objnst3" value="3" onclick="DoRadioObjNSt(this);" />
+				<label for="objnst3">Normal</label>
+				<br />
+			</dd>
+			<dt>
+				<input type="checkbox" name="objdesc" id="objdesc1" value="1" onclick="DoCheckBox(this);" />
+				<label for="objdesc1">Object description</label>
+			</dt>
+			<dt>
+				Object location
+			</dt>
+			<dd>
+				<input type="radio" name="objpath" id="objpath1" value="1" onclick="DoRadioObjPath(this);" />
+				<label for="objpath1">Don't display</label>
+				<br />
+
+				<input type="radio" name="objpath" id="objpath2" value="2" onclick="DoRadioObjPath(this);" />
+				<label for="objpath2">Above object name</label>
+				<br />
+				[[//TODO: above, but when not under parent already ]]
+
+				<input type="radio" name="objpath" id="objpath3" value="3" onclick="DoRadioObjPath(this);" />
+				<label for="objpath3">Below object name</label>
+				<br />
+
+				<input type="radio" name="objpath" id="objpath4" value="4" onclick="DoRadioObjPath(this);" checked="1" />
+				<label for="objpath4">Below object name with location icon</label>
+				<br />
+			</dd>
+			<dt>
+				<input type="checkbox" name="treestructure" id="treestructure" value="1" onclick="DoCheckBoxClass(this);" />
+				<label for="treestructure">Display by tree structure</label>
+			</dt>
+			<dt>Object information</dt>
+			<dd>
+				<input type="checkbox" name="objtypename" id="objtypename1" onclick="DoCheckBox(this);" value="1" />
+				<label for="objtypename1">Object type name (top right)</label>
+			</dd>
+			<dd>
+				<input type="checkbox" name="objdate" id="objdate1" value="1" onclick="DoCheckBox(this);" checked="1" />
+				<label for="objdate1">Object's created and modified date</label>
+			</dd>
+			<dd>
+				<input type="checkbox" name="objweight" id="objweight1" value="1" onclick="DoCheckBox(this);" checked="1" />
+				<label for="objweight1">Object's weight</label>
+			</dd>
+			<dt>Tokens &amp; References</dt>
+			<dd>
+				<input type="radio" name="tokref" id="tokref0" value="0" onclick="DoRadioTokRef(this);" />
+				<label for="tokref0">Don't display</label>
+				<br />
+
+				<input type="radio" name="tokref" id="tokref1" value="1" onclick="DoRadioTokRef(this);" checked="1" />
+				<label for="tokref1">Icons only, tokens only (top right)</label>
+				<br />
+
+				<input type="radio" name="tokref" id="tokref2" value="2" onclick="DoRadioTokRef(this);" checked="1" />
+				<label for="tokref2">Icons only, tokens and references (top right)</label>
+				<br />
+
+				<input type="radio" name="tokref" id="tokref3" value="3" onclick="DoRadioTokRef(this);" checked="1" />
+				<label for="tokref3">Small list (one line, icons)</label>
+				<br />
+
+				<input type="radio" name="tokref" id="tokref4" value="4" onclick="DoRadioTokRef(this);" />
+				<label for="tokref4">Full list, tokens only</label>
+				<br />
+
+				<input type="radio" name="tokref" id="tokref5" value="5" onclick="DoRadioTokRef(this);" />
+				<label for="tokref5">Full list, tokens and references</label>
+				<br />
+			</dd>
+			<dt>Children</dt>
+			<dd>
+				<input type="radio" name="children" id="children0" value="0" onclick="DoRadioChildren(this);" checked="1" />
+				<label for="children0">Don't display</label>
+				<br />
+
+				<input type="radio" name="children" id="children1" value="1" onclick="DoRadioChildren(this);" />
+				<label for="children1">Small list (one line, label, icons)</label>
+				<br />
+
+				<input type="radio" name="children" id="children2" value="2" onclick="DoRadioChildren(this);" />
+				<label for="children2">Full list</label>
+				<br />
+			</dd>
+		</dl>
+		<input type="hidden" name="go" value="1" />
+		<p><input type="submit" value="Render summary" id="formsubmitbutton" class="formsubmitbutton" /></p>
+	</form>
+	<script language="javascript"><!--
+		var oldOnLoad;
+		function SetDisplayAll()
+		{
+			var i;
+			var f=document.getElementById("form1").elements;
+			for(i=0;i<f.length;i++)if(f.item(i).onclick!=null && (f.item(i).type=="checkbox" || f.item(i).checked))f.item(i).click();
+			if(oldOnLoad)oldOnLoad(document.body);
+		}
+		oldOnLoad=document.body.onload;
+		document.body.onload=SetDisplayAll;
+	//--></script>>
+ end
+else
+ begin
+
+]][[!var
+  objdate,objweight,objtypename,bytree,justonce:boolean;
+  dspChildren,tokref,objpath:byte;
+  c:cardinal;
+  nlist:TIdList;
+  LocationCache:TItemCache;
+  n:TLocationNode;
+const
+  objnstPrefix:array[0..3] of string=('<b>','<u>','<i>','');
+  objnstSuffix:array[0..3] of string=('</b>','</u>','</i>','');
+]][[
+
+	objdate:=Context['objdate'].AsInteger=1;
+	objweight:=Context['objweight'].AsInteger=1;
+	objtypename:=Context['objtypename'].AsInteger=1;
+	dspChildren:=Context['children'].AsInteger;
+	tokref:=Context['tokref'].AsInteger;
+	bytree:=Context['treestructure'].AsInteger=1;
+	objpath:=Context['objpath'].AsInteger;
+	justonce:=true;
+	c:=0;
+	nlist:=nil;
+
+	//add to filter cache
+	i:=Session.FilterCache.IndexOf(fv.filter);
+	if (i>0) then Session.FilterCache.Delete(i);
+	if (i<>0) then Session.FilterCache.Insert(0,fv.filter);
+
+	<<p>
+	<span class="small">
+	<span id="filterCount">...</span>
+	in filter "<span class="litref">>=fv.filter<</span>"
+	</span>>
+	Context.Flush;
+
+  f:=TtxFilter.Create;
+  fq1:=TtxSqlQueryFragments.Create(itObj);
+  try
+    tc1:=GetTickCount;
+	f.FilterExpression:=fv.filter;
+	if f.ParseError<>'' then
+	 begin
+	  <<p style="color:red;">>=f.ParseError<</p>>
+	 end;
+    tc2:=GetTickCount;
+	<<span class="weight">parse: [[=tc2-tc1]]ms</span>>
+	Context.Flush;
+	fq1.AddFilter(f);
+	if fq1.Where='' then
+	  fq1.Where:='Obj.rlm_id'+Session.Realms[fv.rp].SQL
+	else
+	  fq1.Where:='Obj.rlm_id'+Session.Realms[fv.rp].SQL+' AND ('+fq1.Where+')';
+	fs1:=fq1.SQL;
+  finally
+	f.Free;
+	fq1.Free;
+  end;
+
+  tc3:=GetTickCount;
+  <<span class="weight">build: [[=tc3-tc1]]ms</span>>
+  Context.Flush;
+  fq1:=nil;
+  qr1:=TSQLiteStatementX.Create(Session.DbCon,fs1);
+  LocationCache:=TItemCache.Create;
+  try
+    qr1.Queue:=nil;
+	tc4:=GetTickCount;
+	<<span class="weight">query: [[=tc4-tc3]]ms</span>>
+	Context.Flush;
+
+	if bytree then
+	 begin
+	  tc5:=GetTickCount;
+
+	  //re-work id-list for structure
+	  nlist:=TIdList.Create;
+	  while qr1.Read and Context.Connected do nlist.Add(qr1.GetInt('id'));
+	  qr1.Free;
+	  i:=0;
+	  while (i<nlist.Count) and Context.Connected do
+	   begin
+	    qrDsc:=TSQLiteStatementX.Create(Session.DbCon,'SELECT pid FROM Obj WHERE id=?',[nlist[i]]);
+		try
+		  while qrDsc.Read and Context.Connected do
+		    nlist.Add(qrDsc.GetInt('pid'));
+		  //TODO: unique in list
+		finally
+		  qrDsc.Free;
+		end;
+		inc(i);
+	   end;
+
+	  //start with root element
+	  fq1:=TtxSqlQueryFragments.Create(itObj);
+	  fs1:=fq1.Where;
+	  fq1.AddWhere('Obj.pid=0 AND Obj.id IN ('+nlist.List+')');
+	  qr1:=TSQLiteStatementX.Create(Session.DbCon,fq1.SQL);
+	  qr1.Queue:=nil;
+
+	  <<span class="weight">structure: [[=tc5-tc4]]ms</span>>
+	  Context.Flush;
+	 end;
+
+	  <<span class="htmlcontrol" style="border:2px outset;cursor:default;" onclick="window.print();" onmousedown="this.style.border='2px solid #CCCCCC';this.style.cursor='wait';"> print... </span>
+	</p>
+
+	<style type="text/css"><!--
+		DIV.summaryRight {
+			position:absolute;
+			left: -1em;
+			width: 100%;
+			text-align:right;
+			padding: 0em;
+			font-size: x-small;
+		}
+		SPAN.summaryRightItem {
+			padding: 0.1em 0.1em 0.1em 0.6em;
+			background-color:#FFFFFF;
+		}
+		DIV.summaryItem {
+			border-bottom: 0.1em solid #CCCCCC;
+			margin: 0em;
+			padding: 0.2em 0em 0.2em 0em;
+		}
+		DIV.treelevel	{
+			border-left:0.1em solid #CCCCCC;
+			margin: 0em;
+			padding: 0em 0em 0em 1.2em;
+		}
+	//--></style>>
+
+	s:=Context['summarytitle'].Value;
+	if s<>'' then
+	 begin
+	  <<h2>>=s<</h2>>
+	 end;
+
+	while (bytree or justonce) and Context.Connected do
+	 begin
+	  justonce:=false;
+
+		while qr1.Read and Context.Connected do
+		 begin
+			id:=qr1.GetInt('id');
+
+			//display object, first top right box if needed
+			if (tokref in [1,2]) or objtypename then
+			 begin
+				<<div class="summaryRight"><span class="summaryRightItem">>
+				//object type name
+				if objtypename then Context.Send(qr1['typename']);
+				if (tokref in [1,2]) and Context.Connected then
+				 begin
+					//tokens, icons
+					qrTok:=TSQLiteStatement.Create(Session.DbCon,'SELECT TokType.icon FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
+					try
+					  if not(qrTok.EOF) then Context.SendHTML('&nbsp;');
+					  while qrTok.Read and Context.Connected do
+					    Context.SendHTML(txImg(qrTok.GetInt('icon')));
+					finally
+					  qrTok.Free;
+					end;
+				 end;
+				if (tokref=2) and Context.Connected then
+				 begin
+					//references, icons
+					qrRef:=TSQLiteStatement.Create(Session.DbCon,
+					  'SELECT RefType.icon, ObjType.icon AS objicon FROM Ref '+
+					  'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
+					  'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+
+					  'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+					  'WHERE Ref.obj1_id=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' '+
+					  'ORDER BY Ref.weight, Obj.weight',[id]);
+					try
+					  while qrRef.Read and Context.Connected do
+					   begin
+					    Context.SendHTML('&nbsp;');
+					    Context.SendHTML(txImg(qrRef.GetInt('icon')));
+						Context.SendHTML(txImg(qrRef.GetInt('objicon')));
+					   end;
+					finally
+					  qrRef.Free;
+					end;
+				 end;
+				<</span></div>>
+			 end;
+
+			//main object display
+			<<div class="summaryItem">
+			<p class="summaryItemTitle">>
+			//TODO: extra formatting?
+			if objpath=2 then
+			 begin
+			  //get location
+			  s:='';
+              i:=qr1.GetInt('pid');
+              while (i<>0) and Context.Connected do
+               begin
+                n:=LocationCache[i] as TLocationNode;
+                if n=nil then n:=LocationCache.Add(i,TLocationNode.Create(itObj,i))  as TLocationNode;
+                s:=n.GetHTML([ghIcon,ghName],i)+'<br />'+s;
+               end;
+			  Context.SendHTML(s);
+			 end;
+			]]
+			[[#txImg(qr1.GetInt('icon'))]]
+			[[#objnstPrefix[Context['objnst'].AsInteger]]]
+			[[,name]]
+			[[#objnstSuffix[Context['objnst'].AsInteger]]]
+			</p>>
+			if Context['objdesc'].AsInteger=1 then
+			  Context.SendHTML(qr1.GetStr('desc'));
+			//TODO: do wiki links
+			//TODO: extra formatting?
+			if objpath in [3,4] then
+			 begin
+			  <<p>>
+			  if objpath=4 then
+			   begin
+			    Context.SendHTML(lblLocation);
+				Context.SendHTML(' ');
+			   end;
+			  //get location
+			  s:='';
+              i:=qr1.GetInt('pid');
+              while (i<>0) and Context.Connected do
+               begin
+                n:=LocationCache[i] as TLocationNode;
+                if n=nil then n:=LocationCache.Add(i,TLocationNode.Create(itObj,i))  as TLocationNode;
+              	if s<>'' then s:=' &gt; '+s;
+                s:=n.GetHTML([ghIcon,ghName],i)+s;
+               end;
+			  Context.SendHTML(s);
+			  <</p>>
+			 end;
+			if objdate or objweight then Context.SendHTML('<p>');
+			if objdate then
+			 begin
+			  ]]
+			  <span class="date">created on [[=NiceDateTime(qr1['c_ts'])]]</span>
+			  <span class="date">modified on [[=NiceDateTime(qr1['m_ts'])]]</span>
+			  [[
+			 end;
+			if objweight then
+			 begin
+			  ]]
+			  <span class="weight">weight: [[,weight]]</span>
+			  [[
+			 end;
+			if objdate or objweight then Context.SendHTML('</p>');
+			if (tokref=3) and Context.Connected then
+			 begin
+			  //tokens and references one-line list
+			  Context.SendHTML('<p>');
+			  qrTok:=TSQLiteStatement.Create(Session.DbCon,'SELECT TokType.icon FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
+			  try
+			    if not(qrTok.EOF) then
+				 begin
+				  Context.SendHTML(#13#10);
+				  Context.SendHTML(lblTokens);
+				 end;
+			    while qrTok.Read and Context.Connected do
+				 begin
+				  Context.SendHTML(' ');
+				  Context.SendHTML(txImg(qrTok.GetInt('icon')));
+				 end;
+			  finally
+			    qrTok.Free;
+			  end;
+			  qrRef:=TSQLiteStatement.Create(Session.DbCon,
+				'SELECT RefType.icon, ObjType.icon AS objicon FROM Ref '+
+				'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
+				'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+
+				'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+				'WHERE Ref.obj1_id=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' '+
+				'ORDER BY Ref.weight, Obj.weight',[id]);
+			  try
+				if not(qrRef.EOF) then
+				 begin
+				  Context.SendHTML(#13#10);
+				  Context.SendHTML(lblReferences);
+				 end;
+				while qrRef.Read and Context.Connected do
+				 begin
+				  Context.SendHTML(' ');
+				  Context.SendHTML(txImg(qrRef.GetInt('icon')));
+				  Context.SendHTML(txImg(qrRef.GetInt('objicon')));
+				 end;
+			  finally
+				qrRef.Free;
+			  end;
+			  Context.SendHTML('</p>');
+			 end;
+
+			if (dspChildren=1) and Context.Connected then
+			 begin
+			  //children list, icons only
+			  qrDsc:=TSQLiteStatementX.Create(Session.DbCon,sqlObjsByPid,[id]);
+			  try
+			    while qrDsc.Read and Context.Connected do
+				  Context.SendHTML(txImg(qrDsc.GetInt('icon')));
+			  finally
+			    qrDsc.Free;
+			  end;
+			 end;
+
+			if (tokref in [4,5]) and Context.Connected then
+			 begin
+			  //tokens, full
+			  qrTok:=TSQLiteStatement.Create(Session.DbCon,'SELECT TokType.icon FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
+			  try
+			    while qrTok.Read and Context.Connected do
+				 begin
+				  <<p>
+				  [[#txImg(qrTok['icon'])]]
+				  [[=qrTok['name']]]
+				  [[
+					if objdate then
+					 begin
+					  ]]
+					  <span class="date">created on [[=NiceDateTime(qrTok['c_ts'])]]</span>
+					  <span class="date">modified on [[=NiceDateTime(qrTok['m_ts'])]]</span>
+					  [[
+					 end;
+					if objweight then
+					 begin
+					  ]]
+					  <span class="weight">weight: [[=qrTok['weight']]]</span>
+					  [[
+					 end;
+				  <</p>>
+				  Context.SendHTML(qrTok.GetStr('desc'));//TODO: SafeHTML
+				 end;
+			  finally
+			    qrTok.Free;
+			  end;
+			 end;
+
+			if (tokref=5) and Context.Connected then
+			 begin
+			  //references, full
+			  qrRef:=TSQLiteStatement.Create(Session.DbCon,
+				'SELECT RefType.icon, ObjType.icon AS objicon FROM Ref '+
+				'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
+				'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+
+				'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+				'WHERE Ref.obj1_id=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' '+
+				'ORDER BY Ref.weight, Obj.weight',[id]);
+			  try
+			    while qrRef.Read and Context.Connected do
+				 begin
+				  <<p>
+				  [[#txImg(qrRef['icon'])]]
+				  [[=qrRef['typename']]]
+				  [[#txImg(qrRef['objicon'])]]
+				  [[=qrRef['name']]]
+				  [[
+					if objdate then
+					 begin
+					  ]]
+					  <span class="date">created on [[=NiceDateTime(qrRef['c_ts'])]]</span>
+					  <span class="date">modified on [[=NiceDateTime(qrRef['m_ts'])]]</span>
+					  [[
+					 end;
+					if objweight then
+					 begin
+					  ]]
+					  <span class="weight">weight: [[=qrRef['weight']]]</span>
+					  [[
+					 end;
+				  <</p>>
+				  Context.SendHTML(qrRef.GetStr('desc'));//TODO: SafeHTML
+				 end;
+			  finally
+			    qrRef.Free;
+			  end;
+			 end;
+
+			if (dspChildren=2) and Context.Connected then
+			 begin
+			  //children, full
+			  qrDsc:=TSQLiteStatementX.Create(Session.DbCon,sqlObjsByPid,[id]);
+			  try
+			    while qrDsc.Read and Context.Connected do
+				 begin
+				  <<p>
+				  [[#txImg(qrDsc.GetInt('icon'))]]
+				  [[=qrDsc['name']]]
+				  [[
+					if objdate then
+					 begin
+					  ]]
+					  <span class="date">created on [[=NiceDateTime(qrDsc['c_ts'])]]</span>
+					  <span class="date">modified on [[=NiceDateTime(qrDsc['m_ts'])]]</span>
+					  [[
+					 end;
+					if objweight then
+					 begin
+					  ]]
+					  <span class="weight">weight: [[=qrDsc['weight']]]</span>
+					  [[
+					 end;
+					//Context.SendHTML(qrObj['desc']);//TODO: SafeHTML
+                    <</p>>
+				 end;
+			  finally
+			    qrDsc.Free;
+			  end;
+			 end;
+
+			//end div class="summaryItem
+			inc(c);
+			<</div>>
+
+			if bytree then
+			 begin
+			  fq1.Where:=fs1;
+			  fq1.AddWhere('Obj.pid='+IntToStr(id)+' AND Obj.id IN ('+nlist.List+')');
+			  qrDsc:=TSQLiteStatementX.Create(Session.DbCon,fq1.SQL);
+			  if qrDsc.EOF then
+			   begin
+			    //no children
+			    qrDsc.Free;
+			   end
+			  else
+			   begin
+			    //children, push
+				qrDsc.Queue:=qr1;
+				qr1:=qrDsc;
+				<<div class="treelevel">>
+			   end;
+			 end;
+
+		 end;//while qr1.Read
+
+	    if qr1.EOF then
+		  if qr1.Queue=nil then bytree:=false else
+		   begin
+			//pop, close div treelevel
+			<</div>>
+			qrDsc:=qr1;
+			qr1:=qr1.Queue;
+			qrDsc.Free;
+		   end;
+
+	 end;//while justonce or bytree
+
+  finally
+    qr1.Free;
+	if nlist<>nil then nlist.Free;
+	if fq1<>nil then fq1.Free;
+    LocationCache.Free;
+  end;
+
+  <<p>&nbsp;</p>
+  <script><!--
+  $("#filterCount").html("[[=c]] objects found");
+  //--></script>>
+
+
+ end;
+
+Context.Include('dFoot.xxmi');
+]]

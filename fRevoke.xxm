@@ -1,0 +1,39 @@
+[[@txDefs,SQLiteData,txSession,txTerms,]][[!var
+id,d,oid:integer;
+qr:TSQLiteStatement;
+]][[
+Context.Include('dHead.xxmi',['Revoke report']);
+<<h2>Revoke report</h2>>
+
+id:=Context['id'].AsInteger;
+if Use_Terms then d:=TermStore.GetDomainID(id) else d:=0;
+qr:=TSQLiteStatement.Create(Session.DbCon,
+  'SELECT Rpt.id, Rpt.obj_id, Rpt.[desc], Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id, '+
+  '  UsrObj.id AS [usrid], UsrObj.[name] AS [usrname], UsrObjType.[icon] AS [usricon], UsrObjType.[name] AS [usrtypename], '+
+  '  RelTokType.[icon] AS [tokicon], RelTokType.[name] AS [tokname], RelTokType.[system] AS [toksystem], '+
+  '  RelRefType.[icon] AS [reficon], RelRefType.[name] AS [refname], '+
+  '  RelObj.[name] AS [relname], RelObjType.[icon] AS [relicon], RelObjType.[name] AS [reltypename], '+
+  '  ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+  'FROM Rpt '+
+  '  INNER JOIN Obj AS UsrObj ON UsrObj.id=Rpt.uid '+
+  '  INNER JOIN ObjType AS UsrObjType ON UsrObjType.id=UsrObj.objtype_id '+
+  '  LEFT OUTER JOIN Obj AS RelObj ON RelObj.id=Rpt.obj2_id '+
+  '  LEFT OUTER JOIN ObjType AS RelObjType ON RelObjType.id=RelObj.objtype_id '+
+  '  LEFT OUTER JOIN TokType AS RelTokType ON RelTokType.id=Rpt.toktype_id '+
+  '  LEFT OUTER JOIN RefType AS RelRefType ON RelRefType.id=Rpt.reftype_id '+
+  '  LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Rpt.obj2_id '+
+  'WHERE Rpt.id=?',[id]);
+try
+  oid:=qr.GetInt('obj_id');
+  Context.Include('dReport.xxmi',[d,false],[qr]);
+finally
+  qr.Free;
+end;
+]]
+[[#txForm('aRevoke.xxm',['id',id],'confirm("Are you sure to permanently delete this report?")')]]
+[[#txFormProtect]]
+<input type="submit" value="Revoke report" id="formsubmitbutton" class="formsubmitbutton" />
+<a href="Item.xxm?x=i[[=oid]]#rpt[[=id]]">back</a>
+</form>>
+Context.Include('dFoot.xxmi');
+]]

@@ -1,0 +1,101 @@
+[[@txDefs,SQLiteData,txFilter,txSession,]][[!var
+  ItemType:TtxItemType;
+  IDType:TtxFilterIDType;
+  ID:string;
+  qr:TSQLiteStatement;
+  InView:boolean;
+const
+  ImgSuffix:array[boolean] of string=('0','1');
+]]
+[[
+//take TtxFilterElement parameter?
+ItemType:=TtxItemType(integer(Values[0]));
+IDType:=TtxFilterIDType(integer(Values[1]));
+ID:=string(Values[2]);
+
+  case IDType of
+    dtNumber:
+      case ItemType of
+        itObj:
+          if (ID='') or (ID='0') then
+            Context.SendHTML(txImg(-1)+' <i>none</i>')
+          else
+           begin
+            qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[StrToInt(ID)]);
+            try
+              if qr.Read then
+			   begin
+                <<a href="Item.xxm?x=i[[.id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
+			   end
+              else
+			   begin
+			    ]][[#txImg(-1)]]&nbsp;<i>?[[=txItemTypeName[ItemType]]]?[[=ID<</i>>
+			   end;
+            finally
+              qr.Free;
+            end;
+           end;
+        itObjType,itTokType,itRefType:
+          if ID='0' then
+            Context.SendHTML(txImg(-1)+' <i>none</i>')
+          else
+           begin
+		    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, icon, name FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[StrToInt(ID)]);
+            try
+               if qr.Read then
+                 Context.Include('dTypeLink.xxmi',[ItemType],[qr])
+               else
+                 Context.SendHTML(txImg(-1)+' <i>?'+txItemTypeName[ItemType]+'?'+ID+'</i>');
+            finally
+              qr.Free;
+            end;
+           end;
+
+		//itFilter
+        itRealm:
+		 begin
+          InView:=true;
+          try
+            Session.HasRealmPermission(rpView,StrToInt(ID));
+          except
+            on ERealmNotEditableByUser do InView:=false;
+          end;
+		  <<img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16" [[#globalIconAlign]]/>>
+          if ID='0' then
+            Context.SendHTML(' <i>default realm</i>')
+          else
+           begin
+            qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT name FROM Rlm WHERE id=?',[StrToInt(ID)]);
+            try
+               if qr.Read then
+                 Context.SendHTML(qr.GetStr('name'))
+               else
+                 Context.SendHTML('<i>?'+txItemTypeName[ItemType]+'?'+ID+'</i>');
+            finally
+              qr.Free;
+            end;
+           end;
+		 end;
+
+        it_Unknown:;//irrelevant, don't display
+        else Context.Send(' ['+ID+']');//default
+      end;
+    dtSystem:
+     begin
+      ]]"<span class="litref">>=ID<</span>"[[
+     end;
+    dtSubQuery:
+     begin
+      <<i>by sub-query</i> <span class="litref">>=ID<</span>
+	  <a href="Filter.xxm?filter=[[=URLEncode(ID)]]" class="linkbutton">filter</a>
+	  <a href="FilterBuild.xxm?filter=[[=URLEncode(ID)]]" class="linkbutton">build</a>
+	  [[
+      //TODO: link to FilterBuild? (and update link back?)
+     end;
+	dtEnvironment:
+	 begin
+	  <<span class="sysref">>=ID<</span>>
+	 end;
+  end;
+
+]]

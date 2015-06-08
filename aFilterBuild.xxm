@@ -1,0 +1,52 @@
+[[@txDefs,txSession,txFilter,txFilterSql,]][[!
+var
+  filter,x:string;
+  id:integer;
+]][[
+filter:=Context['filter'].Value;
+x:=Context['x'].Value;
+
+if x='edit' then
+ begin
+  //checks? just redirect below will do
+ end
+else
+{else
+ begin
+  ]]
+  <p>Unknown action <b>>=x<</b></p>
+  <dl>
+  [[
+  for i:=0 to Context.ParameterCount-1 do with Context[i] do
+   begin
+    ]]<dt>>=Name<</dt><dd>>=Value<</dd>[[
+   end;
+  ]]
+  </dl>
+  [[
+ end}
+if (x='rx') or (x='rxr') then
+ begin
+  filter:=filter+
+    Context['oper'].Value+
+	x+
+	Context['obj'].Value+
+	Context['flags'].Value;
+  id:=Context['reftype'].AsInteger;
+  Session.AddFilterRecent(itRefType,id);
+  if (id>0) then
+    filter:=filter+'[rt'+IntToStr(id)+Context['tflags'].Value+']';
+ end
+else
+ begin
+  id:=Context['item'+x].AsInteger;
+  Session.AddFilterRecent(TtxFilter.GetActionItemType(x),id);
+  filter:=filter+
+    Context['oper'].Value+
+	x+
+	IntToStr(id)+
+	Context['flags'].Value;
+ end;
+
+Context.Redirect('FilterBuild.xxm?filter='+URLEncode(filter),true);
+]]

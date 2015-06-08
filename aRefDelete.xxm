@@ -1,0 +1,40 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+id,objid,weight:integer;
+url:string;
+qr:TSQLiteStatement;
+]][[
+
+CheckFormProtect(Context);
+id:=Context['id'].AsInteger;
+
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT obj1_id, weight FROM Ref WHERE id=?',[id]);
+try
+  objid:=qr.GetInt('obj1_id');
+  weight:=qr.GetInt('weight');
+finally
+  qr.Free;
+end;
+
+//check realm
+Session.HasRealmPermission(rpEdit,
+  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew));
+
+Session.DbCon.Execute('BEGIN TRANSACTION');
+try
+
+	Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['r'+IntToStr(id)]);
+	Session.DbCon.Execute('DELETE FROM Ref WHERE id=?',[id]);
+	if weight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id=?',[-weight,objid]);
+	if Use_ObjTokRefCache then Context.Include('aObjTokRefCache.xxmi',[objid]);
+
+    Session.DbCon.Execute('COMMIT TRANSACTION');
+except
+    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    raise;
+end;
+
+Session.UpdateID:=objid;
+
+url:='Item.xxm?x=i'+IntToStr(objid);
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

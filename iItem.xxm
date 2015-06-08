@@ -1,0 +1,48 @@
+[[@txDefs,txSession,SQLiteData,]][[!var
+qr:TSQLiteStatement;
+ItemType:TtxITemType;
+ItemID:integer;
+name:string;
+hasChildren,preExpand,highlight:boolean;
+]][[
+
+{
+ATTENTION!!!
+Calls over XMLHTTP start a new session,
+if needed, rig xxmp to get the session from a SessionID request parameter, in favour of the Context.SessionID
+}
+
+CheckCallProtect(Context);
+txItem(Context['x'].Value,ItemType,ItemID);
+name:=Context['name'].Value;
+
+if ItemType=itObj then
+ begin
+	qr:=TSQLiteStatement.Create(Session.DbCon,
+	  'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+      'FROM Obj '+
+      'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+      'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
+      'WHERE Obj.id=?',[ItemID]);
+	try
+	  hasChildren:=Session.DbCon.Execute('SELECT id FROM Obj WHERE pid=? LIMIT 1',[ItemID]);
+	  preExpand:=false;//TODO: get from caller?
+	  highlight:=false;
+	  Context.Include('iFrameObj.xxmi',[name,ItemID,hasChildren,preExpand,highlight],[qr]);
+	finally
+	  qr.Free;
+	end;
+ end
+else
+ begin
+	qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[ItemID]);
+	try
+	  hasChildren:=Session.DbCon.Exists('SELECT id FROM '+txItemTypeTable[ItemType]+' WHERE pid=? LIMIT 1',[ItemID]);
+	  preExpand:=false;//TODO: get from caller?
+	  highlight:=false;
+	  Context.Include('iFrameType.xxmi',[name,ItemType,ItemID,hasChildren,preExpand,highlight],[qr]);
+	finally
+	  qr.Free;
+	end;
+ end;
+]]

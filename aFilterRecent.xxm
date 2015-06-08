@@ -1,0 +1,4 @@
+[[@txSession,]][[
+Session.FilterCache.Delete(Context['drf'].AsInteger);
+Context.Redirect('Filter.xxm',true);
+<<a href="Filter.xxm">back</a>

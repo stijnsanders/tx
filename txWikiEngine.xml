@@ -1,0 +1,185 @@
+<wikiparse>
+	<group>
+	
+		Force Safe HTML
+		<include>txSafeHTML.xml</include>
+	
+		Escape existing escape codes
+		<replace><pattern>@@</pattern><with>@@k%</with></replace>
+		Empty double or triple quotes used for invisibility
+		<replace><pattern>''''('')?</pattern><with>&lt;span&gt;&lt;/span&gt;</with></replace>
+		Ignore sensitive tags
+		<extract>
+			<pattern>&lt;(a|xmp|nowiki)[\s&gt;][\u0000-\uFFFF]+?&lt;/\1&gt;</pattern>
+			<prefix>%A%</prefix>
+			<inbetween>
+				<extract>
+					<pattern>&amp;#?[A-Za-z0-9]+;</pattern>
+					<prefix>%B%</prefix>
+					<inbetween>
+						<extract>
+							Anything enclosed in double square brackets
+							<pattern>\[\[([\u0000-\uFFFF]+?)\]\]</pattern>
+							<prefix>%C%</prefix>
+							<match>
+								<submatch><number>1</number></submatch>
+								<jump>ParseLink</jump>
+							</match>
+							<inbetween>
+								Ignore existing tags
+								<extract>
+									<pattern>&lt;[^&gt;]*?&gt;</pattern>
+									<prefix>%D%</prefix>
+									<inbetween>
+										<jump>PickUpTerms</jump>
+									</inbetween>
+								</extract>
+							</inbetween>
+						</extract>
+					</inbetween>
+				</extract>
+			</inbetween>
+		</extract>
+<!--see below, done by wiki checker		
+		Term links
+		<replace><pattern>@@w%</pattern><with>Term.xxm?d=&amp;amp;n=</with></replace>
+		<replace><pattern>@@e%</pattern><with>fTerm.xxm?d=&amp;amp;n=</with></replace>
+-->		
+		Raw HTML postponed to here to not disturb original layout
+		<replace><pattern>@@h(.+?)%</pattern><with>&lt;$1&gt;</with></replace>
+		Unescape escaped existing escapes
+		<replace><pattern>@@k%</pattern><with>@@</with></replace>
+	</group>
+	
+	Tweak this expression to define which notation is picked up as terms.
+	<extract id="PickUpTerms">
+		<pattern>([A-Za-z_][A-Za-z0-9_]*?[A-Z0-9][A-Za-z0-9_]*)</pattern>
+		<prefix>%E%</prefix>
+		<ignorecase>0</ignorecase>
+		<match>
+			<jump>ParseLink</jump>
+		</match>
+	</extract>
+
+	<group id="ParseLink">
+		Check SisterWiki prefixes
+		<!--<include>sisterwikis.xml</include>-->
+		Replace arrow notation by pipe notation
+        <replace><pattern>^([^\|]*?) *?-?&gt; *([\u0000-\uFFFF]*)$</pattern><with>$2|$1</with></replace>
+		Check External URL's
+		<check>
+			<pattern>^([/#]|(http|https|file|ftp|ldap|mailto|news|nntp|ed2k|rlogin|shell|snews|svn|svn+ssh|telnet|tsvn):|[-a-z0-9\.]+?@[-a-z0-9\.]+?\.[a-z]{2,3}\b|[-a-z0-9\.]+?\.[-a-z0-9]+?\.[a-z]{2,3}/?)</pattern>
+			<do>
+				<replaceif>
+					<pattern>^#(([\u0000-\uFFFF]*) *\| *?([\u0000-\uFFFF]*)|([\u0000-\uFFFF]+))$</pattern>
+					<with>&lt;a name="$2$4"&gt;$3@@h/a%</with>
+					<else>
+						<jump>HyperLink</jump>
+					</else>
+				</replaceif>
+			</do>
+			<else>Else it's a term,
+				Check for a () portion
+				<replace>
+					<pattern>^(.*?)\((.*?)\)(.*?)$</pattern>
+					<with>$1$2$3|$1$3</with>
+				</replace>
+				Check if the term exists or not and link appropriately
+				<wiki>
+					Ignore anything trailing delimited by pipe
+					<pattern>( *\|.*)$</pattern>
+					<with></with>
+					Catch any updates 
+					<update>1</update>
+					<updateprefix>####</updateprefix>
+					<found>
+						<prepend>wikilink##</prepend>
+						<jump>SomeLink</jump>
+					</found>
+					<missing>
+				        <prepend>newwiki##</prepend>
+				        <jump>SomeLink</jump>
+					</missing>
+					<!--
+					<updateprefix>@@u%</updateprefix>
+					<updatedo>
+						<replaceif>
+							<pattern>^(.*?)@@u%.+?(\|)</pattern>
+							<with>$1$2</with>
+							<else>
+								<replace><pattern>@@u%</pattern><with>|</with></replace>
+							</else>
+						</replaceif>
+					</updatedo>
+					<found>
+						<prepend>wikilink##@@w%####</prepend>
+						<jump>SomeLink</jump>
+					</found>
+					<missing>
+				        <prepend>newwiki##@@e%##@@hspan%?@@h/span%##</prepend>
+				        <jump>SomeLink</jump>
+					</missing>
+					-->
+				</wiki>
+			</else>
+		</check>
+	</group>
+    
+    <group id="HyperLink">
+		Check if it's an e-mail address
+		<check>
+			<pattern>^[-a-z0-9\.]+?@[-a-z0-9\.]+?\.[a-z]{2,3}\b</pattern>
+			<do>
+				<prepend>hyperlink##mailto:####</prepend>
+			</do>
+			<else>
+				Check if it starts with something like www.site.tld
+				<check>
+					<pattern>^[-a-z0-9\.]+?\.[-a-z0-9]+?\.[a-z]{2,3}/?</pattern>
+					<do>
+						<prepend>hyperlink##http://####</prepend>
+					</do>
+					<else>
+						<prepend>hyperlink######</prepend>
+					</else>
+				</check>
+			</else>
+		</check>
+		<jump>SomeLink</jump>
+	</group>
+
+    Display some link, prefix text with: class##prefix##suffix##
+    <group id="SomeLink">
+        HTMLEncode up front!
+        <htmlencode></htmlencode>
+        Ending tags /a are in code here to pick-up a plain EOL later
+        Check if a caption or title is provided, first with both name and title
+        <replaceif>
+			<pattern>^(.+?)##(.*?)##(.*?)##([^\|]*?) *?\| *?([^\|]*?) *?\| *([\u0000-\uFFFF]*)$</pattern>
+			<with>&lt;a href="$2[[$4]]" title="$6" class="$1"&gt;$5$3@@h/a%</with>
+			<else>
+				With pipe "|"
+				<replaceif>
+					<pattern>^(.+?)##(.*?)##(.*?)##([^\|]*?) *?\| *([\u0000-\uFFFF]*)$</pattern>
+					<with>&lt;a href="$2[[$4]]" title="$4" class="$1"&gt;$5$3@@h/a%</with>
+					<else>
+						Else take target as display name
+						<replace>
+							<pattern>^(.+?)##(.*?)##(.*?)##([\u0000-\uFFFF]*)$</pattern>
+							<with>&lt;a href="$2[[$4]]" title="$4" class="$1"&gt;$4$3@@h/a%</with>
+						</replace>
+					</else>
+				</replaceif>
+            </else>
+		</replaceif>		
+		URLEncode sections enclosed in [[]]
+		<split>
+			<pattern>\[\[([\u0000-\uFFFF]+?)\]\]</pattern>
+			<match>
+				<submatch><number>1</number></submatch>
+				<urlencode></urlencode>
+			</match>
+		</split>		
+    </group>
+
+</wikiparse>

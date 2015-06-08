@@ -1,0 +1,46 @@
+[[@txDefs,SQLiteData,txSession,Variants,]][[!var
+id:integer;
+qr:TSQLiteStatement;
+msg:string;
+IsAdmin:boolean;
+]][[
+Context.Include('dHead.xxmi',['Account Password']);
+
+id:=Context['id'].AsInteger;
+msg:=Context['msg'].Value;
+
+  IsAdmin:=Session.IsAdmin('logins');
+
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Usr WHERE id=?',[id]);
+  try
+    if not(IsAdmin) and (qr.GetInt('uid')<>Session.UserID) then
+      raise Exception.Create('Updating accounts other than own is only allowed by login-admininistrator.');
+    <<h2>Account Password</h2>>
+    if msg<>'' then
+     begin
+      <<p class="information">>=msg<</p>>
+     end;
+	<<script><!--
+	[[Context.Include('iLogonJS.xxmi');]]
+	//--></script>
+    [[#txForm('aUserPwd.xxm',['id',id,'uid',qr['uid']])]]
+    [[#txFormProtect]]
+    <dl>
+    <dt>Login</dt><dd>>.login<</dd>>
+    if not(IsAdmin) and (VarToStr(qr.GetDefault('pwd',''))<>'') then
+    begin
+    <<dt>Old password</dt><dd><input type="password" name="pwd0" value="" /></dd>>
+    end;
+    <<dt>New password</dt><dd><input type="password" name="pwd1" value="" onkeyup="pwd1Check(this.value);" onchange="pwd1Check(this.value);" />
+	    <span id="pwd1Check"></span></dd>
+    <dt>Confirm</dt><dd><input type="password" name="pwd2" value="" onkeyup="pwd2Check(this.value);" onchange="pwd2Check(this.value);" />
+	    <span id="pwd2Check"></span></dd>
+    </dl>
+    [[#txFormButton]]
+    <a href="Users.xxm">back</a>
+    </form>>
+  finally
+    qr.Free;
+  end;
+Context.Include('dFoot.xxmi');
+]]

@@ -1,0 +1,43 @@
+[[@txDefs,txSession,SQLiteData,]][[!
+var
+  id:integer;
+  qrRef:TSQLiteStatement;
+]][[
+
+CheckCallProtect(Context);
+id:=Context['id'].AsInteger;
+
+qrRef:=TSQLiteStatement.Create(Session.DbCon,
+  'SELECT Ref.id, Ref.obj1_id, Ref.obj2_id, Ref.[desc], Ref.[weight], Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts, RefType.[icon], RefType.[name] AS [typename], Obj.[name], ObjType.[icon] AS [objicon], ObjType.[name] AS [objtypename] '+
+  'FROM Ref '+
+  'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
+  'INNER JOIN Obj ON Obj.id=Ref.obj1_id '+
+  'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+  'WHERE Ref.obj2_id=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' ORDER BY Ref.weight, Obj.weight',[id]);
+<<p class="midnav">[[/#lblReferences]]references to object
+  <a href="Filter.xxm?filter=rx[[#id]]" class="linkbutton">filter...</a>
+  <a href="FilterBuild.xxm?x=rx&amp;id=[[#id]]" class="linkbutton">build...</a>
+  <a href="FrameTrace.xxm?id=[[#id]]" class="linkbutton" target="TreeFrame">trace...</a>
+</p>>
+if qrRef.EOF then
+ begin
+  <<p class="information">
+  No items found in your current viewable realms.
+  <a href="Filter.xxm?filter=rx[[#id]]&amp;view=any">Click here</a>
+  to search both viewable or editable realms.
+  </p>>
+ end
+else
+  while qrRef.Read and Context.Connected do
+   begin
+    <<p><a href="Item.xxm?x=i[[=qrRef['obj1_id']]]" title="[[=qrRef['objtypename']]]">
+    [[#txImg(qrRef['objicon'])]]
+    [[=qrRef['name']]]</a>
+	[[#txImg(qrRef['icon'])]] [[=qrRef['typename']]]</p>
+    [[#qrRef['desc']]]
+    <p>[[Context.Include('d_cmw.xxmi',[],[qrRef]);]]</p>>
+	//TODO: SafeHTML
+   end;
+qrRef.Free;
+
+]]

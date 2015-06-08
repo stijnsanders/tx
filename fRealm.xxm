@@ -1,0 +1,55 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+id,i:integer;
+qr:TSQLiteStatement;
+]][[
+
+Context.Include('dHead.xxmi',['Realm']);
+
+id:=Context['id'].AsInteger;
+
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id=?',[id]);
+try
+<<h2>Realm</h2>
+[[#txForm('aRealm.xxm',['id',id])]]
+[[#txFormProtect]]
+<dl>
+<dt>Name</dt><dd><input type="text" name="name" id="RlmName" value="[[=qr.GetDefault('name','')]]" class="textfield" /></dd>
+<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc','')]);]]</dd>
+<dt>Viewable by</dt><dd>
+	[[if Session.FilterCache.Count<>0 then begin]]
+	<select name="view1" id="RlmViewFilter" onchange="if(this.value=='') $('#RlmViewEx').show(); else $('#RlmViewEx').hide();">
+	<option value=""></option>>
+	for i:=0 to Session.FilterCache.Count-1 do
+	 begin
+	  <<option value="[[=Session.FilterCache[i]]]">>=Session.FilterCache[i]<</option>>
+	 end;
+	<</select>
+	<br />
+	[[end;]]
+	<input type="text" name="view2" id="RlmViewEx" value="[[=qr.GetDefault('view_expression','')]]" class="textfield" />
+</dd>
+<dt>Editable by</dt><dd>
+	[[if Session.FilterCache.Count<>0 then begin]]
+	<select name="edit1" id="RlmEditFilter" onchange="if(this.value=='') $('#RlmEditEx').show(); else $('#RlmEditEx').hide();">
+	<option value=""></option>>
+	for i:=0 to Session.FilterCache.Count-1 do
+	 begin
+	  <<option value="[[=Session.FilterCache[i]]]">>=Session.FilterCache[i]<</option>>
+	 end;
+	<</select>
+	<br />
+	[[end;]]
+	<input type="text" name="edit2" id="RlmEditEx" value="[[=qr.GetDefault('edit_expression','')]]" class="textfield" />
+</dd>
+<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetDefault('system','')]]" class="systemfield" /></dd>
+[[/TODO: realm?]]
+</dl>
+[[#txFormButton]]
+<a href="Realms.xxm">back</a>
+</form>
+<script>$("#RlmName")[0].focus();</script>>
+finally
+  qr.Free;
+end;
+Context.Include('dFoot.xxmi');
+]]

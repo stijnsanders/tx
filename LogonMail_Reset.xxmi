@@ -1,0 +1,32 @@
+[[@txDefs,txSession,Variants,]][[!var
+url,s:string;
+i:integer;
+const
+hex:array[0..15] of char='0123456789abcdef';
+]][[
+i:=Values[0];
+s:=PasswordToken('||||','|||'+VarToStr(Values[1])+'|||'+VarToStr(Values[2])+'|||'+VarToStr(Values[3])+'|||');
+s[13]:=hex[i and $F];
+s[17]:=hex[(i shr 4) and $F];
+s[23]:=hex[(i shr 8) and $F];
+s[31]:=hex[(i shr 12) and $F];
+url:=Context.URL;
+i:=Length(url);
+while (i<>0) and (url[i]<>'/') do dec(i);
+url:=Copy(url,1,i)+'LogonNew.xxm?x='+s;
+]]From: [[#AdministratorEmailAddress]]
+To: "[[#Values[2]]]" <[[#Values[3]]]>
+Subject: tx new user account activation
+Content-Type: text/html
+
+<html><body style="font-family:serif;font-size:12pt;">
+<h3>tx password reset</h3>
+<p>A request was made to reset the password on account "<b>>=Values[1]<</b>".</p>
+<p>Please click <a href="[[=url]]">here</a> or copy and paste below URL in a webbrowser to enter a new password.</p>
+<p>
+
+[[=url]]
+
+</p>
+[[//TODO: if you did request reset password...]]
+</body></html>

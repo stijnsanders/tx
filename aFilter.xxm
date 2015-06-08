@@ -1,0 +1,40 @@
+[[@txDefs,txSession,SQLiteData,]][[!var
+id,objid:integer;
+url:string;
+desc:WideString;
+]][[
+id:=Context['id'].AsInteger;
+objid:=Context['obj'].AsInteger;
+CheckFormProtect(Context);
+
+if id<>0 then
+  Session.HasRealmPermission(rpEdit,
+    DBSingleValue('SELECT Obj.rlm_id FROM Flt INNER JOIN Obj ON Obj.id=Flt.obj_id WHERE Flt.id=?',[id],Session.RealmNew));
+
+//if objid=0 check edit permissions of realmnew
+Session.HasRealmPermission(rpEdit,
+  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew));
+
+desc:=Context['desc'].Value;
+
+Session.DbCon.Execute('BEGIN TRANSACTION');
+try
+  if id=0 then
+    Session.DbCon.Execute('INSERT INTO Flt (obj_id,name,expression,[desc],c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',[
+      objid,Context['name'].Value,Context['filter'].Value,desc,VNow,Session.UserID,VNow,Session.UserID],id)
+  else
+    Session.DbCon.Execute('UPDATE Flt SET obj_id=?, name=?, expression=?, [desc]=?, m_ts=?, m_uid=? WHERE id=?',[
+      objid,Context['name'].Value,Context['filter'].Value,desc,VNow,Session.UserID,id]);
+
+  TermStore.StoreTerms(itFilter,id,objid,desc);
+  Session.AddFilterRecent(itObj,objid);
+
+  Session.DbCon.Execute('COMMIT TRANSACTION');
+except
+  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  raise;
+end;
+
+if objid=0 then url:='Filters.xxm' else url:='Item.xxm?x=i'+IntToStr(objid);
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

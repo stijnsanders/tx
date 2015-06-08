@@ -1,0 +1,253 @@
+[[@txDefs,txSession,]][[
+CheckCallProtect(Context);
+Context.ContentType:='text/javascript';
+Session.JSLoaded:=true;
+]]
+function safeScrollToX(x)
+{
+	var xx=$("#"+x);
+	if(xx.length>0)
+	{
+		var yy=xx[0].offsetParent;
+		if(yy==document.body) yy=$("#"+x.split("_")[0]+"_selbox")[0];
+		if(yy)
+		{
+			yy.scrollLeft=xx[0].offsetLeft-32;
+			yy.scrollTop=xx[0].offsetTop-Math.round(yy.clientHeight/3);
+		}
+		else
+			window.scrollTo(xx[0].offsetLeft-32,xx[0].offsetTop-Math.round((window.innerHeight||document.body.clientHeight)/3));
+		xx.remove();
+	}
+}
+function selectnode_toggle(name,idx,did,ex)
+{
+	var x=$("#"+name+"_selbox");
+	if(x[0].rootnodesloaded!=1)
+	{
+		var id=new Number($("#"+name+"_id")[0].value);
+		if(id==0)id=did;
+		x.html("[[#StringReplace(lblLoading,'"','\"',[rfReplaceAll])]]").load(
+			"iSelect.xxm",{x:(idx+id),name:name,ex:(ex?ex:""),xxx:"[[=Session.SessionCrypt]]"}, //TODO: convert to GET params?
+			function(){
+				safeScrollToX(name+"_selectScrollTo");
+			}
+		);
+		x[0].rootnodesloaded=1;
+	}
+	x.toggle();
+	return false;
+}
+function selectnode_clear(name)
+{
+	$("#"+name+"_id")[0].value=0;
+	$("#"+name+"_dsp").html("[[#StringReplace(txImg(-1),'"','\"',[rfReplaceAll])]] <i>none selected</i>")[0].style.backgroundColor="";
+	return false;
+}
+function selectnode_required(name,msg)
+{
+	if(($("#"+name+"_id")[0].value+0)==0)
+	{
+		alert("Please select "+msg);
+		$("#"+name+"_dsp")[0].style.backgroundColor="#FFCC00";
+		return false;
+	}
+	else
+		return true;
+}
+function selectnode_reset(id,name)
+{
+	$("#"+name+"_id")[0].value=id;
+	$("#"+name+"_dsp").html($("#"+name+"_default").html());
+	return false;
+}
+function selectnode_search(name,ex,dss)
+{
+	var x=$("#"+name+"_selbox");
+	x.load("iSearch.xxm",{name:name,ex:ex,dss:dss,xxx:"[[=Session.SessionCrypt]]"},function(){window.focus();$("#searchText_"+name)[0].focus();});
+	//TODO plain GET params
+	x[0].rootnodesloaded=0;
+	x.show();
+	return false;
+}
+function selectnode_searchtype(name,idx,ex)
+{
+	var x=$("#"+name+"_selbox");
+	x.load("iSearchType.xxm",{name:name,idx:idx,ex:ex,xxx:"[[=Session.SessionCrypt]]"},function(){window.focus();$("#searchText_"+name)[0].focus();});
+	//TODO plain GET params
+	x[0].rootnodesloaded=0;
+	x.show();
+	return false;
+}
+function selectnode_viewedLast(e,name,fr,ex)
+{
+	$("#search_"+name+"_loading").show();
+	var x=$("#"+name+"_selbox");
+	x.load("iRecent.xxm",{name:name,fr:fr,ex:ex,xxx:"[[=Session.SessionCrypt]]"});
+	x[0].rootnodesloaded=0;
+	x.show();
+	return (e||window.event||this).shiftKey;
+}
+var fSKept=0;
+var fSKeeper=null;
+function search_textSubmit(name,ex)
+{
+	var x=$("#searchButton_"+name);
+	if(x.length==1)
+	{
+		$("#search_"+name+"_loading").show();
+		x[0].value="Searching...";
+		x[0].disabled=true;
+		search_textLeave(x[0]);
+		$("#"+name+"_selbox").load("iSearch.xxm",{
+			name:name,
+			ex:ex,
+			keywords:$("#searchText_"+name)[0].value,
+			wholename:$("#searchTextName_"+name)[0].checked?1:0,
+			xxx:"[[=Session.SessionCrypt]]"
+		});
+	}
+	return false;
+}
+function search_textFilter(name,ex,x)
+{
+	$("#"+name+"_selbox").load("iSearch.xxm",{name:name,ex:ex,filter:x.innerText,xxx:"[[=Session.SessionCrypt]]"});
+	var x=$("#searchButton_"+name);
+	x[0].value="Filter...";
+	x[0].disabled=true;
+	return false;
+}
+function search_textEnter(name,ex,x)
+{
+	fSKept=1;
+	fSKeeper=x.form.onsubmit;
+	x.form.onsubmit=function(e)
+	{
+		search_textSubmit(name,ex);
+		return false;
+	}
+}
+function search_textLeave(x)
+{
+	if(fSKept==1)
+	{
+		x.form.onsubmit=fSKeeper;
+		fSKept=0;
+		fSKeeper=null;
+	}
+}
+function search_typeEnter(name,idx,ex,x)
+{
+	fSKept=1;
+	fSKeeper=x.form.onsubmit;
+	x.form.onsubmit=function()
+	{
+		return search_typeSubmit(name,idx,ex);
+	}
+}
+function search_typeSubmit(name,idx,ex)
+{
+	var x=$("#searchButton_"+name);
+	if(x.length==1)
+	{
+		$("#search_"+name+"_loading").show();
+		x[0].value="Searching...";
+		x[0].disabled=true;
+		search_typeLeave(x[0]);
+		$("#"+name+"_selbox").load("iSearchType.xxm",{
+			name:name,
+			idx:idx,
+			ex:ex,
+			keywords:$("#searchText_"+name)[0].value,
+			wholename:$("#searchTextName_"+name)[0].checked?1:0,
+			xxx:"[[=Session.SessionCrypt]]"
+		});
+	}
+	return false;
+}
+function search_typeLeave(x)
+{
+	if(fSKept==1)
+	{
+		x.form.onsubmit=fSKeeper;
+		fSKept=0;
+		fSKeeper=null;
+	}
+}
+function treenode_select(e,name,id)
+{
+	$("#"+name+"_id")[0].value=id;
+	$("#"+name+"_dsp").html($("#"+name+"_nodelink_"+id).html());
+	return (e||window.event||this).shiftKey;
+}
+function treenode_expand(x,url,after)
+{
+	var xx=$("#"+x);
+	if(xx.length==1)
+	{
+		xx[0].childNodes[0].src="img_tr0.png";
+		var xy=$("#"+x+"_dsc");
+		var ltext='<div class="treelist" id="'+x+'_dsc">>#StringReplace(lblLoading,'''','\''',[rfReplaceAll])<</div>';
+		if(xy.length==1)
+			xy.html(ltext).show();
+		else
+			xx.after(ltext);
+		$("#"+x+"_dsc").load(url,null,function(){
+			var xx=$("#"+x+"_dsc");
+			if(xx[0].childNodes.length==0)
+				xx.remove();
+			else
+				if(after)after(xx);
+		});
+	}
+}
+function treenode_toggle(x)
+{
+	var xx=$("#"+x);
+	var xy=$("#"+x+"_dsc");
+	if(xy.length==1)[[//&& !xy.is(":hidden")]]
+	{
+		xx[0].childNodes[0].src="img_tr1.png";
+		xy.remove();
+	}
+	else
+	{
+		xx[0].childNodes[0].src="img_tr0.png";
+		xx.after('<div class="treelist" id="'+x+'_dsc">>#StringReplace(lblLoading,'''','\''',[rfReplaceAll])<</div>');
+		$("#"+x+"_dsc").load(xx[0].getAttribute("expandurl"),null,function(){var xx=$("#"+x+"_dsc");if(xx[0].childNodes.length==0)xx.remove();});
+	}
+}
+function recent_select(name,x,id)
+{
+	$("#"+name+"_id")[0].value=id;
+	$("#"+name+"_dsp").html((x&&x.innerHTML)?x.innerHTML:"::i"+id);
+}
+function quickadd_select(x,y)
+{
+	var xx=$("#quickadd"+x);
+	if(xx.length==1)
+		if(xx.hasClass("quickaddoption"))
+		{
+			xx.removeClass("quickaddoption");
+			xx.addClass("quickaddselect");
+			$("#addtoken"+x)[0].value=y;
+		}
+		else
+		{
+			xx.removeClass("quickaddselect");
+			xx.addClass("quickaddoption");
+			$("#addtoken"+x)[0].value="";
+		}
+	return false;
+}
+function default_form_submit(x)
+{
+	if(x)
+	{
+		$("#formsubmitbutton")[0].value="Applying...";
+		$("#formsubmitbutton")[0].disabled=true;
+		return true;
+	}
+	else
+		return false;
+}

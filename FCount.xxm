@@ -1,0 +1,301 @@
+[[@txDefs,txSession,SQLiteData,txFCount,]][[!var
+itemcount,run,imgonly:boolean;
+timedelta,i,j,k,id,x,y,incs,orig:integer;
+legend:boolean;
+q:TSQLiteStatement;
+fg:TFilterGraph;
+d1,d2:TDateTime;
+dy,dm,dd:word;
+s:string;
+scale:real;
+filters:array of record
+  id,clr:integer;
+  name:string;
+end;
+const
+  RadioBool:array[boolean] of string=('','checked="1"');
+  SelectBool:array[boolean] of string=('','selected="1"');
+  FlgQuery:array[boolean] of string=(
+
+	//FlgWeight
+	'SELECT F1.flt_id, F2.[weight] AS [Open], F1.MinWeight AS [Low], F1.MaxWeight AS [High], F3.[weight] AS [Close] '+
+	'FROM ( '+
+	'	SELECT Flg.flt_id, MIN(Flg.[weight]) AS MinWeight, MAX(Flg.[weight]) AS MaxWeight, MIN(Flg.id) AS FirstID, MAX(Flg.id) AS LastID '+
+	'	FROM Flg '+
+	'	WHERE Flg.flt_id=? AND Flg.ts >= ? AND Flg.ts < ? '+
+	'	GROUP BY Flg.flt_id '+
+	') AS F1 '+
+	'LEFT OUTER JOIN Flg AS F2 ON F2.id=F1.FirstID '+
+	'LEFT OUTER JOIN Flg AS F3 ON F3.id=F1.LastID',
+
+	//FlgCount
+	'SELECT F1.flt_id, F2.[count] AS [Open], F1.MinCount AS [Low], F1.MaxCount AS [High], F3.[count] AS [Close] '+
+	'FROM ( '+
+	'	SELECT Flg.flt_id, MIN(Flg.[count]) AS MinCount, MAX(Flg.[count]) AS MaxCount, MIN(Flg.id) AS FirstID, MAX(Flg.id) AS LastID '+
+	'	FROM Flg '+
+	'	WHERE Flg.flt_id=? AND Flg.ts >= ? AND Flg.ts < ? '+
+	'	GROUP BY Flg.flt_id '+
+	') AS F1 '+
+	'LEFT OUTER JOIN Flg AS F2 ON F2.id=F1.FirstID '+
+	'LEFT OUTER JOIN Flg AS F3 ON F3.id=F1.LastID'
+  );
+  ClrC:array[0..5] of byte=($0,$3,$6,$9,$C,$F);
+  Hex:array[0..15] of char='0123456789ABCDEF';
+  DefaultClrCount=14;
+  DefaultClrs:array[0..DefaultClrCount-1] of integer=(
+    $C00,$0C0,$00F,$F90,$60C,$0CF,$C09,$600,$060,$009,$C30,$306,$069,$333
+  );
+function DClr(c:integer):integer;
+begin
+  Result:=
+    (c and $00F shl 20) or (c and $00F shl 16) or
+    (c and $0F0 shl 4) or (c and $0F0 shl 8) or
+    (c and $F00 shr 4) or (c and $F00 shr 8);
+end;
+]][[
+
+timedelta:=Context['timedelta'].AsInteger;
+itemcount:=Context['items'].AsInteger=0;
+imgonly:=Context['img'].AsInteger=1;
+legend:=Context['legend'].AsInteger=1;
+x:=Context['sizex'].AsInteger; if x=0 then x:=800;
+y:=Context['sizey'].AsInteger; if y=0 then y:=400;
+orig:=Context['origin'].AsInteger;
+s:=Context['increments'].Value;
+if s='' then incs:=50 else incs:=StrToInt(s);
+s:=Context['scale'].Value;
+if s='' then scale:=1 else scale:=StrToFloat(s);
+dy:=Context['starty'].AsInteger;
+if dy=0 then
+ begin
+  DecodeDate(Now,dy,dm,dd);
+ end
+else
+ begin
+  dm:=Context['startm'].AsInteger;
+  dd:=Context['startd'].AsInteger;
+ end;
+
+if imgonly then
+  Context.ContentType:='image/jpeg'
+else
+  Context.Include('dHead.xxmi',['Filter Statistics']);
+
+s:=Context['f'].Value;
+id:=Context['addf'].AsInteger;
+if id<>0 then
+ begin
+  if s<>'' then s:=s+'-';
+  s:=s+IntToStr(id)+'.'+Context['addr'].Value+Context['addg'].Value+Context['addb'].Value;
+ end;
+if not(imgonly) then
+  Context.SendHTML(StringReplace(txForm('FCount.xxm',['f',s]),'"post"','"get"',[]));
+i:=0;
+k:=1;
+while (k<=Length(s)) do
+ begin
+  SetLength(filters,i+1);
+  j:=k;
+  while (k<=Length(s)) and not(s[k]='.') do inc(k);
+  filters[i].id:=StrToInt(Copy(s,j,k-j));
+  inc(k);
+  j:=k;
+  while (k<=Length(s)) and not(s[k]='-') do inc(k);
+  filters[i].clr:=StrToInt('$'+Copy(s,j,k-j));
+  inc(k);
+  inc(i);
+ end;
+
+if not(imgonly) then
+ begin
+<<p>
+<input type="radio" id="timedelta0" name="timedelta" value="0" [[=RadioBool[timedelta=0]]] />
+<label for="timedelta0">daily</label>
+<input type="radio" id="timedelta1" name="timedelta" value="1" [[=RadioBool[timedelta=1]]] />
+<label for="timedelta1">weekly</label>
+<input type="radio" id="timedelta2" name="timedelta" value="2" [[=RadioBool[timedelta=2]]] />
+<label for="timedelta2">monthly</label>
+<br />
+<input type="radio" id="itemcount0" name="items" value="0" [[=RadioBool[itemcount]]] />
+<label for="itemcount0">item count</label>
+<input type="radio" id="itemcount1" name="items" value="1" [[=RadioBool[not(itemcount)]]] />
+<label for="itemcount1">total weight</label>
+<br />
+<input type="text" name="sizex" value="[[=x]]" size="8" />
+x <input type="text" name="sizey" value="[[=y]]" size="8" />,
+� <input type="text" name="origin" value="[[=orig]]" size="8" />,
+= <input type="text" name="increments" value="[[=incs]]" size="8" />,
+/ <input type="text" name="scale" value="[[=scale]]" size="8" />
+<br />
+<input type="text" name="starty" value="[[=integer(dy)]]" size="8" />
+- <input type="text" name="startm" value="[[=integer(dm)]]" size="4" />
+- <input type="text" name="startd" value="[[=integer(dd)]]" size="4" />
+<input type="checkbox" name="legend" id="legend1" value="1" [[=RadioBool[legend]]] />
+<label for="legend1">legend in image</label>
+</p>
+<script><!--
+function doClr()
+{
+	var sr=$("#addr")[0];
+	var sg=$("#addg")[0];
+	var sb=$("#addb")[0];
+    $("#previewrgb")[0].style.backgroundColor="#"+sr.value+sg.value+sb.value;
+    var i;
+    var y;
+    for(i=0;i<sr.options.length;i++){y=sr.options[i];y.style.backgroundColor="#"+ y.value+sg.value+sb.value;}
+    for(i=0;i<sg.options.length;i++){y=sg.options[i];y.style.backgroundColor="#"+sr.value+ y.value+sb.value;}
+    for(i=0;i<sb.options.length;i++){y=sb.options[i];y.style.backgroundColor="#"+sr.value+sg.value+ y.value;}
+}
+//--></script>
+<p>
+<select name="addf">
+<option value="" style="color:#00F;">[select a filter to add]</option>>
+
+q:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, name FROM Flt WHERE showgraph=1 ORDER BY name',[]);
+try
+  while q.Read and Context.Connected do
+   begin
+    id:=q.GetInt('id');
+    <<option value="[[=id]]">>=q['name']<</option>>
+    //br?
+   end;
+finally
+  q.Free;
+end;
+j:=DefaultClrs[Length(filters) mod DefaultClrCount];
+<</select>
+R <select name="addr" id="addr" onchange="doClr()">[[for i:=0 to 5 do begin]]<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[((j shr 8) and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>[[end;]]</select>
+G <select name="addg" id="addg" onchange="doClr()">[[for i:=0 to 5 do begin]]<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[((j shr 4) and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>[[end;]]</select>
+B <select name="addb" id="addb" onchange="doClr()">[[for i:=0 to 5 do begin]]<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[(j and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>[[end;]]</select>
+<span id="previewrgb">&nbsp;&nbsp;&nbsp;</span>
+<script><!--
+doClr();
+//--></script>
+<br />
+[[#txFormButton]]
+|
+<a href="[[=Context.URL]]&amp;img=1" class="linkbutton">img...</a>
+</p>
+</form>>
+
+  //TODO: remove?
+
+ end;//if not(imgonly)
+
+for i:=0 to Length(filters)-1 do
+ begin
+  q:=TSQLiteStatement.Create(Session.DbCon,'SELECT name FROM Flt WHERE id=?',[filters[i].id]);
+  try
+    filters[i].name:=q.GetStr('name');
+  finally
+    q.Free;
+  end;
+ end;
+
+if not imgonly then
+ begin
+  if not legend then
+    for i:=0 to Length(filters)-1 do
+     begin
+      <<p><span style="background-color:#[[=IntToHex(filters[i].clr,3)]];border:1px solid black;">&nbsp;&nbsp;&nbsp;</span> [[=filters[i].name]]</p>>
+     end;
+  <<p id="waitdisplay">>#lblLoading<</p>>
+  Context.Flush;
+ end;
+
+fg:=TFilterGraph.Create;
+try
+  fg.Start(x,y,orig,incs,scale);
+  d1:=EncodeDate(dy,dm,dd);
+  d2:=d1;//counter warning
+  case timedelta of
+    0://daily
+      d2:=d1+1;
+    1://weekly
+     begin
+      i:=Trunc(d1);
+      d1:=d1-((i-2)  mod 7);
+      d2:=d1+7;
+     end;
+    2://monthly
+     begin
+      d1:=EncodeDate(dy,dm,1);
+	  if dm=12 then
+	    d2:=EncodeDate(dy+1,1,1)
+	  else
+        d2:=EncodeDate(dy,dm+1,1);
+     end;
+  end;
+  run:=true;
+  while run and Context.Connected do
+   begin
+    DecodeDate(d1,dy,dm,dd);
+    case timedelta of
+      0:s:=IntToStr(dd);//daily
+      1:s:=IntToStr(dd);//weekly
+      2:s:=IntToStr(dm);//monthly
+    end;
+    run:=fg.StartPosition(s);
+    if run then
+     begin
+      case timedelta of
+       0://daily
+         begin
+          if dd=1 then if dm=1 then fg.SecondLabel(IntToStr(dy)+'-'+IntToStr(dm)) else fg.SecondLabel(IntToStr(dm));
+          if ((Trunc(d1)-2)  mod 7)=0 then fg.VerticalIncrement;
+         end;
+       1://weekly
+        if dd<=7 then
+         begin
+          fg.VerticalIncrement;
+          if dm=1 then fg.SecondLabel(IntToStr(dy)+'-'+IntToStr(dm)) else fg.SecondLabel(IntToStr(dm));
+         end;
+       2://monthly
+         begin
+          if ((dm-1) mod 4)=0 then fg.VerticalIncrement;
+          if dm=1 then fg.SecondLabel(IntToStr(dy));
+         end;
+      end;
+      for i:=0 to Length(filters)-1 do
+       begin
+        q:=TSQLiteStatement.Create(Session.DbCon,FlgQuery[itemcount],[filters[i].id,d1,d2]);
+        try
+          fg.AddFilter(q,DClr(filters[i].clr));
+        finally
+          q.Free;
+        end;
+      end;
+      //advance
+      d2:=d1;
+      case timedelta of
+        0:d1:=d1-1;//daily
+        1:d1:=d1-7;//weekly
+        2:if dm=1 then d1:=EncodeDate(dy-1,12,1) else d1:=EncodeDate(dy,dm-1,1);//monthly
+      end;
+    end;
+   end;
+
+  //legend
+  if legend then
+   begin
+    for i:=0 to Length(filters)-1 do fg.AddfilterLegend(filters[i].name,DClr(filters[i].clr));
+   end;
+
+  if imgonly then
+   begin
+    Context.SendFile(fg.Save);
+   end
+  else
+   begin
+    <<p><img src="[[=StringReplace(fg.Save,'\','/',[rfReplaceAll])]]"/></p>
+    <p class="small">Min:[[=fg.MinVal]], Max:[[=fg.MaxVal]]</p>
+	<script><!--
+	$("#waitdisplay").hide();
+	//--></script>>
+   end;
+finally
+  fg.Free;
+end;
+
+if not(imgonly) then Context.Include('dFoot.xxmi');
+]]

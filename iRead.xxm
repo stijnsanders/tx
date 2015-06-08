@@ -1,0 +1,31 @@
+[[@txSession,SQLiteData,]][[!var
+qr:TSQLiteStatement;
+]][[
+
+//assert Use_Unread
+//assert Session.QryUnread
+
+CheckCallProtect(Context);
+Context.ContentType:='text/plain';
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT ObjPath.pid, '+
+{
+  '(SELECT MIN(Urx.id) FROM Obx INNER JOIN Urx'+
+  ' ON Urx.uid='+IntToStr(Session.UserID)+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
+  ' WHERE Obx.obj_id=ObjPath.pid) AS r0,'+
+}
+  'NULLIF((SELECT COUNT(DISTINCT U1.id) FROM ObjPath U0'+
+  ' INNER JOIN Obj U1 ON U1.id=U0.oid AND U1.rlm_id'+Session.Realms[rpView].SQL+
+  ' INNER JOIN Obx U2 ON U2.obj_id=U0.oid'+
+  ' LEFT OUTER JOIN Urx U3 ON U3.uid='+IntToStr(Session.UserID)+' AND U2.id BETWEEN U3.id1 AND U3.id2'+
+  ' WHERE U0.pid=ObjPath.pid AND U0.pid<>U0.oid AND U3.id IS NULL),0) as r1'+
+  ' FROM ObjPath'+
+  ' INNER JOIN Obj ON Obj.id=ObjPath.pid'+
+  ' WHERE ObjPath.oid=? AND ObjPath.pid<>ObjPath.oid'+
+  ' ORDER BY ObjPath.lvl DESC',[Context['id'].AsInteger]);
+try
+  while qr.Read do Context.SendHTML([qr[0],'=',qr[1],';']);
+finally
+  qr.Free;
+end;
+
+//max(Urx.id2)? session?

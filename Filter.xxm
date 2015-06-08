@@ -1,0 +1,161 @@
+[[@Windows,txDefs,SQLiteData,txSession,txFilter,txFilterSql,txCache,]][[!var
+fv:TtxFilterViewInfo;
+fs:string;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+id,pid,i:integer;
+qr:TSQLiteStatement;
+c,tc1,tc2,tc3,tc4:cardinal;
+InControl:boolean;
+ObjLocationCache:TItemCache;
+const
+FlushEveryX=25;
+]][[
+GetFilterViewInfo(Context,fv);
+
+if fv.filter='' then
+ begin
+  Context.Include('dHead.xxmi',['Filter']);
+
+  <<p class="information">No current filter.<br /><a href="FilterBuild.xxm">Click here</a> to create a filter.</p>
+  <p class="midnav">stored filters</p>>
+  id:=Session.UserID;
+
+  while (id>0) and Context.Connected do
+   begin
+    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, Obj.pid, Obj.rlm_id, Obj.name, ObjType.icon, ObjType.name AS typename FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id]);
+	try
+      pid:=qr.GetInt('pid');
+      InControl:=true;
+      try
+        Session.HasRealmPermission(rpEdit,qr.GetInt('rlm_id'));
+      except
+        on ERealmNotEditableByUser do InControl:=false;
+      end;
+	  <<p><a href="Item.xxm?x=i[[.id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a></p>>
+	finally
+	  qr.Free;
+    end;
+
+    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Flt WHERE Flt.obj_id=? ORDER BY Flt.name, Flt.c_ts',[id]);
+    try
+	  if qr.EOF then
+	   begin
+	    <<p><i>none</i></p>>
+	   end
+	  else
+        while qr.Read and Context.Connected do
+	      Context.Include('dFilter.xxmi',[InControl],[qr]);
+    finally
+      qr.Free;
+    end;
+
+	id:=pid;
+   end;
+
+  if Session.FilterCache.Count<>0 then
+   begin
+    <<p class="midnav">recent filters</p>>
+	for i:=0 to Session.FilterCache.Count-1 do Context.Include('dFilter.xxmi',[i,Session.FilterCache[i]]);
+   end;
+
+ end
+else
+ begin
+  Context.Include('dHead.xxmi',['Filter: '+fv.filter,'filter='+fv.filterU]);
+
+  f:=TtxFilter.Create;
+  fq:=TtxSqlQueryFragments.Create(itObj);
+  try
+    tc1:=GetTickCount;
+    f.FilterExpression:=fv.filter;
+	if f.ParseError<>'' then
+	 begin
+	  <<p style="color:red;">>=f.ParseError<</p>>
+	 end;
+
+	i:=Session.FilterCache.IndexOf(fv.filter);
+	if i>0 then Session.FilterCache.Delete(i);
+	if i<>0 then Session.FilterCache.Insert(0,fv.filter);
+
+    tc2:=GetTickCount;
+    <<p class="buttons">
+	<a class="linkbutton" href="FilterBuild.xxm?filter=[[#fv.filterU]]">edit filter</a>
+    <a class="linkbutton" href="FrameTree.xxm?filter=[[#fv.filterU]]" target="TreeFrame">tree</a>
+	<a class="linkbutton" href="FrameList.xxm?filter=[[#fv.filterU]]" target="TreeFrame">list</a>
+    <a class="linkbutton" href="Log.xxm?filter=[[#fv.filterU]]">log...</a>
+    <a class="linkbutton" href="Summary.xxm?filter=[[#fv.filterU]]">summary...</a>
+    <a class="linkbutton" href="Modify.xxm?filter=[[#fv.filterU]]">modify...</a>
+	</p>
+	<p>
+	<span id="filterCount">>#lblLoading<</span>
+	<span class="weight">parse: [[=tc2-tc1]]ms</span>>
+	Context.Flush;
+	fq.AddFilter(f);
+    fq.Where:='Obj.rlm_id'+Session.Realms[fv.rp].SQL+' AND ('+fq.Where+')';
+    fs:=fq.SQL;
+  finally
+    f.Free;
+    fq.Free;
+  end;
+
+  tc3:=GetTickCount;
+  <<span class="weight">build: [[=tc3-tc1]]ms</span>>
+  Context.Flush;
+  c:=0;
+  qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+  ObjLocationCache:=TItemCache.Create;
+  try
+	tc4:=GetTickCount;
+
+    //recordcount is -1 on adOpenForwardOnly
+
+	<<span class="weight">query: [[=tc4-tc3]]ms</span>
+	</p>>
+
+    while qr.Read and Context.Connected do
+	 begin
+	  inc(c);
+      Context.Include('dObjList.xxmi',[],[qr,ObjLocationCache]);
+	  if (c mod FlushEveryX)=0 then Context.Flush;
+	 end;
+
+  finally
+	qr.Free;
+    ObjLocationCache.Free;
+  end;
+
+  <<script><!--
+  $("#filterCount").html("[[=c]] objects found");
+  //--></script>>
+  Context.Flush;
+
+  //if (c=0) and (rpFilter<>rpAny) then
+  if (c=0) and (fv.view='') then
+   begin
+	f:=TtxFilter.Create;
+	fq:=TtxSqlQueryFragments.Create(itObj);
+	try
+	  f.FilterExpression:=fv.filter;
+	  fq.AddFilter(f);
+	  fq.Where:='Obj.rlm_id'+Session.Realms[rpAny].SQL+' AND ('+fq.Where+')';
+	  fq.OrderBy:='';
+	  fq.Limit:=1;
+	  fs:=fq.SQL;
+	finally
+	  f.Free;
+	  fq.Free;
+	end;
+    if Session.DbCon.Exists(fs) then
+     begin
+      <<p class="information">
+	  No items found in your current viewable realms.
+	  <a href="Filter.xxm?filter=[[#fv.filterU]]&amp;view=any">Click here</a>
+	  to search both viewable or editable realms.
+	  </p>>
+     end;
+   end;
+
+ end;
+
+Context.Include('dFoot.xxmi');

@@ -1,0 +1,64 @@
+[[@txSession,]][[Context.ContentType:='text/css';]]
+BODY {
+	font-family: [[#Session.CssPrefs.FontName]];
+	font-size: [[#Session.CssPrefs.BaseSizePt]]pt;
+	color: #000000;
+	margin: 0.1em;
+	background-color: #FFFFFF;
+}
+TABLE, TD, TH, FORM, INPUT, SELECT, TEXTAREA, BUTTON {
+	font-family: [[#Session.CssPrefs.FontName]];
+	font-size: [[#Session.CssPrefs.BaseSizePt]]pt;
+}
+A {
+	color: #0000FF;
+}
+FORM DL DT {
+	font-weight: bold;
+}
+H1 { font-family: Cambria, Georgia, serif; font-size: 1.6em; }
+H2 { font-family: Cambria, Georgia, serif; font-size: 1.4em; }
+H3 { font-family: Cambria, Georgia, serif; font-size: 1.2em; }
+H4 { font-family: Cambria, Georgia, serif; font-size: 1em; }
+
+P {
+	margin: 0.4em;
+}
+DIV {
+	margin: 0.4em;
+}
+DIV.comment {
+	margin-left: 1.5em;
+}
+UL,IL {
+	margin-top: 0.6em;
+	margin-bottom: 0.6em;
+}
+CODE, XMP, PRE {
+	font-family: Lucida Console, monospace;
+	font-size: 1em;
+}
+
+P.objecttitle {
+	margin-top: 0em;
+	margin-bottom: 0.0em;
+	padding: 0.2em;
+	background-color: #DDDDDD;
+	font-weight: bold;
+}
+P.objectlocation {
+	margin-top: 0em;
+	margin-bottom: 0.2em;
+	padding: 0.2em;
+	background-color: #EEEEEE;
+}
+P.objectinfo {
+	margin-top: 0em;
+	margin-bottom: 0em;
+}
+P.reportheader {
+	margin-bottom: 0em;
+	margin-top: 1em;
+	border-bottom: 0.1em solid #999999;
+	border-right: 0.2em solid #999999;
+}

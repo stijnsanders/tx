@@ -1,0 +1,49 @@
+[[@txDefs,SQLiteData,txSession,Variants,]][[!var
+IsAdmin:boolean;
+qr:TSQLiteStatement;
+id:integer;
+pwd,url,salt,s:string;
+allok:boolean;
+]][[
+id:=Context['reset'].AsInteger;
+if id=0 then
+ begin
+  CheckFormProtect(Context);
+  id:=Context['id'].AsInteger;
+  pwd:=Context['pwd1'].Value;
+ end
+else
+ begin
+  CheckCallProtect(Context);
+  pwd:='';
+ end;
+IsAdmin:=(Session.UserID=0) or Session.IsAdmin('logins');
+
+if not(IsAdmin) and (Context['uid'].AsInteger<>Session.UserID) then
+  raise Exception.Create('Updating accounts other than own is only allowed by login-admininistrator.');
+
+url:='Users.xxm';
+allok:=false;//default false
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT salt, pwd FROM Usr WHERE id=?',[id]);
+try
+  salt:=qr.GetStr('salt');
+  s:=qr.GetStr('pwd');
+  if not(IsAdmin) and (s<>'') and (s[1]<>'?') and (s<>PasswordToken(salt,Context['pwd0'].Value)) then
+    url:='fUserPwd.xxm?id='+IntToStr(id)+'&msg=Incorrect+password'
+  else
+    if (pwd<>Context['pwd2'].Value) then
+      url:='fUserPwd.xxm?id='+IntToStr(id)+'&msg=Password+mismatch'
+	else
+	  allok:=true;
+finally
+  qr.Free;
+end;
+
+if allok then
+ begin
+  salt:=NewPasswordSalt;
+  Session.DbCon.Execute('UPDATE Usr SET salt=?, pwd=? WHERE id=?',[salt,PasswordToken(salt,pwd),id]);
+ end;
+
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

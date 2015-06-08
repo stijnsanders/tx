@@ -1,0 +1,39 @@
+[[!var
+instanceName,value:WideString;
+]][[
+instanceName:=Values[0];
+if Length(Values)<2 then value:='' else value:=Values[1];
+
+  //TODO: StartupFocus=true?
+  
+  //not using HTMLEncode since that does CRLF's into <br>'s
+  value:=
+    StringReplace(
+    StringReplace(
+    StringReplace(
+    StringReplace(
+        value
+        ,'&','&amp;',[rfReplaceAll])
+        ,'<','&lt;',[rfReplaceAll])
+        ,'>','&gt;',[rfReplaceAll])
+        ,'"','&quot;',[rfReplaceAll]);
+
+<<script type="text/javascript" src="js/tinymce/jquery.tinymce.min.js"></script>
+<textarea id="[[=instanceName]]" name="[[=instanceName]]" style="width:90%;" cols="40" rows="16">>#value<</textarea>
+<script><!--
+$('#[[=instanceName]]').tinymce({
+script_url:"js/tinymce/tinymce.min.js",
+content_css:"txContent.css.xxm",
+[[if Length(Values)>2 then begin]]auto_focus:"[[=instanceName]]",[[end;]]
+plugins:
+["advlist autolink lists link image charmap preview anchor"
+,"searchreplace visualblocks code fullscreen"
+,"insertdatetime media table contextmenu paste"
+],
+menubar:"edit insert view format table tools",
+toolbar:"insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+skin:"tx",
+statusbar:false,
+insertdatetime_formats: ["%H:%M:%S", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"]
+});
+//--></script>

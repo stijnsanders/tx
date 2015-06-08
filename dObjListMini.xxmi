@@ -1,0 +1,14 @@
+[[@txDefs,SQLiteData,]][[!var
+  qr:TSQLiteStatement;
+  name:string;
+  id:integer;
+]][[
+qr:=Objects[0] as TSQLiteStatement;
+name:=Values[0];
+id:=Values[1];
+]]
+<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);" title="[[.typename]]">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a>
+[[
+Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
+]]
+<br />

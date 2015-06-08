@@ -1,0 +1,124 @@
+[[@txDefs,SQLiteData,txSession,Classes,]][[!var
+id,pid,pidx,i,l,sl_i,x,newObjTypeID,newWeight,RlmID:integer;
+pids:array of integer;
+url:string;
+name,desc:WideString;
+tokens:array of record
+  id,weight:integer;
+end;
+sl:TStringList;
+]][[
+
+//TODO: transaction?
+//TODO: Session.IsAdmin(multiple?
+
+pid:=0;//counter warning
+pidx:=$100;
+SetLength(pids,pidx);
+for i:=0 to pidx-1 do pids[i]:=-1;
+pids[0]:=Context['pid'].AsInteger;
+newObjTypeID:=Context['objtype'].AsInteger;
+newWeight:=0;//Context['weight'].AsInteger;
+CheckFormProtect(Context);
+
+//check realm
+RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[pids[0]],Session.RealmNew);
+Session.HasRealmPermission(rpEdit,RlmID);
+
+//quick add tokens, list first, get weight-delta from token types
+  x:=Context['addtokenCount'].AsInteger;
+  SetLength(tokens,x);
+  for i:=0 to x-1 do
+   begin
+	tokens[i].id:=Context['addtoken'+IntToStr(i)].AsInteger;
+	if tokens[i].id<>0 then
+	 begin
+	  tokens[i].weight:=DBSingleValue('SELECT weight FROM TokType WHERE id=?',[tokens[i].id],0);
+	  inc(newWeight,tokens[i].weight);
+	 end;
+   end;
+
+  newWeight:=newWeight+DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[newObjTypeID],0);
+
+id:=pids[0];
+desc:='';
+sl:=TStringList.Create;
+try
+  sl.Text:=Context['names'].Value;
+  for sl_i:=0 to sl.Count-1 do
+   begin
+
+  	name:=sl[sl_i];//Context['name'].Value;
+  	l:=Length(name);
+  	i:=0;
+  	while (i<l) and (name[i+1]<=' ') do inc(i);
+  	while (pidx<i) do
+  	 begin
+  	  x:=pidx;
+  	  inc(pidx,$100);
+  	  SetLength(pids,pidx);
+  	  while (x<pidx) do
+  	   begin
+  	    pids[x]:=-1;
+  		inc(x);
+  	   end;
+  	 end;
+  	if pids[i]=-1 then
+  	 begin
+  	  x:=i+1;
+  	  while (x<pidx) and (pids[x]=-1) do inc(x);
+  	  if x<pidx then pids[i]:=pids[x] else pids[i]:=id;
+  	 end;
+  	pid:=pids[i];
+  	inc(i);
+  	while (i<pidx) do
+  	 begin
+  	  pids[i]:=-1;
+  	  inc(i);
+  	 end;
+  	name:=Trim(name);
+
+  	Session.DbCon.Execute('BEGIN TRANSACTION');
+  	try
+  	  Session.DbCon.Execute('INSERT INTO Obj (pid,objtype_id,name,[desc],url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+  		[pid,newObjTypeID,name,desc,'',newWeight,RlmID,VNow,Session.UserID,VNow,Session.UserID],id);
+
+  	  TermStore.StoreTerms(itObj,id,id,name+#13#10+desc);
+  	  Session.AddFilterRecent(itObjType,newObjTypeID);
+
+  	  //history
+  	  if Use_ObjHist then
+  	    Session.DbCon.Execute('INSERT INTO ObjHist (obj_id,rlm_id,ts,uid,name,[desc],weight) VALUES (?,?,?,?,?,?,?)',
+  	  	[id,RlmID,VNow,Session.UserID,name,desc,newWeight],i);
+
+  	  //quick add tokens
+  	  for i:=0 to Length(tokens)-1 do
+  	    if tokens[i].id<>0 then
+  	     begin
+  	  	  Session.DbCon.Execute('INSERT INTO Tok (obj_id,toktype_id,[desc],weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',
+  	  	    [id,tokens[i].id,'',tokens[i].weight,VNow,Session.UserID,VNow,Session.UserID]);
+  	  	  Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,toktype_id) VALUES (?,?,?,?,?,?)',
+  	  	    [id,VNow,Session.UserID,'',newWeight,tokens[i].id]);
+  	     end;
+
+  	  if Use_ObjTokRefCache then
+  	    Context.Include('aObjTokRefCache.xxmi',[id]);
+
+      if Use_Unread and not Session.Stealth then
+        Session.DbCon.Execute('INSERT INTO Obx (obj_id) VALUES (?)',[id]);
+
+  	  Session.DbCon.Execute('COMMIT TRANSACTION');
+  	except
+  	  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  	  raise;
+  	end;
+
+   end;
+
+finally
+  sl.Free;
+end;
+
+url:='Item.xxm?x=i'+IntToStr(pid);
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

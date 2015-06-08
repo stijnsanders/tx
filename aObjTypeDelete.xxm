@@ -1,0 +1,117 @@
+[[@txDefs,SQLiteData,txSession,txFilterSql,]][[!var
+id,pid,nid,i,weight,w:integer;
+url:string;
+qr:TSQLiteStatement;
+ids:TIdList;
+]][[
+
+CheckFormProtect(Context);
+id:=Context['id'].AsInteger;
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT pid, weight FROM ObjType WHERE id=?',[id]);
+try
+  pid:=qr.GetInt('pid');
+  weight:=qr.GetInt('weight');
+finally
+  qr.Free;
+end;
+
+//check edit permission in default realm
+Session.HasRealmPermission(rpEdit,0);
+
+//TODO: check object's realm
+
+Session.RemoveFilterRecent(itObjType,id);
+Session.DeleteID:=id;//pass to client-side script to update tree
+
+Session.DbCon.Execute('BEGIN TRANSACTION');
+try
+
+  //children
+  if Context['children'].AsInteger=1 then
+   begin
+    //move to
+    nid:=Context['movechto'].AsInteger;
+    if nid=0 then raise Exception.Create('Object type to move children to required.');
+    Session.AddFilterRecent(itObjType,nid);
+	Session.DbCon.Execute('UPDATE ObjType SET pid=? WHERE pid=?',[nid,id]);
+    if Context['objects'].AsInteger=1 then
+     begin
+      nid:=Context['moveobjto'].AsInteger;
+      if nid=0 then raise Exception.Create('Object type to change objects to required.');
+      Session.AddFilterRecent(itObjType,nid);
+	  w:=-weight+DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[nid],0);
+	  if w<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[w,id]);
+	  Session.DbCon.Execute('UPDATE Obj SET objtype_id=? WHERE objtype_id=?',[nid,id]);
+	 end
+	else
+	 begin
+	  //if weight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[-weight,id]);
+      //TODO: copy/use extra deletes from aObjDelete.xxmi
+	  Session.DbCon.Execute('DELETE FROM Obj WHERE objtype_id=?',[id]);
+	 end;
+    Session.DbCon.Execute('DELETE FROM ObjType WHERE id=?',[id]);
+   end
+  else
+   begin
+    //cascaded
+    ids:=TIdList.Create;
+    try
+      ids.Add(id);
+      i:=0;
+      while i<ids.Count do
+       begin
+        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT ObjType.id FROM ObjType WHERE ObjType.pid='+IntToStr(ids[i]));
+        try
+          while qr.Read do ids.Add(qr.GetInt(0));
+        finally
+          qr.Free;
+        end;
+        inc(i);
+       end;
+
+	   //objects
+	  if Context['objects'].AsInteger=1 then
+	   begin
+	    nid:=Context['moveobjto'].AsInteger;
+	    if nid=0 then raise Exception.Create('Object type to change objects to required.');
+	    Session.AddFilterRecent(itObjType,nid);
+		for i:=0 to ids.Count-1 do
+		 begin
+		  id:=ids[i];
+		  //TODO: update weight!
+		  w:=-weight+DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[nid],0);
+		  if w<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[w,id]);
+		  Session.DbCon.Execute('UPDATE Obj SET objtype_id=? WHERE objtype_id=?',[nid,id]);
+		 end;
+	   end
+	  else
+	    for i:=0 to ids.Count-1 do
+		 begin
+		  id:=ids[i];
+		  //if weight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[-weight,id]);
+          //TODO: copy/use extra deletes from aObjDelete.xxmi
+		  Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['i'+IntToStr(id)]);
+		  Session.DbCon.Execute('DELETE FROM Obj WHERE objtype_id=?',[id]);
+		 end;
+
+      for i:=ids.Count-1 downto 0 do
+       begin
+        id:=ids[i];
+		//Delete_ObjByObjTypeID: see above
+		Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['tt'+IntToStr(id)]);
+        Session.DbCon.Execute('DELETE FROM ObjType WHERE id=?',[id]);
+       end;
+    finally
+      ids.Free;
+    end;
+   end;
+
+  Session.DbCon.Execute('COMMIT TRANSACTION');
+except
+  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  raise;
+end;
+
+url:='Item.xxm?x=ot'+IntToStr(pid);
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

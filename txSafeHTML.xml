@@ -1,0 +1,42 @@
+<wikiparse>
+	<group>
+	
+		Enforce not too much URL's in text
+		<check>
+			<pattern>(http://[\u0000-\uFFFF]+){5,}</pattern>
+			<do>
+				<!--<text>error Limit allowed hyperlinks in text exceeded</text>-->
+				<text>error Invalid post source detected</text>
+				<command />
+			</do>
+		</check>
+		
+		<split>
+			<pattern>&lt;[^&gt;]*?&gt;</pattern>
+			<match>
+				Disable dangerous tags
+				<replace>
+					<pattern>&lt;(/?)(script|object|embed|applet|iframe|base|html|body|head|meta|link|form|button)</pattern>
+					<with>&lt;$1x$2</with>
+				</replace>
+				Disable script attributes
+				<replace>
+					<pattern>\bon([a-z234]+)=</pattern>
+					<with>xx$1=</with>
+				</replace>
+				Disable script references
+				<replace>
+					<pattern>(src|href)=(["']?)((java|j|vb|ecma)script):</pattern>
+					<with>href=$1#$1 xx=$1$2:</with>
+				</replace>
+			</match>
+		</split>
+		
+		Disable CSS expression script
+		<replace>
+			<pattern>(:\w*)expression\(</pattern>
+			<with>$1disabledscript(</with>
+		</replace>
+	
+	</group>
+</wikiparse>

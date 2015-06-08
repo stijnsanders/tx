@@ -1,0 +1,176 @@
+[[@txDefs,txSession,SQLiteData,]][[!var
+  qr:TSQLiteStatement;
+  qrStack:array of TSQLiteStatement;
+  ItemType:TtxITemType;
+  idp:array of integer;
+  ItemID,RootID,id,exclude,px,qx:integer;
+  name,fsql,exex:string;
+  hasChildren,preExpand,highlight:boolean;
+]][[
+
+{
+ATTENTION!!!
+Calls over XMLHTTP start a new session,
+if needed, rig xxmp to get the session from a SessionID request parameter, in favour of the Context.SessionID
+}
+
+CheckCallProtect(Context);
+txItem(Context['x'].Value,ItemType,ItemID);
+name:=Context['name'].Value;
+RootID:=Context['pid'].AsInteger;
+exclude:=Context['ex'].AsInteger;
+px:=0;
+qx:=0;
+if exclude=0 then exex:='' else exex:='&ex='+IntToStr(Exclude);
+
+case ItemType of
+  itObj:
+   begin
+
+    //get path to item to pre-expand
+	if ItemID<>RootID then
+	 begin
+      id:=ItemID;
+	  while (id<>0) and (id<>RootID) and Context.Connected do
+	   begin
+        if id<>ItemID then
+         begin
+          inc(px);
+          SetLength(idp,px);
+          idp[px-1]:=id;
+         end;
+        id:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[id],0);
+       end;
+	 end;
+
+	fsql:=sqlObjsByPid;
+	qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[RootID]);
+	try
+	  repeat
+		while Context.Connected and qr.Read do
+		 begin
+		  id:=qr.GetInt('id');
+		  if id=exclude then
+		   begin
+		    if id=ItemID then begin <<span id="[[=name]]_selectScrollTo"></span>> end;
+		   end
+		  else
+		   begin
+			hasChildren:=Session.DbCon.Exists('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id]);
+			preExpand:=hasChildren and not(px=0) and (id=idp[px-1]);
+			highlight:=id=ItemID;
+			]]
+			<span id="[[=name]]_node_[[=id]]" expandurl="iSelect.xxm?x=[[=txItemTypeKey[ItemType]]][[=RootID]]&amp;pid=[[=id]]&amp;name=[[=name]][[=exex]][[=txCallProtect]]"[[
+			//if preExpand then Context.SendHTML(' nodeexpanded="1"');
+			if highlight then Context.SendHTML(' class="highlight"');
+			]]>>Context.Include('iFrameObj.xxmi',[name,id,hasChildren,preExpand,highlight],[qr]);<</span>
+			[[
+			if preExpand then
+			 begin
+			  if px>0 then dec(px);
+			  //start child list, push
+			  <<div class="treelist" id="[[=name]]_node_[[=id]]_dsc">>
+			  SetLength(qrStack,qx+1);
+			  qrStack[qx]:=qr;
+			  inc(qx);
+			  qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[id]);
+			 end;//if preExpand
+		   end;//if not id=exclude
+		 end;//while qr.Read
+		if qx<>0 then
+		 begin
+		  //pop, close child list
+		  qr.Free;
+		  dec(qx);
+		  qr:=qrStack[qx];
+		  <</div>>
+		 end;
+	  until not(Context.Connected) or ((qx=0) and qr.EOF);
+	finally
+	  qr.Free;
+	  //clean-up in case if disconnect
+	  while qx<>0 do
+	   begin
+	    dec(qx);
+	    qrStack[qx].Free;
+	   end;
+	end;
+   end;
+  itObjType,itTokType,itRefType:
+   begin
+
+    //get path to item to pre-expand
+	if ItemID<>RootID then
+	 begin
+      id:=ItemID;
+	  while (id<>0) and (id<>RootID) do
+       begin
+        if id<>ItemID then
+         begin
+          inc(px);
+          SetLength(idp,px);
+          idp[px-1]:=id;
+         end;
+        id:=DBSingleValue('SELECT pid FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[id],0);
+       end;
+	 end;
+
+    fsql:='SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE pid=? ORDER BY weight, name, c_ts';
+	qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[RootID]);
+	try
+	  repeat
+		while Context.Connected and qr.Read do
+		 begin
+		  id:=qr.GetInt('id');
+		  if id=exclude then
+		   begin
+		    if id=ItemID then begin <<span id="[[=name]]_selectScrollTo"></span>> end;
+		   end
+		  else
+		   begin
+			hasChildren:=Session.DbCon.Exists('SELECT id FROM '+txItemTypeTable[ItemType]+' WHERE pid=? LIMIT 1',[id]);
+			preExpand:=hasChildren and not(px=0) and (id=idp[px-1]);
+			highlight:=id=ItemID;
+			]]
+			<span id="[[=name]]_node_[[=id]]" expandurl="iSelect.xxm?x=[[=txItemTypeKey[ItemType]]][[=ItemID]]&amp;pid=[[=id]]&amp;name=[[=name]][[=exex]][[=txCallProtect]]"[[
+			//if preExpand then Context.SendHTML(' nodeexpanded="1"');
+			if highlight then Context.SendHTML(' class="highlight"');
+			]]>>Context.Include('iFrameType.xxmi',[name,ItemType,id,hasChildren,preExpand,highlight],[qr]);<</span>
+			[[
+			if preExpand then
+			 begin
+			  if px>0 then dec(px);
+			  //start child list, push
+			  <<div class="treelist" id="[[=name]]_node_[[=id]]_dsc">>
+			  SetLength(qrStack,qx+1);
+			  qrStack[qx]:=qr;
+			  inc(qx);
+			  qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[id]);
+			 end;//if preExpand
+		   end;//if not(id=exclude
+		 end;//while qr.Read
+		if qx<>0 then
+		 begin
+		  //pop, close child list
+		  qr.Free;
+		  dec(qx);
+		  qr:=qrStack[qx];
+		  <</div>>
+		 end;
+	  until not(Context.Connected) or ((qx=0) and qr.EOF);
+	finally
+	  qr.Free;
+	  //clean-up in case if disconnect
+	  while qx<>0 do
+	   begin
+	    dec(qx);
+	    qrStack[qx].Free;
+	   end;
+	end;
+
+   end;
+  else
+    <<p>Unknown item type: <b>>=txItemTypeName[ItemType] <</b></p>>
+end;
+
+]]

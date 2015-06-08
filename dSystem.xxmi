@@ -1,0 +1,9 @@
+[[@SQLiteData,]][[!var s:string;]][[
+s:=TSQLiteStatement(Objects[0]).GetStr('system');
+if not(s='') then
+ begin
+  ]]
+  <p><span class="sysref">>=s<</span></p>
+  [[
+ end;
+]]

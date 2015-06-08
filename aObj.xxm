@@ -1,0 +1,126 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+id,pid,i,x,oldObjTypeID,newObjTypeID,newWeight,RlmID:integer;
+url:string;
+name,desc:WideString;
+tokens:array of record
+  id,weight:integer;
+end;
+namechanged:boolean;
+]][[
+
+//TODO: transaction?
+
+id:=Context['id'].AsInteger;
+pid:=Context['pid'].AsInteger;
+newObjTypeID:=Context['objtype'].AsInteger;
+newWeight:=Context['weight'].AsInteger;
+CheckFormProtect(Context);
+
+//check realm
+if id=0 then x:=pid else x:=id;
+RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[x],Session.RealmNew);
+Session.HasRealmPermission(rpEdit,RlmID);
+
+name:=Context['name'].Value;
+desc:=Context['desc'].Value;
+
+if id<>0 then Session.UpdateID:=id;
+
+//quick add tokens, list first, get weight-delta from token types
+if id=0 then
+ begin
+  x:=Context['addtokenCount'].AsInteger;
+  SetLength(tokens,x);
+  for i:=0 to x-1 do
+   begin
+    tokens[i].id:=Context['addtoken'+IntToStr(i)].AsInteger;
+	if tokens[i].id<>0 then
+	 begin
+	  tokens[i].weight:=DBSingleValue('SELECT weight FROM TokType WHERE id=?',[tokens[i].id],0);
+	  inc(newWeight,tokens[i].weight);
+	 end;
+   end;
+ end
+else
+  SetLength(tokens,0);
+
+Session.DbCon.Execute('BEGIN TRANSACTION');
+try
+
+	//insert/update object
+	if id=0 then
+	 begin
+	  namechanged:=false;
+	  newWeight:=newWeight+DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[newObjTypeID],0);
+	  Session.DbCon.Execute('INSERT INTO Obj (pid,objtype_id,name,[desc],url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+		[pid,newObjTypeID,name,desc,Context['url'].Value,newWeight,RlmID,VNow,Session.UserID,VNow,Session.UserID],id);
+
+	  //path (only on new object)
+	  if Use_ObjPath then
+	   begin
+	    i:=0;
+		Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) VALUES (?,?,?)',[id,id,i]);
+	    while pid<>0 do
+	     begin
+	      inc(i);
+	      Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) VALUES (?,?,?)',[pid,id,i]);
+		  pid:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[pid],0);
+	     end;
+	   end;
+
+	 end
+	else
+	 begin
+	  oldObjTypeID:=DBSingleValue('SELECT objtype_id FROM Obj WHERE id=?',[id],0);
+	  namechanged:=(oldObjTypeID<>newObjTypeID) or (name<>DBSingleValue('SELECT name FROM Obj WHERE id=?',[id],''));
+	  if newObjTypeID<>oldObjTypeID then
+		newWeight:=newWeight
+          -DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[oldObjTypeID],0)
+          +DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[newObjTypeID],0);
+	  //pid: use move to move existing items
+	  Session.DbCon.Execute('UPDATE Obj SET objtype_id=?, name=?, [desc]=?, url=?, weight=?, m_ts=?, m_uid=? WHERE id=?',
+		[newObjTypeID,name,desc,Context['url'].Value,newWeight,VNow,Session.UserID,id]);
+	 end;
+
+	//if newWeight<>oldWeight then ...
+
+	TermStore.StoreTerms(itObj,id,id,name+#13#10+desc);
+	Session.AddFilterRecent(itObjType,newObjTypeID);
+
+	//history
+	if Use_ObjHist then
+	  Session.DbCon.Execute('INSERT INTO ObjHist (obj_id,rlm_id,ts,uid,name,[desc],weight) VALUES (?,?,?,?,?,?,?)',
+		[id,RlmID,VNow,Session.UserID,name,desc,newWeight],i);
+
+	//quick add tokens
+	for i:=0 to Length(tokens)-1 do
+	  if tokens[i].id<>0 then
+	   begin
+		Session.DbCon.Execute('INSERT INTO Tok (obj_id,toktype_id,[desc],weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',
+		  [id,tokens[i].id,'',tokens[i].weight,VNow,Session.UserID,VNow,Session.UserID]);
+		Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,toktype_id) VALUES (?,?,?,?,?,?)',
+		  [id,VNow,Session.UserID,'',newWeight,tokens[i].id]);
+	   end;
+
+	if Use_ObjTokRefCache then
+	 begin
+	  Context.Include('aObjTokRefCache.xxmi',[id]);
+	  if namechanged then //TODO: re-create entries? see MaintObjTokRefCache.xxm
+		Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj1_id] FROM Ref WHERE obj2_id=?)',[id]);
+	 end;
+
+    if Use_Unread and not Session.Stealth then
+      Session.DbCon.Execute('INSERT INTO Obx (obj_id) VALUES (?)',[id]);
+
+    Session.DbCon.Execute('COMMIT TRANSACTION');
+except
+    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    raise;
+end;
+
+if Context['addtokenOther'].AsInteger=1 then
+  url:='fTok.xxm?id='+IntToStr(id)
+else
+  url:='Item.xxm?x=i'+IntToStr(id);
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

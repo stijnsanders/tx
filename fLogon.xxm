@@ -1,0 +1,61 @@
+[[@txDefs,txSession,SQLiteData,]][[
+Context.Include('dHead.xxmi',['Account']);
+
+  if Context['mailsent'].AsInteger=1 then
+   begin
+    <<h2>User registered</h2>
+	<p>An e-mail has been sent with a link to activate your account. (If you can't find it after a few minutes, check your spam filter.)</p>>
+   end
+  else
+  if DBSingleValue('SELECT Obj.id FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE ObjType.system=? ORDER BY Obj.id LIMIT 1',['usergroup'],0)=0 then
+   begin
+    <<h2>Registration unavailable</h2>
+    <p>The website is currently not accepting new registrations.</p>>
+   end
+  else
+   begin
+    <<h2>New User</h2>
+    [[#txForm('aLogon.xxm',[])]]
+    [[#txFormProtect]]
+	<script><!--
+	[[Context.Include('iLogonJS.xxmi');]]
+	function email1Check(x)
+	{
+	  if(new RegExp("^[a-z\.0-9_]+?@[a-z0-9]+?\.[a-z]{2,4}$","").test(x))
+	    $("#email1Check").html('<span style="background-color:#00CC00;padding:0.2em;">ok</span>');
+	  else
+	    $("#email1Check").html('<span style="background-color:#CC0000;color:#FFCC00;padding:0.2em;">not an e-mail address?</span>');
+	}
+	function email2Check(x)
+	{
+	  if(x==$("#email1")[0].value)
+	    $("#email2Check").html('<span style="background-color:#00CC00;padding:0.2em;">ok</span>');
+	  else
+	    $("#email2Check").html('<span style="background-color:#CC0000;color:#FFCC00;padding:0.2em;">mismatch</span>');
+	}
+	//--></script>
+    <dl>
+    <dt>Login</dt><dd><input type="text" name="login" id="login1" size="50" onblur="$('#loginCheck').html('[[=lblLoading]]	').load('iLogonCheck.xxm',{login:this.value,xxx:'[[#Session.SessionCrypt]]'});" />
+	  <span id="loginCheck"></span></dd>
+	[[//TODO: show availability]]
+	<dt>Password</dt><dd><input type="password" name="pwd1" id="pwd1" value="" onkeyup="pwd1Check(this.value);" onchange="pwd1Check(this.value);" />
+	  <span id="pwd1Check"></span></dd>
+	<dt>Password, confirm</dt><dd><input type="password" name="pwd2" value="" onkeyup="pwd2Check(this.value);" onchange="pwd2Check(this.value);" />
+	  <span id="pwd2Check"></span></dd>
+	[[//TODO: script to check/validate/quantify password]]
+    <dt>E-mail address</dt><dd><input type="text" name="email" id="email1" size="50" onchange="email1Check(this.value);" />
+	  <span id="email1Check"></span></dd>
+	<dt>E-mail address, confirm</dt><dd><input type="text" name="email2" size="50" onchange="email2Check(this.value);" />
+	  <span id="email2Check"></span></dd>
+	<dt>Name</dt><dd><input type="text" name="name" class="textfield" /></dd>
+	<dt>Information</dt><dd>>Context.Include('dTextField.xxmi',['desc','']);<</dd>
+	<dt>URL</dt><dd><input type="text" name="url" class="textfield" /></dd>
+    </dl>
+    [[#txFormButton]]
+    <a href="Logon.xxm">back</a>
+    </form>
+	<script>$("#login1")[0].focus();</script>>
+   end;
+
+Context.Include('dFoot.xxmi');
+]]

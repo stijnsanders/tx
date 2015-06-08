@@ -1,0 +1,181 @@
+[[@txDefs,SQLiteData,txSession,txFilter,txFilterSql,]][[!var
+qr,qr1:TSQLiteStatement;
+qrStack:array of TSQLiteStatement;
+ItemID,RootID,id,px,qx:integer;
+fv:TtxFilterViewInfo;
+fw,name,fsql:string;
+doNode,hasChildren,preExpand,highlight:boolean;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+idf,idc,idp:TIdList;
+idc_i,idx:integer;
+const
+  //TODO: settings?
+  searchUpLevels=3;
+  searchDownTreshold=500;
+]][[
+
+{
+ATTENTION!!!
+Calls over XMLHTTP start a new session,
+if needed, rig xxmp to get the session from a SessionID request parameter, in favour of the Context.SessionID
+}
+
+CheckCallProtect(Context);
+GetFilterViewInfo(Context,fv);
+ItemID:=Context['id'].AsInteger;
+name:=Context['name'].Value;
+RootID:=Context['pid'].AsInteger;
+px:=0;
+qx:=0;
+
+//parse filter
+f:=TtxFilter.Create;
+fq:=TtxSqlQueryFragments.Create(itObj);
+idf:=TIdList.Create;
+idc:=TIdList.Create;
+idp:=TIdList.Create;
+try
+  try
+    f.FilterExpression:=fv.filter;
+    if f.ParseError<>'' then begin <<p style="color:red;">>=f.ParseError<</p>> end;
+    fq.AddFilter(f);
+    if ItemID=0 then
+     begin
+      ItemID:=fq.ParentID;
+      if RootID=0 then RootID:=ItemID;
+     end;
+    fw:='Obj.rlm_id'+Session.Realms[fv.rp].SQL+' AND ('+fq.Where+')';
+  finally
+    f.Free;
+  end;
+
+  fq.Fields:='Obj.id, Obj.pid';
+  fq.Where:=fw;
+  qr:=TSQLiteStatement.Create(Session.DbCon,fq.SQL);
+  try
+    while qr.Read and Context.Connected do
+     begin
+      //TODO: sort? unique?
+      idf.Add(qr.GetInt(0));
+      idf.Add(qr.GetInt(1));
+     end;
+  finally
+    qr.Free;
+  end;
+  //TODO: cache this list?
+
+    //TODO: multi-thread search-up to coincide with search-down?
+    {
+    for i:=1 to searchUpLevels do
+     begin
+      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT DISTINCT Obj.id, Obj.pid FROM Obj WHERE Obj.id IN ('+idf.List+')');
+      try
+        //TODO: sort? unique?
+        idf.Clear;
+        while qr.Read and Context.Connected do
+         begin
+          //TODO: sort? unique?
+          idf.Add(qr.GetInt(0));
+          idf.Add(qr.GetInt(1));
+         end;
+      finally
+        qr.Free;
+      end;
+     end;
+     }
+
+    //get path to item to pre-expand
+    if ItemID<>RootID then
+     begin
+      id:=ItemID;
+      while (id<>0) and (id<>RootID) and Context.Connected do
+       begin
+        if (id<>ItemID) then idp.Add(id);
+        id:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[id],0);
+       end;
+      px:=idp.Count;
+     end;
+
+	fsql:=sqlObjsByPid;
+	qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[RootID]);
+    try
+      repeat
+        while Context.Connected and qr.Read do
+         begin
+          id:=qr.GetInt('id');
+          //check wether to show this node or not, first in primary list
+          if idf.Contains(id) then doNode:=true else
+           begin
+            //then if any descendants match
+            idc.Clear;
+            idc_i:=0;
+            idc.Add(id);
+            doNode:=false;
+            repeat
+              idx:=idc[idc_i];
+              fq.Where:='Obj.id='+IntToStr(idx)+' AND '+fw;
+              if idf.Contains(idx) or Session.DbCon.Exists(fq.SQL) then doNode:=true else
+               begin
+                qr1:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(idx));
+                try
+                  while qr1.Read and Context.Connected do idc.Add(qr1.GetInt(0));
+                finally
+                  qr1.Free;
+                end;
+               end;
+              inc(idc_i);
+              if idc_i=searchDownTreshold then doNode:=true;
+            until doNode or (idc_i>=idc.Count) or not(Context.Connected);
+           end;
+
+          if doNode and Context.Connected then
+           begin
+            hasChildren:=Session.DbCon.Exists('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id]);
+            preExpand:=hasChildren and (px<>0) and (id=idp[px-1]);
+			highlight:=id=ItemID;
+			<<span id="[[=name]]_node_[[=id]]" expandurl="iFilter.xxm[[?'id',RootID,'pid',id,'name',name,'filter']][[#fv.filterU]][[=txCallProtect]]"[[
+			//if preExpand then Context.SendHTML(' nodeexpanded="1"');
+			if highlight then Context.SendHTML(' class="highlight"');
+			]]>>Context.Include('iFrameObj.xxmi',[name,id,hasChildren,preExpand,highlight],[qr]);<</span>>
+            if preExpand then
+             begin
+              if px>0 then dec(px);
+              //start child list, push
+              <<div class="treelist" id="[[=name]]_node_[[=id]]_dsc">>
+			  SetLength(qrStack,qx+1);
+			  qrStack[qx]:=qr;
+			  inc(qx);
+			  qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[id]);
+             end;//if preExpand
+           end;//if doNode
+         end;//while ids
+
+        if qx<>0 then
+         begin
+          //pop, close child list
+          qr.Free;
+          dec(qx);
+		  qr:=qrStack[qx];
+          <</div>>
+		  Context.Flush;
+         end;
+      until not(Context.Connected) or ((qx=0) and qr.EOF);
+    finally
+      qr.Free;
+      //clean-up in case if disconnect
+      while qx<>0 do
+       begin
+        dec(qx);
+        qrStack[qx].Free;
+       end;
+    end;
+
+finally
+  fq.Free;
+  idf.Free;
+  idc.Free;
+  idp.Free;
+end;
+
+]]

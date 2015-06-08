@@ -1,0 +1,28 @@
+[[@txDefs,SQLiteData,]][[!var
+qr:TSQLiteStatement;
+id:integer;
+ItemType:TtxItemType;
+name:string;
+hasChildren,preExpand,highlight:boolean;
+const
+preExpandImgNr:array[boolean] of string=('1','0');  
+]][[
+qr:=Objects[0] as TSQLiteStatement;
+name:=Values[0];
+ItemType:=TtxItemType(Values[1]);
+id:=Values[2];
+hasChildren:=Values[3];
+preExpand:=Values[4];
+highlight:=Values[5];
+if hasChildren then
+ begin
+  <<img src="img_tr[[=preExpandImgNr[preExpand]]].png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]_node_[[=id]]');" />>
+ end
+else
+ begin
+  <<img src="img_trx.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]_node_[[=id]]');" />>
+ end;
+if highlight then begin <<span id="[[=name]]_selectScrollTo"></span>> end;
+]]
+<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=[[=txItemTypeKey[ItemType]]][[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a>
+<br />

@@ -1,0 +1,52 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+qr:TSQLiteStatement;
+aid,bid:integer;
+InControl:boolean;
+]][[
+
+Context.Include('dHead.xxmi',['Filters Overview']);
+
+<<h2>Filters Overview</h2>>
+
+aid:=-1;
+qr:=TSQLiteStatement.Create(Session.DbCon,
+  'SELECT Flt.*, Obj.objtype_id, Obj.[name] AS objname, Obj.rlm_id, ObjType.[icon], ObjType.[name] AS [typename] '+
+  'FROM Flt '+
+  'LEFT OUTER JOIN Obj ON Obj.id=Flt.obj_id '+
+  'LEFT OUTER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+  'ORDER BY Obj.m_ts, Obj.name, Flt.m_ts',[]);
+try
+  if qr.EOF then
+   begin
+     <<p><i>no stored filters</i></p>>
+   end
+  else
+    while qr.Read and Context.Connected do
+     begin
+      bid:=qr.GetInt('obj_id');
+      if aid<>bid then
+       begin
+        if bid=0 then
+         begin
+          <<p class="objecttitle">>#txImg(-1)<</p>>
+         end
+        else
+         begin
+          <<p class="objecttitle"><a href="Item.xxm?x=i[[=bid]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.objname<</a></p>>
+         end;
+        aid:=bid;
+       end;
+      InControl:=true;
+      try
+        Session.HasRealmPermission(rpEdit,qr.GetInt('rlm_id'));
+      except
+        on ERealmNotEditableByUser do InControl:=false;
+      end;
+      Context.Include('dFilter.xxmi',[InControl,true],[qr]);
+     end;
+finally
+  qr.Free;
+end;
+
+Context.Include('dFoot.xxmi');
+]]

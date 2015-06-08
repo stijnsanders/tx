@@ -1,0 +1,12 @@
+v1.2.3
+- unread items (stealth mode)
+
+v1.2.2
+- CSRF protection
+- rel="nofollow" on selected links, robots.txt
+
+v1.2.1
+- ObjPath: branch lookup table
+
+v1.2
+- SQLite port

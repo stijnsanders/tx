@@ -1,0 +1,11 @@
+[[@txDefs,txSession,]][[!var
+id:integer;
+]][[
+id:=Values[0];
+<<h2>Delete filter [[=id]]</h2>
+[[//TODO: check realms, display info]]
+<p class="information">This will delete stored filter graph data also.</p>
+[[#txForm('aFltDelete.xxm',['id',id])]]
+[[#txFormProtect]]
+[[#txFormButton]] [[//TODO: back?]]
+</form>

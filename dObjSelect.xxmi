@@ -1,0 +1,79 @@
+[[//
+Values
+0: control name
+1: current object id (optional)
+2: exclude object id (optional)
+3: proposed start object id (optional, only used when current id = 0)
+4: search default keywords (optional)
+5: register catch click from tree frame (optional)
+]][[@txDefs,txSession,SQLiteData,]][[!var
+name,defHTML,dss:string;
+id,exclude,idp,i,id1:integer;
+qr:TSQLiteStatement;
+catchesFromFrame:boolean;
+]][[
+name:=Values[0];
+if Length(Values)>1 then id:=Values[1] else id:=0;
+if Length(Values)>2 then exclude:=Values[2] else exclude:=0;
+if (id=0) and (Length(Values)>3) then idp:=Values[3] else idp:=id;
+if Length(Values)>4 then dss:=Values[4] else dss:='';
+if Length(Values)>5 then catchesFromFrame:=Values[5] else catchesFromFrame:=false;
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT ObjType.icon, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id]);
+try
+  if qr.Read then
+    defHTML:=txImg(qr.GetInt('icon'))+' '+HTMLEncode(qr.GetStr('name'))
+  else
+    defHTML:=txImg(-1)+' <i>none selected</i>';
+finally
+  qr.Free;
+end;
+<<div class="itemselect" id="[[=name]]_dsp" onclick="return selectnode_toggle('[[=name]]','i',[[=idp]],[[=exclude]]);">>#defHTML<</div>
+<input type="hidden" id="[[=name]]_id" name="[[=name]]" value="[[=id]]" />
+<a class="linkbutton" href="#" onclick="return selectnode_toggle('[[=name]]','i',[[=idp]],[[=exclude]]);">select</a>
+<a class="linkbutton" href="#" onclick="return selectnode_clear('[[=name]]');">clear</a>
+<a class="linkbutton" href="#" onclick="return selectnode_search('[[=name]]',[[=exclude]],'[[=URLEncode(dss)]]');">search...</a>
+[[
+if id<>0 then
+ begin
+  <<a class="linkbutton" href="#" onclick="return selectnode_reset([[=id]],'[[=name]]');">reset</a>
+  [[
+ end;
+
+i:=0;
+if not(Session.FilterRecent[itObj,i]=0) then
+ begin
+  ]]&nbsp;<span class="label">recent:</span> [[
+  while (i<FilterRecentCount) and not(Session.FilterRecent[itObj,i]=0) do
+   begin
+    id1:=Session.FilterRecent[itObj,i];
+    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT ObjType.icon, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id1]);
+	try
+	  if qr.Read then
+	   begin
+        <<a class="recentselect" href="Item.xxm?x=i[[=id1]]" onclick="recent_select('[[=name]]',this,[[=id1]]);return(event||window.event||this).ctrlKey;" title="[[.name]]">>#txImg(qr.GetInt('icon'))<<span class="recenttitle"> [[.name]]</span></a>
+		[[
+	   end;
+	finally
+	  qr.Free;
+	end;
+    inc(i);
+   end;
+ end;
+
+<<br />
+<div id="[[=name]]_selbox" class="itemselectbox" style="position:relative;display:none;">>#lblLoading<</div>
+<span id="[[=name]]_default" style="display:none;">>#defHTML<</span>>
+if catchesFromFrame then
+ begin
+<<script><!--
+var catchTreeClick=function(id,x){
+	if(id!=[[=exclude]]){
+		$("#[[=name]]_id")[0].value=id;
+		var y=$("#[[=name]]_dsp");
+		y[0].style.backgroundColor="#FFCC00";
+		y.html((x&&x.innerHTML)?x.innerHTML:"::i"+id);
+	}
+};
+//--></script>>
+ end;
+]]

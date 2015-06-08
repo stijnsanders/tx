@@ -1,0 +1,90 @@
+[[@txDefs,txSession,]][[!var
+ItemType:TtxItemType;
+ItemID:integer;
+name,filter,url:string;
+]][[
+Context.Include('dFrameHead.xxmi',[],[]);
+txItem(Context['x'].Value,ItemType,ItemID);
+name:='ftree'+txItemTypeTable[ItemType];
+filter:=Context['filter'].Value;
+if filter='' then
+  url:='iSelect.xxm?name='+name+txCallProtect+'&x='+txItemTypeKey[ItemType]
+else
+  url:='iFilter.xxm?name='+name+txCallProtect+'&filter='+URLEncode(filter)+'&id=';
+<<div id="selbox" style="white-space: nowrap; margin: 0em;">>#lblLoading<</div>
+<script><!--
+	$().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"+request.requestText+"</p>");});
+	$().ajaxComplete(function(){safeScrollToX("[[=name]]_selectScrollTo");});
+	$("#selbox").load("[[#url]][[=ItemID]]");
+	function frametree_expandto(t,p)
+	{
+		if(t=="[[=txItemTypeKey[ItemType]]]")
+		{
+			$(".highlight").removeClass("highlight");
+			var x=new String(p).split(",");
+			var id=x[x.length-1];
+			var y=$("#[[=name]]_node_"+id);
+			if(y.length==1)
+			{
+				window.scrollTo(y[0].offsetLeft-32,y[0].offsetTop-((window.innerHeight||document.body.clientHeight)/3));
+				y.addClass("highlight");
+			}
+			else
+			{
+				if(x.length==1)
+					$("#selbox").load("[[#url]]"+id);
+				else
+				{
+					var i=0;
+					var z=$("#[[=name]]_node_"+x[i]+"_dsc");
+					while(i<x.length-2 && z.length==1)
+					{
+						z.show();
+						i++;
+						z=$("#[[=name]]_node_"+x[i]+"_dsc");
+					}
+					treenode_expand("[[=name]]_node_"+x[i],"[[#url]]"+id+"&pid="+x[i],function(){
+						var xx=$(".highlight");
+						if(xx.length!=0)
+							window.scrollTo(xx[0].offsetLeft-32,xx[0].offsetTop-((window.innerHeight||document.body.clientHeight)/3));
+					});
+				}
+			}
+            [[if Session.QryUnread then begin]]
+            $("#nodename"+id).removeClass("u");
+            $.ajax({url:"iRead.xxm?id="+id+"[[#txCallProtect]]",success:function(r){
+                var p=r.split(";");
+                var q;
+                for(var i=0;i<p.length;i++){
+                    q=p[i].split("=");
+                    if(q.length==2)$("#unread"+q[0]).text(q[1]);
+                }
+            }});
+            [[end;]]
+		}
+	}
+	function frametree_update(t,p)
+	{
+		if(t=="[[=txItemTypeKey[ItemType]]]") $("#[[=name]]_node_"+p).load("iItem.xxm?name=[[=name]][[#txCallProtect]]&x=[[=txItemTypeKey[ItemType]]]"+p);
+	}
+	function frametree_updatedelete(t,p)
+	{
+		if(t=="[[=txItemTypeKey[ItemType]]]")
+		{
+			$("#[[=name]]_node_"+p+"_dsc").remove();
+			$("#[[=name]]_node_"+p).remove();
+		}
+	}
+	function treenode_select(e,name,id)
+	{
+		if(window.parent.frames["MainFrame"].window.catchTreeClick)
+			window.parent.frames["MainFrame"].window.catchTreeClick(id,$("#"+name+"_nodelink_"+id)[0]);
+		else
+			window.parent.frames["MainFrame"].location="Item.xxm?x=[[=txItemTypeKey[ItemType]]]"+id;
+		return (e||window.event||this).shiftKey;
+	}
+//--></script>>
+
+Context.Include('dFrameFoot.xxmi',[],[]);
+
+]]

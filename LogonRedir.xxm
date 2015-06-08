@@ -1,0 +1,7 @@
+[[!var url:string;]][[
+//login required
+url:='/Logon.xxm?url='+URLEncode(Context.URL);
+Context.Redirect(url,true);
+]]
+Logon required!<br />
+Redirecting to <a href="[[=url]]">>=url<</a>

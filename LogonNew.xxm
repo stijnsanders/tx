@@ -1,0 +1,75 @@
+[[@txDefs,txSession,SQLiteData,sha1,]][[!var
+s,t,u:string;
+id:integer;
+qr:TSQLiteStatement;
+const
+hex:array[0..15] of char='0123456789abcdef';
+]][[
+
+Context.Include('dHead.xxmi',['New user account activation']);
+
+s:=Context['x'].Value;
+
+//assert Use_NewUserEmailActivation
+
+id:=
+   (((byte(s[13]) shr 6) and 1)*9+(byte(s[13]) and $F)) or
+  ((((byte(s[17]) shr 6) and 1)*9+(byte(s[17]) and $F)) shl 4) or
+  ((((byte(s[23]) shr 6) and 1)*9+(byte(s[23]) and $F)) shl 8) or
+  ((((byte(s[31]) shr 6) and 1)*9+(byte(s[31]) and $F)) shl 12);
+u:=' ';
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Usr.uid,Usr.login,Obj.name,Usr.email,Usr.pwd,0 as isanon FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.id=?',[id]);
+try
+  if qr.EOF then t:='' else
+   begin
+    t:=PasswordToken('||||','|||'+qr.GetStr('login')+'|||'+qr.GetStr('name')+'|||'+qr.GetStr('email')+'|||');
+	t[13]:=hex[id and $F];
+	t[17]:=hex[(id shr 4) and $F];
+	t[23]:=hex[(id shr 8) and $F];
+	t[31]:=hex[(id shr 12) and $F];
+	u:=qr.GetStr('pwd')+' ';
+   end;
+  if s<>t then
+   begin
+    <<h3>New user account activation</h3>
+	<p>Unknown account activation code.</p>>
+	u:=' ';
+   end;
+  case u[1] of
+    '?':
+	 begin
+      <<h3>Password reset</h3>
+	  <script><!--
+	  [[Context.Include('iLogonJS.xxmi');]]
+	  //--></script>
+      [[#txForm('aUserPwd.xxm',['id',id,'uid',qr['uid']])]]
+      [[#txFormProtect]]
+      <dl>
+      <dt>Login</dt><dd>>.login<</dd>
+      <dt>New password</dt><dd><input type="password" name="pwd1" id="pwd1" value="" onkeyup="pwd1Check(this.value);" onchange="pwd1Check(this.value);" />
+	    <span id="pwd1Check"></span></dd>
+      <dt>Confirm</dt><dd><input type="password" name="pwd2" id="pwd2" value="" onkeyup="pwd2Check(this.value);" onchange="pwd2Check(this.value);" />
+	    <span id="pwd2Check"></span></dd>
+      </dl>
+      [[#txFormButton]]
+      <a href="Users.xxm">back</a>
+      </form>
+	  <script><!--
+	  $("#pwd1")[0].focus();
+	  //--></script>>
+	  Session.LoadUser(qr);//?
+	 end;
+	'-':
+	 begin
+      //Session.LoadUser(qr);?
+	  Session.DbCon.Execute('UPDATE Usr SET pwd=SUBSTR(pwd,2) WHERE id=?',[id]);
+	  <<h3>New user account activation</h3>
+	  <p>Your account has been activated. <a href="Logon.xxm">Click here</a> to log on.	</p>>
+	 end;
+   end;
+finally
+  qr.Free;
+end;
+
+Context.Include('dFoot.xxmi');
+]]

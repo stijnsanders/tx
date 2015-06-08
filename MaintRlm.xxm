@@ -1,0 +1,63 @@
+[[@txDefs,txSession,SQLiteData,txFilter,txFilterSql,Variants,]][[!var
+qr:TSQLiteStatement;
+c:integer;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+fs:string;
+]][[
+Context.ContentType:='text/plain';
+Context.BufferSize:=0;
+
+Context.SendHTML('Parse filter...'#13#10);
+
+c:=0; 
+f:=TtxFilter.Create;
+fq:=TtxSqlQueryFragments.Create(itObj);
+try
+  f.FilterExpression:='ot"wf.task"*+ttr"wf.quant.pas"*';//TODO: from settings file!
+  if f.ParseError<>'' then
+   begin
+	]]
+	PARSE_ERROR!!!
+	[[#f.ParseError]]
+	[[
+   end;
+  fq.AddFilter(f);
+  fq.Fields:='Obj.id';
+  fq.Where:='('+fq.Where+') AND Obj.rlm_id IN (0,4) AND Tok.m_ts<=?';
+  fq.OrderBy:='';
+  //fq.GroupBy
+  fs:=fq.SQL;
+finally
+  f.Free;
+  fq.Free;
+end;
+    
+Context.SendHTML('Run query...'#13#10);
+try   
+    qr:=TSQLiteStatement.Create(Session.DbCon,fs,[VarFromDateTime(Now-7.0)]);//TODO: from settings file!
+    try
+      Context.SendHTML('List objects...'#13#10);    
+      while qr.Read and Context.Connected do 
+       begin
+        Session.DbCon.Execute('UPDATE Obj SET rlm_id=3 WHERE id=?',[qr.GetInt('id')]);
+        inc(c);
+       end;
+    finally
+      qr.Free;
+    end;
+except
+  on e:Exception do
+   begin
+    ]]
+    EXCEPTION!!!
+    [[#e.Message]]
+    [[
+   end;
+end;    
+
+//TODO: to done realm: projects that only has done (or deleted) items
+
+Context.SendHTML('('+IntToStr(c)+')---'#13#10);
+
+]]

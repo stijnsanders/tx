@@ -1,0 +1,62 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+id,oldWeight,newWeight,defChild:integer;
+url:string;
+]][[
+
+newWeight:=Context['weight'].AsInteger;
+//when new: default weight from parent?
+
+//TODO: transaction?
+id:=Context['id'].AsInteger;
+defChild:=Context['default'].AsInteger;
+CheckFormProtect(Context);
+
+//check edit permission in default realm
+Session.HasRealmPermission(rpEdit,0);
+
+Session.DbCon.Execute('BEGIN TRANSACTION');
+try
+
+    if id=0 then oldWeight:=0 else
+     begin
+      oldWeight:=DbSingleValue('SELECT weight FROM ObjType WHERE id=?',[id],0);
+      Session.UpdateID:=id;
+     end;
+
+    if id=0 then
+      Session.DbCon.Execute('INSERT INTO ObjType (pid,icon,name,dft,weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?)',[
+        Context['pid'].AsInteger,
+    	Context['icon'].AsInteger,
+    	Context['name'].Value,
+    	defChild,
+    	newWeight,
+    	VNow,Session.UserID,VNow,Session.UserID
+    	],id)
+    else
+      Session.DbCon.Execute('UPDATE ObjType SET icon=?, name=?, dft=?, weight=?, m_ts=?, m_uid=? WHERE id=?',[
+        Context['icon'].AsInteger,
+    	Context['name'].Value,
+    	defChild,
+    	newWeight,
+    	VNow,
+    	Session.UserID,
+    	id]);
+      //pid: use move to move existing items
+
+    Session.AddFilterRecent(itObjType,defChild);
+
+    if Session.IsAdmin('config') then
+      Session.DbCon.Execute('UPDATE ObjType SET system=? WHERE id=?',[
+    	Context['system'].Value,
+        id]);
+    if newWeight<>oldWeight then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[newWeight-oldWeight,id]);
+
+    Session.DbCon.Execute('COMMIT TRANSACTION');
+except
+    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    raise;
+end;
+
+url:='Item.xxm?x=ot'+IntToStr(id);
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

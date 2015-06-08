@@ -1,0 +1,470 @@
+[[@Classes,MSXML,txDefs,txSession,SQLiteData,txImport,Variants,]][[!var
+doc:DOMDocument;
+ss:TStringStream;
+im:TtxImport;
+q,act,id1,id2,id3,icon:integer;
+qr:TSQLiteStatement;
+xl:IXMLDOMNodeList;
+x,y:IXMLDOMElement;
+DoPageLayout,SingleItem:boolean;
+name:string;
+const
+ActionURL='Import.xxm';//TODO: from Context?
+]][[
+act:=Context['x'].AsInteger;
+q:=act mod 10;
+if Session.Data=nil then im:=nil else im:=Session.Data as TtxImport;
+SingleItem:=false;
+
+//operations
+case act of
+  50..59://clear graft
+   begin
+    im.Doc.documentElement.setAttribute('graft'+QName[q],'');
+	act:=10+q;
+   end;
+  60..69://clear propo
+   begin
+    id2:=Context['id'].AsInteger;
+    x:=im.Doc.documentElement.selectSingleNode(QName[q]+'[@id="'+IntToStr(id2)+'"]') as IXMLDOMElement;
+    x.setAttribute('propo','');
+	act:=20+q;
+	SingleItem:=true;
+   end;
+  70..79://set graft
+   begin
+    im.Doc.documentElement.setAttribute('graft'+QName[q],Context['graft'].AsInteger);
+	act:=10+q;
+   end;
+  80..89://set propo
+   begin
+    id2:=Context['id'].AsInteger;
+    x:=im.Doc.documentElement.selectSingleNode(QName[q]+'[@id="'+IntToStr(id2)+'"]') as IXMLDOMElement;
+    x.setAttribute('propo',Context['propo'].AsInteger);
+	act:=20+q;
+	SingleItem:=true;
+   end;
+  90..99://reset propo
+   begin
+    id2:=Context['id'].AsInteger;
+    x:=im.Doc.documentElement.selectSingleNode(QName[q]+'[@id="'+IntToStr(id2)+'"]') as IXMLDOMElement;
+    x.setAttribute('propo',x.getAttribute('propoDef'));
+	act:=20+q;
+	SingleItem:=true;
+   end;
+end;
+
+DoPageLayout:=act in [0,100,120];
+if DoPageLayout then
+ begin
+  Context.Include('dHead.xxmi',['Import']);
+  <<h2>Import</h2>>
+ end;
+
+case act of
+  0:
+    if im=nil then
+	 begin
+      <<form action="[[=ActionURL]]" method="post" enctype="multipart/form-data" onsubmit="return default_form_submit(true);">
+	  [[#txFormProtect]]
+      <input type="hidden" name="x" value="100" />
+      <dl>
+      <dt>Upload an export XML to start import job with:</dt>
+      <dd><input type="file" name="in" /><br /></dt>
+      <dt>Fill the translation table with a rough proposal:</dt>
+      <dd>>
+      for q:=0 to 3 do
+       begin
+        <<span style="width:10em;">>=QDesc[q]<</span>
+        <input type="radio" name="propo[[=q]]" id="XPropo[[=q]]A" value="0" />
+        <label for="XPropo[[=q]]A">none</label>
+        <input type="radio" name="propo[[=q]]" id="XPropo[[=q]]B" value="1" checked="1" />
+        <label for="XPropo[[=q]]B">proposed</label>
+        <input type="radio" name="propo[[=q]]" id="XPropo[[=q]]C" value="2" />
+        <label for="XPropo[[=q]]C">reset default only</label>
+        <br />>
+       end;
+      <</dd>
+      </dl>
+      [[#txFormButton]]
+      </form>>
+	 end
+	else
+	 begin
+	  <<p>Review the translation table</p>
+
+<style type="text/css"><!--
+.colH {
+    font-weight: bold;
+    border-bottom: 0.1em solid #909090;
+}
+.row1 {
+	margin: 0em;
+	padding: 0em;
+}
+.col1 {
+	height: 1.5em;
+    white-space: nowrap;
+    overflow: hidden;
+    border-bottom: 0.1em solid #909090;
+}
+.col2 {
+    position: absolute;
+	right: 12em;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 30%;
+	height: 1.5em;
+	margin: 0em;
+    padding: 0.1em;
+    border-bottom: 0.1em solid #909090;
+	border-left: 0.4em solid white;
+	background-color: white;
+}
+.col3 {
+    position: absolute;
+	right: 1em;
+    white-space: nowrap;
+	overflow: hidden;
+    width: 11em;
+	height: 1.5em;
+	margin: 0em;
+    padding: 0.1em;
+    border-bottom: 0.1em solid #909090;
+	border-left: 0.4em solid white;
+	background-color: white;
+}
+//--></style>
+[[for q:=0 to 3 do begin]]
+<div class="colH">[[=QDesc[q]]] ([[=im.Doc.documentElement.selectNodes(QName[q]).length]])</div>
+<div id="[[=QName[q]]]_root">>#StringReplace(lblLoading,'''','\''',[rfReplaceAll])<</div>
+[[end;]]
+<script language="javascript"><!--
+function import_select(x,par)
+{
+	var xx=$("#"+x);
+	if(xx.length==1)
+	{
+		var xy=$("#"+x+"_dsc");
+		var ltext='<div class="treelist" id="'+x+'_dsc">>#StringReplace(lblLoading,'''','\''',[rfReplaceAll])<</div>';
+		if(xy.length!=0)
+			xy.html(ltext).show();
+		else
+			xx.after(ltext);
+		$("#"+x+"_dsc").load("[[=ActionURL]]",par);
+	}
+}
+function import_update(x,par)
+{
+	$("#"+x+"_row").load("[[=ActionURL]]",par);
+}
+$().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"+request.statusText+"</p>");});
+[[for q:=0 to 3 do begin]]$("#[[=QName[q]]]_root").load("[[=ActionURL]]?x=[[=10+q]]");
+[[end;]]
+//--></script>
+
+      <p>
+      <a href="ImportGo.xxm" class="linkbutton" onclick="return confirm('Is the translation table revised and ready for import?');"> &nbsp; Go! &nbsp; </a>
+      |
+      <a href="[[=ActionURL]]?x=110" class="linkbutton">inspect</a>
+      |
+      <a href="[[=ActionURL]]?x=120" class="linkbutton" onclick="return confirm('Are you sure to cancel this import job?');">cancel</a>
+      </p>>
+	 end;
+  10://graft node Obj
+   begin
+	  name:=QName[q]+'_node_0';
+	  <<div id="[[=name]]_row" class="row1">
+	  <div class="col2">>
+		id2:=DefAttr(im.Doc.documentElement,'graft'+QName[q],0);
+		if id2=0 then
+		 begin
+		  ]][[#txImg(-1)]] <i>top level</i> [[
+		 end
+		else
+		 begin
+		  qr:=TSQLiteStatement.Create(Session.DbCon,
+		    'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+			'FROM Obj '+
+			'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+			'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
+			'WHERE Obj.id=?',[id2]);
+		  try
+			Context.Include('dObjLink.xxmi',[],[qr]);
+		  finally
+			qr.Free;
+		  end;
+		 end;
+	  <</div>
+	  <div class="col3">
+		  <a href="javascript:import_update('[[=name]]',{x:50});" class="linkbutton">clear</a>
+		  <a href="javascript:import_select('[[=name]]',{x:30});" class="linkbutton">select</a>
+	  </div>
+      <div id="[[=name]]" expandurl="[[=ActionURL]]?x=20" class="col1">
+		  <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />
+	      <i>new items parent</i>
+	  </div>
+	  </div>>
+   end;
+  11..19://graft node
+   begin
+	name:=QName[q]+'_node_0';
+	<<div id="[[=name]]_row" class="row1">
+	<div class="col2">>
+	id2:=DefAttr(im.Doc.documentElement,'graft'+QName[q],0);
+	if id2=0 then
+	 begin
+	  ]][[#txImg(-1)]] <i>top level</i> [[
+	 end
+	else
+	 begin
+	  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+QName[q]+' WHERE id=?',[id2]);
+	  try
+		Context.Include('dTypeLink.xxmi',[QType[q]],[qr]);
+	  finally
+		qr.Free;
+	  end;
+	 end;
+	<</div>
+	<div class="col3">
+		<a href="javascript:import_update('[[=name]]',{x:[[=50+q]]});" class="linkbutton">clear</a>
+		<a href="javascript:import_select('[[=name]]',{x:[[=30+q]]});" class="linkbutton">select</a>
+	</div>
+	<div id="[[=name]]" expandurl="[[=ActionURL]]?x=[[=20+q]]" class="col1">
+		<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />
+		<i>new items parent</i>
+	</div>
+	</div>>
+   end;
+  20://object item
+   begin
+    id1:=Context['pid'].AsInteger;
+	if SingleItem then
+	  xl:=im.Doc.documentElement.selectNodes('Obj[@id="'+IntToStr(id2)+'"]')
+	else
+	  if id1=0 then
+	    xl:=im.Doc.documentElement.selectNodes('Obj[@graft="1"]')
+	  else
+	    xl:=im.Doc.documentElement.selectNodes('Obj[@pid="'+IntToStr(id1)+'"]');
+	x:=xl.nextNode as IXMLDOMElement;
+	while (x<>nil) and Context.Connected do
+	 begin
+      id1:=x.getAttribute('id');
+      y:=im.Doc.documentElement.selectSingleNode('ObjType[@id="'+x.getAttribute('type')+'"]') as IXMLDOMElement;
+      if y=nil then icon:=-1 else icon:=DefAttr(y,'icon',-1);
+      id2:=DefAttr(x,'propo',0);
+      id3:=DefAttr(x,'propoDef',0);
+	  name:=QName[q]+'_node_'+IntToStr(id1);
+      if not SingleItem then
+       begin
+	    <<div id="[[=name]]_row" class="row1">>
+       end;
+	  <<div class="col2">>
+		if id2=0 then
+		 begin
+		  <<i>import</i>>
+		 end
+		else
+		 begin
+		  qr:=TSQLiteStatement.Create(Session.DbCon,
+		    'SELECT Obj.id, Obj.[name], ObjType.[icon], ObjType.[name] AS [typename] '+
+			'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id2]);
+		  try
+			Context.Include('dObjLink.xxmi',[],[qr]);
+		  finally
+			qr.Free;
+		  end;
+		 end;
+	  <</div>
+	  <div class="col3">
+		  <a href="javascript:import_update('[[=name]]',{x:60,id:[[=id1]]});" class="linkbutton">clear</a>
+		  <a href="javascript:import_select('[[=name]]',{x:40,id:[[=id1]]});" class="linkbutton">select</a>
+          [[if (id3<>0) and (id2<>id3) then begin<<a href="javascript:import_update('[[=name]]',{x:90,id:[[=id1]]});" class="linkbutton">reset</a>>end;]]
+	  </div>
+      <div id="[[=name]]" expandurl="[[=ActionURL]]?x=20&amp;pid=[[=id1]]" class="col1">>
+	  if im.Doc.documentElement.selectSingleNode('Obj[@pid="'+IntToStr(id1)+'"]')=nil then
+	   begin
+	    <<img src="img_trx.png" width="16" height="16" alt="" [[#globalIconAlign]]/>>
+	   end
+	  else
+	   begin
+	    <<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />>
+	   end;
+	  ]]
+      [[#txImg(icon)]]
+      [[=x.selectSingleNode('name').text]]
+	  </div>>
+      if not SingleItem then
+       begin
+	    <</div>>
+       end;
+	  x:=xl.nextNode as IXMLDOMElement;
+	 end;
+   end;
+  21..29://type item
+   begin
+    id1:=Context['pid'].AsInteger;
+	if SingleItem then
+	  xl:=im.Doc.documentElement.selectNodes(QName[q]+'[@id="'+IntToStr(id2)+'"]')
+	else
+	  if id1=0 then
+	    xl:=im.Doc.documentElement.selectNodes(QName[q]+'[@graft="1"]')
+	  else
+	    xl:=im.Doc.documentElement.selectNodes(QName[q]+'[@pid="'+IntToStr(id1)+'"]');
+	x:=xl.nextNode as IXMLDOMElement;
+	while (x<>nil) and Context.Connected do
+	 begin
+      id1:=x.getAttribute('id');
+      id2:=DefAttr(x,'propo',0);
+      id3:=DefAttr(x,'propoDef',0);
+	  name:=QName[q]+'_node_'+IntToStr(id1);
+      if not SingleItem then
+       begin
+	    <<div id="[[=name]]_row" class="row1">>
+       end;
+	  <<div class="col2">>
+		if id2=0 then
+		 begin
+		  <<i>import</i>>
+		 end
+		else
+		 begin
+		  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+QName[q]+' WHERE id=?',[id2]);
+		  try
+			Context.Include('dTypeLink.xxmi',[QType[q]],[qr]);
+		  finally
+			qr.Free;
+		  end;
+		 end;
+	  <</div>
+	  <div class="col3">
+		  <a href="javascript:import_update('[[=name]]',{x:[[=60+q]],id:[[=id1]]});" class="linkbutton">clear</a>
+		  <a href="javascript:import_select('[[=name]]',{x:[[=40+q]],id:[[=id1]]});" class="linkbutton">select</a>
+          [[if (id3<>0) and (id2<>id3) then begin<<a href="javascript:import_update('[[=name]]',{x:[[=90+q]],id:[[=id1]]});" class="linkbutton">reset</a>>end;]]
+	  </div>
+      <div id="[[=name]]" expandurl="[[=ActionURL]]?x=[[=20+q]]&amp;pid=[[=id1]]" class="col1">>
+	  if im.Doc.documentElement.selectSingleNode(QName[q]+'[@pid="'+IntToStr(id1)+'"]')=nil then
+	   begin
+	    <<img src="img_trx.png" width="16" height="16" alt="" [[#globalIconAlign]]/>>
+	   end
+	  else
+	   begin
+	    <<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />>
+	   end;
+	  ]]
+      [[#txImg(DefAttr(x,'icon',-1))]]
+      [[=x.selectSingleNode('name').text]]
+	  </div>>
+      if not SingleItem then
+       begin
+	    <</div>>
+       end;
+	  x:=xl.nextNode as IXMLDOMElement;
+	 end;
+   end;
+  30..39://select graft
+   begin
+    id2:=DefAttr(im.Doc.documentElement,'graft'+QName[q],0);
+    if q=0 then
+      Context.Include('dObjSelect.xxmi',['graft',id2,0,0,'',true])
+    else
+      Context.Include('dTypeSelect.xxmi',[QType[q],'graft',id2]);
+    <<br />
+	<button onclick="import_update('[[=QName[q]]]_node_0',{x:[[=70+q]],graft:$('#graft_id')[0].value});this.disabled=true;" class="formsubmitbutton">Apply</button>>
+   end;
+  40..49://select item
+   begin
+    id1:=Context['id'].AsInteger;
+    x:=im.Doc.documentElement.selectSingleNode('Obj[@id="'+IntToStr(id1)+'"]') as IXMLDOMElement;
+    id2:=DefAttr(x,'propo',0);
+    if id2=0 then id2:=DefAttr(x,'propoDef',0);
+    if q=0 then
+      Context.Include('dObjSelect.xxmi',['propo',id2,0,0,'',true])
+    else
+      Context.Include('dTypeSelect.xxmi',[QType[q],'propo',id2]);
+    <<br />
+	<button onclick="import_update('[[=QName[q]]]_node_[[=id1]]',{x:[[=80+q]],id:[[=id1]],propo:$('#propo_id')[0].value});this.disabled=true;" class="formsubmitbutton">Apply</button>>
+   end;
+  //50..99 see above: operations
+
+  100://load import XML
+   begin
+      if Session.Data<>nil then
+        raise Exception.Create('Another import operation was started, finish or cancel that one first.');
+	  CheckFormProtect(Context);
+
+      doc:=CoDOMDocument.Create;
+      try
+        //TODO: use IStream on DOMDocument?
+        ss:=TStringStream.Create('');
+        try
+          (Context['in'] as IxxmParameterPostFile).SaveToStream(TStreamAdapter.Create(ss,soReference));
+          if not(doc.loadXML(ss.DataString)) then
+            raise Exception.Create(doc.parseError.reason);
+        finally
+          ss.Free;
+        end;
+
+        im:=TtxImport.Create(doc);
+        Session.Data:=im;
+      finally
+        doc:=nil;
+      end;
+
+      <<div id="propoprog">Building translation table...</div>>
+      for q:=0 to 3 do
+       begin
+        <<script><!--
+        $("#propoprog").html("Verifying [[=QDesc[q]]] structure...");
+        //--></script>>
+        im.VerifyTree(QName[q]);
+        id1:=Context['propo'+IntToStr(q)].AsInteger;
+        if id1<>0 then
+         begin
+          <<script><!--
+          $("#propoprog").html("Proposing [[=QDesc[q]]] translation...");
+          //--></script>>
+          im.BuildMapping(QName[q],id1=2);
+         end;
+       end;
+      <<script><!--
+      $("#propoprog").html("Done!");
+      document.location.replace("[[=ActionURL]]");
+      //--></script>
+      <p>You are being forwarded to the translation table overview...
+      <a href="[[=ActionURL]]">Click here</a> if the page does not display automatically.</p>>
+      //redirecting to avoid re-post on refresh
+   end;
+  101://close
+   begin
+    if im=nil then raise Exception.Create('No import job to close');
+    Session.Data:=nil;
+    id1:=DefAttr(im.Doc.documentElement,'graftObj',0);
+    im.Free;
+    Context.Redirect('Item.xxm?x=i'+IntToStr(id1),true);
+   end;
+  110://inspect
+   begin
+    if im=nil then raise Exception.Create('No import job to inspect');
+    Context.ContentType:='text/xml';
+    Context.DispositionAttach('inspect.tx.xml');
+    Context.SendHTML(im.Doc.xml);
+   end;
+  120://cancel
+   begin
+    if im=nil then raise Exception.Create('No import job to cancel');
+    Session.Data:=nil;
+    im.Free;
+    <<p>Import job cancelled.</p>
+    <p><a href="[[=ActionURL]]">Back</a></p>>
+   end;
+
+  else
+   begin
+    <<b style="color:red;">Unknown: [[=act]]</b>>
+   end;
+end;
+
+if DoPageLayout then Context.Include('dFoot.xxmi');
+
+]]

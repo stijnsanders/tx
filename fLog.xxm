@@ -1,0 +1,56 @@
+[[@txDefs,txSession,]][[!var
+i:integer;
+]][[Context.Include('dHead.xxmi',['Advanced log']);]]
+
+<h2>Advanced Log View</h2>
+
+[[#StringReplace(txForm('Log.xxm',[]),'"post"','"get"',[])]]
+<dl>
+<dt>Filter (leave empty for all)</dt>
+<dd>
+[[if Session.FilterCache.Count<>0 then begin]]
+<select name="filter1" id="LogFilterList" onchange="if(this.value=='') $('#LogFilter').show(); else $('#LogFilter').hide();">
+<option value=""></option>
+[[
+for i:=0 to Session.FilterCache.Count-1 do
+ begin
+  ]]<option value="[[=Session.FilterCache[i]]]">>=Session.FilterCache[i]<</option>
+  [[
+ end;
+]]
+</select>
+<br />
+[[end;]]
+<input type="text" name="filter" id="Logfilter" value="[[=Context['f'].Value]]" class="textfield" />
+</dd>
+<dt>Limit list (leave empty for default limit, set to "0" for unlimited)</dt>
+<dd>
+<input type="text" name="limit" size="8" value="100" />
+</dd>
+<dt>Sort</dt>
+<dd>
+<input type="radio" name="sort" value="0" id="sortDesc" checked="1" /><label for="sortDesc">descending</label>
+<br />
+<input type="radio" name="sort" value="1" id="sortAsc" /><label for="sortAsc">ascending</label>
+</dd>
+<dt>Start date (leave year empty for none)</dt>
+<dd>
+<input type="text" name="sy" size="4" />
+<select name="sm">[[for i:=1 to 12 do begin]]<option>>=i<</option>[[end;]]</select>
+<select name="sd">[[for i:=1 to 31 do begin]]<option>>=i<</option>[[end;]]</select>
+</dd>
+<dt>End date (leave year empty for none)</dt>
+<dd>
+<input type="text" name="ey" size="4" />
+<select name="em">[[for i:=1 to 12 do begin]]<option>>=i<</option>[[end;]]</select>
+<select name="ed">[[for i:=1 to 31 do begin]]<option>>=i<</option>[[end;]]</select>
+</dd>
+<dt>Realms</dt>
+<dd>
+<input type="checkbox" name="view" value="both" id="viewBoth" /><label for="viewBoth">query editable realms also</label>
+</dd>
+</dl>
+[[#txFormButton]]
+</txForm>
+
+[[Context.Include('dFoot.xxmi');]]

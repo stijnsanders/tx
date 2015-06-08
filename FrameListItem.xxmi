@@ -1,0 +1,25 @@
+[[@Windows,txDefs,SQLiteData,txSession,txFilter,txFilterSql,txCache,txNodes,]][[!var
+qr:TSQLiteStatement;
+id,pid:integer;
+ic:TItemCache;
+s:string;
+ln:TLocationNode;
+]][[
+qr:=Objects[0] as TSQLiteStatement;
+ic:=Objects[1] as TItemCache;
+id:=qr.GetInt('id');
+pid:=qr.GetInt('pid');
+s:='';
+while not(pid=0) and Context.Connected do
+ begin
+  ln:=ic[pid] as TLocationNode;
+  if ln=nil then ln:=ic.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+  s:=ln.GetListItemSelectHTML(pid)+s;
+ end;
+]]
+<span id="listitemfull_[[=id]]">
+[[#s]]
+<span id="listitem_[[=id]]">
+<a href="Item.xxm?x=i[[=id]]" onclick="return listitem_select(event,[[=id]]);" title="[[.typename]]">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a>
+[[Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' ','','','Item.xxm?x=i','" onclick="return listitem_select(event,this.href.split(''?x=i'')[1]);'],[qr]);]]
+<br /></span></span>

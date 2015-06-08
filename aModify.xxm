@@ -1,0 +1,96 @@
+[[@txDefs,SQLiteData,txSession,txFilter,txFilterSql,]][[!var
+filter,filterU,fs:string;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+x,i,id,weight:integer;
+qr:TSQLiteStatement;
+ids:TIdList;
+rpFilter:TtxRealmPermission;
+]][[
+Context.Include('dHead.xxmi',['Modify']);
+
+x:=Context['x'].AsInteger;
+filter:=Context['filter'].Value;
+filterU:=URLEncode(filter);
+if Context['all'].AsInteger=1 then rpFilter:=rpEdit else rpFilter:=rpBoth; //rpView,rpAny?
+CheckFormProtect(Context);
+
+<<h2>Modify filtered objects</h2>
+<p id="loadingDisplay">>#lblLoading<</p>>
+Context.Flush;
+
+f:=TtxFilter.Create;
+fq:=TtxSqlQueryFragments.Create(itObj);
+try
+  fq.Fields:='Obj.id';
+  f.FilterExpression:=filter;
+  if f.ParseError<>'' then begin<<p style="color:red;">>=f.ParseError<</p>>end;
+  fq.AddFilter(f);
+  //IsAdmin:=Session.IsAdmin('realms');
+  fq.Where:='Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq.Where+')';
+  fs:=fq.SQL;
+finally
+  f.Free;
+  fq.Free;
+end;
+
+  ids:=TIdList.Create;
+  try
+    qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+    try
+      while qr.Read and Context.Connected do ids.Add(qr.GetInt('id'));
+    finally
+      qr.Free;
+    end;
+
+    case x of
+      //1://add token: see aTok.Xxm
+	  //11://add reference: see aRef.xxm
+      //2://remove token: see aTokDelete.xxm
+	  3://change weight
+       begin
+        //TODO check realm? (filter done with rpEdit...)
+        weight:=Context['weight'].AsInteger;
+        for i:=0 to ids.Count-1 do Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id=?',[weight,ids[i]]);
+        <<script>$("#loadingDisplay").hide();</script>
+        <p>[[=ids.Count]] objects changed weight by [[=weight]].</p>>
+       end;
+      4://change realm
+       begin
+        //TODO check realm? (filter done with rpEdit...)
+        id:=Context['realm'].AsInteger;
+        for i:=0 to ids.Count-1 do Session.DbCon.Execute('UPDATE Obj SET rlm_id=? WHERE id=?',[id,ids[i]]);
+        <<script>$("#loadingDisplay").hide();</script>
+        <p>[[=ids.Count]] objects changed to realm [[=id]].</p>>
+       end;
+      5://move items
+	    raise Exception.Create('Not implemented');
+	  6://change object type
+	   begin
+        for i:=0 to ids.Count-1 do
+		  Session.HasRealmPermission(rpEdit,
+            DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ids[i]],Session.RealmNew));
+        id:=Context['objtype'].AsInteger;
+		weight:=DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[id],0)+Context['weight'].AsInteger;
+        for i:=0 to ids.Count-1 do
+		  Session.DbCon.Execute('UPDATE Obj SET weight=weight-?+?, objtype_id=? WHERE id=?',//AND objtype_id<>?
+		    [DBSingleValue('SELECT ObjType.weight FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ids[i]],0),weight,id,ids[i]]);
+        <<script>$("#loadingDisplay").hide();</script>
+        <p>[[=ids.Count]] objects changed to object type [[=id]].</p>>
+        //if Use_Unread then Obx?
+	   end;
+	  else
+	    raise Exception.Create('Unknown action code: '+IntToStr(x));
+    end;
+
+  finally
+    ids.Free;
+  end;
+
+  <<p>
+  <a class="linkbutton" href="Filter.xxm?filter=[[#filterU]]">filter...</a>
+  <a class="linkbutton" href="FilterBuild.xxm?filter=[[#filterU]]">edit filter</a>
+  </p>>
+
+Context.Include('dFoot.xxmi');
+]]

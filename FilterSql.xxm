@@ -1,0 +1,28 @@
+[[@txDefs,txFilter,txFilterSql,txSession,]][[!var
+  f:TtxFilter;
+  fq:TtxSqlQueryFragments;
+<<!DOCTYPE html>
+<html>
+<head>
+<title>SQL preview</title>
+<style type="text/css">
+BODY {border:0px;font-family:Lucida Console, monospace;font-size:11pt;}
+</style>
+</head>
+<body bgcolor="#FFFFFF">>
+f:=TtxFilter.Create;
+fq:=TtxSqlQueryFragments.Create(itObj);
+try
+  f.FilterExpression:=Context['filter'].Value;
+  fq.AddFilter(f);
+  fq.Where:='Obj.rlm_id'+Session.Realms[rpView].SQL+' AND ('+fq.Where+')';
+  
+  //TODO: nicer layout?
+  Context.Send(fq.SQL);
+  
+finally
+  f.Free;
+  fq.Free;
+end;
+<</body>
+</html>

@@ -1,0 +1,83 @@
+[[@Variants,txDefs,txSession,SQLiteData,]][[!var
+n,r,src,url:string;
+d,d1,ItemID:integer;
+qr:TSQLiteStatement;
+ItemType:TtxItemType;
+odl:boolean;
+]][[
+
+Context.Include('dHead.xxmi',['Term Links']);
+
+n:=Context['n'].Value;
+d:=Context['d'].AsInteger;
+r:=Context['r'].Value;
+odl:=false;
+
+<<h2>Term links "[[=n]]" <a href="Item.xxm?x=i[[=d]]" class="domainlink">&lsaquo;</a></h2>
+<p class="midnav">links</p>>
+qr:=TSQLiteStatement.Create(Session.DbCon,
+  'SELECT Trm.domain_id, Trm.term, Trm.id as term_id, Obj.id, Obj.pid, Obj.[name], Obj.[desc], Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+  'FROM Trm '+
+  'LEFT JOIN Obj ON Obj.id=Trm.obj_id '+
+  'LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+  'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
+  'WHERE lower(Trm.term)=lower(?) '+
+  'ORDER BY Obj.weight, Obj.name, Obj.c_ts',[n]);
+try
+  while qr.Read and Context.Connected do
+   begin
+    d1:=qr.GetInt('domain_id');
+    <<p[[if d1<>d then begin odl:=true;]] class="otherdomain"[[end;]]>
+	[[Context.Include('dObjLink.xxmi',[],[qr]);]]
+	<a href="aTermDelete.xxm[[?'d',d,'n',n,'id',qr['term_id']]]" class="linkbutton" onclick="return confirm('Are you sure to delete the term for the object?');">delete</a>>
+	if d1<>d then begin ]] <a href="Item.xxm?x=i[[=d1]]" class="domainlink">&lsaquo;</a>> end;
+	<</p>>
+	//TODO: domain
+   end;
+finally
+  qr.Free;
+end;
+if odl then
+ begin
+  odl:=false;
+  <<div class="otherdomain" style="float:right;font-style:italic;">defined in another wiki domain</div>>
+ end;
+<<p><a href="fTerm.xxm[[?'d',d,'n',n]]" class="linkbutton">add</a></p>>
+
+<<p class="midnav">backlinks</p>>
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Trl.id, Trl.source, Trl.domain_id FROM Trl WHERE lower(Trl.term)=lower(?)',[n]);
+try
+  while qr.Read and Context.Connected do
+   begin
+    src:=qr.GetStr('source');
+	d1:=qr.GetInt('domain_id');
+    txItem(src,ItemType,ItemID);
+	//TODO: fully embellished list?
+	case ItemType of
+	  itTok: url:='Item.xxm?x=i'+VarToStr(DBSingleValue('SELECT obj_id FROM Tok WHERE id=?',[ItemID],0))+'&htok='+IntToStr(ItemID)+'#tok'+IntToStr(ItemID);
+	  itRef: url:='Item.xxm?x=i'+VarToStr(DBSingleValue('SELECT obj1_id FROM Ref WHERE id=?',[ItemID],0))+'&href='+IntToStr(ItemID)+'#ref'+IntToStr(ItemID);
+	  itReport: url:='Item.xxm?x=i'+VarToStr(DBSingleValue('SELECT obj_id FROM Rpt WHERE id=?',[ItemID],0))+'&hr='+IntToStr(ItemID)+'#rpt'+IntToStr(ItemID);
+	  else url:='Item.xxm?x='+URLEncode(qr.GetStr('source'));
+	end;
+	<<p[[if d1<>d then begin odl:=true;]] class="otherdomain"[[end;]]>
+	<a href="[[=url]]">>.source<</a>>
+	if src=r then begin ]] <a href="[[=url]]" class="linkbutton">back</a>>end;
+	if d1<>d then begin ]] <a href="Item.xxm?x=i[[=d1]]" class="domainlink">&lsaquo;</a>> end;
+	<</p>>
+   end;
+finally
+  qr.Free;
+end;
+
+<<br />>
+
+if odl then
+ begin
+  <<div class="otherdomain" style="float:right;font-style:italic;">defined in another wiki domain</div>>
+ end;
+<<p>
+<a href="TermTrace.xxm?n=[[=n]]&amp;d=[[=d]]" class="linkbutton">trace...</a>
+</p>>
+
+Context.Include('dFoot.xxmi');
+]]

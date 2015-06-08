@@ -1,0 +1,99 @@
+[[@Variants,txDefs,txSession,SQLiteData,txFilter,txFilterSql,txTerms,]][[!var
+s,dsp:string;
+dspx:array of record
+  x,y:integer;
+end;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+qr:TSQLiteStatement;
+rpFilter:TtxRealmPermission;
+i,j,l,id,c,limit:integer;
+]][[
+//Values[0] see FilterExpression below
+dsp:=Values[1];
+if Values[2] then rpFilter:=rpAny else rpFilter:=rpView;
+limit:=StrToIntDef(Values[3],0);
+
+l:=Length(dsp);
+i:=1;
+c:=0;
+while i<l do
+ begin
+  while (i<l) and not((dsp[i]='[') and (dsp[i+1]='[')) do inc(i);
+  j:=i+2;
+  while (j<l) and not((dsp[j]=']') and (dsp[j+1]=']')) do inc(j);
+  if (j<l) then
+   begin
+    SetLength(dspx,c+1);
+	dspx[c].x:=i;
+	dspx[c].y:=j;
+	inc(c);
+   end;
+  i:=j+2;
+ end;
+
+f:=TtxFilter.Create;
+fq:=TtxSqlQueryFragments.Create(itObj);
+try
+  f.FilterExpression:=Values[0];
+  if f.parseError<>'' then raise Exception.Create(f.parseError);
+  fq.AddFilter(f);
+  fq.Where:='Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq.Where+')';
+  s:=fq.SQL;
+finally
+  f.Free;
+  fq.Free;
+end;
+
+//TODO: getdomain? limit in statement!
+qr:=TSQLiteStatement.Create(Session.DbCon,s);
+try
+  c:=0;
+  while qr.Read and Context.Connected and ((limit=0) or (c<limit)) do
+   begin
+    if dsp='' then Context.Include('dObjList.xxmi',[],[qr]) else
+	 begin
+      j:=1;
+      for i:=0 to Length(dspx)-1 do
+	   begin
+		Context.SendHTML(Copy(dsp,j,dspx[i].x-j));
+	    j:=dspx[i].y+2;
+	    id:=qr['id'];
+		s:=Copy(dsp,dspx[i].x+2,dspx[i].y-dspx[i].x-2);
+	
+		if s='name' then
+		 begin
+		  <<a href="Item.xxm?x=i[[=id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
+		 end
+		else
+		if s='desc' then Context.SendHTML(TermStore.TermLinks(itObj,id,0,qr.GetStr('desc'))) else
+		if s='url' then
+		 begin
+		  s:=qr.GetStr('url');
+		  if s<>'' then
+		   begin
+		    <<a href="[[=s]]">>=s<</a>>
+		   end;
+		 end
+		else
+		if s='link' then
+		 begin
+		  s:=qr.GetStr('url');
+		  if s='' then s:='Item.xxm?x=i'+IntToStr(id);
+		  <<a href="[[=s]]">>#txImg(qr.GetInt('icon'))]]&nbsp; [[.name]<</a>>
+		 end
+		else
+		//
+		 begin
+		  <<p style="color:red">Unkonwn list item: "[[=s]]"</p>>
+		 end;
+	   end;
+	  Context.SendHTML(Copy(dsp,j,l-j+1));
+	 end;
+	inc(c);
+   end;
+finally
+  qr.Free;
+end;
+
+]]

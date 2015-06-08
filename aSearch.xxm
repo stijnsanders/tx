@@ -1,0 +1,9 @@
+[[!var
+pid:integer;
+f:string;
+]][[
+pid:=Context['pid'].AsInteger;
+f:=URLEncode(Context['action'].Value)+'"'+URLEncode(StringReplace(Context['keywords'].Value,'"','""',[rfReplaceAll]))+'"'+URLEncode(Context['f'].Value);
+if pid<>0 then f:=URLEncode('i'+IntToStr(pid)+'*+')+f;
+Context.Redirect('Filter.xxm?filter='+f,true);
+]]

@@ -1,0 +1,85 @@
+[[@txDefs,txSession,SQLiteData,]][[!var
+id,DelRlmID:integer;
+]][[
+id:=Values[0];
+
+DelRlmID:=0;
+with TSQLiteStatement.Create(Session.DbCon,'SELECT id, system FROM Rlm',[]) do
+  try
+    while Read and (DelRlmID=0) do
+      if LowerCase(GetStr('system'))='deleted' then DelRlmID:=GetInt('id');
+  finally
+    Free;
+  end;
+
+//check realm here?
+
+<<h2>Delete object [[=id]]</h2>>
+
+if DelRlmID<>0 then
+ begin
+<<div id="realmdelete">
+[[#txForm('aObjDelete.xxm',['id',id])]]
+[[#txFormProtect]]
+Move object (and children objects) to 'deleted' realm?<br />
+[[#txFormButton]] <a href="Item.xxm?x=i[[=id]]">back</a>
+</form>
+<div style="text-align:right;">
+<a href="#" onclick="$('#realmdelete').hide();$('#fulldelete').show();return false;">advanced delete...</a>
+</div>
+</div>>
+ end;
+
+
+<<div id="fulldelete"[[if DelRlmID<>0 then begin]] style="display:none;"[[end;]]>
+[[#txForm('aObjDelete.xxm',['id',id,'full',1],'confirm(''Are you sure to permanently delete this object and related data?'')')]]
+[[#txFormProtect]]
+<dl>
+<dt>Children</dt>
+<dd>
+    <input type="radio" name="children" value="0" id="children0" checked="1" />
+    <label for="children0">Delete children <b>(!)</b></label>
+    <br />
+    <input type="radio" name="children" value="1" id="children1" />
+    <label for="children1">Move children to:</b></label>
+    <br />
+    [[Context.Include('dObjSelect.xxmi',['movechto',0,id,id,'',true]);]]
+</dd>
+<dt>Tokens</dt>
+<dd>
+    <input type="radio" name="tokens" value="0" id="tokens0" checked="1" />
+    <label for="tokens0">Delete tokens <b>(!)</b></label>
+    <br />
+    <input type="radio" name="tokens" value="1" id="tokens1" />
+    <label for="tokens1">Move tokens to same as children</b></label>
+    <br />
+    <input type="radio" name="tokens" value="2" id="tokens1" />
+    <label for="tokens1">Move tokens to:</b></label>
+    <br />
+    [[Context.Include('dObjSelect.xxmi',['movetokto',0,id,id]);]]
+</dd>
+<dt>References</dt>
+<dd>
+    <input type="radio" name="refs" value="0" id="refs0" checked="1" />
+    <label for="refs0">Delete references <b>(!)</b></label>
+    <br />
+    <input type="radio" name="refs" value="1" id="refs1" />
+    <label for="refs1">Move references to same as children</b></label>
+    <br />
+    <input type="radio" name="refs" value="1" id="refs1" />
+    <label for="refs1">Move references to:</b></label>
+    <br />
+    [[Context.Include('dObjSelect.xxmi',['moverefto',0,id,id]);]]
+</dd>
+</dl>
+[[#txFormButton]] <a href="Item.xxm?x=i[[=id]]">back</a>
+</form>>
+
+
+if DelRlmID<>0 then
+ begin
+<<div style="text-align:right;">
+<a href="#" onclick="$('#realmdelete').show();$('#fulldelete').hide();return false;">realm delete...</a>
+</div>>
+ end;
+<</div>

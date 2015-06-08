@@ -1,0 +1,295 @@
+[[@txDefs,SQLiteData,txSession,]][[!
+var
+  ItemType:TtxItemType;
+  ItemID,RlmID,d,d1:integer;
+  ItemTitle:string;
+  qr:TSQLiteStatement;
+  IsAdminReports,InControl:boolean;
+const
+  txItemTypeDisplay:array[TtxItemType] of string=(
+    'Browse','Object Types',
+    '','Token Types',
+    '','Reference Types',
+    '','','','',
+    //add new here above
+    ''
+  );
+]][[
+
+txItem(Context['x'].Value,ItemType,ItemID);
+ItemTitle:=txItemTypeDisplay[ItemType];
+qr:=nil;//counter warning
+
+  //fetch data and set ItemTitle first
+  case ItemType of
+
+    itObj:
+      if ItemID<>0 then
+       begin
+        qr:=TSQLiteStatement.Create(Session.DbCon,
+		  'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+          'FROM Obj '+
+          'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+          'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
+          'WHERE Obj.id=?',[ItemID]);
+        ItemTitle:=qr.GetStr('name');
+        Session.AddViewedLast(ItemID);
+       end;
+
+    itObjType,itTokType,itRefType:
+      if ItemID<>0 then
+       begin
+        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[ItemID]);
+        ItemTitle:=qr.GetStr('name');
+       end;
+
+	itTok:   Context.Redirect('Item.xxm?x=i'+IntToStr(DBSingleValue('SELECT obj_id FROM Tok WHERE id=?',[ItemID],0))+'#tok'+InttoStr(ItemID),true);
+	itRef:   Context.Redirect('Item.xxm?x=i'+IntToStr(DBSingleValue('SELECT obj1_id FROM Ref WHERE id=?',[ItemID],0))+'#ref'+InttoStr(ItemID),true);
+	itReport:Context.Redirect('Item.xxm?x=i'+IntToStr(DBSingleValue('SELECT obj_id FROM Rpt WHERE id=?',[ItemID],0))+'&hr='+IntToStr(ItemID)+'#rpt'+InttoStr(ItemID),true);
+
+    //else see below
+  end;
+
+  Context.Include('dHead.xxmi',[ItemTitle]);
+
+  if ItemID<>0 then
+   begin
+	if Session.UpdateID<>0 then
+	 begin
+	  <<script><!--
+	  if(window.parent&&window.parent.frames&&window.parent.frames["TreeFrame"]) window.parent.frames["TreeFrame"].frametree_update('[[=txItemTypeKey[ItemType]]]','[[=Session.UpdateID]]');
+	  //--></script>>
+	  Session.UpdateID:=0;
+	 end;
+	if Session.DeleteID<>0 then
+	 begin
+	  <<script><!--
+	  if(window.parent&&window.parent.frames&&window.parent.frames["TreeFrame"]) window.parent.frames["TreeFrame"].frametree_updatedelete('[[=txItemTypeKey[ItemType]]]','[[=Session.DeleteID]]');
+	  //--></script>>
+	  Session.DeleteID:=0;
+	 end;
+   end;
+
+  //now display item data
+  case ItemType of
+
+    itObj:
+     begin
+      if ItemID=0 then
+	   begin
+		//children only
+		<<p class="objectlist">>
+		//TODO: extra queries with all tokens/references?
+		qr:=TSQLiteStatement.Create(Session.DbCon,sqlObjsByPid,[ItemID]);
+		try
+		  while qr.Read and Context.Connected do
+		   begin
+			Context.Include('dObjLinkList.xxmi',[],[qr]);
+			<<br />>
+		   end;
+		finally
+		  qr.Free;
+		end;
+		<</p>
+        <p class="buttons">
+        <a href="fObj.xxm" class="linkbutton" rel="nofollow">add object here</a>
+        |
+        <a href="Item.xxm?x=ot0" class="linkbutton">object types</a>
+        <a href="Item.xxm?x=tt0" class="linkbutton">token types</a>
+        <a href="Item.xxm?x=rt0" class="linkbutton">reference types</a>
+		|
+		<a href="Menu.xxm" class="linkbutton">other...</a>
+        </p>>
+        if Use_Unread then
+         begin
+          <<p>
+          <a href="Read.xxm?x=2" class="linkbutton" rel="nofollow" onclick="return confirm('Are you sure to mark all items in viewable realms read?');">mark as read</a>
+          <a href="Read.xxm?x=3" class="linkbutton" rel="nofollow" onclick="return confirm('Are you sure to mark everything read (over all realms)?');">mark <i>all</i> as read</a>
+          <a href="Read.xxm?x=4" class="linkbutton" rel="nofollow" onclick="return confirm('Are you sure to reset all your read-indicators?');">mark <i>all</i> as unread</a>
+          </p>>
+         end;
+	   end
+	  else
+       begin
+	    try
+		  d:=TermStore.GetDomainID(ItemID);
+          Context.Include('dObj.xxmi',[d],[qr]);
+          RlmID:=qr.GetInt('rlm_id');
+		finally
+          qr.Free;
+		end;
+
+        //reports
+        //TODO: order by desc?
+        IsAdminReports:=Session.IsAdmin('reports');
+		qr:=TSQLiteStatement.Create(Session.DbCon,
+		  'SELECT Rpt.id, Rpt.obj_id, Rpt.[desc], Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id, Rpt.weight, '+
+          '  UsrObj.id AS [usrid], UsrObj.[name] AS [usrname], UsrObjType.[icon] AS [usricon], UsrObjType.[name] AS [usrtypename], '+
+          '  RelTokType.[icon] AS [tokicon], RelTokType.[name] AS [tokname], RelTokType.[system] AS [toksystem], '+
+          '  RelRefType.[icon] AS [reficon], RelRefType.[name] AS [refname], '+
+          '  RelObj.[name] AS [relname], RelObjType.[icon] AS [relicon], RelObjType.[name] AS [reltypename], '+
+          '  ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+          'FROM Rpt '+
+          '  INNER JOIN Obj AS UsrObj ON UsrObj.id=Rpt.uid '+
+          '  INNER JOIN ObjType AS UsrObjType ON UsrObjType.id=UsrObj.objtype_id '+
+          '  LEFT OUTER JOIN Obj AS RelObj ON RelObj.id=Rpt.obj2_id '+
+          '  LEFT OUTER JOIN ObjType AS RelObjType ON RelObjType.id=RelObj.objtype_id '+
+          '  LEFT OUTER JOIN TokType AS RelTokType ON RelTokType.id=Rpt.toktype_id '+
+          '  LEFT OUTER JOIN RefType AS RelRefType ON RelRefType.id=Rpt.reftype_id '+
+          '  LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Rpt.obj2_id '+
+          'WHERE Rpt.obj_id=? '+
+          'ORDER BY Rpt.ts',[ItemID]);
+        try
+          <<p class="midnav">reports</p>>
+          while qr.Read and Context.Connected do Context.Include('dReport.xxmi',[d,IsAdminReports],[qr]);
+		  <<p class="buttons">>
+          InControl:=true;
+          try
+            Session.HasRealmPermission(rpEdit,RlmID);
+          except
+            on ERealmNotEditableByUser do InControl:=false;
+          end;
+          if InControl then
+           begin
+            <<a href="fReport.xxm?id=[[=ItemID]]" class="linkbutton">report...</a> [[
+           end
+          else if Session.IsAnonymous then
+           begin
+            <<a href="fLogon.xxm" class="linkbutton" rel="nofollow">report...</a> [[
+           end;
+		  <<a href="Log.xxm?filter=i[[=ItemID]]*" class="linkbutton" rel="nofollow">full log</a>
+		  </p>>
+        finally
+          qr.Free;
+        end;
+
+		//terms
+		qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Trm.id, Trm.domain_id, Trm.term FROM Trm WHERE Trm.obj_id=? ORDER BY Trm.term',[ItemID]);
+		try
+		  if not qr.EOF then
+		   begin
+		    <<p class="midnav">terms</p>
+			<p>>
+		    while qr.Read and Context.Connected do
+		     begin
+		      d1:=qr.GetInt('domain_id');
+		      <<a href="TermLinks.xxm[[?'n',qr['term'],'d',d1]]"[[
+			  if d<>d1 then
+			   begin
+			    ]] style="font-style:italic;"[[
+			   end;
+			  ]] rel="nofollow">>.term<</a>
+			  [[
+		     end;
+			<</p>>
+		   end;
+		finally
+		  qr.Free;
+		end;
+
+        //unread, moved to below iFoot
+ 	  end;
+
+     end;
+
+    itObjType,itTokType,itRefType:
+     begin
+      if ItemID<>0 then
+       begin
+	    Context.Include('dType.xxmi',[ItemType],[qr]);
+        qr.Free;
+       end;
+
+       //children
+      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE pid=? ORDER BY weight, name, c_ts',[ItemID]);
+      try
+        if not qr.EOF then
+         begin
+          if ItemID<>0 then
+           begin
+            <<p class="midnav">[[#lblDescendants]] children</p>>
+           end;
+          <<p class="objectlist">>
+          while qr.Read and Context.Connected do
+           begin
+            Context.Include('dTypeLinkList.xxmi',[ItemType],[qr]);
+            <<br />>
+           end;
+          <</p>>
+         end;
+      finally
+        qr.Free;
+      end;
+
+      if ItemID=0 then
+        case ItemType of
+          itObjType:
+            begin
+              <<p class="buttons">
+              <a href="fObjType.xxm" class="linkbutton">add object type here</a>
+              |
+              <a href="Item.xxm?x=i0" class="linkbutton">objects</a>
+              |
+              <a href="Item.xxm?x=tt0" class="linkbutton">token types</a>
+              <a href="Item.xxm?x=rt0" class="linkbutton">reference types</a>
+              </p>>
+            end;
+          itTokType:
+            begin
+              <<p class="buttons">
+              <a href="fTokType.xxm" class="linkbutton">add token type here</a>
+              |
+              <a href="Item.xxm?x=i0" class="linkbutton">objects</a>
+              |
+              <a href="Item.xxm?x=ot0" class="linkbutton">object types</a>
+              <a href="Item.xxm?x=rt0" class="linkbutton">reference types</a>
+              </p>>
+            end;
+          itRefType:
+            begin
+              <<p class="buttons">
+              <a href="fRefType.xxm" class="linkbutton">add reference type here</a>
+              |
+              <a href="Item.xxm?x=i0" class="linkbutton">objects</a>
+              |
+              <a href="Item.xxm?x=ot0" class="linkbutton">object types</a>
+              <a href="Item.xxm?x=tt0" class="linkbutton">token types</a>
+              </p>>
+            end;
+        end;
+
+     end;
+
+    else
+     begin
+      <<p>Unknown item type: <b>>=txItemTypeName[ItemType]<</b></p>>
+	 end;
+  end;
+
+Context.Include('dFoot.xxmi');
+
+if (ItemType=itObj) and Use_Unread then
+ begin
+  Context.Flush;
+  //mark read
+  Session.DbCon.Execute('BEGIN TRANSACTION');
+  try
+    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obx.id, X2.id FROM Obx'+
+      ' LEFT OUTER JOIN Urx X1 ON X1.uid=? AND X1.id1<=Obx.id AND X1.id2>=Obx.id'+
+      ' LEFT OUTER JOIN Urx X2 ON X2.uid=? AND X2.id2=Obx.id-1'+
+      ' WHERE Obx.obj_id=? AND X1.id IS NULL',[Session.UserID,Session.UserID,ItemID]);
+    try
+      while qr.Read do
+        if qr.IsNull(1) then
+          Session.DbCon.Execute('INSERT INTO Urx (uid,id1,id2) VALUES (?,?,?)',[Session.UserID,qr[0],qr[0]])
+        else
+          Session.DbCon.Execute('UPDATE Urx SET id2=? WHERE id=?',[qr[0],qr[1]]);
+    finally
+      qr.Free;
+    end;
+    Session.DbCon.Execute('COMMIT TRANSACTION');
+  except
+    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    raise;
+  end;
+ end;

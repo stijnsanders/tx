@@ -1,0 +1,60 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+  ItemType:TtxItemType;
+  ItemID,RlmID,id:integer;
+  qr:TSQLiteStatement;
+  IsAdmin,InControl:boolean;
+  x:string;
+]][[
+Context.Include('dHead.xxmi',['Object''s Realm']);
+x:=Context['x'].Value;
+txItem(x,ItemType,ItemID);
+
+if ItemType<>itObj then raise Exception.Create('Realm change only supported on object');
+//mass changes: see Modify.xxm
+
+IsAdmin:=Session.IsAdmin('realms');
+
+<<h2>Object's Realm</h2>
+[[#txForm('aObjRealm.xxm',[])]]
+[[#txFormProtect]]
+[[
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ItemID]);
+try
+  <<p class="objecttitle">[[Context.Include('dObjLink.xxmi',[],[qr]);]]</p>>
+  RlmID:=qr.GetInt('rlm_id');
+finally
+  qr.Free;
+end;
+<<input type="hidden" name="x" value="[[=x]]" />
+<p>
+<input type="radio" name="rlm" value="0" id="Rlm0" [[if RlmID=0 then Context.SendHTML('checked="1"');]] />
+<label for="Rlm0"><i>Default realm</i> (0)</label>
+</p>>
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Rlm.id, Rlm.[name], Rlm.[desc], Rlm.[system], Rlm.view_expression, Rlm.edit_expression, Rlm.c_uid, Rlm.c_ts, Rlm.m_uid, Rlm.m_ts FROM Rlm',[]);
+try
+  while qr.Read and Context.Connected do
+   begin
+    id:=qr.GetInt('id');
+    InControl:=true;
+    try
+      if not IsAdmin then Session.HasRealmPermission(rpEdit,id);
+    except
+      on ERealmNotEditableByUser do InControl:=false;
+    end;
+    if InControl then
+     begin
+      <<p>
+	  <input type="radio" name="rlm" value="[[=id]]" id="Rlm[[=id]]" [[if RlmID=id then Context.SendHTML('checked="1"');]] />
+	  <label for="Rlm[[=id]]"><b>>.name<</b> ([[=id]])</label>
+	  </p>
+	  <div style="margin-left:2em;">>#qr['desc']<</div>>
+	  //TODO: SafeHTML
+     end;
+   end;
+finally
+  qr.Free;
+end;
+]]
+[[#txFormButton]] <a href="Item.xxm?x=[[=x]]">back</a>
+</form>>
+Context.Include('dFoot.xxmi');

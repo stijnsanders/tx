@@ -55,3 +55,13 @@ __history/
 
 # Castalia statistics file
 *.stat
+
+
+
+
+
+
+src/
+*.xxl
+*.log
+tx.ini

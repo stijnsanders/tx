@@ -1,0 +1,20 @@
+[[@txDefs,SQLiteData,txSession]][[!var
+qr:TSQLiteStatement;
+id,c:integer;
+]][[
+qr:=Objects[0] as TSQLiteStatement;
+id:=qr.GetInt('id');
+<<a href="Item.xxm?x=i[[=id]]" title="[[.typename]]"[[
+if Session.QryUnread and (qr.GetInt('r0')=0) then begin ]] class="u"[[ end;
+]]>>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
+if Session.QryUnread then
+ begin
+  c:=qr.GetInt('r1');
+  if c<>0 then
+   begin
+    ]] <span id="unread[[=id]]" class="nc">>.r1<</span>>
+   end;
+ end;
+Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
+Context.Include('d_cmw.xxmi',[],[qr]);
+]]

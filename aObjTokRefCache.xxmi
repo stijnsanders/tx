@@ -1,0 +1,51 @@
+[[@txDefs,txSession,SQLiteData,Variants,]][[!var
+qr:TSQLiteStatement;
+id:integer;
+toks,refs,s:string;
+
+const MaxCacheFieldLength=2000; //see ObjTokRefCache table field definition
+
+]][[
+
+//assert Use_ObjTokRefCache
+id:=Values[0];
+toks:='';
+qr:=TSQLiteStatement.Create(Session.DbCon,
+  'SELECT TokType.id, TokType.[icon], TokType.[name], TokType.[system] '+
+  'FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
+  'WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
+try
+  while qr.Read do
+   begin
+    s:=qr.GetStr('system');
+	if (s<>'') and (s[1]=':') then
+	  toks:=toks+'<a href="Log.xxm?filter=tt'+IntToStr(qr.GetInt('id'))+'*" title="'+
+	    qr.GetStr('name')+'"><img src="img/cat_'+Copy(s,2,Length(s)-1)+'.png" width="54" height="16" alt="'+
+		qr.GetStr('name')+'"'+globalIconAlign+'/></a>'#13#10
+	else
+      toks:=toks+txImg(qr.GetInt('icon'),qr.GetStr('name'))+#13#10;
+   end;
+finally
+  qr.Free;
+end;
+
+refs:='';
+qr:=TSQLiteStatement.Create(Session.DbCon,
+  'SELECT Ref.obj2_id, RefType.[icon], RefType.[name] AS [typename], Obj.[name], ObjType.[icon] AS [objicon] '+
+  'FROM Ref '+
+  'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
+  'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+
+  'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+  'WHERE Ref.obj1_id=?'+//' AND Obj.rlm_id'+Session.Realms[rpAny].SQL+//?
+  ' ORDER BY Ref.weight, Obj.weight',[id]);
+try
+  while qr.Read do refs:=refs+'<a href="&1'+IntToStr(qr.GetInt('obj2_id'))+'&2" title="'+HTMLEncode(qr['typename'])+' '+HTMLEncode(qr['name'])+'">'+
+	txImg(qr.GetInt('icon'))+txImg(qr.GetInt('objicon'))+'</a>'#13#10;
+finally
+  qr.Free;
+end;
+
+if (Length(toks)<=MaxCacheFieldLength) and (Length(refs)<=MaxCacheFieldLength) then
+  Session.DbCon.Execute('INSERT OR REPLACE INTO ObjTokRefCache (id,tokHTML,refHTML) VALUES (?,?,?)',[id,toks,refs])
+else
+  Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id]=?',[id]);

@@ -1,0 +1,86 @@
+[[@txDefs,txSession,]][[!var
+s:string;
+<<!DOCTYPE html>
+<html>
+<head>
+<title>>
+//Project.Name?
+if Length(Values)<1 then Context.Send(ApplicationName) else
+ begin
+  Context.Send(ApplicationName);
+  Context.Send(' - ');
+  Context.Send(Values[0]);
+ end;
+<</title>>
+s:=LowerCase(Context.ContextString(csLocalURL));
+if (s='filter.xxm') or (s='import.xxm') or (s='trace.xxm') or (s='fcount.xxm') then //more? from robots.txt?
+ begin
+  <<meta name="robots" content="noindex,nofollow" />>
+ end;
+<<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="tx.js.xxm?uid=[[=Session.UserID]][[=txCallProtect]]"></script>
+<link rel="stylesheet" type="text/css" href="tx.css.xxm?uid=[[=Session.UserID]]" />
+<link rel="alternate" type="application/rss+xml" title="tx items" href="Rss.xxm[[
+if Length(Values)>1 then
+ begin
+  Context.SendHTML('?');
+  Context.Send(Values[1]);
+ end;
+]]" />>
+if not(Session.IsAnonymous) then
+ begin
+  ]]
+  <link rel="alternate" type="application/rss+xml" title="tx items (not by me)" href="Rss.xxm?notme=1[[
+  if Length(Values)>1 then
+   begin
+    Context.SendHTML('&');
+    Context.Send(Values[1]);
+   end;
+  ]]" />>
+ end;
+]]
+</head>
+<body bgcolor="#FFFFFF">
+<div id="topnav"><div id="toplogo">>=ApplicationName<</div><div id="topnavbar" style="padding-left:2.3em;">
+
+	<span id="frameLink"><a href="Frame.xxm" onclick="document.location.replace('Frame.xxm?url='+document.location);return false;">&raquo; frame</a> | </span>
+
+	<script><!--
+	if(window.name=="MainFrame")
+	{
+	  $("#frameLink").hide();
+	  window.top.document.title=document.title;
+	}
+	//--></script>
+	<a href="Default.xxm">home</a>
+	<a href="Item.xxm">browse</a>
+	<a href="Filter.xxm" rel="nofollow">filter</a>
+	<a href="Search.xxm" rel="nofollow">search</a>
+    [[
+	if Session.Data<>nil then
+	 begin
+	  <<a href="Import.xxm">import</a>>
+	 end;
+	if not(Session.IsAnonymous) then
+	 begin
+	]]
+	|
+	<a href="Users.xxm" rel="nofollow">account</a>
+	<a href="Realms.xxm" rel="nofollow">realm</a>
+	<a href="FCount.xxm" rel="nofollow">fcount</a>
+	<a href="Test.xxm" rel="nofollow">test</a>
+	[[
+	 end;
+	]]
+	|
+	<a href="[[=Context.ContextString(csURL)]]" rel="nofollow">refresh</a>
+	|
+    [[if (Session=nil) or (Session.UserID=0) or Session.IsAnonymous then begin]]
+	<a href="Logon.xxm" rel="nofollow">log on</a>
+    [[end else begin]]
+	<a href="Logoff.xxm" rel="nofollow">log off</a>
+    [[end;]]
+</div></div>
+<div id="topinfo"><b><u>tx</u></b> &nbsp;
+	printed [[=DateTimeToStr(Now)]] by [[=Session.FooterDisplay]]
+</div>

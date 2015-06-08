@@ -1,0 +1,12 @@
+[[@SQLiteData,txSession,]][[!var
+qr:TSQLiteStatement;
+url:string;
+]][[
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT url FROM Obj WHERE id=?',[Context['id'].AsInteger]);
+try
+  url:=qr.GetStr('url');
+finally
+  qr.Free;
+end;
+Context.Redirect(url,false);
+]]<a href="[[=url]]">>=url<</a>

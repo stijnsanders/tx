@@ -1,0 +1,26 @@
+[[@txDefs,SQLiteData,txSession,Variants,]][[!var
+ItemType:TtxItemType;
+ItemID,RlmID:integer;
+url:string;
+]][[
+
+txItem(Context['x'].Value,ItemType,ItemID);
+RlmID:=Context['rlm'].AsInteger;
+CheckFormProtect(Context);
+
+if ItemType<>itObj then raise Exception.Create('Realm change only supported on object');
+//mass changes: see Modify.xxm
+
+if not(Session.IsAdmin('realms')) then
+ begin
+  Session.HasRealmPermission(rpEdit,RlmID);
+  Session.HasRealmPermission(rpEdit,
+    DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ItemID],0));
+ end;
+
+Session.DbCon.Execute('UPDATE Obj SET rlm_id=? WHERE id=?',[RlmID,ItemID]);
+//TODO: Session.UpdateID:=ItemID; only when out of view realms?
+
+url:='Item.xxm?x='+Context['x'].Value;
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

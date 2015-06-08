@@ -1,0 +1,19 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+id,domain:integer;
+n,r,url:string;
+]][[
+
+id:=Context['term'].AsInteger;
+domain:=Context['d'].AsInteger;
+n:=Context['n'].Value;
+r:=Context['r'].Value;
+
+//TODO: check realm? admin? formprotect?
+
+Session.DbCon.Execute('INSERT INTO Trm (domain_id,obj_id,term) VALUES (?,?,?)',[domain,id,n]);
+Session.AddFilterRecent(itObj,id);
+
+//url:='Item.xxm?x=i'+IntToStr(id);
+url:='TermLinks.xxm?n='+URLEncode(n)+'&d='+IntToStr(domain)+'&r='+URLEncode(r);
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

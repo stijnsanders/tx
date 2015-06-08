@@ -1,0 +1,14 @@
+[[@txSession,]]<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script src="tx.js.xxm?uid=[[=Session.UserID]][[=txCallProtect]]" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="tx.css.xxm?uid=[[=Session.UserID]]" />
+</head>
+<body bgcolor="#FFFFFF">
+<div id="topnav"><div id="topnavbar">
+	<a href="Default.xxm" target="_top" onclick="window.parent.location.replace(window.parent.frames['MainFrame'].location);return false;">&laquo; close</a>
+	<a href="FrameSelect.xxm">select</a>
+	|
+	<a href="[[=Context.ContextString(csURL)]]">refresh</a>
+</div></div>

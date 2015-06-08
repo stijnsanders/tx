@@ -1,0 +1,316 @@
+[[@Classes,txDefs,txSession,SQLiteData,txFilter,txFilterSql,]][[
+
+if Context['x'].AsInteger=0 then
+ begin
+
+  Context.Include('dHead.xxmi',['Export']);
+
+	<h2>Export</h2>
+
+	[[#txForm('Export.xxm',[])]]
+
+	<input type="hidden" name="x" value="1" />
+
+	<b>Filename:</b><br />
+	<input type="text" name="filename" id="FileName1" value="" class="textfield" />
+	<br />
+
+	<b>Filter:</b><br />
+
+	if Session.FilterCache.Count<>0 then
+	 begin
+	  <<select name="filter1" id="FilterSel1" onchange="if(this.value=='') $('#FilterEx1').show(); else $('#FilterEx1').hide();">
+	  <option value=""></option>>
+	  for i:=0 to Session.FilterCache.Count-1 do
+	   begin
+	    <<option value="[[=Session.FilterCache[i]]]">>=Session.FilterCache[i]<</option>>
+	   end;
+	  <</select>
+	  <br />>
+	 end;
+	<<input type="text" name="filter2" id="FilterEx1" value="[[=Context['filter'].Value]]" class="textfield" />
+	<br />
+
+	<b>Include:</b><br />
+
+	<input type="checkbox" id="XPath1" name="path" value="1" checked="1" />
+	<label for="XPath1">Objects in path of filtered objects</label>
+	<br />
+
+	<input type="checkbox" id="XChildren1" name="children" value="1" />
+	<label for="XChildren1">Children of filtered objects,
+		<b>Attention:</b> don't select this option if the filter expression already includes all children of filtered objects
+	</label>
+	<br />
+
+	<input type="checkbox" id="XRefered1" name="refered" value="1" />
+	<label for="XRefered1">Refered objects outside of primary selection</label>
+	<br />
+
+	<div style="margin-top: 0em; margin-right: 0em; margin-bottom: 0em; margin-left: 2em;">
+		<input type="checkbox" id="XRefPath1" name="refpath" value="1" checked="1" />
+		<label for="XRefPath1">Objects in path of refered objects</label>
+		<br />
+
+		<input type="checkbox" id="XRefChildren1" name="refchildren" value="1" />
+		<label for="XRefChildren1">Children of refered objects</label>
+		<br />
+	</div>
+
+	<input type="checkbox" id="XReports1" name="reports" value="1" />
+	<label for="XReports1">Reports</label>
+	<br />
+
+	[[//TODO: filters, c/m userID, realm]]
+
+	[[//
+	<input type="checkbox" id="" name="" value="1" />
+	<label for=""></label>
+	<br />
+	]]
+
+	<br />
+	[[#txFormButton]]
+	</form>>
+
+  Context.Include('dFoot.xxmi');
+
+ end
+else
+ begin
+
+  ]][[!
+
+  var
+    IdsIn,IdsOut:TStringList;
+  procedure AddId(xot:char;xid:integer);
+  var
+    xx:string;
+  begin
+    if not(xid=0) then
+	 begin
+      xx:=xot+IntToStr(xid);
+      if (IdsIn.IndexOf(xx)=-1) and (IdsOut.IndexOf(xx)=-1) then IdsIn.Add(xx);
+	 end;
+  end;
+  var
+    DoChildren,DoPath,DoRefered,DoRefChildren,DoRefPath,DoReports:boolean;
+    f:TtxFilter;
+    fq:TtxSqlQueryFragments;
+    filter,fs,x,y:string;
+    i,id:integer;
+    qr:TSQLiteStatement;
+	xc:char;
+  const
+    XmlDateFmt='yyyy-mm-dd"T"hh:nn:ss';
+
+  ]][[
+
+  filter:=Context['filter1'].Value;
+  if filter='' then filter:=Context['filter2'].Value;
+  //if filter='' then raise? true all?
+
+  f:=TtxFilter.Create;
+  fq:=TtxSqlQueryFragments.Create(itObj);
+  try
+    f.FilterExpression:=filter;
+	if f.ParseError<>'' then raise Exception.Create(f.ParseError);
+	fq.AddFilter(f);
+	fq.Fields:='Obj.id';//, Obj.pid, ObjType.id';
+	//TODO: rpView/rpEdit?
+    fq.Where:='Obj.rlm_id'+Session.Realms[rpView].SQL+' AND ('+fq.Where+')';
+    fs:=fq.SQL;
+  finally
+    f.Free;
+    fq.Free;
+  end;
+
+  DoChildren:=Context['children'].AsInteger=1;
+  DoPath:=Context['path'].AsInteger=1;
+  DoRefered:=Context['refered'].AsInteger=1;
+  DoRefChildren:=Context['refchildren'].AsInteger=1;
+  DoRefPath:=Context['refpath'].AsInteger=1;
+  DoReports:=Context['reports'].AsInteger=1;
+  IdsIn:=TStringList.Create;
+  IdsIn.Sorted:=true;
+  IdsOut:=TStringList.Create;
+  IdsOut.Sorted:=true;
+  try
+    //fill IdsIn with filter
+    qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+    try
+	  while qr.Read and Context.Connected do
+	    IdsIn.Add('i'+IntToStr(qr.GetInt('id')));
+    finally
+      qr.Free;
+    end;
+
+    Context.ContentType:='text/xml';
+    x:=Context['filename'].Value;
+	if x<>'' then Context.DispositionAttach(x+'.xml');
+
+	//TODO: namespace, schema, encoding?
+	Context.SendHTML('<?xml version="1.0"?>'#13#10'<tx>'#13#10);
+
+	while (IdsIn.Count<>0) and Context.Connected do
+	 begin
+	  x:=IdsIn[0];
+	  IdsIn.Delete(0);
+	  IdsOut.Add(x);
+
+	  id:=StrToInt(Copy(x,2,Length(x)-1));
+	  xc:=x[1];
+	  case xc of
+	    'i'://item
+         begin
+          AddId('o',id);
+          if DoChildren then AddId('c',id);
+          if DoPath then AddId('p',DBSingleValue('SELECT pid FROM Obj WHERE id=?',[id],0));
+         end;
+        'r'://item refered to
+         begin
+          AddId('o',id);
+          if DoRefChildren then AddId('d',id);
+          if DoRefPath then AddId('p',DBSingleValue('SELECT pid FROM Obj WHERE id=?',[id],0));
+         end;
+        'p'://item in path
+         begin
+          AddId('o',id);
+          AddId('p',DBSingleValue('SELECT pid FROM Obj WHERE id=?',[id],0));
+         end;
+        'o'://object
+		 begin
+		  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Obj WHERE id=?',[id]);
+		  try
+			AddId('u',qr.GetInt('objtype_id'));
+		    ]]
+			<Obj id="[[=id]]" pid="[[.pid]]" type="[[.objtype_id]]" weight="[[.weight]]" realm="[[.rlm_id]]">
+				<name>>.name<</name>
+				<desc><![CDATA[[[#qr['desc']]]]]></desc>
+				<url>>.url<</url>
+				<cre uid="[[.c_uid]]">>=FormatDateTime(XmlDateFmt,qr.GetDate('c_ts'))<</cre>
+				<mod uid="[[.m_uid]]">>=FormatDateTime(XmlDateFmt,qr.GetDate('m_ts'))<</mod>
+			[[
+		  finally
+		    qr.Free;
+		  end;
+
+          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Tok WHERE obj_id=?',[id]);
+          try
+            while qr.Read and Context.Connected do
+             begin
+              AddId('v',qr.GetInt('toktype_id'));
+              ]]
+              <Tok type="[[.toktype_id]]" weight="[[.weight]]">
+                <desc><![CDATA[[[#qr['desc']]]]]></desc>
+                <cre uid="[[.c_uid]]">>=FormatDateTime(XmlDateFmt,qr.GetDate('c_ts'))<</cre>
+                <mod uid="[[.m_uid]]">>=FormatDateTime(XmlDateFmt,qr.GetDate('m_ts'))<</mod>
+              </Tok>
+              [[
+             end;
+          finally
+            qr.Free;
+          end;
+
+          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Ref WHERE obj1_id=?',[id]);
+          try
+            while qr.Read and Context.Connected do
+             begin
+              AddId('w',qr.GetInt('reftype_id'));
+              if DoRefered then AddId('r',qr.GetInt('obj2_id'));
+              ]]
+              <Ref rid="[[.obj2_id]]" type="[[.reftype_id]]" weight="[[.weight]]">
+                <desc><![CDATA[[[#qr['desc']]]]]></desc>
+                <cre uid="[[.c_uid]]">>=FormatDateTime(XmlDateFmt,qr.GetDate('c_ts'))<</cre>
+                <mod uid="[[.m_uid]]">>=FormatDateTime(XmlDateFmt,qr.GetDate('m_ts'))<</mod>
+              </Ref>
+              [[
+              //TODO: more data here of not include ref'd?
+             end;
+          finally
+            qr.Free;
+          end;
+
+            //if (x='i') and DoReports then
+			if DoReports then
+			 begin
+			  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rpt WHERE obj_id=?',[id]);
+			  try
+			    while qr.Read and Context.Connected do
+				 begin
+				  AddId('v',qr.GetInt('toktype_id'));
+				  AddId('w',qr.GetInt('reftype_id'));
+				  if DoRefered then AddId('r',qr.GetInt('obj2_id'));
+				  //TODO: Rpt.weight?
+				  ]]
+				  <Rpt id="[[.id]]" uid="[[.uid]]" toktype="[[.toktype_id]]" reftype="[[.reftype_id]]" info="[[.obj2_id]]" weight="[[.weight]]">
+					<ts>>=FormatDateTime('yyyy-mm-dd"T"hh:nn:ss',qr.GetDate('ts'))<</ts>
+					<desc><![CDATA[[[#qr['desc']]]]]></desc>
+				  </Rpt>
+				  [[
+				  //TODO: show extra info?
+				 end;
+			  finally
+			    qr.Free;
+			  end;
+			 end;
+
+			]]
+			</Obj>
+			[[
+
+		 end;
+		'c','d'://children, chilren if ref'd
+		 begin
+		  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id FROM Obj WHERE pid=?',[id]);
+		  try
+		    while qr.Read and Context.Connected do
+			 begin
+			  if xc='c' then AddId('i',qr.GetInt('id')) else AddId('r',qr.GetInt('id'));
+			  AddId('u',qr.GetInt('objtype_id'));
+			 end;
+		  finally
+		    qr.Free;
+		  end;
+		 end;
+
+		'u','v','w'://objtype,toktype,reftype
+		 begin
+		  case xc of
+		    'u':y:='ObjType';
+			'v':y:='TokType';
+			'w':y:='RefType';
+		  end;
+		  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+y+' WHERE id=?',[id]);
+		  try
+			AddId(xc,qr.GetInt('pid'));
+		    ]]
+			<[[#y]] id="[[.id]]" pid="[[.pid]]" icon="[[.icon]]" weight="[[.weight]]">
+				<name>>.name<</name>
+				<system>>.system<</system>
+				<default>>.dft<</default>
+				<cre uid="[[.c_uid]]">>=FormatDateTime(XmlDateFmt,qr.GetDate('c_ts'))<</cre>
+				<mod uid="[[.m_uid]]">>=FormatDateTime(XmlDateFmt,qr.GetDate('m_ts'))<</mod>
+			</[[#y]]>
+			[[
+		  finally
+		    qr.Free;
+		  end;
+		 end;
+
+		//add new here
+
+	  end;
+
+	 end;
+
+	Context.SendHTML(#13#10'</tx>'#13#10);
+
+  finally
+    IdsIn.Free;
+	IdsOut.Free;
+  end;
+
+ end;
+
+]]

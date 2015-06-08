@@ -1,0 +1,49 @@
+[[@txDefs,txSession,SQLiteData,]][[!var
+qr:TSQLiteStatement;
+id,qtype:integer;
+]][[
+Context.Include('dFrameHead.xxmi',['Trace']);
+id:=Context['id'].AsInteger;
+if id=0 then qtype:=0 else
+ begin
+	qtype:=9;
+	qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id]);
+	try
+	  <<p class="objecttitle">
+	  <a href="Item.xxm?x=i[[.id]]" title="[[.typename]]" target="MainFrame">>#txImg(qr.GetInt('icon'))]] [[.name<</a>
+	  </p>>
+	finally
+	  qr.Free;
+	end;
+ end;
+
+<<div id="selbox" style="white-space: nowrap; margin: 0em;">>#lblLoading<</div>
+<a id="forwardlink" href="#" style="display:none;" class="linkbutton">...</a>
+<script><!--
+	$().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"+request.parseError.reason+"</p>");});
+	$().ajaxComplete(function(){safeScrollToX("tracetree_selectScrollTo");});
+	$("#selbox").load("iTrace.xxm?name=tracetree&id=[[=id]]&q=[[=qtype]][[#txCallProtect]]");
+	function treenode_select(e,name,id)
+	{
+		window.parent.frames["MainFrame"].location="Item.xxm?x=i"+id;
+		return (e||window.event||this).shiftKey;
+	}
+	function frametree_expandto(t,p)
+	{
+		var x=new String(p).split(",");
+		var l=$("#forwardlink");
+		l[0].href="FrameTrace.xxm?id="+x[x.length-1];
+		l.show();
+	}
+	function frametree_update(t,p)
+	{
+		[[//TODO: search all with id (since name+'I'+level+'_node_'+id)]]
+	}
+	function frametree_updatedelete(t,p)
+	{
+		[[//TODO: search all with id (since name+'I'+level+'_node_'+id)]]
+	}
+//--></script>>
+
+Context.Include('dFrameFoot.xxmi');
+]]

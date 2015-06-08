@@ -1,0 +1,31 @@
+[[@txDefs,txSession,]][[!var
+id:integer;
+]][[
+id:=Values[0];
+<<h2>Delete token type [[=id]]</h2>
+[[#txForm('aTokTypeDelete.xxm',['id',id],'confirm(''Are you sure to permanently delete this token type?'')')]]
+[[#txFormProtect]]
+<dl>
+<dt>Children</dt>
+<dd>
+    <input type="radio" name="children" value="0" id="children0" checked="1" />
+    <label for="children0">Delete children <b>(!)</b></label>
+    <br />
+    <input type="radio" name="children" value="1" id="children1" />
+    <label for="children1">Move children to:</b></label>
+    <br />
+	[[Context.Include('dTypeSelect.xxmi',[itTokType,'movechto',0]);]]</dd>
+</dd>
+<dt>Tokens</dt>
+<dd>
+    <input type="radio" name="tokens" value="0" id="tokens0" checked="1" />
+    <label for="tokens0">Delete tokens <b>(!)</b></label>
+    <br />
+    <input type="radio" name="tokens" value="1" id="tokens1" />
+    <label for="tokens1">Change token type to:</b></label>
+    <br />
+	[[Context.Include('dTypeSelect.xxmi',[itTokType,'movetokto',0]);]]</dd>
+</dd>
+</dl>
+[[#txFormButton]] <a href="Item.xxm?x=tt[[=id]]">back</a>
+</form>

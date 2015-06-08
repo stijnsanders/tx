@@ -1,0 +1,38 @@
+[[/
+
+
+########## ATTENTION ##########
+Run this script selectivly (preferably not scheduled),
+e.g. to rebuild ObjPath data
+
+]][[@txDefs,SQLiteData,txSession,txTerms,txFilterSql,]][[!var
+i,j:integer;
+]][[
+
+Context.ContentType:='text/plain';
+Context.BufferSize:=0;
+Session.DbCon.Execute('BEGIN TRANSACTION');
+try
+	Context.SendHTML('Clearing...'#13#10);
+	Session.DbCon.Execute('DELETE FROM ObjPath');
+
+	Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT id,id,0 FROM Obj');
+	Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT pid,id,1 FROM Obj WHERE pid<>0');
+	i:=Session.DbCon.Changes;
+	j:=0;
+	while i<>0 do
+	 begin
+	  inc(j);
+	  Context.SendHTML('level '+IntToStr(j)+': '+IntToStr(i)+#13#10);
+	  Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT ObjPath.pid,Obj.id,ObjPath.lvl+1 FROM ObjPath '+
+	    'INNER JOIN Obj ON Obj.pid=ObjPath.oid WHERE ObjPath.lvl=(SELECT MAX(lvl) FROM ObjPath)');
+	  i:=Session.DbCon.Changes;
+	 end;
+	
+    Session.DbCon.Execute('COMMIT TRANSACTION');
+except
+    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    raise;
+end;
+	
+Context.SendHTML('-- done'#13#10);

@@ -1,0 +1,51 @@
+--content
+<div style="margin-left:0em;margin-right:18em;">
+
+--content
+<h1>Welcome to <i>tx</i></h1>
+<p class="information">information...</p>
+<dl>
+<dt>View items</dt><dd><a href="Item.xxm">browse...</a>,
+  <a href="ViewedLast.xxm" rel="nofollow">viewed recently...</a>,
+  <a href="SelectedLast.xxm" rel="nofollow">selected recently...</a>
+</dd>
+<dt>Select items</dt><dd><a href="Filter.xxm" rel="nofollow">filter...</a>,
+  <a href="FCount.xxm" rel="nofollow">filter statistics...</a>
+</dd>
+<dt>Search for items</dt><dd><a href="Search.xxm" rel="nofollow">search...</a></dd>
+<dt>View changes to items</dt><dd><a href="Log.xxm" rel="nofollow">log...</a>,
+  <a href="fLog.xxm" rel="nofollow">advanced...</a>,
+  <a href="Rss.xxm" rel="nofollow">rss...</a>
+</dd>
+<dt>View by structure</dt><dd><a href="Tree.xxm" rel="nofollow">tree...</a>,
+  <a href="Trace.xxm" rel="nofollow">trace...</a>,
+  <a href="TermTrace.xxm" rel="nofollow">terms..</a>
+</dd>
+<dt>Transport items</dt><dd><a href="Export.xxm" rel="nofollow">export...</a>,
+  <a href="Import.xxm" rel="nofollow">import...</a>,
+  <a href="fObjs.xxm" rel="nofollow">add multiple...</a>
+</dd>
+</dl>
+
+--content
+<p class="midnav">recent changes</p>
+--log
+filter=
+anyrealm=0
+limit=50
+--content
+</div>
+<div style="position:absolute;top:1.2em;width:18em;right:0em;">
+--query
+select Obj.id, Obj.name, ObjType.name as typename, ObjType.icon, Tok.desc
+from Tok
+inner join TokType on TokType.id=Tok.toktype_id
+inner join Obj on Obj.id=Tok.obj_id
+inner join ObjType on ObjType.id=Obj.objtype_id
+where Toktype.system='on homepage' and Obj.rlm_id[[realms]]
+order by Tok.c_ts desc
+limit 0,25
+
+<div style="border:1px solid #CCCCCC;"><p>[[name]]</p>[[desc]]</div>
+--content
+</div>

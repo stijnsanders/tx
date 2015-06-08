@@ -1,0 +1,4 @@
+[[@txSession]]<div id="footer">&plusmn;[[=PageRenderTimeMS]]ms
+- [[if Session<>nil then Context.Send(Session.FooterDisplay);]]
+- v1.2.3 r444 [[// $Rev: 442 $ ]]
+&nbsp;</div></body></html>

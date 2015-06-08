@@ -1,0 +1,47 @@
+[[@txDefs,txSession,SQLiteData,txCache,]][[!var
+n,r:string;
+qr:TSQLiteStatement;
+d:integer;
+ic:TItemCache;
+]][[
+
+//TODO: check just created?
+
+Context.Include('dHead.xxmi',['New Term']);
+
+n:=Context['n'].Value;
+d:=Context['d'].AsInteger;
+r:=Context['r'].Value;
+
+<<h2>Term "[[=n]]" <a href="Item.xxm?x=i[[=d]]" class="domainlink">&lsaquo;</a></h2>
+
+[[#txForm('aTerm.xxm',['n',n,'d',d,'r',r],'selectnode_required("term","an object to assign the term to")')]]
+<p>>Context.Include('dObjSelect.xxmi',['term',0,0,d,n,true]);<</p>
+[[#txFormButton]]
+|
+<a href="[[=Context.ContextString(csReferer)]]" class="linkbutton">back</a>
+<a href="TermLinks.xxm[[?'n',n,'d',d]]" class="linkbutton">links...</a>
+</form>>
+
+ic:=TItemCache.Create;
+qr:=TSQLiteStatement.Create(Session.DbCon,
+  'SELECT Obj.id, Obj.pid, Obj.[name], Obj.[desc], ObjType.[icon], ObjType.[name] AS [typename] '+
+  'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+  'WHERE Obj.name LIKE ? AND Obj.rlm_id'+Session.Realms[rpView].SQL,[n]);
+try
+  while qr.Read and Context.Connected do
+   begin
+    //Context.Include('dObjList.xxmi',[],[qr]);
+    <<p class="objecttitle">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name]]
+	<a href="aTerm.xxm[[?'d',d,'n',n,'term',qr['id'],'r',r]]" class="linkbutton">add</a></p>
+	<p class="objectlocation">>Context.Include('dObjLocMini.xxmi',[],[qr,ic]);<</p>>
+   end;
+finally
+  qr.Free;
+  ic.Free;
+end;
+
+//TODO: search other domains?
+
+Context.Include('dFoot.xxmi');
+]]

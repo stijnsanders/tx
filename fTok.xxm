@@ -1,0 +1,37 @@
+[[@txDefs,txSession,SQLiteData,]][[!var
+id,tid:integer;
+qr:TSQLiteStatement;
+]][[
+
+Context.Include('dHead.xxmi',['Token']);
+
+id:=Context['id'].AsInteger;
+tid:=Context['tid'].AsInteger;
+
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Tok WHERE id=?',[tid]);
+try
+//TODO: default?
+
+//get obj id for back link
+if tid<>0 then id:=qr.GetDefault('obj_id',0);//token move not supported
+
+<<h2>Token</h2>
+[[#txForm('aTok.xxm',['id',id,'tid',tid],'selectnode_required("toktype","a token type")')]]
+[[#txFormProtect]]
+<dl>[[//see also Modify.xxm]]
+<dt>Token type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itTokType,'toktype',qr.GetDefault('toktype_id',0)]);]]</dd>
+<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc',''),true]);]]</dd>
+<dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetDefault('weight',0)]]" /></dd>
+[[/TODO: realm?]]
+</dl>
+[[#txFormButton]]
+<a href="Item.xxm?x=i[[=id]]">back</a>
+<br />
+<input type="checkbox" name="x1" id="x1" value="1" />
+<label for="x1">Add another token</label>
+</form>>
+finally
+  qr.Free;
+end;
+Context.Include('dFoot.xxmi');
+]]

@@ -1,0 +1,61 @@
+[[//
+Values
+0: txItemType
+1: control name
+2: current object id (optional)
+]][[@txDefs,txSession,SQLiteData,]][[!var
+name,defHTML:string;
+id,exclude,i,id1:integer;
+ItemType:TtxItemType;
+qr:TSQLiteStatement;
+]][[
+ItemType:=TtxItemType(Values[0]);
+name:=Values[1];
+if Length(Values)>2 then id:=Values[2] else id:=0;
+if Length(Values)>3 then exclude:=Values[3] else exclude:=0;
+
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT [icon],[name] FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[id]);
+try
+  if qr.Read then
+    defHTML:=txImg(qr.GetInt('icon'))+' '+HTMLEncode(qr.GetStr('name'))
+  else
+    defHTML:=txImg(-1)+' <i>none selected</i>';
+finally
+  qr.Free;
+end;
+<<div class="itemselect" id="[[=name]]_dsp" onclick="selectnode_toggle('[[=name]]','[[=txItemTypeKey[ItemType]]]',[[=id]],[[=exclude]]);">>#defHTML<</div>
+<input type="hidden" id="[[=name]]_id" name="[[=name]]" value="[[=id]]" />
+<a class="linkbutton" href="#" onclick="return selectnode_toggle('[[=name]]','[[=txItemTypeKey[ItemType]]]',[[=id]],[[=exclude]]);">select</a>
+<a class="linkbutton" href="#" onclick="return selectnode_clear('[[=name]]');">clear</a>
+<a class="linkbutton" href="#" onclick="return selectnode_searchtype('[[=name]]','[[=txItemTypeKey[ItemType]]]',[[=exclude]]);">search...</a>
+[[
+if id<>0 then
+ begin
+  <<a class="linkbutton" href="#" onclick="return selectnode_reset([[=id]],'[[=name]]');">reset</a>
+  [[
+ end;
+
+i:=0;
+if Session.FilterRecent[ItemType,i]<>0 then
+ begin
+  ]]&nbsp;<span class="label">recent:</span> [[
+  while (i<FilterRecentCount) and not(Session.FilterRecent[ItemType,i]=0) do
+   begin
+    id1:=Session.FilterRecent[ItemType,i];
+    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT [icon],[name] FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[id1]);
+	try
+	  if qr.Read then
+	   begin
+        <<a class="recentselect" href="Item.xxm?x=[[=txItemTypeKey[ItemType]]][[=id1]]" onclick="recent_select('[[=name]]',this,[[=id1]]);return(event||window.event||this).ctrlKey;" title="[[.name]]">>#txImg(qr.GetInt('icon'))<<span class="recenttitle"> [[.name]]</span></a>
+		[[
+	   end;
+	finally
+	  qr.Free;
+	end;
+    inc(i);
+   end;
+ end;
+
+<<br />
+<div id="[[=name]]_selbox" class="itemselectbox" style="position:relative;display:none;">>#lblLoading<</div>
+<span id="[[=name]]_default" style="display:none;">>#defHTML<</span>

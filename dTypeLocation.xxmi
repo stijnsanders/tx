@@ -1,0 +1,42 @@
+[[@txDefs,SQLiteData,txCache,txNodes,]][[!var
+ItemType:TtxItemType;
+qr:TSQLiteStatement;
+pid:integer;
+ic:TItemCache;
+s,t:string;
+ln:TLocationNode;
+DoTreeScript:boolean;
+]][[
+qr:=Objects[0] as TSQLiteStatement;
+if Length(Objects)>1 then ic:=Objects[1] as TItemCache else ic:=nil;
+ItemType:=TtxItemType(Values[0]);
+pid:=qr.GetInt('pid');
+DoTreeScript:=(Length(Values)>1) {and Values[1]};
+if DoTreeScript then t:=IntToStr(qr.GetInt('id'));
+if pid<>0 then
+ begin
+  ]]<p class="objectlocation">[[//#lblLocation]]
+  [[
+  s:='';
+  while (pid<>0) and Context.Connected do
+   begin
+    if ic=nil then ln:=nil else ln:=ic[pid] as TLocationNode;
+	if s<>'' then 
+	  //s:=' &gt; '+s;
+	  s:='<br />'+s;
+	if ln=nil then
+	 begin
+	  ln:=TLocationNode.Create(ItemType,pid);
+	  if ic<>nil then ic.Add(pid,ln);
+	 end;
+	if DoTreeScript then t:=IntToStr(pid)+','+t;
+	s:=ln.GetHTML([ghLink,ghName,ghIcon],pid)+s;
+	if ic=nil then ln.Free;
+   end;
+  Context.SendHTML(s);
+  ]]</p>
+  [[
+ end;
+if DoTreeScript then begin]]<script><!--
+if(window.parent&&window.parent.frames&&window.parent.frames["TreeFrame"]) window.parent.frames["TreeFrame"].frametree_expandto('[[=txItemTypeKey[ItemType]]]','[[=t]]');
+//--></script>[[end;]]

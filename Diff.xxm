@@ -1,0 +1,225 @@
+[[@SQLiteData,txDefs,txSession,txTerms,VBScript_RegExp_55_TLB,]][[!var
+id,did,h1,h2,x1,x2,r,cc:integer;
+qr:TSQLiteStatement;
+s1,s2,f1,f2:string;
+re:RegExp;
+mc1,mc2:IMatchCollection2;
+inDel,inIns,showAll:boolean;
+const
+HistQry=
+  'SELECT ObjHist.*, Obj.name AS usrname, ObjType.icon AS usricon FROM ObjHist '+
+  'LEFT OUTER JOIN Obj ON Obj.id=ObjHist.uid '+
+  'LEFT OUTER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+  'WHERE ';
+function BuildDiff:string;
+begin
+  Result:=TermStore.TermLinks(itObj,id,did,StringReplace(
+    qr.GetStr('desc'),'<img ','<img style="filter:alpha(opacity=65);" ',[rfReplaceAll]));
+end;
+
+function GetSection(s:string;mc:IMatchCollection2;x:integer):string;
+var
+  i,j:integer;
+begin
+  if (x=0) or (mc.Count=0) or (x-1>=mc.Count) then i:=1 else i:=(mc1.Item[x-1] as IMatch2).FirstIndex+1;
+  if x<mc.Count then j:=(mc1.Item[x] as IMatch2).FirstIndex else j:=Length(s);
+  Result:=Trim(Copy(s,i,j-i+1));
+end;
+
+]][[
+Context.Include('dHead.xxmi',['Diff']);
+
+if not Use_ObjHist then raise Exception.Create('Configuration Use_ObjHist disabled');
+
+id:=Context['id'].AsInteger;
+h1:=Context['h1'].AsInteger;
+h2:=Context['h2'].AsInteger;
+s1:='';
+s2:='';
+
+if Context['all'].AsInteger=1 then
+ begin
+    <<form method="get">
+	<input type="hidden" name="id" value="[[=id]]" />>
+    qr:=TSQLiteStatement.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC',[id]);
+	try
+	  while Context.Connected and qr.Read do
+	   begin
+	    <<p>
+		<input type="radio" name="h1" value="[[.id]]" />
+		<input type="radio" name="h2" value="[[.id]]" />
+		<b>>.name<</b>
+		on [[=NiceDateTime(qr['ts'])]]
+		by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
+		<span class="weight">weight: [[.weight]]</span>
+		</p>>
+	   end;
+	finally
+	  qr.Free;
+	end;
+	<<p><input type="submit" value="Diff" /></p>
+	<p><a href="Item.xxm?x=i[[=id]]">back</a></p>
+	</form>>
+ end
+else
+ begin
+
+	if h2>h1 then
+	 begin
+	  r:=h1;
+	  h1:=h2;
+	  h2:=r;
+	 end;
+
+    if h1=0 then
+	  qr:=TSQLiteStatement.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC LIMIT 0,1',[id])
+	else
+	  qr:=TSQLiteStatement.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h1]);
+	try
+	  if qr.EOF then
+	   begin
+		<<p><i>no entries found</i></p>
+		<p><a href="Item.xxm?x=i[[=id]]">back</a></p>>
+	   end
+	  else
+	   begin
+		id:=qr.GetInt('obj_id');
+		h1:=qr.GetInt('id');
+		did:=TermStore.GetDomainID(id);
+		s1:=BuildDiff;
+		<<span class="diffDeleted"><p class="objecttitle"><b>>.name<</b><br />
+		on [[=NiceDateTime(qr['ts'])]]
+	    by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
+		<span class="weight">weight: [[.weight]]</span></p></span>>
+	   end;
+	finally
+	  qr.Free;
+	end;
+
+	if (h2=0) or (h1=h2) then
+	  qr:=TSQLiteStatement.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? AND ObjHist.id<? ORDER BY ObjHist.id DESC LIMIT 0,1',[id,h1])
+	else
+	  qr:=TSQLiteStatement.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h2]);
+	try
+	  if qr.EOF then h2:=0 else
+	   begin
+	    h2:=qr.GetInt('id');
+	    s2:=BuildDiff;
+	    <<span class="diffInserted"><p class="objecttitle"><b>>.name<</b><br />
+	    on [[=NiceDateTime(qr['ts'])]]
+	      by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
+	    <span class="weight">weight: [[.weight]]</span></p></span>>
+	   end;
+	finally
+	  qr.Free;
+	end;
+
+	if h1<>0 then
+	 begin
+      <<p class="midnav">
+	  [[if h2<>0 then begin <<a class="linkbutton" href="?h1=[[=h2]]" rel="nofollow">previous</a>> end;]]
+	  <a class="linkbutton" href="[[?'id',id,'h1',h1,'h2',h2,'full',1]]" rel="nofollow">full</a>
+	  <a class="linkbutton" href="[[?'id',id,'all',1]]" rel="nofollow">all</a>
+	  <a class="linkbutton" href="Item.xxm?x=i[[=id]]">back</a>
+	  </p>
+<style type="text/css"><!--
+SPAN.diffInserted, SPAN.diffInserted DIV, SPAN.diffInserted P {background-color:#99FF99;}
+SPAN.diffDeleted, SPAN.diffDeleted DIV, SPAN.diffDeleted P {background-color:#FF9999;}
+SPAN.diffInserted IMG {border: 2px solid #99FF99;}
+SPAN.diffDeleted IMG {border: 2px solid #FF9999;}
+SPAN.diffInserted TABLE TD {background-color:#99FF99;}
+SPAN.diffInserted TABLE TH {background-color:#339933;color:#EEEEEE;}
+SPAN.diffDeleted TABLE TD {background-color:#FF9999;}
+SPAN.diffDeleted TABLE TH {background-color:#993333;color:#EEEEEE;}
+//--></style>
+
+[[
+
+//HTML doesn't have reliable EOL's so use a selected set of tags to delimit
+
+re:=CoRegExp.Create;
+re.Pattern:='<(/?p|[uo]l|/?li|d[ldt]|h[1-9r]|br|table|td|blockquote|pre|xmp|div|form|map|select|textarea)[^>]*?>';
+re.IgnoreCase:=true;
+re.Global:=true;
+mc1:=re.Execute(s1) as IMatchCollection2;
+mc2:=re.Execute(s2) as IMatchCollection2;
+x1:=0;
+x2:=0;
+cc:=0;
+inDel:=false;
+inIns:=false;
+showAll:=Context['full'].AsInteger=1;
+
+//TODO: decent diff algo
+
+repeat
+  f1:=GetSection(s1,mc1,x1);
+  f2:=GetSection(s2,mc2,x2);
+  if f1=f2 then
+   begin
+    if showAll then
+	 begin
+	  if inDel then begin <</span>> InDel:=false; end;
+	  if inIns then begin <</span>> InIns:=false; end;
+	  Context.SendHTML(f1);
+	 end;
+	//fwd right
+	inc(x1);
+   end
+  else
+   begin
+    //down left
+	r:=x1-1;
+	repeat
+	  inc(r);
+	  f1:=GetSection(s1,mc1,r);
+	until (r>=mc1.Count) or (f1=f2) or not Context.Connected;
+	if f1=f2 then
+	 begin
+	  //found
+	  if inDel then begin inDel:=false; <</span>> end;
+	  if not inIns then begin inIns:=true; <<span class="diffInserted">> end;
+	  while (x1<r) and (x1<mc1.Count) and Context.Connected do
+	   begin
+	    Context.SendHTML(GetSection(s1,mc1,x1));
+	    inc(x1);
+	   end;
+	  inc(cc);
+	  inc(x1);
+	 end
+	else
+	 begin
+	  //not found
+	  if inIns then begin inIns:=false; <</span>> end;
+	  if not inDel then begin inDel:=true; <<span class="diffDeleted">> end;
+	  Context.SendHTML(f2);
+	  inc(cc);
+	 end;
+   end;
+
+   inc(x2);
+
+until (x2>=mc2.Count) or not Context.Connected;
+
+if x1<mc1.Count then
+ begin
+  if inDel then begin inDel:=false; <</span>> end;
+  if not inIns then begin inIns:=true; <<span class="diffInserted">> end;
+  while (x1<mc1.Count) and Context.Connected do
+   begin
+    Context.SendHTML(GetSection(s1,mc1,x1));
+	inc(x1);
+   end;
+  inc(cc);
+ end;
+
+if inDel then begin <</span>> end;
+if inIns then begin <</span>> end;
+
+if cc=0 then begin <<p><i>no changes found</i></p>> end;
+
+	 end;
+ end;
+
+Context.Include('dFoot.xxmi');
+]]

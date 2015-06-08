@@ -1,0 +1,34 @@
+[[@txSession,]][[Context.Include('dFrameHead.xxmi');]]
+
+<ul>
+<li><a href="FrameTree.xxm">objects</a></li>
+<li><a href="FrameTree.xxm?x=ot0">object types</a></li>
+<li><a href="FrameTree.xxm?x=tt0">token types</a></li>
+<li><a href="FrameTree.xxm?x=rt0">reference types</a></li>
+<li><a href="FrameTrace.xxm">trace</a></li>
+</ul>
+
+[[!var
+i:integer;
+filterU:string;
+]][[
+  if Session.FilterCache.Count=0 then
+   begin
+    <<p class="information">list a filter here? <a href="FilterBuild.xxm" target="MainFrame">create one</a> first, use it, then <a href="?">refresh here</a>.</p>>
+   end
+  else
+   begin
+    <<p class="midnav">recent filters</p>>
+	for i:=0 to Session.FilterCache.Count-1 do
+	 begin
+	  filterU:=URLEncode(Session.FilterCache[i]);
+	  <<p style="white-space: nowrap;">&nbsp;
+	  <a href="FrameTree.xxm?filter=[[=filterU]]" class="linkbutton">tree</a>
+	  <a href="FrameList.xxm?filter=[[=filterU]]" class="linkbutton">list</a>
+      <span class="litref">>=Session.FilterCache[i]<</span>
+	  </p>>
+	 end;
+   end;
+
+Context.Include('dFrameFoot.xxmi');
+]]

@@ -1,0 +1,38 @@
+[[@txDefs,SQLiteData,txSession]][[!var
+qr:TSQLiteStatement;
+id,c:integer;
+name:string;
+hasChildren,preExpand,highlight:boolean;
+const
+preExpandImgNr:array[boolean] of string=('1','0');
+]][[
+qr:=Objects[0] as TSQLiteStatement;
+name:=Values[0];
+id:=Values[1];
+hasChildren:=Values[2];
+preExpand:=Values[3];
+highlight:=Values[4];
+if hasChildren then
+ begin
+  <<img src="img_tr[[=preExpandImgNr[preExpand]]].png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]_node_[[=id]]');"/>>
+ end
+else
+ begin
+  <<img src="img_trx.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]_node_[[=id]]');"/>>
+ end;
+if highlight then begin <<span id="[[=name]]_selectScrollTo"></span>> end;
+]]
+<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);" title="[[.typename]]">[[#txImg(qr.GetInt('icon'))]]
+<span id="nodename[[=id]]"[[
+if Session.QryUnread and (qr.GetInt('r0')=0) then begin ]] class="u"[[ end;
+]]>>.name<</span></a>>
+if Session.QryUnread then
+ begin
+  c:=qr.GetInt('r1');
+  if c<>0 then
+   begin
+    ]] <span id="unread[[=id]]" class="nc">>.r1<</span>>
+   end;
+ end;
+Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' ','','','Item.xxm?x=i','" onclick="return treenode_select(event,'''+name+''',this.href.split(''?x=i'')[1]);'],[qr]);
+<<br />

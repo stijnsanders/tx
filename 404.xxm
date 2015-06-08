@@ -1,0 +1,51 @@
+[[@xxmString,txSession,SQLiteData,]][[!
+var
+i:integer;
+sc:TStringContext;
+s:string;
+qr:TSQLiteStatement;
+]][[
+s:=Values[0];
+i:=1;
+while (i<=Length(s)) and not(s[i] in ['/','?']) do inc(i);
+s:=LowerCase(Copy(s,1,i-1));
+if s='default.asp' then Context.Redirect('/Log.xxm?filter='+Context['f'].Value,true);
+if s='item.asp' then Context.Redirect('/Item.xxm?x='+Context.ContextString(csQueryString),true);
+qr:=TSQLiteStatement.Create(Session.DbCon,
+'SELECT Obj.id, Obj.url FROM Obj'+
+' INNER JOIN Tok ON Tok.obj_id=Obj.id'+
+' INNER JOIN TokType ON TokType.id=Tok.toktype_id'+
+' WHERE TokType.system=''web.404'' AND Tok.desc LIKE ?',['%('+s+')%']);
+try
+  if not qr.EOF then
+   begin
+    s:=qr.GetStr('url');
+	if s='' then
+	  Context.Redirect('/Item.xxm?x=i'+IntToStr(qr.GetInt('id')),true)
+	else
+	  Context.Redirect(s,LowerCase(Copy(s,1,4))='http');
+   end;
+finally
+  qr.Free;
+end;
+
+Context.Include('dHead.xxmi',['Page not found']);
+<<h1 style="color:red;">Page not found</h1>>
+for i:=0 to Length(Values)-1 do
+ begin
+  <<p><b>>=i<</b>: [[=Values[i]<</p>>
+ end;
+//send mail
+if DirectoryExists('C:\InetPub\mailroot\PickUp') then
+ begin
+  sc:=TStringContext.Create(Context,Self);
+  try
+    sc.AutoEncoding:=aeIso8859;
+	sc.Include('404mail.xxmi',Values,Objects);
+    sc.SaveToFile('C:\InetPub\mailroot\PickUp\tx404_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
+  finally
+    sc.Free;
+  end;
+ end;
+Context.Include('dFoot.xxmi');
+]]

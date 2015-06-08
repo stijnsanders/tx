@@ -1,0 +1,12 @@
+[[@txDefs,SQLiteData,]][[!var
+  ItemType:TtxItemType;
+  qr:TSQLiteStatement;
+  name:string;
+  id:integer;
+]][[
+qr:=Objects[0] as TSQLiteStatement;
+ItemType:=Values[0];
+name:=Values[1];
+id:=Values[2];
+]]
+<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=[[=txItemTypeKey[ItemType]]][[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a><br />

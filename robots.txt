@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /Diff.xxm
+Disallow: /FCount.xxm
+Disallow: /Frame.xxm
+Disallow: /Filter.xxm
+Disallow: /Import.xxm
+Disallow: /Modify.xxm
+Disallow: /Read.xxm
+Disallow: /Search.xxm
+Disallow: /TermTrace.xxm
+Disallow: /Trace.xxm
+Disallow: /Summary.xxm

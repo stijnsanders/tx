@@ -1,0 +1,11 @@
+[[@txDefs,txSession,]][[!var
+id:integer;
+]][[
+id:=Values[0];
+]]
+<h2>Delete token [[=id]]</h2>
+[[//todo: check realms, display info]]
+[[#txForm('aTokDelete.xxm',['id',id])]]
+[[#txFormProtect]]
+[[#txFormButton]] [[//TODO: back?]]
+</form>

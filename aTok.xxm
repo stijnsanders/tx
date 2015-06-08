@@ -1,0 +1,135 @@
+[[@txDefs,SQLiteData,txSession,txFilter,txFilterSql,]][[!var
+i,id,tid,oldTokTypeID,newTokTypeID,oldWeight,newWeight1,newWeight,RlmID:integer;
+url:string;
+desc:WideString;
+filter,fs:string;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+qr:TSQLiteStatement;
+ids:TIdList;
+]][[
+
+//TODO: transaction?
+CheckFormProtect(Context);
+id:=Context['id'].AsInteger;
+tid:=Context['tid'].AsInteger;
+newTokTypeID:=Context['toktype'].AsInteger;
+newWeight1:=Context['weight'].AsInteger;
+desc:=Context['desc'].Value;
+filter:=Context['filter'].Value;
+
+ids:=TIdList.Create;
+try
+  if (filter='') then ids.Add(id) else
+   begin
+    tid:=0;
+	f:=TtxFilter.Create;
+	fq:=TtxSqlQueryFragments.Create(itObj);
+	try
+	  fq.Fields:='Obj.id';
+	  f.FilterExpression:=filter;
+	  if f.ParseError<>'' then begin<<p style="color:red;">>=f.ParseError<</p>>end;
+	  fq.AddFilter(f);
+	  fq.Where:='Obj.rlm_id'+Session.Realms[rpView].SQL+' AND ('+fq.Where+')';
+	  fs:=fq.SQL;
+	finally
+	  f.Free;
+	  fq.Free;
+	end;
+
+	qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+	try
+	  while qr.Read and Context.Connected do ids.Add(qr.GetInt('id'));
+	finally
+	  qr.Free;
+	end;
+
+   end;
+
+  for i:=0 to ids.Count-1 do
+   begin
+    id:=ids[i];
+	if filter<>'' then tid:=0;
+
+	//check realm
+	if tid=0 then
+     begin
+	  RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[id],Session.RealmNew);
+	  oldTokTypeID:=0;
+	  oldWeight:=0;
+	 end
+	else
+	 begin
+	  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.rlm_id, Tok.toktype_id, Tok.weight FROM Tok INNER JOIN Obj ON Obj.id=Tok.obj_id WHERE Tok.id=?',[tid]);
+	  try
+	    if qr.Read then
+	     begin
+	      RlmID:=qr.GetInt('rlm_id');
+		  oldTokTypeID:=qr.GetInt('toktype_id');
+		  oldWeight:=qr.GetInt('weight');
+	     end
+	    else
+	     begin
+	      RlmID:=Session.RealmNew;
+		  oldTokTypeID:=0;
+		  oldWeight:=0;
+	     end;
+	  finally
+	    qr.Free;
+	  end;
+	 end;
+	Session.HasRealmPermission(rpEdit,RlmID);
+
+	//TODO: 'default': limit one token per branch!
+
+	newWeight:=newWeight1;
+	if (tid<>0) and (newTokTypeID<>oldTokTypeID) then
+	  newWeight:=newWeight-DBSingleValue('SELECT weight FROM TokType WHERE id=?',[oldTokTypeID],0);
+	if (tid=0) or (newTokTypeID<>oldTokTypeID) then
+	  newWeight:=newWeight+DBSingleValue('SELECT weight FROM TokType WHERE id=?',[newTokTypeID],0);
+
+	Session.DbCon.Execute('BEGIN TRANSACTION');
+	try
+
+		if tid=0 then
+		  Session.DbCon.Execute('INSERT INTO Tok (obj_id,toktype_id,[desc],weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',
+			[id,newTokTypeID,desc,newWeight,VNow,Session.UserID,VNow,Session.UserID],tid)
+		else
+		  //move tokens not supported
+		  Session.DbCon.Execute('UPDATE Tok SET toktype_id=?, desc=?, weight=?, m_ts=?, m_uid=? WHERE id=?',
+			[newTokTypeID,desc,newWeight,VNow,Session.UserID,tid]);
+
+		if newWeight<>oldWeight then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id=?',[newWeight-oldWeight,id]);
+
+		//report
+		Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,toktype_id) VALUES (?,?,?,?,?,?)',
+		  [id,VNow,Session.UserID,desc,newWeight,newTokTypeId]);
+
+		TermStore.StoreTerms(itTok,tid,id,desc);
+		if Use_ObjTokRefCache then Context.Include('aObjTokRefCache.xxmi',[id]);
+
+        if Use_Unread and not Session.Stealth then
+          Session.DbCon.Execute('INSERT INTO Obx (obj_id) VALUES (?)',[id]);
+
+		Session.DbCon.Execute('COMMIT TRANSACTION');
+	except
+		Session.DbCon.Execute('ROLLBACK TRANSACTION');
+		raise;
+	end;
+
+   end;
+  if filter='' then
+    if Context['x1'].AsInteger=1 then
+	  url:='fTok.xxm?id='+IntToStr(id)
+	else
+      url:='Item.xxm?x=i'+IntToStr(id)
+  else
+	url:='Modify.xxm?x=99&filter='+URLEncode(filter)+'&c='+IntToStr(ids.Count);
+finally
+  ids.Free;
+end;
+Session.AddFilterRecent(itTokType,newTokTypeID);
+Session.UpdateID:=id;
+
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

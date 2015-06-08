@@ -1,0 +1,109 @@
+[[!var
+url1,url2,url3:string;
+pV,pH:integer;
+]][[
+url1:=Context['frame'].Value;  if url1='' then url1:='FrameTree.xxm';
+url2:=Context['framex'].Value; if url2='' then url2:='FrameEx.xxm';
+url3:=Context['url'].Value;    if url3='' then url3:='Default.xxm';
+pV:=Context['v'].AsInteger;    if pV=0 then pV:=300;
+pH:=Context['h'].AsInteger;    if pH=0 then pH:=12;
+<<!DOCTYPE html>
+<html>
+<head>
+<title>tx</title>
+<style type="text/css">
+BODY {border:0px;margin:0px;overflow:hidden;background-color:#808080;user-select:none;-webkit-user-select:none;}
+IFRAME {background-color:white;border:1px inset;user-select:none;-webkit-user-select:none;}
+</style>
+</head>
+<body>
+<iframe src="[[=url1]]" id="f1" name="TreeFrame">Your browser doesn't support &lt;iframe&gt;</iframe>
+<div id="rH" style="cursor:ns-resize;"></div>
+<iframe src="[[=url2]]" id="f2" name="TreeFrameEx"></iframe>
+<div id="rV" style="cursor:ew-resize;"></div>
+<iframe src="[[=url3]]" id="f3" name="MainFrame"></iframe>
+<div id="rR" style="display:none;[[/background-color:#808080;filter:alpha(opacity=25);opacity:0.25;]]"></div>
+</frameset>
+<script><!--
+var f1=document.getElementById("f1");
+var f2=document.getElementById("f2");
+var f3=document.getElementById("f3");
+var rH=document.getElementById("rH");
+var rV=document.getElementById("rV");
+var rR=document.getElementById("rR");
+
+var pV=[[=pV]],pH=[[=pH]],dV=0,dH=0;
+function updateDims(){
+	var x=window.innerWidth-4,y=window.innerHeight-4;
+
+	f1.style.position="absolute";
+	f1.style.top="0px";
+	f1.style.left="0px";
+	f1.style.width=(pV)+"px";
+	f1.style.height=(y-pH-8)+"px";
+
+	rH.style.position="absolute";
+	rH.style.top=(y-pH-8)+"px";
+	rH.style.left="0px";
+	rH.style.width=(pV)+"px";
+	rH.style.height="8px";
+
+	f2.style.position="absolute";
+	f2.style.top=(y-pH)+"px";
+	f2.style.left="0px";
+	f2.style.width=(pV)+"px";
+	f2.style.height=(pH)+"px";
+
+	rV.style.position="absolute";
+	rV.style.top="0px";
+	rV.style.left=(pV)+"px";
+	rV.style.width="8px";
+	rV.style.height=(y)+"px";
+
+	f3.style.position="absolute";
+	f3.style.top="0px";
+	f3.style.left=(pV+8)+"px";
+	f3.style.width=(x-pV-8)+"px";
+	f3.style.height=(y)+"px";
+
+	rR.style.position="absolute";
+	rR.style.top="0px";
+	rR.style.left="0px";
+	rR.style.width=(x)+"px";
+	rR.style.height=(y)+"px";
+};
+window.onresize=updateDims;
+updateDims();
+rH.onmousedown=function(e){
+	rR.style.cursor="ns-resize";
+	rR.style.display="";
+	dH=window.innerHeight-pH-e.clientY;
+	rR.onmousemove=rH.onmousemove=function(e){
+		pH=window.innerHeight-dH-e.clientY;
+		updateDims();
+	};
+	rR.onmouseup=rH.onmouseup=function(e){
+		rR.onmousemove=rH.onmousemove=null;
+		rR.onmouseup=rH.onmouseup=null;
+		rR.style.display="none";
+	};
+};
+rH.ondragstart=function(){return false;};
+rV.onmousedown=function(e){
+	rR.style.cursor="ew-resize";
+	rR.style.display="";
+	dV=e.clientX-pV;
+	rR.onmousemove=rV.onmousemove=function(e){
+		pV=e.clientX-dV;
+		updateDims();
+	};
+	rR.onmouseup=rV.onmouseup=function(e){
+		rR.onmousemove=rV.onmousemove=null;
+		rR.onmouseup=rV.onmouseup=null;
+		rR.style.display="none";
+	};
+}
+rV.ondragstart=function(){return false;};
+//--></script>
+</body>
+</html>

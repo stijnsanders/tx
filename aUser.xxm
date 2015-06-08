@@ -1,0 +1,42 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+IsAdmin:boolean;
+uid,id:integer;
+url:string;
+]][[
+
+CheckFormProtect(Context);
+
+IsAdmin:=(Session.UserID=0) or Session.IsAdmin('logins');
+id:=Context['id'].AsInteger;
+uid:=Context['obj'].AsInteger;
+
+if not(IsAdmin) and (uid<>Session.UserID) then
+  raise Exception.Create('Updating accounts other than own is only allowed by login-admininistrator.');
+//TODO: refresh session when uid changes?
+//TODO: if IsAdmin=nil then refuse change uid?
+
+Session.DbCon.Execute('BEGIN TRANSACTION');
+try
+    if id=0 then
+      Session.DbCon.Execute('INSERT INTO Usr (uid,login,email,auth,salt,pwd,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?)',[
+        uid,Context['login'].Value,Context['email'].Value,Context['auth'].Value,'','',VNow,Session.UserID,VNow,Session.UserID],id)//pwd?
+    else
+	 begin
+      Session.DbCon.Execute('UPDATE Usr SET uid=?, login=?, email=?, m_ts=?, m_uid=? WHERE id=?',[
+        uid,Context['login'].Value,Context['email'].Value,VNow,Session.UserID,id]);//pwd?
+	  if IsAdmin then 
+	    Session.DbCon.Execute('UPDATE Usr SET auth=? WHERE id=?',[Context['auth'].Value,id]);
+	 end;
+		
+    Session.DbCon.Execute('COMMIT TRANSACTION');
+except
+    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    raise;
+end;
+
+Session.AddFilterRecent(itObj,uid);
+
+url:='Users.xxm';
+
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

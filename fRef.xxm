@@ -1,0 +1,36 @@
+[[@txDefs,txSession,SQLiteData,]][[!var
+id,rid,tid:integer;
+qr:TSQLiteStatement;
+]][[
+
+Context.Include('dHead.xxmi',['Reference']);
+
+id:=Context['id'].AsInteger;
+rid:=Context['rid'].AsInteger;
+tid:=Context['target'].AsInteger;//proposed target
+
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Ref WHERE id=?',[rid]);
+try
+//TODO: default?
+
+//get obj id for back link
+if rid<>0 then id:=qr.GetDefault('obj1_id',0);//reference move not supported
+
+<<h2>Reference</h2>
+[[#txForm('aRef.xxm',['id',id,'rid',rid],'selectnode_required("reftype","a reference type")&&selectnode_required("obj2","an object to refer to")')]]
+[[#txFormProtect]]
+<dl>[[//see also Modify.xxm]]
+<dt>Reference type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itRefType,'reftype',qr.GetDefault('reftype_id',0)]);]]</dd>
+<dt>Refer to object</dt><dd>[[Context.Include('dObjSelect.xxmi',['obj2',qr.GetDefault('obj2_id',tid),id,id,'',true]);]]</dd>
+<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc',''),true]);]]</dd>
+<dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetDefault('weight',0)]]" /></dd>
+[[/TODO: realm?]]
+</dl>
+[[#txFormButton]]
+<a href="Item.xxm?x=i[[=id]]">back</a>
+</form>>
+finally
+  qr.Free;
+end;
+Context.Include('dFoot.xxmi');
+]]

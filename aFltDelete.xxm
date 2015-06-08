@@ -1,0 +1,28 @@
+[[@txDefs,SQLiteData,txSession,]][[!var
+id,objid:integer;
+url,filter:string;
+qr:TSQLiteStatement;
+]][[
+
+id:=Context['id'].AsInteger;
+CheckFormProtect(Context);
+
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Flt.id, Flt.obj_id, Flt.[name], Flt.[desc], Flt.[expression] FROM Flt WHERE Flt.id=?',[id]);
+try
+  objid:=qr.GetInt('obj_id');
+  filter:=qr.GetStr('expression');
+finally
+  qr.Free;
+end;
+
+Session.HasRealmPermission(rpEdit,
+  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew));
+
+Session.DbCon.Execute('DELETE FROM Flg WHERE flt_id=?',[id]);
+Session.DbCon.Execute('DELETE FROM Flt WHERE id=?',[id]);
+//Todo: flg?!
+
+//url:='Item.xxm?x=i'+IntToStr(objid);
+url:='FilterBuild.xxm?filter='+URLEncode(filter);
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

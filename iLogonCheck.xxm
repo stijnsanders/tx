@@ -1,0 +1,27 @@
+[[@txSession,SQLiteData,]][[!var
+qr:TSQLiteStatement;
+s:string;
+]][[
+CheckCallProtect(Context);
+s:=Context['login'].Value;
+if Length(s)<3 then
+ begin
+  <<span style="background-color:#CC0000;color:#FFCC00;padding:0.2em;">too short</span>>
+ end
+else
+ begin
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id FROM Usr WHERE login=?',[s]);
+  try
+    if qr.EOF then
+     begin
+      <<span style="background-color:#00CC00;padding:0.2em;">available</span>>
+     end
+    else
+     begin
+      <<span style="background-color:#CC0000;color:#FFCC00;padding:0.2em;">occupied</span>>
+     end;
+  finally
+    qr.Free;
+  end;
+ end;
+]]
