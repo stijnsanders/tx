@@ -233,6 +233,7 @@ var
   j:integer;
   rp:TtxRealmPermission;
 const
+  //IMPORTANT: don't edit this constant or existing salted passwords will no longer work!
   SessionCryptSalt='[[[tx]]]'+
     '  inherited Create;'#13#10+
     '  FSessionID:=SessionID;'#13#10+
@@ -393,7 +394,7 @@ begin
             fq:=TtxSqlQueryFragments.Create(itObj);
             try
               fq.Fields:='Obj.id';
-              fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id';
+              fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
               fq.Where:='Obj.id='+IntToStr(UserID)+' AND ';
               fq.GroupBy:='';
               fq.Having:='';
@@ -626,9 +627,9 @@ begin
     ' Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts,'+
     ' ObjType.[icon], ObjType.[name] AS [typename]';
   if Use_ObjTokRefCache then Result:=Result+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
-  if Session.QryUnread then Result:=Result+', (SELECT MIN(Urx.id) FROM Obx INNER JOIN Urx'+
+  if Session.QryUnread then Result:=Result+', (SELECT MIN(Obx.id) FROM Obx LEFT OUTER JOIN Urx'+
     ' ON Urx.uid='+IntToStr(Session.UserID)+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
-    ' WHERE Obx.obj_id=Obj.id) AS r0, '+
+    ' WHERE Obx.obj_id=Obj.id AND Urx.id IS NULL) AS r0, '+
     '(SELECT COUNT(DISTINCT U1.id) FROM ObjPath U0'+
     ' INNER JOIN Obj U1 ON U1.id=U0.oid AND U1.rlm_id'+Session.Realms[rpView].SQL+
     ' INNER JOIN Obx U2 ON U2.obj_id=U0.oid'+

@@ -111,6 +111,7 @@ if (action='') and (filter<>'') then
 			'<i>always false</i>',//faAlwaysFalse
 			'<i>publish parameter</i>',//faExtra
 			'<i>publish SQL</i>',//faSQL
+            'is user',//faUser
 			'is in realm',//faRealm
             'is unread',//faUnread
 		    '<i style="color:red;">unknown action</i>'//fa_Unknown

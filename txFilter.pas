@@ -19,7 +19,7 @@ type
     faFilter,faParent,faPath,faPathObjType,faPathTokType,faPathRefType,
 
     faSearch,faSearchReports,faSearchName,faName,faDesc,faTerm,
-	faAlwaysTrue,faAlwaysFalse,faExtra,faSQL,faRealm,faUnread,
+	faAlwaysTrue,faAlwaysFalse,faExtra,faSQL,faUser,faRealm,faUnread,
 
     //add new here above
     fa_Unknown
@@ -34,7 +34,7 @@ const
     itFilter,itObj,itObj,itObjType,itTokType,itRefType,
 
 	itObj,itObj,itObj,itObj,itObj,itObj,
-	it_Unknown,it_Unknown,it_Unknown,it_Unknown,itRealm,it_Unknown,
+	it_Unknown,it_Unknown,it_Unknown,it_Unknown,itUser,itRealm,itUser,
 
     //add new here above
     it_Unknown
@@ -43,7 +43,7 @@ const
   txFilterOperatorChar:array[TtxFilterOperator] of char=('+','.','/',',',#0);
   txFilterOperatorSQL:array[TtxFilterOperator] of string=('AND','OR','AND NOT','OR NOT','');
 
-  txFilterActionNameCount=88;
+  txFilterActionNameCount=91;
   txFilterActionName:array[0..txFilterActionNameCount-1] of record
     a:TtxFilterAction;
     n:string;
@@ -92,7 +92,8 @@ const
     (a:faAlwaysFalse         ;n:'false'),
     (a:faFilter              ;n:'filter'),
     (a:faRealm               ;n:'rlm'),
-    (a:faUnread              ;n:'u'),
+    (a:faUser                ;n:'u'),
+    (a:faUnread              ;n:'uu'),
     (a:faSQL                 ;n:'sql'),
     (a:faExtra               ;n:'extra'),
     (a:faExtra               ;n:'param'),
@@ -130,6 +131,8 @@ const
     (a:faPathTokType         ;n:'parenttokentype'),
     (a:faPathRefType         ;n:'parentreferencetype'),
     (a:faRealm               ;n:'realm'),
+    (a:faUser                ;n:'usr'),
+    (a:faUser                ;n:'user'),
     (a:faUnread              ;n:'unread'),
     (a:faAlwaysTrue          ;n:'alwaystrue'),
     (a:faAlwaysFalse         ;n:'alwaysfalse'),

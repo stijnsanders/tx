@@ -90,7 +90,7 @@ try
 	      fq:=TtxSqlQueryFragments.Create(itObj);
 	      try
             fq.Fields:='Obj.id';
-            fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id';
+            fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
             fq.Where:='Obj.id='+IntToStr(Session.UserID)+' AND ';
             fq.GroupBy:='';
             fq.Having:='';

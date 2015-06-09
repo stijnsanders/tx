@@ -80,7 +80,7 @@ begin
     itObj:
      begin
       Fields:='Obj.id, Obj.pid, Obj.[name], Obj.[desc], Obj.[weight], Obj.[c_uid], Obj.[c_ts], Obj.[m_uid], Obj.[m_ts], ObjType.[icon], ObjType.[name] AS [typename]';
-      Tables:='(Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id)';
+      Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
       Where:='';
       GroupBy:='';
       Having:='';
@@ -95,14 +95,14 @@ begin
        ' RelRefType.[icon] AS [reficon], RelRefType.[name] AS [refname],'+
        ' RelObj.[name] AS [relname], RelObjType.[icon] AS [relicon], RelObjType.[name] AS [reltypename]';
       Tables:='Rpt'#13#10+
-       '  INNER JOIN Obj ON Obj.id=Rpt.obj_id'#13#10+
-       '  INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10+
-       '  INNER JOIN Obj AS UsrObj ON UsrObj.id=Rpt.uid'#13#10+
-       '  INNER JOIN ObjType AS UsrObjType ON UsrObjType.id=UsrObj.objtype_id'#13#10+
-       '  LEFT OUTER JOIN Obj AS RelObj ON RelObj.id=Rpt.obj2_id'#13#10+
-       '  LEFT OUTER JOIN ObjType AS RelObjType ON RelObjType.id=RelObj.objtype_id'#13#10+
-       '  LEFT OUTER JOIN TokType AS RelTokType ON RelTokType.id=Rpt.toktype_id'#13#10+
-       '  LEFT OUTER JOIN RefType AS RelRefType ON RelRefType.id=Rpt.reftype_id'#13#10;
+       'INNER JOIN Obj ON Obj.id=Rpt.obj_id'#13#10+
+       'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10+
+       'INNER JOIN Obj AS UsrObj ON UsrObj.id=Rpt.uid'#13#10+
+       'INNER JOIN ObjType AS UsrObjType ON UsrObjType.id=UsrObj.objtype_id'#13#10+
+       'LEFT OUTER JOIN Obj AS RelObj ON RelObj.id=Rpt.obj2_id'#13#10+
+       'LEFT OUTER JOIN ObjType AS RelObjType ON RelObjType.id=RelObj.objtype_id'#13#10+
+       'LEFT OUTER JOIN TokType AS RelTokType ON RelTokType.id=Rpt.toktype_id'#13#10+
+       'LEFT OUTER JOIN RefType AS RelRefType ON RelRefType.id=Rpt.reftype_id'#13#10;
       Where:='';
       GroupBy:='';
       Having:='';
@@ -112,7 +112,7 @@ begin
      begin
       t:=txItemTypeTable[ItemType];
       Fields:='*';
-      Tables:=t;
+      Tables:=t+#13#10;
       Where:='';
       GroupBy:='';
       Having:='';
@@ -122,7 +122,7 @@ begin
   if Use_ObjTokRefCache and (FItemType in [itObj,itReport]) then
    begin
 	  Fields:=Fields+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
-	  Tables:=Tables+#13#10'  LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id';
+	  Tables:=Tables+'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id'#13#10;
    end;
   for fe:=TtxFilterEnvVar(0) to fe_Unknown do EnvVars[feMe]:=0;
   EnvVars[feMe]:=Session.UserID;
@@ -491,13 +491,24 @@ begin
             'DISTINCT '+t+'.reftype_id','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj'+
             RefBSel[Action=faRecentBackRef]+'_id=Obj.id',false,false));
        end;
+      faUser:
+       begin
+        AddFrom('INNER JOIN Usr ON Usr.uid=Obj.id');
+        AddWhere('Obj.id'+Criterium(f[i],'Usr.uid','',false,false));
+       end;
       faRealm:
         AddWhere('Obj.rlm_id'+Criterium(f[i],'Rlm.id','',false,false));
       faUnread:
-        AddWhere('NOT EXISTS (SELECT Urx.id FROM Obx'+
-          ' INNER JOIN Urx ON Obj.id BETWEEN Urx.id1 AND Urx.id2'+
-          ' AND Urx.uid='+IntToStr(Session.UserID)+ //TODO: +Citerium(...
-          ' WHERE Obx.obj_id=Obj.id)');
+       begin
+        if Session.IsAdmin('logins') and not((f[i].IDType=dtNumber) and (f[i].ID='0')) then
+          s:=Criterium(f[i],'Obj.id','',false,false)
+        else
+          s:='='+IntToStr(Session.UserID);
+        AddWhere('EXISTS (SELECT Urx.id FROM Obx'+
+          ' LEFT OUTER JOIN Urx ON Obx.id BETWEEN Urx.id1 AND Urx.id2'+
+          ' AND Urx.uid'+s+
+          ' WHERE Obx.obj_id=Obj.id AND Urx.id IS NULL)');
+       end;
 
       else
         raise EtxSqlQueryError.Create('Unsupported filter action at position '+IntToStr(Idx1));
@@ -527,13 +538,13 @@ begin
   try
     s.WriteString('SELECT ');
     s.WriteString(Fields);
-    s.WriteString(' FROM ');
-    s.WriteString(Tables);
-    Add(' WHERE ',Where);
-    Add(' GROUP BY ',GroupBy);
-    Add(' HAVING ',Having);
-    Add(' ORDER BY ',OrderBy);
-    if Limit<>-1 then s.WriteString(' LIMIT '+IntToStr(Limit));
+    s.WriteString(#13#10'FROM ');
+    s.WriteString(Tables);//assert ends in #13#10
+    Add('WHERE ',Where);
+    Add(#13#10'GROUP BY ',GroupBy);
+    Add(#13#10'HAVING ',Having);
+    Add(#13#10'ORDER BY ',OrderBy);
+    if Limit<>-1 then s.WriteString(#13#10'LIMIT '+IntToStr(Limit));
     //MySql: s.WriteString(' LIMIT '+IntToStr(Limit)+',0');
     Result:=s.DataString;
   finally
@@ -567,7 +578,7 @@ procedure TtxSqlQueryFragments.AddFrom(s: string);
 begin
   if s<>'' then
     if Pos(s,Tables)=0 then
-      Tables:='('+Tables+') '+s;
+      Tables:=Tables+s+#13#10;
 end;
 
 function TtxSqlQueryFragments.SqlStr(s: string): string;
@@ -607,7 +618,7 @@ begin
           itFilter:
             idSQL:='SELECT Flt.id FROM Flt WHERE Flt.name='+SqlStr(El.ID);
           itUser:
-            idSQL:='SELECT Usr.id FROM Usr WHERE Usr.login='+SqlStr(El.ID);
+            idSQL:='SELECT Usr.uid FROM Usr WHERE Usr.login='+SqlStr(El.ID);
           else
             raise EtxSqlQueryError.Create('String search on '+txItemTypeName[ItemType]+' is not allowed');
         end;

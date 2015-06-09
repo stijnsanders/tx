@@ -24,7 +24,7 @@ if highlight then begin <<span id="[[=name]]_selectScrollTo"></span>> end;
 ]]
 <a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);" title="[[.typename]]">[[#txImg(qr.GetInt('icon'))]]
 <span id="nodename[[=id]]"[[
-if Session.QryUnread and (qr.GetInt('r0')=0) then begin ]] class="u"[[ end;
+if Session.QryUnread and (qr.GetInt('r0')<>0) then begin ]] class="u"[[ end;
 ]]>>.name<</span></a>>
 if Session.QryUnread then
  begin

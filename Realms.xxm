@@ -62,52 +62,58 @@ try
 	//TermLinks: default domain?
 
     <<tr>
-	<td style="white-space:nowrap;">
-	[[if IsAdmin {or InControl} then begin]]<a href="fRealm.xxm?id=[[=id]]" class="linkbutton">edit</a>[[end;]]
-	[[if IsAdmin {or InControl} then begin]]<a href="fDelete.xxm?x=rm[[=id]]" class="linkbutton">delete</a>[[end;]]
+	<td style="white-space:nowrap;">>
+	if IsAdmin {or InControl} then begin <<a href="fRealm.xxm?id=[[=id]]" class="linkbutton">edit</a> [[ end;
+	if IsAdmin {or InControl} then begin <<a href="fDelete.xxm?x=rm[[=id]]" class="linkbutton">delete</a> [[ end;
+	<</td>
+	<td>>
+		if IsAdmin or InControl then begin
+		<<a href="[[=USelf]][[=SetClear[InView]]][[=id]]" id="toggle[[=id]]"><img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16" [[#globalIconAlign]]/></a> [[
+		end else begin
+		<<img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/> [[
+		end;
+		<<label for="toggle[[=id]]">>.name<</label>
 	</td>
-	<td>
-		[[if IsAdmin or InControl then begin]]
-		<a href="[[=USelf]][[=SetClear[InView]]][[=id]]" id="toggle[[=id]]"><img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16" [[#globalIconAlign]]/></a>
-		[[end else begin]]
-		<img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>
-		[[end;]]
-		<label for="toggle[[=id]]">>.name<</label>
-	</td>
-	<td style="text-align: center;">
-		[[if InView and InControl then begin]]
-		<a href="[[=USelf]]n[[=id]]"><img src="img_radio[[=ImgSuffix[Session.RealmNew=id]]].png" width="16" height="16" [[#globalIconAlign]]/></a>
-		[[end else begin]]
-		<img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>
-		[[end;]]
-	</td>
-	<td>[[#TermStore.TermLinks(itRealm,id,0,qr.GetStr('desc'))]]&nbsp;</td>
+	<td style="text-align: center;">>
+		if InView and InControl then begin
+		<<a href="[[=USelf]]n[[=id]]"><img src="img_radio[[=ImgSuffix[Session.RealmNew=id]]].png" width="16" height="16" [[#globalIconAlign]]/></a>>
+		end else begin
+		<<img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>>
+		end;
+	<</td>
+	<td>>#TermStore.TermLinks(itRealm,id,0,qr.GetStr('desc'))]]&nbsp;</td>
 	<td><span class="sysref">>.system<</span>&nbsp;</td>
-	<td style="white-space:nowrap;">
-		[[s:=qr.GetStr('view_expression');]]
-		<span class="litref">>=s<</span><br />
-		<a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
-		<a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>
-	</td>
-	<td style="white-space:nowrap;">
-		[[s:=qr.GetStr('edit_expression');]]
-		<span class="litref">>=s<</span><br />
-		<a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
-		<a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>
-	</td>
+	<td style="white-space:nowrap;">>
+		s:=qr.GetStr('view_expression');
+        if s='' then begin ]]-[[ end else
+         begin
+		  <<span class="litref">>=s<</span><br />
+		  <a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
+		  <a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>>
+         end;
+	<</td>
+	<td style="white-space:nowrap;">>
+		s:=qr.GetStr('edit_expression');
+        if s='' then begin ]]-[[ end else
+         begin
+		  <<span class="litref">>=s<</span><br />
+		  <a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
+		  <a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>>
+         end;
+	<</td>
 	<td>>=id<</td>
 	[[//TODO: cmw]]
 	</tr>>
    end;
 
-    id:=0;
-	InView:=true;
-    try
-      Session.HasRealmPermission(rpView,id);
-    except
-      on ERealmNotEditableByUser do InView:=false;
-    end;
-	//InControl:=Session.RealmPermission(rpEdit,id);
+  id:=0;
+  InView:=true;
+  try
+    Session.HasRealmPermission(rpView,id);
+  except
+    on ERealmNotEditableByUser do InView:=false;
+  end;
+  //InControl:=Session.RealmPermission(rpEdit,id);
 
   <<tr><th>&nbsp;</th>
   <th style="text-align:left;">

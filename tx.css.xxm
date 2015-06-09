@@ -97,13 +97,16 @@ DIV {
 DIV.comment {
 	margin-left: 1.5em;
 }
-UL,IL {
+UL, IL {
 	margin-top: 0.6em;
 	margin-bottom: 0.6em;
 }
 CODE, XMP, PRE {
 	font-family: Lucida Console, monospace;
 	font-size: 1em;
+}
+TD P {
+	margin: 0 0 0.4em 0;
 }
 
 P.midnav {
