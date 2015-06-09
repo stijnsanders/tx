@@ -112,6 +112,7 @@ if (action='') and (filter<>'') then
 			'<i>publish parameter</i>',//faExtra
 			'<i>publish SQL</i>',//faSQL
 			'is in realm',//faRealm
+            'is unread',//faUnread
 		    '<i style="color:red;">unknown action</i>'//fa_Unknown
 		  );
 	  ]][[

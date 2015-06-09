@@ -19,7 +19,7 @@ type
     faFilter,faParent,faPath,faPathObjType,faPathTokType,faPathRefType,
 
     faSearch,faSearchReports,faSearchName,faName,faDesc,faTerm,
-	faAlwaysTrue,faAlwaysFalse,faExtra,faSQL,faRealm,
+	faAlwaysTrue,faAlwaysFalse,faExtra,faSQL,faRealm,faUnread,
 
     //add new here above
     fa_Unknown
@@ -27,23 +27,23 @@ type
 
 const
   txFilterActionItemType:array[TtxFilterAction] of TtxItemType=(
-  
+
     itObj,itObj,itObjType,itTokType,itRefType,itObj,
     itObj,itObj,itObj,itObj,
     itObj,itTokType,itRefType,itObj,
     itFilter,itObj,itObj,itObjType,itTokType,itRefType,
 
 	itObj,itObj,itObj,itObj,itObj,itObj,
-	it_Unknown,it_Unknown,it_Unknown,it_Unknown,itRealm,
-    
+	it_Unknown,it_Unknown,it_Unknown,it_Unknown,itRealm,it_Unknown,
+
     //add new here above
     it_Unknown
   );
-  
+
   txFilterOperatorChar:array[TtxFilterOperator] of char=('+','.','/',',',#0);
   txFilterOperatorSQL:array[TtxFilterOperator] of string=('AND','OR','AND NOT','OR NOT','');
 
-  txFilterActionNameCount=86;
+  txFilterActionNameCount=88;
   txFilterActionName:array[0..txFilterActionNameCount-1] of record
     a:TtxFilterAction;
     n:string;
@@ -91,6 +91,8 @@ const
     (a:faAlwaysTrue          ;n:'true'),
     (a:faAlwaysFalse         ;n:'false'),
     (a:faFilter              ;n:'filter'),
+    (a:faRealm               ;n:'rlm'),
+    (a:faUnread              ;n:'u'),
     (a:faSQL                 ;n:'sql'),
     (a:faExtra               ;n:'extra'),
     (a:faExtra               ;n:'param'),
@@ -127,8 +129,8 @@ const
     (a:faPathObjType         ;n:'parentobjecttype'),
     (a:faPathTokType         ;n:'parenttokentype'),
     (a:faPathRefType         ;n:'parentreferencetype'),
-    (a:faRealm               ;n:'rlm'),
     (a:faRealm               ;n:'realm'),
+    (a:faUnread              ;n:'unread'),
     (a:faAlwaysTrue          ;n:'alwaystrue'),
     (a:faAlwaysFalse         ;n:'alwaysfalse'),
 	(a:faDesc                ;n:'description'),
@@ -143,7 +145,7 @@ const
 
     (a:fa_Unknown;n:'')
   );
-  
+
 type
   TtxFilterEnvVar=(
     feMe,
@@ -153,7 +155,7 @@ type
     //add new here above
     fe_Unknown
   );
-  
+
 const
   txFilterEnvVarName:array[TtxFilterEnvVar] of string=(
     'me',
@@ -198,7 +200,7 @@ type
   end;
 
   EtxFilterParseError=class(Exception);
-  
+
 implementation
 
 { TtxFilter }
@@ -314,9 +316,9 @@ begin
             inc(i);
             j:=i;
 			k:=1;
-            while (i<=l) and not(k=0) do 
+            while (i<=l) and not(k=0) do
 			 begin
-			  case Ex[i] of 
+			  case Ex[i] of
 			   '{':inc(k);
 			   '}':dec(k);
 			   '"':while (i<=l) and not(Ex[i]='"') do inc(i);
@@ -377,7 +379,7 @@ begin
 
     //flags, set defaults first
     x.Descending:=false;
-    x.Prefetch:=false;        
+    x.Prefetch:=false;
     b:=true;
     while (i<=l) and b do
      begin

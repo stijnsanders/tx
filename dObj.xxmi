@@ -47,12 +47,12 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
   else if Session.IsAnonymous then
    begin
     <<p class="buttons">
-    <a href="fLogon.xxm" class="linkbutton" rel="nofollow">add</a>
+    <a href="Logon.xxm?x=1" class="linkbutton" rel="nofollow">add</a>
     |
-    <a href="fLogon.xxm" class="linkbutton" rel="nofollow">edit</a>
-    <a href="fLogon.xxm" class="linkbutton" rel="nofollow">move</a>
+    <a href="Logon.xxm?x=1" class="linkbutton" rel="nofollow">edit</a>
+    <a href="Logon.xxm?x=1" class="linkbutton" rel="nofollow">move</a>
     |
-    <a href="fLogon.xxm" class="linkbutton" rel="nofollow">delete</a>
+    <a href="Logon.xxm?x=1" class="linkbutton" rel="nofollow">delete</a>
     </p>>
    end;
 

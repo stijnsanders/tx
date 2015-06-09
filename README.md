@@ -35,7 +35,7 @@ Since it started as a thing to keep track of work done, it was called "cover you
 Where do I start?
 -----------------
 
-//TODO: link to xxm, link to sqlite3, link to WikiEngine
+//TODO: link to xxm, link to sqlite3, link to WikiEngine, link to TinyMCE
 
 //TODO: install guide
 

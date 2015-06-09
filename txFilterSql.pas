@@ -58,7 +58,7 @@ type
     property Count:integer read idCount;
     property Item[Idx:integer]:integer read GetItem write SetItem; default;
   end;
-  
+
 implementation
 
 uses txSession, Classes, Variants;
@@ -123,7 +123,7 @@ begin
    begin
 	  Fields:=Fields+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
 	  Tables:=Tables+#13#10'  LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id';
-   end;  
+   end;
   for fe:=TtxFilterEnvVar(0) to fe_Unknown do EnvVars[feMe]:=0;
   EnvVars[feMe]:=Session.UserID;
 end;
@@ -483,6 +483,8 @@ begin
            s:='SELECT DISTINCT Ref.id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
              'DISTINCT '+t+'reftype_id','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj'+
              RefBSel[Action=faRecentBackRef]+'_id=Obj.id',false,false);
+          LocalPrefetch;
+          AddWhere('Ref.ID IN ('+s+')');
          end
         else
           AddWhere('Ref.reftype_id'+Criterium(f[i],
@@ -491,6 +493,11 @@ begin
        end;
       faRealm:
         AddWhere('Obj.rlm_id'+Criterium(f[i],'Rlm.id','',false,false));
+      faUnread:
+        AddWhere('NOT EXISTS (SELECT Urx.id FROM Obx'+
+          ' INNER JOIN Urx ON Obj.id BETWEEN Urx.id1 AND Urx.id2'+
+          ' AND Urx.uid='+IntToStr(Session.UserID)+ //TODO: +Citerium(...
+          ' WHERE Obx.obj_id=Obj.id)');
 
       else
         raise EtxSqlQueryError.Create('Unsupported filter action at position '+IntToStr(Idx1));
@@ -647,7 +654,7 @@ begin
 	  end;
       idSQL:='';
      end;
-	 
+
     if Reverse then //exclude starting point
       for i:=0 to ids.Count-1 do
 	   begin
@@ -735,7 +742,7 @@ begin
       case ids.Count of
         0:Result:='=-1';
         1:Result:='='+IntToStr(ids[0]);
-        else Result:=' IN ('+ids.List+')';	
+        else Result:=' IN ('+ids.List+')';
       end
     else
       Result:=' IN ('+idSQL+')';

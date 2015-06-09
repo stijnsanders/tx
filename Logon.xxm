@@ -102,6 +102,11 @@ if ntauth then
 else
  begin
   <<h2>Logon</h2>>
+  if Context['x'].AsInteger=1 then
+   begin
+    umsg:='Operation not allowed as anonymous user, please sign in or sign up.';
+    url:=Context.ContextString(csReferer);
+   end;
   if umsg<>'' then
    begin
     <<p class="information">>=umsg<</p>>
@@ -135,4 +140,3 @@ else
  end;
 
 Context.Include('dFoot.xxmi');
-]]
