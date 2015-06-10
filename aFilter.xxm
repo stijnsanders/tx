@@ -1,5 +1,5 @@
 [[@txDefs,txSession,SQLiteData,]][[!var
-id,objid:integer;
+id,objid,g:integer;
 url:string;
 desc:WideString;
 ]][[
@@ -20,11 +20,11 @@ desc:=Context['desc'].Value;
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
   if id=0 then
-    Session.DbCon.Execute('INSERT INTO Flt (obj_id,name,expression,[desc],c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',[
-      objid,Context['name'].Value,Context['filter'].Value,desc,VNow,Session.UserID,VNow,Session.UserID],id)
+    Session.DbCon.Execute('INSERT INTO Flt (obj_id,name,expression,[desc],showgraph,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',[
+      objid,Context['name'].Value,Context['filter'].Value,desc,Context['g'].AsInteger,VNow,Session.UserID,VNow,Session.UserID],id)
   else
-    Session.DbCon.Execute('UPDATE Flt SET obj_id=?, name=?, expression=?, [desc]=?, m_ts=?, m_uid=? WHERE id=?',[
-      objid,Context['name'].Value,Context['filter'].Value,desc,VNow,Session.UserID,id]);
+    Session.DbCon.Execute('UPDATE Flt SET obj_id=?, name=?, expression=?, [desc]=?, showgraph=?, m_ts=?, m_uid=? WHERE id=?',[
+      objid,Context['name'].Value,Context['filter'].Value,desc,Context['g'].AsInteger,VNow,Session.UserID,id]);
 
   TermStore.StoreTerms(itFilter,id,objid,desc);
   Session.AddFilterRecent(itObj,objid);

@@ -18,6 +18,10 @@ try
   <dt>Name</dt><dd><input type="text" name="name" id="ObjName" value="[[=qr.GetDefault('name','')]]" class="textfield" /></dd>
   <dt>Attached to object</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',qr.GetDefault('obj_id',Session.UserID)]);<</dd>
   <dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc','')]);<</dd>
+  <dt>Filter Graphs</dt><dd>
+  <input type="checkbox" name="g" id="g1" value="1"[[if qr.GetInt('showgraph')<>0 then begin ]] checked="1"[[end;]]>
+  <label for="g1">Available for filter graphs</label>
+  </dd>
   </dl>
   [[#txFormButton]]
   |
