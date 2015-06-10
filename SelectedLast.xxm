@@ -5,6 +5,9 @@
 ]][[
 
 Context.Include('dHead.xxmi',['Viewed recently']);
+
+<h2>Selected recently</h2>
+
 txItem(Context['x'].Value+'0',ItemType,id);
 if {(FilterRecentCount=0) or} (Session.FilterRecent[ItemType,0]=0) then
  begin
@@ -52,4 +55,3 @@ while (i<>FilterRecentCount) and (Session.FilterRecent[ItemType,i]<>0) and Conte
  end;
 
 Context.Include('dFoot.xxmi');
-]]

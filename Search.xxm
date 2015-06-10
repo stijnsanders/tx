@@ -36,7 +36,7 @@ if pid=0 then
  end;
 <</dl>
 [[#txFormButton]]
-| <a href="FilterBuild.xxm">filter objects...</a>
+| <a href="Filter.xxm">filter objects...</a>
 | <a href="ViewedLast.xxm">viewed recently...</a>
 | <a href="SelectedLast.xxm">selected recently...</a>
 | <a href="fLog.xxm[[if pid<>0 then Context.SendHTML('?f='+URLEncode('i'+IntToStr(pid)+'*'+xf));]]">advanced log view...</a>

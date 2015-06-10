@@ -65,3 +65,6 @@ src/
 *.xxl
 *.log
 tx.ini
+fcount/*.jpg
+img/*.png
+Thumbs.db

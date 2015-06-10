@@ -5,6 +5,8 @@
 
 Context.Include('dHead.xxmi',['Viewed recently']);
 
+<h2>Viewed recently</h2>
+
 if (ViewedLastCount=0) or (Session.ViewedLast[0]=0) then
  begin
   <<p class="information">No items viewed yet.</p>
@@ -37,5 +39,10 @@ while not(i=ViewedLastCount) and not(Session.ViewedLast[i]=0) and Context.Connec
   inc(i);
  end;
 
+<<p>
+<a href="Search.xxm">search...</a>
+| <a href="Filter.xxm">filter objects...</a>
+| <a href="SelectedLast.xxm">selected recently...</a>
+</p>>
+
 Context.Include('dFoot.xxmi');
-]]

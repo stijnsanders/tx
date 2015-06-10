@@ -28,7 +28,7 @@ end;
 <<input type="hidden" name="x" value="[[=x]]" />
 <p>
 <input type="radio" name="rlm" value="0" id="Rlm0" [[if RlmID=0 then Context.SendHTML('checked="1"');]] />
-<label for="Rlm0"><i>Default realm</i> (0)</label>
+<label for="Rlm0"><i>Default realm</i> #0</label>
 </p>>
 qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Rlm.id, Rlm.[name], Rlm.[desc], Rlm.[system], Rlm.view_expression, Rlm.edit_expression, Rlm.c_uid, Rlm.c_ts, Rlm.m_uid, Rlm.m_ts FROM Rlm',[]);
 try
@@ -45,7 +45,7 @@ try
      begin
       <<p>
 	  <input type="radio" name="rlm" value="[[=id]]" id="Rlm[[=id]]" [[if RlmID=id then Context.SendHTML('checked="1"');]] />
-	  <label for="Rlm[[=id]]"><b>>.name<</b> ([[=id]])</label>
+	  <label for="Rlm[[=id]]"><b>>.name<</b> #[[=id<</label>
 	  </p>
 	  <div style="margin-left:2em;">>#qr['desc']<</div>>
 	  //TODO: SafeHTML
