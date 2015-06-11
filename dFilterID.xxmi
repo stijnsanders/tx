@@ -77,7 +77,11 @@ ID:=string(Values[2]);
            end;
 		 end;
 
-        it_Unknown:;//irrelevant, don't display
+        it_Unknown:
+         begin
+          <<span class="litref">>=ID<</span>>
+         end;
+         
         else Context.Send(' ['+ID+']');//default
       end;
     dtSystem:

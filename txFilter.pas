@@ -18,7 +18,7 @@ type
     faRecentObj,faRecentTok,faRecentRef,faRecentBackRef,
     faFilter,faParent,faPath,faPathObjType,faPathTokType,faPathRefType,
 
-    faSearch,faSearchReports,faSearchName,faName,faDesc,faTerm,
+    faSearch,faSearchReports,faSearchName,faName,faDesc,faTerm,faModified,
 	faAlwaysTrue,faAlwaysFalse,faExtra,faSQL,faUser,faRealm,faUnread,
 
     //add new here above
@@ -33,7 +33,7 @@ const
     itObj,itTokType,itRefType,itObj,
     itFilter,itObj,itObj,itObjType,itTokType,itRefType,
 
-	itObj,itObj,itObj,itObj,itObj,itObj,
+	itObj,itObj,itObj,itObj,itObj,itObj,it_Unknown,
 	it_Unknown,it_Unknown,it_Unknown,it_Unknown,itUser,itRealm,itUser,
 
     //add new here above
@@ -43,7 +43,7 @@ const
   txFilterOperatorChar:array[TtxFilterOperator] of char=('+','.','/',',',#0);
   txFilterOperatorSQL:array[TtxFilterOperator] of string=('AND','OR','AND NOT','OR NOT','');
 
-  txFilterActionNameCount=91;
+  txFilterActionNameCount=95;
   txFilterActionName:array[0..txFilterActionNameCount-1] of record
     a:TtxFilterAction;
     n:string;
@@ -73,6 +73,7 @@ const
     (a:faAlwaysTrue          ;n:'at'),
     (a:faAlwaysFalse         ;n:'af'),
     (a:faFilter              ;n:'f'),
+    (a:faModified            ;n:'m'),
     (a:faParent              ;n:'p'),
     (a:faPath                ;n:'pi'),
     (a:faPathObjType         ;n:'po'),
@@ -94,6 +95,8 @@ const
     (a:faRealm               ;n:'rlm'),
     (a:faUser                ;n:'u'),
     (a:faUnread              ;n:'uu'),
+    (a:faModified            ;n:'age'),
+    (a:faModified            ;n:'mod'),
     (a:faSQL                 ;n:'sql'),
     (a:faExtra               ;n:'extra'),
     (a:faExtra               ;n:'param'),
@@ -134,6 +137,7 @@ const
     (a:faUser                ;n:'usr'),
     (a:faUser                ;n:'user'),
     (a:faUnread              ;n:'unread'),
+    (a:faModified            ;n:'modified'),
     (a:faAlwaysTrue          ;n:'alwaystrue'),
     (a:faAlwaysFalse         ;n:'alwaysfalse'),
 	(a:faDesc                ;n:'description'),

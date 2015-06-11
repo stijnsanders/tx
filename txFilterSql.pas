@@ -135,6 +135,19 @@ begin
   inherited;
 end;
 
+function CritDate(fx:TtxFilterElement):string;
+begin
+  with fx do
+    case IDType of
+      dtNumber:
+        //Result:='{d '''+FormatDate('yyyy-mm-dd',Date-StrToInt(ID))+'''}';
+        Result:=FloatToStr(Date-StrToInt(ID));//SQLite allows storing Delphi date-as-float
+      //TODO
+      else
+        raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(Idx1));
+    end;
+end;
+
 procedure TtxSqlQueryFragments.AddFilter(f: TtxFilter);
 var
   i,j,k:integer;
@@ -197,6 +210,23 @@ begin
           t:='ttSQ'+IntToStr(AliasCount);
           s:='SELECT DISTINCT Tok.obj_id FROM Tok WHERE Tok.toktype_id'+Criterium(f[i],
             'DISTINCT '+t+'.toktype_id','RIGHT JOIN Tok AS '+t+' ON '+t+'.obj_id=Obj.id',false,false);
+          if Parameters<>'' then
+           begin
+            fx:=TtxFilter.Create;
+            try
+              fx.FilterExpression:=Parameters;
+              for j:=0 to fx.Count-1 do with fx[j] do
+                case Action of
+                  faModified:
+                    s:=s+' AND Tok.m_ts<'+CritDate(fx[j]);
+                  else
+                    raise EtxSqlQueryError.Create('Unexpected tt parameter at position '+IntToStr(Idx1));
+                end;
+              //TODO: fx[j].Operator
+            finally
+              fx.Free;
+            end;
+           end;
           if Prefetch then LocalPrefetch;
           AddWhere('Obj.id IN ('+s+')');
          end;
@@ -210,6 +240,23 @@ begin
           t:='rtSQ'+IntToStr(AliasCount);
           s:='SELECT DISTINCT Ref.obj1_id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
             'DISTINCT '+t+'.reftype_id','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj1_id=Obj.id',false,false);
+          if Parameters<>'' then
+           begin
+            fx:=TtxFilter.Create;
+            try
+              fx.FilterExpression:=Parameters;
+              for j:=0 to fx.Count-1 do with fx[j] do
+                case Action of
+                  faModified:
+                    s:=s+' AND Ref.m_ts<'+CritDate(fx[j]);
+                  else
+                    raise EtxSqlQueryError.Create('Unexpected rt parameter at position '+IntToStr(Idx1));
+                end;
+              //TODO: fx[j].Operator
+            finally
+              fx.Free;
+            end;
+           end;
           if Prefetch then LocalPrefetch;
           AddWhere('Obj.id IN ('+s+')');
          end;
@@ -227,12 +274,15 @@ begin
                  begin
                   inc(AliasCount);
                   t:='rxSQ'+IntToStr(AliasCount);
-                  s:=' AND Ref.reftype_id'+Criterium(fx[j],
+                  s:=s+' AND Ref.reftype_id'+Criterium(fx[j],
                     'DISTINCT '+t+'.id','RIGHT JOIN Ref AS '+t+' ON '+t+'.ref_obj1_id=Obj.id',false,false);
-                 end
+                 end;
+                faModified:
+                  s:=s+' AND Ref.m_ts<'+CritDate(fx[j]);
                 else
                   raise EtxSqlQueryError.Create('Unexpected rx parameter at position '+IntToStr(Idx1));
               end;
+            //TODO: fx[j].Operator
           finally
             fx.Free;
           end;
@@ -248,6 +298,14 @@ begin
           //dtSystem:;
           //dtSubQuery:;
           //dtEnvironment:;
+          else
+            raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(Idx1));
+        end;
+
+      faModified:
+        case IDType of
+          dtNumber:AddWhere('Obj.m_ts<'+CritDate(f[i]));
+          //TODO
           else
             raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(Idx1));
         end;
@@ -434,12 +492,15 @@ begin
                  begin
                   inc(AliasCount);
                   t:='urSQ'+IntToStr(AliasCount);
-                  s:=' AND Ref.reftype_id'+Criterium(fx[j],'DISTINCT '+t+'.id','RIGHT JOIN Ref AS '+t+' ON '+t+
+                  s:=s+' AND Ref.reftype_id'+Criterium(fx[j],'DISTINCT '+t+'.id','RIGHT JOIN Ref AS '+t+' ON '+t+
                     '.ref_obj'+RefBSel[Action=faBackRefCreated]+'_id=Obj.id',false,false);
-                 end
+                 end;
+                faModified:
+                  s:=s+' AND Ref.m_ts<'+CritDate(fx[j]);
                 else
                   raise EtxSqlQueryError.Create('Unexpected rx parameter at position '+IntToStr(Idx1));
               end;
+            //TODO: fx[j].Operator
           finally
             fx.Free;
           end;

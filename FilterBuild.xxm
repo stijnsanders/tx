@@ -107,6 +107,7 @@ if (action='') and (filter<>'') then
 			'is named as',//faName
 			'is described as',//faDesc
 			'has term',//faTerm
+            'was modified before <i>x</i> days, <i>x</i>=',//faModified
 			'<i>always true</i>',//faAlwaysTrue
 			'<i>always false</i>',//faAlwaysFalse
 			'<i>publish parameter</i>',//faExtra
@@ -128,7 +129,8 @@ if (action='') and (filter<>'') then
 
       //parameters
 	  case Action of
-	    faBackRef, faBackRefCreated, faRecentBackRef:
+	    faTokType, faRefType,
+        faBackRef, faBackRefCreated, faRecentBackRef:
 		 begin
 		  txFilterP:=TtxFilter.Create;
 		  try
@@ -142,6 +144,11 @@ if (action='') and (filter<>'') then
 			      if Descending then Context.SendHTML(' or one of its descendants');
 			      if Prefetch then Context.SendHTML('<sub title="prefetched"><i>p</i></sub>');
 				 end;
+                faModified:
+                 begin
+				  Context.SendHTML(', modified before <i>x</i> days, x=');
+				  Context.Include('dFilterID.xxmi',[txFilterActionItemType[Action],IDType,ID]);
+                 end;
 				else
 				  raise Exception.Create('Unexpected rx parameter at position '+IntToStr(Idx1));
 			  end;
@@ -226,12 +233,12 @@ if ((action='') and (filter='')) or (action='add') then
    <li><a href="[[#Address]]x=tt">tokentype</a>: objects with <b>token</b> of type &lt;tokentype&gt;</li>
    <li><a href="[[#Address]]x=rt">referencetype</a>: objects with <b>reference</b> of type &lt;referencetype&gt;</li>
    <li><a href="[[#Address]]x=rx">backreference</a>: objects <b>referring to</b> &lt;object&gt; (with a reference of type &lt;referencetype&gt;)</li>
-   <br /><br />
+   <br />
    <li><a href="[[#Address]]x=uc">created</a>: objects <b>created</b> by &lt;user&gt;</li>
    <li><a href="[[#Address]]x=ut">token created</a>: objects with a <b>token created</b> by &lt;user&gt;</li>
    <li><a href="[[#Address]]x=ur">reference created</a>: objects with a <b>reference created</b> by &lt;user&gt;</li>
    <li><a href="[[#Address]]x=urx">backreference created</a>: objects <b>referred to</b> by a reference <b>created</b> by &lt;user&gt;</li>
-   <br /><br />
+   <br />
    <li><a href="[[#Address]]x=ttr">recent token</a>: objects with <b>token</b> of type &lt;tokentype&gt;, sorted descending by the token's modified date</li>
    <li><a href="[[#Address]]x=rtr">referencetype</a>: objects with <b>reference</b> of type &lt;referencetype&gt;, sorted descending by the reference's modified date</li>
    <li><a href="[[#Address]]x=rxr">backreference</a>: objects <b>referred to</b> by a reference of type &lt;referencetype&gt;, sorted descending by the reference's modified date</li>
@@ -265,7 +272,7 @@ if action='c' then
   [[#txForm(ActionAddress,['filter',filter])]]
   <dl>
   [[Context.Include('fOperators.xxmi',[filter]);]]
-  <dt>Child of object</dt><dd>[[Context.Include('dObjSelect.xxmi',['item'+action,0,0,0,'',true]);]]</dd>
+  <dt>Child of object</dt><dd>>Context.Include('dObjSelect.xxmi',['item'+action,0,0,0,'',true]);<</dd>
   <dt>Descendance</dt><dd>
 	<input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only direct descendants of this object</label><br />
 	<input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">All descendants of this object</label><br />
@@ -281,7 +288,7 @@ if action='ot' then
   [[#txForm(ActionAddress,['filter',filter])]]
   <dl>
   [[Context.Include('fOperators.xxmi',[filter]);]]
-  <dt>Object type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itObjType,'item'+action]);]]</dd>
+  <dt>Object type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itObjType,'item'+action]);<</dd>
   <dt>Descendance</dt><dd>
 	<input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only objects of this object type</label> <br />
 	<input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">Objects of this and descendant object types</label> <br />
@@ -297,7 +304,7 @@ if (action='tt') or (action='ttr') then
   [[#txForm(ActionAddress,['filter',filter])]]
   <dl>
   [[Context.Include('fOperators.xxmi',[filter]);]]
-  <dt>Token type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itTokType,'item'+action]);]]</dd>
+  <dt>Token type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itTokType,'item'+action]);<</dd>
   <dt>Descendance</dt><dd>
 	<input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only tokens of this token type</label> <br />
 	<input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">Tokens of this and descendant token types</label> <br />
@@ -313,7 +320,7 @@ if (action='rt') or (action='rtr') then
   [[#txForm(ActionAddress,['filter',filter])]]
   <dl>
   [[Context.Include('fOperators.xxmi',[filter]);]]
-  <dt>Reference type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itRefType,'item'+action]);]]</dd>
+  <dt>Reference type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'item'+action]);<</dd>
   <dt>Descendance</dt><dd>
 	<input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only references of this reference type</label> <br />
 	<input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">References of this and descendant reference types</label> <br />
@@ -329,12 +336,12 @@ if (action='rx') or (action='rxr') then
   [[#txForm(ActionAddress,['filter',filter],'selectnode_required("obj","a referred object")')]]
   <dl>
   [[Context.Include('fOperators.xxmi',[filter]);]]
-  <dt>Object referred to</dt><dd>[[Context.Include('dObjSelect.xxmi',['obj',Context['id'].AsInteger,0,0,'',true]);]]</dd>
+  <dt>Object referred to</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',Context['id'].AsInteger,0,0,'',true]);<</dd>
   <dt>Descendance</dt><dd>
 	<input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object	</label> <br />
 	<input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label> <br />
   </dd>
-  <dt>With reference of type (optional)</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itRefType,'reftype']);]]</dd>
+  <dt>With reference of type (optional)</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'reftype']);<</dd>
   <dt>Descendance</dt><dd>
 	<input type="radio" name="tflags" value="" id="tdesc0" /> <label for="tdesc0">Only references of this reference type</label> <br />
 	<input type="radio" name="tflags" value="*" id="tdesc1" checked="1" /> <label for="tdesc1">References of this and descendant reference types</label> <br />
@@ -347,11 +354,11 @@ if (action='rx') or (action='rxr') then
 if (action='uc') or (action='ut') or (action='ur') or (action='urx') then
  begin
   //TODO: default user filter on select?
-  <<h2>User</h2>
+  <<h2>Created by</h2>
   [[#txForm(ActionAddress,['filter',filter])]]
   <dl>
   [[Context.Include('fOperators.xxmi',[filter]);]]
-  <dt>Child of object</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itObj,'item'+action]);]]</dd>
+  <dt>User object</dt><dd>>Context.Include('dObjSelect.xxmi',['item'+action]);<</dd>
   <dt>Descendance</dt><dd>
 	<input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object</label><br />
 	<input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label><br />
