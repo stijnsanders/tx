@@ -6,6 +6,7 @@ b:boolean;
 
 Context.ContentType:='text/plain';
 Context.BufferSize:=0;
+CheckMaintProtect(Context);
 
 if not Use_Unread then raise Exception.Create('Use_Unread not enabled');
 

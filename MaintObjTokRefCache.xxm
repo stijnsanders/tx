@@ -7,9 +7,10 @@ begin
 end;
 
 ]][[
-
 //assert Use_ObjTokRefCache
 Context.ContentType:='text/plain';
+Context.BufferSize:=0;
+CheckMaintProtect(Context);
 
 if Context['redo'].AsInteger=1 then
  begin
@@ -54,7 +55,7 @@ try
 		id:=qr.GetInt('id');
 		Context.SendHTML(id);
 		Context.Include('aObjTokRefCache.xxmi',[id]);
-		
+
 		inc(x);
 		if x=20 then
 		 begin
@@ -76,5 +77,3 @@ end;
 
 
 Context.SendHTML('---'#13#10);
-
-]]

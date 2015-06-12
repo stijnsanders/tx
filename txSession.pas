@@ -90,6 +90,7 @@ function txCallProtect:string;
 function txFormProtect:string;
 procedure CheckCallProtect(Context:IXxmContext);
 procedure CheckFormProtect(Context:IXxmContext);
+procedure CheckMaintProtect(Context:IXxmContext);
 function NewPasswordSalt:string;
 function PasswordToken(const Salt,Password:string):string;
 procedure NewAutoLogonToken(Context:IXxmContext;UslID:integer);
@@ -118,6 +119,7 @@ var
 
   //see LoadProjectSettings
   DbFilePath:string;
+  MaintAuthKey:string;
 
 function SetSession(Context: IXxmContext): boolean;
 var
@@ -197,6 +199,7 @@ begin
        end;
     end;
     DbFilePath:=sl.Values['DB'];
+    MaintAuthKey:=sl.Values['AuthKey'];
     //relative?
     if (DbFilePath<>'') and not(DbFilePath[2] in [':','\']) then DbFilePath:=ModulePath+DbFilePath;
     AdministratorEmailAddress:=sl.Values['AdministratorEmailAddress'];
@@ -682,10 +685,27 @@ begin
    begin
     p:=Context['XxmFormProtect'];
     if not((p.QueryInterface(IXxmParameterPost,pp)=S_OK) and (p.Value=Session.SessionCrypt)) then
-      raise Exception.Create('Invalid POST source detected.');//log security breach attempt?
+      raise Exception.Create('Invalid request source detected.');//log security breach attempt?
    end
   else
     raise Exception.Create('CheckFormProtect only works with POST requests!');
+end;
+
+procedure CheckMaintProtect(Context:IXxmContext);
+var
+  h:boolean;
+begin
+  //TODO: mask remote address? local?
+  if MaintAuthKey='' then
+   begin
+    h:=Context.ContentType='text/html';
+    if h then Context.SendHTML('<p><b>') else Context.SendHTML('##### ');
+    Context.SendHTML('To protect access to maintenance pages, set a "AuthKey" value in tx.ini and call this page with a parameter "auth" set to that value.');
+    if h then Context.SendHTML('</b></p>') else Context.SendHTML(' #####'#13#10#13#10);
+   end
+  else
+    if Context['auth'].Value<>MaintAuthKey then
+      raise Exception.Create('Access denied');
 end;
 
 function NewPasswordSalt:string;

@@ -11,6 +11,7 @@ fs:string;
 ]][[
 Context.ContentType:='text/plain';
 Context.BufferSize:=0;
+CheckMaintProtect(Context);
 
 //ATTENTION: run under a specific user to get realms selection right!
 
@@ -54,7 +55,7 @@ for i:=0 to Length(fl)-1 do
       f.Free;
       fq.Free;
     end;
-	
+
     qr:=TSQLiteStatement.Create(Session.DbCon,fs);
     try
       ItemCount:=qr.GetInt('ItemCount');
@@ -78,5 +79,3 @@ for i:=0 to Length(fl)-1 do
  end;
 
 Context.SendHTML('---'#13#10);
-
-]]

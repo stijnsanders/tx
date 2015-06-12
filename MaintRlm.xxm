@@ -7,10 +7,11 @@ fs:string;
 ]][[
 Context.ContentType:='text/plain';
 Context.BufferSize:=0;
+CheckMaintProtect(Context);
 
 Context.SendHTML('Parse filter...'#13#10);
 
-c:=0; 
+c:=0;
 f:=TtxFilter.Create;
 fq:=TtxSqlQueryFragments.Create(itObj);
 try
@@ -32,13 +33,13 @@ finally
   f.Free;
   fq.Free;
 end;
-    
+
 Context.SendHTML('Run query...'#13#10);
-try   
+try
     qr:=TSQLiteStatement.Create(Session.DbCon,fs,[VarFromDateTime(Now-7.0)]);//TODO: from settings file!
     try
-      Context.SendHTML('List objects...'#13#10);    
-      while qr.Read and Context.Connected do 
+      Context.SendHTML('List objects...'#13#10);
+      while qr.Read and Context.Connected do
        begin
         Session.DbCon.Execute('UPDATE Obj SET rlm_id=3 WHERE id=?',[qr.GetInt('id')]);
         inc(c);
@@ -54,10 +55,8 @@ except
     [[#e.Message]]
     [[
    end;
-end;    
+end;
 
 //TODO: to done realm: projects that only has done (or deleted) items
 
 Context.SendHTML('('+IntToStr(c)+')---'#13#10);
-
-]]

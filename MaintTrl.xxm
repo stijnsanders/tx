@@ -54,6 +54,7 @@ end;
 
 <<div style="font-family:monospace;">>
 
+CheckMaintProtect(Context);
 if not Use_Terms then raise Exception.Create('Use_Terms not enabled');
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
@@ -74,7 +75,6 @@ except
     raise;
 end;
 
-]]
-<br />
+<<br />
 -- done
 </div>

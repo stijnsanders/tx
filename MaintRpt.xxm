@@ -6,6 +6,7 @@ autoCreate:boolean;
 st:TSQLiteStatement;
 ]][[
 Context.Include('dHead.xxmi',['Maintenance: re-order reports by date']);
+CheckMaintProtect(Context);
 
 root:=Context['obj'].AsInteger;
 
