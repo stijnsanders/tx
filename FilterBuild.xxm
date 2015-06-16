@@ -129,8 +129,7 @@ if (action='') and (filter<>'') then
 
       //parameters
 	  case Action of
-	    faTokType, faRefType,
-        faBackRef, faBackRefCreated, faRecentBackRef:
+	    faTokType, faTokCreated, faRefType, faRefCreated, faBackRef, faBackRefCreated,
 		 begin
 		  txFilterP:=TtxFilter.Create;
 		  try

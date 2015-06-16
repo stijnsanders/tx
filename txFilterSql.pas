@@ -475,6 +475,23 @@ begin
       faTokCreated:
        begin
         s:='SELECT DISTINCT Tok.obj_id FROM Tok WHERE Tok.c_uid'+Criterium(f[i],'Obj.id','',false,false);
+        if Parameters<>'' then
+         begin
+          fx:=TtxFilter.Create;
+          try
+            fx.FilterExpression:=Parameters;
+            for j:=0 to fx.Count-1 do with fx[j] do
+              case Action of
+                faModified:
+                  s:=s+' AND Tok.m_ts<'+CritDate(fx[j]);
+                else
+                  raise EtxSqlQueryError.Create('Unexpected ttr parameter at position '+IntToStr(Idx1));
+              end;
+            //TODO: fx[j].Operator
+          finally
+            fx.Free;
+          end;
+         end;
         if Prefetch then LocalPrefetch;
         AddWhere('Obj.id IN ('+s+')');
        end;
@@ -498,7 +515,7 @@ begin
                 faModified:
                   s:=s+' AND Ref.m_ts<'+CritDate(fx[j]);
                 else
-                  raise EtxSqlQueryError.Create('Unexpected rx parameter at position '+IntToStr(Idx1));
+                  raise EtxSqlQueryError.Create('Unexpected rtr parameter at position '+IntToStr(Idx1));
               end;
             //TODO: fx[j].Operator
           finally
