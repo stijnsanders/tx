@@ -1,5 +1,5 @@
 [[@txDefs,txSession,SQLiteData,]][[!var
-id,objid,g:integer;
+id,objid:integer;
 url:string;
 desc:WideString;
 ]][[

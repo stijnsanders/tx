@@ -38,9 +38,18 @@ if id=0 then //reset pwd
 
 Context.Include('dHead.xxmi',['PageTitle']);
 
-//security: report success in any case to avoid abuse of the remember password function
-<<h3>New user account activation mail</h3>
-<p>New user account activation mail re-sent.</p>>
+if id=0 then
+ begin
+  //security: report success in any case to avoid abuse of the remember password   function
+  <<h3>New user account activation mail</h3>
+  <p>New user account activation mail sent.</p>>
+ end
+else
+ begin
+  //security: report success in any case to avoid abuse of the remember password   function
+  <<h3>User password reset e-mail</h3>
+  <p>If you entered a correct e-mail address, an e-mail with instructions how to reset your password is sent.</p>>
+ end;
 
 Context.Include('dFoot.xxmi');
 ]]

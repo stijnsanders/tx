@@ -11,7 +11,8 @@ if Length(Values)<1 then Context.Send(ApplicationName) else
   Context.Send(' - ');
   Context.Send(Values[0]);
  end;
-<</title>>
+<</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico" />>
 s:=LowerCase(Context.ContextString(csLocalURL));
 if (s='filter.xxm') or (s='import.xxm') or (s='trace.xxm') or (s='fcount.xxm') then //more? from robots.txt?
  begin

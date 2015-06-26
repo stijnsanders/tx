@@ -50,12 +50,12 @@ try
         i:=qr.GetInt(0);
         if i=id2+1 then id2:=i else
          begin
+          id0:=qr.GetInt(1);
           if id1<>0 then
             if id0=0 then
               Session.DbCon.Execute('INSERT INTO Urx (uid,id1,id2) VALUES (?,?,?)',[Session.UserID,id1,id2])
             else
               Session.DbCon.Execute('UPDATE Urx SET id2=? WHERE id=?',[id2,id0]);
-          id0:=qr.GetInt(1);
           id1:=i;
           id2:=i;
          end;

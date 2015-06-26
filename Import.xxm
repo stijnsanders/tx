@@ -240,7 +240,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
    begin
     id1:=Context['pid'].AsInteger;
 	if SingleItem then
-	  xl:=im.Doc.documentElement.selectNodes('Obj[@id="'+IntToStr(id2)+'"]')
+	  xl:=im.Doc.documentElement.selectNodes('Obj[@id="'+IntToStr(id1)+'"]')
 	else
 	  if id1=0 then
 	    xl:=im.Doc.documentElement.selectNodes('Obj[@graft="1"]')
@@ -305,7 +305,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
    begin
     id1:=Context['pid'].AsInteger;
 	if SingleItem then
-	  xl:=im.Doc.documentElement.selectNodes(QName[q]+'[@id="'+IntToStr(id2)+'"]')
+	  xl:=im.Doc.documentElement.selectNodes(QName[q]+'[@id="'+IntToStr(id1)+'"]')
 	else
 	  if id1=0 then
 	    xl:=im.Doc.documentElement.selectNodes(QName[q]+'[@graft="1"]')
