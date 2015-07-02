@@ -1,6 +1,13 @@
-[[@txSession,]][[!const
+[[@txSession,xxmHeaders]][[!const
 ImgSafePadding='0.1em 0.4em 0.1em 0.4em';
-]][[Context.ContentType:='text/css';]]
+]][[
+Context.ContentType:='text/css';
+if (Context as IxxmHttpHeaders).RequestHeaders['If-Modified-Since']=Session.CssModSince then
+Context.SetStatus(304,'Not Modified')
+else
+begin
+(Context as IxxmHttpHeaders).ResponseHeaders['Last-Modified']:=Session.CssModSince;
+]]
 BODY {
 	border: none;
 	font-family: [[#Session.CssPrefs.FontName]];
@@ -276,6 +283,7 @@ A.linkbutton {
 	font-size: 0.8em;
 	cursor: pointer;
 	border: 0.2em outset #C0C0C0;
+	border-radius: 0.5em;
 	background-color: #C0C0C0;
 	color: #000000;
 	padding-left: 0.5em;
@@ -431,3 +439,4 @@ A.domainlink {
 		border-bottom: 0.1em solid #808080;
 	}
 }
+[[end;

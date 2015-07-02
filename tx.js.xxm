@@ -1,7 +1,12 @@
-[[@txDefs,txSession,]][[
+[[@txDefs,txSession,xxmHeaders]][[
 CheckCallProtect(Context);
 Context.ContentType:='text/javascript';
 Session.JSLoaded:=true;
+if (Context as IxxmHttpHeaders).RequestHeaders['If-Modified-Since']=Session.JsModSince then
+Context.SetStatus(304,'Not Modified')
+else
+begin
+(Context as IxxmHttpHeaders).ResponseHeaders['Last-Modified']:=Session.JsModSince;
 ]]
 function safeScrollToX(x)
 {
@@ -251,3 +256,4 @@ function default_form_submit(x)
 	else
 		return false;
 }
+[[end;

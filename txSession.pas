@@ -257,8 +257,7 @@ begin
   Data:=nil;
   FTerms:=nil;
   JsLoaded:=false;
-  CssModSince:='';
-  JsModSince:='';
+  JsModSince:=RFC822DateGMT(Now);
   QryUnread:=false;//see LoadUser
   Stealth:=false;
 
@@ -274,6 +273,7 @@ begin
   CssPrefs.DemoMode:=false;
   CssPrefs.BaseSizePt:=11;
   CssPrefs.FontName:='Calibri, Verdana, sans-serif';
+  CssModSince:=RFC822DateGMT(Now);
 
   for i:=itObj to itRefType do for j:=0 to FilterRecentCount-1 do FilterRecent[i,j]:=0;
   for j:=0 to ViewedLastCount-1 do ViewedLast[j]:=0;

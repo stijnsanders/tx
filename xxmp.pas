@@ -102,11 +102,12 @@ begin
     finally
       if qr<>nil then qr.Free;
     end;
-  if (s='tx.ini') or (s='tx.db') or (s='tx.xxl') then Result:=XxmFragmentRegistry.GetFragment(Self,'404.xxm','');
+  if (s='tx.ini') or (s='tx.db') or (s='tx.xxl') then
+    Result:=XxmFragmentRegistry.GetFragment(Self,'404.xxm','');
   if Result=nil then
    begin
     Result:=XxmFragmentRegistry.GetFragment(Self,Address,'');
-	  Context.BufferSize:=$40000;//256KiB
+    Context.BufferSize:=$40000;//256KiB
    end;
 end;
 

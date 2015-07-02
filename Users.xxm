@@ -17,7 +17,7 @@ if Context['UpdatePrefs'].AsInteger=1 then
   Session.CssPrefs.BaseSizePt:=Context['BaseFontSize'].AsInteger;
   Session.CssPrefs.FontName:=Context['FontName'].Value;
   Session.CssPrefs.DemoMode:=Context['demo'].AsInteger=1;
-  Session.CssModSince:='';
+  Session.CssModSince:=RFC822DateGMT(Now);
   if Use_Unread then
    begin
     Session.QryUnread:=Context['Unread'].AsInteger=1;
