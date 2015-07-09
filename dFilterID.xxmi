@@ -36,7 +36,7 @@ ID:=string(Values[2]);
             end;
            end;
         itObjType,itTokType,itRefType:
-          if ID='0' then
+          if (ID='') or (ID='0') then
             Context.SendHTML(txImg(-1)+' <i>none</i>')
           else
            begin
@@ -53,37 +53,45 @@ ID:=string(Values[2]);
 
 		//itFilter
         itRealm:
-		 begin
-          InView:=true;
-          try
-            Session.HasRealmPermission(rpView,StrToInt(ID));
-          except
-            on ERealmNotEditableByUser do InView:=false;
-          end;
-		  <<img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16" [[#globalIconAlign]]/>>
-          if ID='0' then
-            Context.SendHTML(' <i>default realm</i>')
+          if ID='' then
+            Context.SendHTML(' <i style="color:red;">unknown</i>')
           else
-           begin
-            qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT name FROM Rlm WHERE id=?',[StrToInt(ID)]);
+		   begin
+            InView:=true;
             try
-               if qr.Read then
-                 Context.SendHTML(qr.GetStr('name'))
-               else
-                 Context.SendHTML('<i>?'+txItemTypeName[ItemType]+'?'+ID+'</i>');
-            finally
-              qr.Free;
+              Session.HasRealmPermission(rpView,StrToInt(ID));
+            except
+              on ERealmNotEditableByUser do InView:=false;
             end;
-           end;
-		 end;
+		    <<img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16"   [[#globalIconAlign]]/>>
+            if (ID='') or (ID='0') then
+              Context.SendHTML(' <i>default realm</i>')
+            else
+             begin
+              qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT name FROM Rlm WHERE   id=?',[StrToInt(ID)]);
+              try
+                 if qr.Read then
+                   Context.SendHTML(qr.GetStr('name'))
+                 else
+                   Context.SendHTML('<i>?'+txItemTypeName[ItemType]+'?'+ID+'</i>');
+              finally
+                qr.Free;
+              end;
+             end;
+		   end;
 
         it_Unknown:
          begin
           <<span class="litref">>=ID<</span>>
          end;
-         
+
         else Context.Send(' ['+ID+']');//default
       end;
+    dtNumberList:
+      if ID='' then
+        Context.SendHTML('<i>none</i>')
+      else
+        Context.SendHTML('<i>('+ID+')</i>');
     dtSystem:
      begin
       ]]"<span class="litref">>=ID<</span>"[[

@@ -5,7 +5,7 @@ interface
 uses SysUtils, txDefs;
 
 type
-  TtxFilterIDType=(dtNumber,dtSystem,dtSubQuery,dtEnvironment);
+  TtxFilterIDType=(dtNumber,dtNumberList,dtSystem,dtSubQuery,dtEnvironment);
   TtxFilterOperator=(
     foAnd,foOr,foAndNot,foOrNot,
 	//add new here above
@@ -231,8 +231,8 @@ var
 begin
   i:=0;
   //LowerCase?
-  while not(txFilterActionName[i].n=Action) and
-    not(txFilterActionName[i].a=fa_Unknown) do inc(i);
+  while (txFilterActionName[i].n<>Action) and
+    (txFilterActionName[i].a<>fa_Unknown) do inc(i);
   if txFilterActionName[i].a=fa_Unknown then Result:=it_Unknown else
     Result:=txFilterActionItemType[txFilterActionName[i].a];
 end;
@@ -240,7 +240,7 @@ end;
 class function TtxFilter.GetFilterEnvVar(EnvVarName:string):TtxFilterEnvVar;
 begin
   Result:=TtxFilterEnvVar(0);
-  while (Result<fe_Unknown) and not(txFilterEnvVarName[Result]=EnvVarName) do inc(Result);
+  while (Result<fe_Unknown) and (txFilterEnvVarName[Result]<>EnvVarName) do inc(Result);
 end;
 
 function TtxFilter.GetCount: integer;
@@ -308,8 +308,8 @@ begin
     s:=Copy(Ex,j,i-j);
     SkipWhiteSpace;
     j:=0;
-    while not(txFilterActionName[j].n=s) and
-      not(txFilterActionName[j].a=fa_Unknown) do inc(j);
+    while (txFilterActionName[j].n<>s) and
+      (txFilterActionName[j].a<>fa_Unknown) do inc(j);
     if txFilterActionName[j].a=fa_Unknown then Error('Unknown action "'+s+'"');
     x.Action:=txFilterActionName[j].a;
 
@@ -323,12 +323,12 @@ begin
             inc(i);
             j:=i;
 			k:=1;
-            while (i<=l) and not(k=0) do
+            while (i<=l) and (k<>0) do
 			 begin
 			  case Ex[i] of
 			   '{':inc(k);
 			   '}':dec(k);
-			   '"':while (i<=l) and not(Ex[i]='"') do inc(i);
+			   '"':while (i<=l) and (Ex[i]<>'"') do inc(i);
 			  end;
 			  inc(i);
 			 end;
@@ -339,29 +339,38 @@ begin
             x.IDType:=dtSystem;
             inc(i);
             j:=i;
-            while (i<=l) and not(Ex[i]='"') do inc(i);
+            while (i<=l) and (Ex[i]<>'"') do inc(i);
             x.ID:=Copy(Ex,j,i-j);
             while (i<l) and (Ex[i]='"') and (Ex[i+1]='"') do
              begin
               inc(i,2);
               j:=i;
-              while (i<=l) and not(Ex[i]='"') do inc(i);
+              while (i<=l) and (Ex[i]<>'"') do inc(i);
               x.ID:=x.ID+'"'+Copy(Ex,j,i-j);
              end;
             inc(i);
           end;
-        '''':
+        '(':
           begin
-            x.IDType:=dtNumber;
+            X.IDType:=dtNumberList;
             inc(i);
             j:=i;
-            while (i<=l) and not(Ex[i]='''') do inc(i);
+            while (i<=l) and (AnsiChar(Ex[i]) in ['0'..'9',' ',',']) do inc(i);
+            x.ID:=Copy(Ex,j,i-j);
+            if (i<=l) and (Ex[i]=')') then inc(i);
+          end;
+        '''':
+          begin
+            x.IDType:=dtSystem;
+            inc(i);
+            j:=i;
+            while (i<=l) and (Ex[i]<>'''') do inc(i);
             x.ID:=Copy(Ex,j,i-j);
             inc(i);
             while (i<=l) and (Ex[i]='''') do
              begin
               j:=i;
-              while (i<=l) and not(Ex[i]='''') do inc(i);
+              while (i<=l) and (Ex[i]<>'''') do inc(i);
               x.ID:=x.ID+''''+Copy(Ex,j,i-j);
               inc(i);
              end;
@@ -407,7 +416,7 @@ begin
      begin
        inc(i);
        j:=i;
-       while (i<=l) and not(Ex[i]=']') do inc(i);
+       while (i<=l) and (Ex[i]<>']') do inc(i);
        x.Parameters:=Copy(Ex,j,i-j);
        inc(i);
      end;
@@ -434,7 +443,7 @@ begin
     if (i<=l) then
      begin
 	  x.Operator:=TtxFilterOperator(0);
-	  while not(x.Operator=fo_Unknown) and not(Ex[i]=txFilterOperatorChar[x.Operator]) do inc(x.Operator);
+	  while (x.Operator<>fo_Unknown) and (Ex[i]<>txFilterOperatorChar[x.Operator]) do inc(x.Operator);
 	  if x.Operator=fo_Unknown then Error('Unknown operator "'+Ex[i]+'"');
       inc(i);
      end

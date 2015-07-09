@@ -673,7 +673,7 @@ var
   ItemType:TtxItemType;
   idSQL,t:string;
   ids,ids1:TIdList;
-  i:integer;
+  i,j,l:integer;
   fe:TtxFilterEnvVar;
   f:TtxFilter;
   fq:TtxSqlQueryFragments;
@@ -687,6 +687,23 @@ begin
     case El.IDType of
       dtNumber:
         ids.Add(StrToInt(El.ID));
+      dtNumberList:
+       begin
+        i:=1;
+        l:=Length(El.ID);
+        while (i<=l) and not(AnsiChar(El.ID[i]) in ['0'..'9']) do inc(i);
+        while (i<=l) do
+         begin
+          j:=0;
+          while (i<=l) and (AnsiChar(El.ID[i]) in ['0'..'9']) do
+           begin
+            j:=j*10+(byte(El.ID[i]) and $F);
+            inc(i);
+           end;
+          ids.Add(j);
+          while (i<=l) and not(AnsiChar(El.ID[i]) in ['0'..'9']) do inc(i);
+         end;
+       end;
       dtSystem: //TODO: realms?
         case ItemType of
           itObj:

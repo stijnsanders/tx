@@ -15,17 +15,12 @@ c:=0;
 f:=TtxFilter.Create;
 fq:=TtxSqlQueryFragments.Create(itObj);
 try
-  f.FilterExpression:='ot"wf.task"*+ttr"wf.quant.pas"*';//TODO: from settings file!
+  f.FilterExpression:='ot"wf.task"*+ttr"wf.quant.pas"*+rlm(0,4)';//TODO: from settings file!
   if f.ParseError<>'' then
-   begin
-	]]
-	PARSE_ERROR!!!
-	[[#f.ParseError]]
-	[[
-   end;
+    Context.SendHTML('PARSE_ERROR!!!'#13#10+f.ParseError+#13#10#13#10);
   fq.AddFilter(f);
   fq.Fields:='Obj.id';
-  fq.Where:='('+fq.Where+') AND Obj.rlm_id IN (0,4) AND Tok.m_ts<=?';
+  fq.Where:='('+fq.Where+') AND Tok.m_ts<=?';
   fq.OrderBy:='';
   //fq.GroupBy
   fs:=fq.SQL;
@@ -49,12 +44,7 @@ try
     end;
 except
   on e:Exception do
-   begin
-    ]]
-    EXCEPTION!!!
-    [[#e.Message]]
-    [[
-   end;
+    Context.SendHTML('EXCEPTION!!!'#13#10+e.Message+#13#10#13#10);
 end;
 
 //TODO: to done realm: projects that only has done (or deleted) items
