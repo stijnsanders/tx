@@ -1,5 +1,6 @@
 v1.2.3
 - unread items (stealth mode)
+- filter: ID-list "xx(1,2,3)"
 
 v1.2.2
 - CSRF protection

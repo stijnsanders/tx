@@ -9,10 +9,8 @@ Context.Include('dHead.xxmi',['Maintenance: re-order reports by date']);
 CheckMaintProtect(Context);
 
 root:=Context['obj'].AsInteger;
-
 if root=0 then
  begin
-
   ]]
   [[#txForm('MaintRpt.xxm',[],'selectnode_required("obj","an object of which to reorder the reports")')]]
   <dl>[[//see also Modify.xxm]]
@@ -24,7 +22,6 @@ if root=0 then
   </dl>
   [[#txFormButton]]
   </form>>
-
  end
 else
  begin

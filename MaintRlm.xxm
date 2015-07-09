@@ -1,6 +1,7 @@
-[[@txDefs,txSession,SQLiteData,txFilter,txFilterSql,Variants,]][[!var
+[[@txDefs,txSession,Classes,SQLiteData,txFilter,txFilterSql,Variants,]][[!var
+sl:TStringList;
 qr:TSQLiteStatement;
-c:integer;
+i,j,l,c,RlmID:integer;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
 fs:string;
@@ -9,44 +10,60 @@ Context.ContentType:='text/plain';
 Context.BufferSize:=0;
 CheckMaintProtect(Context);
 
-Context.SendHTML('Parse filter...'#13#10);
-
-c:=0;
-f:=TtxFilter.Create;
-fq:=TtxSqlQueryFragments.Create(itObj);
+sl:=TStringList.Create;
 try
-  f.FilterExpression:='ot"wf.task"*+ttr"wf.quant.pas"*+rlm(0,4)';//TODO: from settings file!
-  if f.ParseError<>'' then
-    Context.SendHTML('PARSE_ERROR!!!'#13#10+f.ParseError+#13#10#13#10);
-  fq.AddFilter(f);
-  fq.Fields:='Obj.id';
-  fq.Where:='('+fq.Where+') AND Tok.m_ts<=?';
-  fq.OrderBy:='';
-  //fq.GroupBy
-  fs:=fq.SQL;
-finally
-  f.Free;
-  fq.Free;
-end;
-
-Context.SendHTML('Run query...'#13#10);
-try
-    qr:=TSQLiteStatement.Create(Session.DbCon,fs,[VarFromDateTime(Now-7.0)]);//TODO: from settings file!
+  fs:=Context['f'].Value;
+  if fs='' then sl.LoadFromFile(ModulePath+'MaintRlm.txt');
+  for i:=0 to sl.Count-1 do if (sl[i]<>'') and not(AnsiChar(sl[i][1]) in [';','#']) then
+   begin
+    fs:=sl[i];
+    Context.SendHTML('   '+fs+#13#10);
+    l:=Length(fs);
+    j:=l;
+    while (j<>0) and (fs[j]<>':') do dec(j);
+    RlmID:=StrToInt(Trim(Copy(fs,j+1,l-j)));
+    c:=0;
+    f:=TtxFilter.Create;
+    fq:=TtxSqlQueryFragments.Create(itObj);
     try
-      Context.SendHTML('List objects...'#13#10);
-      while qr.Read and Context.Connected do
-       begin
-        Session.DbCon.Execute('UPDATE Obj SET rlm_id=3 WHERE id=?',[qr.GetInt('id')]);
-        inc(c);
-       end;
+      Context.SendHTML('Parse filter...'#13#10);
+      f.FilterExpression:=Trim(Copy(fs,1,j-1));
+      if f.ParseError<>'' then
+        Context.SendHTML('PARSE_ERROR!!!'#13#10+f.ParseError+#13#10#13#10);
+      fq.AddFilter(f);
+      fq.Fields:='Obj.id';
+      fq.OrderBy:='';
+      fq.Where:='Obj.rlm_id<>'+IntToStr(RlmID)+' AND ('+fq.Where+')';
+      //fq.GroupBy
+      fs:=fq.SQL;
     finally
-      qr.Free;
+      f.Free;
+      fq.Free;
     end;
-except
-  on e:Exception do
-    Context.SendHTML('EXCEPTION!!!'#13#10+e.Message+#13#10#13#10);
+    Context.SendHTML('Run query...'#13#10);
+    try
+        qr:=TSQLiteStatement.Create(Session.DbCon,fs,[VarFromDateTime(Now-7.0)]);//TODO: from settings file!
+        try
+          Context.SendHTML('List objects...'#13#10);
+          while qr.Read and Context.Connected do
+           begin
+            Session.DbCon.Execute('UPDATE Obj SET rlm_id=? WHERE id=?',[RlmID,qr.GetInt('id')]);
+            inc(c);
+           end;
+        finally
+          qr.Free;
+        end;
+    except
+      on e:Exception do
+        Context.SendHTML('EXCEPTION!!!'#13#10+e.Message+#13#10#13#10);
+    end;
+
+    //TODO: to done realm: projects that only has done (or deleted) items
+
+    Context.SendHTML('('+IntToStr(c)+')---'#13#10#13#10);
+
+   end;
+finally
+  sl.Free;
 end;
-
-//TODO: to done realm: projects that only has done (or deleted) items
-
-Context.SendHTML('('+IntToStr(c)+')---'#13#10);
+Context.SendHTML('---'#13#10);
