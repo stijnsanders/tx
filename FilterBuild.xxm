@@ -246,7 +246,11 @@ if ((action='') and (filter='')) or (action='add') then
   //TODO: more/all
 
   [[
-  if filter<>'' then
+  if filter='' then
+   begin
+    <<p><a href="Filter.xxm">back</a></p>>
+   end
+  else
    begin
     <<p><a href="[[#Address]]" class="linkbutton">back</a></p>>
    end;
