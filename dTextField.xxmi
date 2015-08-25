@@ -5,7 +5,7 @@ instanceName:=Values[0];
 if Length(Values)<2 then value:='' else value:=Values[1];
 
   //TODO: StartupFocus=true?
-  
+
   //not using HTMLEncode since that does CRLF's into <br>'s
   value:=
     StringReplace(
@@ -34,6 +34,11 @@ menubar:"edit insert view format table tools",
 toolbar:"insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
 skin:"tx",
 statusbar:false,
-insertdatetime_formats: ["%H:%M:%S", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"]
+insertdatetime_formats: ["%H:%M:%S", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"],
 });
+window.onbeforeunload=function(){
+    var i=tinymce.editors.length;
+    while(i!=0&&!tinymce.editors[i-1].isDirty())i--;
+    if(i!=0)return "Changes made to \""+tinymce.editors[i-1].id+"\"";
+};
 //--></script>
