@@ -1,13 +1,11 @@
-tx
-==
+# tx
 _tx_ started as a tool to keep track of things. From there it evolved into a new take on data, categorisation, oversight, structure, registration, evaluation...
 
-A bit of history
-----------------
+## A bit of history
 This project started in 2005 in an attempt to replace a set of task lists in use up till then, in form of either text or spreadsheet, and offer a database of tasks that also stores their history, state and structure. Of paramount importance in a task system is that is balances input and output: adding tasks should be easy, allowed always and anywhere; existing tasks should easily be queried, categorized, filtered, modified, listed, summerized, ordered, etc.
 
-What's it do
-------------
+
+## What's it do
 
 Items are stored in a parent-child relationship to form a tree structure. Each item is of an item type, which themselves also exhibit a parent-child relationship to form a tree structure. (e.g. task, idea, project, user, user group, department)
 
@@ -27,16 +25,12 @@ Each item has a weight, that is based on the weight of item types, token types a
 
 And there are many other useful features too numerous to list here, but all geared towards creating a rich environment to store the information about the work in progress.
 
-The Name
---------
+## The Name
 
 Since it started as a thing to keep track of work done, it was called "cover your tracks", which was shortened to "trax" and later further condensed to "tx".
 
-Where do I start?
------------------
+## Where do I start?
 
-//TODO: link to xxm, link to sqlite3, link to WikiEngine, link to TinyMCE
-
-//TODO: install guide
+[install](docs/Install.md)
 
 //TODO: download page of pre-built binaries
