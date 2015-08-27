@@ -797,26 +797,34 @@ begin
       else
         if ParentsOnly then
          begin
-          ids1:=TIdList.Create;
-          try
-            ids1.AddList(ids);
-            ids.Clear;
-            i:=0;
-            while i<ids1.Count do
-             begin
-              //only add those with children
-			  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids1[i]));
-			  try
-			    if not qr.EOF then ids.Add(ids1[i]);
-				while qr.Read do ids1.AddClip(qr.GetInt(0),i);
-			  finally
-			    qr.Free;
-			  end;
-              inc(i);
-             end;
-          finally
-            ids1.Free;
-          end;
+		  if Use_ObjPath and (ItemType=itObj) then
+		    if idSQL='' then
+		      idSQL:='SELECT DISTINCT X1.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X2.pid=X1.oid WHERE X1.pid IN ('+ids.List+')'
+			else
+			  idSQL:='SELECT DISTINCT X1.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X2.pid=X1.oid WHERE X1.pid IN ('+idSQL+')'
+		  else
+           begin
+            ids1:=TIdList.Create;
+            try
+              ids1.AddList(ids);
+              ids.Clear;
+              i:=0;
+              while i<ids1.Count do
+               begin
+                //only add those with children
+			    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids1[i]));
+			    try
+			      if not qr.EOF then ids.Add(ids1[i]);
+				  while qr.Read do ids1.AddClip(qr.GetInt(0),i);
+			    finally
+			      qr.Free;
+			    end;
+                inc(i);
+               end;
+            finally
+              ids1.Free;
+            end;
+           end;
          end
         else
          begin
