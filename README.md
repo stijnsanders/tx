@@ -31,6 +31,6 @@ Since it started as a thing to keep track of work done, it was called "cover you
 
 ## Where do I start?
 
-[install](docs/Install.md)
+[install](docs/INSTALL.md)
 
 //TODO: download page of pre-built binaries
