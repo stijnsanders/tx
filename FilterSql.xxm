@@ -16,10 +16,8 @@ try
   f.FilterExpression:=Context['filter'].Value;
   fq.AddFilter(f);
   fq.Where:='Obj.rlm_id'+Session.Realms[rpView].SQL+' AND ('+fq.Where+')';
-  
   //TODO: nicer layout?
   Context.Send(fq.SQL);
-  
 finally
   f.Free;
   fq.Free;

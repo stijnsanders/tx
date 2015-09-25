@@ -777,7 +777,10 @@ begin
       if Reverse then
 	    if Use_ObjPath and (ItemType=itObj) then
 		  if idSQL='' then
-		    idSQL:='SELECT pid FROM ObjPath WHERE oid IN ('+ids.List+')'
+            if ids.Count=1 then
+		      idSQL:='SELECT pid FROM ObjPath WHERE oid='+IntToStr(ids[0])
+            else
+		      idSQL:='SELECT pid FROM ObjPath WHERE oid IN ('+ids.List+')'
 		  else
 		    idSQL:='SELECT pid FROM ObjPath WHERE oid IN ('+idSQL+')'
 		else
@@ -799,9 +802,12 @@ begin
          begin
 		  if Use_ObjPath and (ItemType=itObj) then
 		    if idSQL='' then
-		      idSQL:='SELECT DISTINCT X1.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X2.pid=X1.oid WHERE X1.pid IN ('+ids.List+')'
+              if ids.Count=1 then
+		        idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid='+IntToStr(ids[0])
+              else
+		        idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid IN ('+ids.List+')'
 			else
-			  idSQL:='SELECT DISTINCT X1.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X2.pid=X1.oid WHERE X1.pid IN ('+idSQL+')'
+			  idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid IN ('+idSQL+')'
 		  else
            begin
             ids1:=TIdList.Create;
@@ -831,7 +837,10 @@ begin
           //full expand
 		  if Use_ObjPath and (ItemType=itObj) then
 		    if idSQL='' then
-		      idSQL:='SELECT oid FROM ObjPath WHERE pid IN ('+ids.List+')'
+              if ids.Count=1 then
+		        idSQL:='SELECT oid FROM ObjPath WHERE pid='+IntToStr(ids[0])
+              else
+		        idSQL:='SELECT oid FROM ObjPath WHERE pid IN ('+ids.List+')'
 			else
 			  idSQL:='SELECT oid FROM ObjPath WHERE pid IN ('+idSQL+')'
 		  else

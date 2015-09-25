@@ -8,12 +8,15 @@ end;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
 fs:string;
+dry:boolean;
 ]][[
 Context.ContentType:='text/plain';
 Context.BufferSize:=0;
 CheckMaintProtect(Context);
 
 //ATTENTION: run under a specific user to get realms selection right!
+
+dry:=Context['dry'].AsInteger<>0;
 
 i:=0;
 qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT [id], [name], [expression] FROM Flt');
@@ -65,7 +68,8 @@ for i:=0 to Length(fl)-1 do
     end;
 
     Context.SendHTML(' '+IntToStr(ItemCount)+' ('+IntToStr(TotalWeight)+')');
-    Session.DbCon.Execute('INSERT INTO Flg (flt_id,count,weight,ts) VALUES (?,?,?,?)',[fl[i].id,ItemCount,TotalWeight,VNow]);
+    if not dry then
+      Session.DbCon.Execute('INSERT INTO Flg (flt_id,count,weight,ts) VALUES (?,?,?,?)',[fl[i].id,ItemCount,TotalWeight,VNow]);
     Context.SendHTML(' !'#13#10#13#10);
   except
     on e:Exception do
