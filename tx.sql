@@ -175,7 +175,6 @@ create index IX_Obj1 on Obj (pid,rlm_id);
 create index IX_Tok1 on Tok (obj_id);
 create index IX_Ref1 on Ref (obj1_id);
 create index IX_Ref2 on Ref (obj2_id);
-create index IX_Trm1 on Trm (obj_id);
 create index IX_Flt1 on Flt (obj_id);
 create index IX_Flg1 on Flg (flt_id,ts);
 create unique index IX_Usr1 on Usr (login);
@@ -196,6 +195,8 @@ domain_id int not null,
 source varchar(20) not null,
 term varchar(100) not null
 );
+
+create index IX_Trm1 on Trm (obj_id);
 
 
 -- Use_ObjTokRefCache

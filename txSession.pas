@@ -224,7 +224,7 @@ end;
 function TermStore:TTermStore;
 begin
   //assert thread is CoInit'ed
-  if Session.FTerms=nil then Session.FTerms:=TTermStore.Create;
+  if Session.FTerms=nil then Session.FTerms:=TTermStore.Create(ModulePath+'WikiEngine.dll');
   Result:=Session.FTerms;
 end;
 

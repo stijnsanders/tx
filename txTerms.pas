@@ -17,7 +17,7 @@ type
 	FRenderLock:TRTLCriticalSection;
 	procedure DoCommands;
   public
-    constructor Create;
+    constructor Create(const DllPath: string);
     destructor Destroy; override;
     function TermLinks(ItemType:TtxItemType;ItemID,domainID:integer;xHTML:WideString):WideString;
     procedure StoreTerms(ItemType:TtxItemType;ItemID,domainFromObjID:integer;xHTML:WideString);
@@ -37,7 +37,7 @@ type
 
 implementation
 
-uses SysUtils, SQLiteData, txSession;
+uses SysUtils, SQLiteData, txSession, ActiveX;
 
 //const Class_txWebTermCheck:TGUID='{00007478-0000-C057-0001-5465726D4368}';
 
@@ -46,9 +46,13 @@ type
 
 { TTermStore }
 
-constructor TTermStore.Create;
+constructor TTermStore.Create(const DllPath: string);
+type
+  T_DGCO=function(const CLSID, IID: TGUID; var Obj): HResult; stdcall;//DllGetClassObject
 var
   tc:integer;
+  p:T_DGCO;
+  f:IClassFactory;
 begin
   tc:=integer(GetTickCount);
   inherited Create;
@@ -62,8 +66,11 @@ begin
     FList.CaseSensitive:=false;
     FList.Duplicates:=dupIgnore;
     InitializeCriticalSection(FRenderLock);
-    FEngine:=CoEngine.Create;
+    //FEngine:=CoEngine.Create;
     try
+      p:=GetProcAddress(LoadLibrary(PChar(DllPath)),'DllGetClassObject');
+      if (@p=nil) or (p(CLASS_Engine,IClassFactory,f)<>S_OK) then RaiseLastOSError;
+      if f.CreateInstance(nil,IEngine,FEngine)<>S_OK then RaiseLastOSError;
       FEngine.WikiParseXML:=ModulePath+'txWikiEngine.xml';
       FEngine.WikiPageCheck:=TTermCheck.Create(Self);
     except

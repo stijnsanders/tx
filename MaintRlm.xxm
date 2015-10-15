@@ -42,17 +42,17 @@ try
     end;
     Context.SendHTML('Run query...'#13#10);
     try
-        qr:=TSQLiteStatement.Create(Session.DbCon,fs,[VarFromDateTime(Now-7.0)]);//TODO: from settings file!
-        try
-          Context.SendHTML('List objects...'#13#10);
-          while qr.Read and Context.Connected do
-           begin
-            Session.DbCon.Execute('UPDATE Obj SET rlm_id=? WHERE id=?',[RlmID,qr.GetInt('id')]);
-            inc(c);
-           end;
-        finally
-          qr.Free;
-        end;
+      qr:=TSQLiteStatement.Create(Session.DbCon,fs,[VarFromDateTime(Now-7.0)]);//TODO: from settings file!
+      try
+        Context.SendHTML('List objects...'#13#10);
+        while qr.Read and Context.Connected do
+         begin
+          Session.DbCon.Execute('UPDATE Obj SET rlm_id=? WHERE id=?',[RlmID,qr.GetInt('id')]);
+          inc(c);
+         end;
+      finally
+        qr.Free;
+      end;
     except
       on e:Exception do
         Context.SendHTML('EXCEPTION!!!'#13#10+e.Message+#13#10#13#10);
