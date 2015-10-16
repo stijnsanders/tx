@@ -19,10 +19,26 @@ function SHA1Hash(x:UTF8String):UTF8String;
 
 implementation
 
-function SwapEndian(Value: integer): integer; register; overload;
+{$D-}
+{$L-}
+
+function SwapEndian32(Value: integer): integer; register;
 asm
   bswap eax
 end;
+
+{
+function SwapEndian32(Value: integer): integer;
+var
+  x:array[0..3] of byte absolute Result;
+  y:array[0..3] of byte absolute Value;
+begin
+  x[0]:=y[3];
+  x[1]:=y[2];
+  x[2]:=y[1];
+  x[3]:=y[0];
+end;
+}
 
 function SHA1Hash(x:UTF8String):UTF8String;
 const
@@ -50,7 +66,7 @@ begin
     x[j]:=#0;
    end;
   Move(x[1],d[0],i);
-  d[dl-1]:=SwapEndian(a shl 3);
+  d[dl-1]:=SwapEndian32(a shl 3);
   h[0]:=$67452301;
   h[1]:=$efcdab89;
   h[2]:=$98badcfe;
@@ -62,7 +78,7 @@ begin
     j:=0;
     while j<16 do
      begin
-      e[j]:=SwapEndian(d[i]);
+      e[j]:=SwapEndian32(d[i]);
       inc(i);
       inc(j);
      end;
