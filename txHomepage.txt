@@ -3,7 +3,10 @@
 
 --content
 <h1>Welcome to <i>tx</i></h1>
-<p class="information">information...</p>
+<p class="information">Thank you for trying out <i>tx</i>.
+Read more about how to get started here:
+<a href="https://github.com/stijnsanders/tx/blob/master/docs/Overview.md">github.com/stijnsanders/tx/Overview.md</a>
+</p>
 <dl>
 <dt>View items</dt><dd><a href="Item.xxm">browse...</a>,
   <a href="ViewedLast.xxm" rel="nofollow">viewed recently...</a>,

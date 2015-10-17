@@ -43,6 +43,7 @@ try
           ' WHERE ObjPath.pid=? AND ObjPath.pid<>ObjPath.oid AND Urx.id IS NULL'+
           ' ORDER BY Obx.id',[id]);
        end;
+      id0:=0;
       id1:=0;
       id2:=0;
       while qr.Read do

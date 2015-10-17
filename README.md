@@ -4,7 +4,6 @@ _tx_ started as a tool to keep track of things. From there it evolved into a new
 ## A bit of history
 This project started in 2005 in an attempt to replace a set of task lists in use up till then, in form of either text or spreadsheet, and offer a database of tasks that also stores their history, state and structure. Of paramount importance in a task system is that is balances input and output: adding tasks should be easy, allowed always and anywhere; existing tasks should easily be queried, categorized, filtered, modified, listed, summerized, ordered, etc.
 
-
 ## What's it do
 
 Items are stored in a parent-child relationship to form a tree structure. Each item is of an item type, which themselves also exhibit a parent-child relationship to form a tree structure. (e.g. task, idea, project, user, user group, department)
@@ -31,6 +30,8 @@ Since it started as a thing to keep track of work done, it was called "cover you
 
 ## Where do I start?
 
-[install](docs/INSTALL.md)
+An easy way to get started is download the ready-made executable and have a look. It is built using default settings and has a database with a basic setup to get you started.
 
-//TODO: download page of pre-built binaries
+For setting up a server for a multi-user environment, or having a look under the hood, follow this guide to [install _tx_ from scratch](docs/INSTALL.md).
+
+To fully configure an installation to your needs, [see configure _tx_](docs/Configure.md).

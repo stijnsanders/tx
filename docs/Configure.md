@@ -11,7 +11,7 @@ Apart from certain switches compiled into the _tx_ binary, (as determined by the
 
 ## Setting up the basic data
 
-The default `tx.sql` script provides a default _project_, _item_, _user group_ and _user_ object types. Extend these according to the work you'll be registering with _tx_, e.g.: bugs, issues, feature requests, support tickets, divisions, workgroups, sites...
+The default `tx.sql` script provides a default _project_, _item_, _user group_ and _user_ object types. Extend these according to the work you'll be registering with _tx_, e.g.: bugs, issues, feature requests, support tickets, divisions, workgroups, sites... (See also: [Overview](Overview.md).)
 
 ## Setting up user accounts and authentication
 

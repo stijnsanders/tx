@@ -1,5 +1,7 @@
 # Installing *tx* from scratch
 
+Follow this guide to start with _tx_ using the source code. There is also [a ready-made binary for Windows available here](http://yoy.be/tx.html) that enables you to use _tx_ with default settings and configuration. Use this to set up a _tx_ database to your needs, but when setting up a multi-user environment, or completing the full configuration, or especially when you want to have a peek under the hood, it's strongly advised to build `tx.xxl` from the source code using this guide.
+
 ## Prerequisites
 
 * [xxm](sourceforge.net/projects/xxm/files/): download the Windows binaries, extract and install a handler of your choice. (Or use xxmHttp, see below.)
