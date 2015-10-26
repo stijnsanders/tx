@@ -16,7 +16,7 @@ copy LICENSE rel_1\
 copy loading.gif rel_1\
 copy favicon.ico rel_1\
 copy tx*.txt rel_1\
-copy tx*.xml rel_1\
+copy tx*.xml rel_1\ /y
 copy img_*.png rel_1\
 copy Maint*.txt rel_1\
 copy robots.txt rel_1\

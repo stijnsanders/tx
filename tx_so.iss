@@ -45,3 +45,6 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Fil
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
+
+[UninstallRun]
+Filename: {sys}\taskkill.exe; Parameters: "/f /im tx.exe"; Flags: skipifdoesntexist runhidden
