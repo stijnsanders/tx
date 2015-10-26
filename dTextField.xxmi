@@ -26,12 +26,12 @@ script_url:"js/tinymce/tinymce.min.js",
 content_css:"txContent.css.xxm",
 [[if Length(Values)>2 then begin]]auto_focus:"[[=instanceName]]",[[end;]]
 plugins:
-["advlist autolink lists link image charmap preview anchor"
+["advlist autolink lists link image charmap preview anchor textcolor"
 ,"searchreplace visualblocks code fullscreen"
 ,"insertdatetime media table contextmenu paste"
 ],
 menubar:"edit insert view format table tools",
-toolbar:"insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+toolbar:"insertfile undo redo | styleselect | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
 skin:"tx",
 statusbar:false,
 insertdatetime_formats: ["%H:%M:%S", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"],
