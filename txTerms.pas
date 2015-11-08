@@ -37,7 +37,7 @@ type
 
 implementation
 
-uses SysUtils, SQLiteData, txSession, ActiveX;
+uses SysUtils, SQLiteData, txSession, ComObj, ActiveX;
 
 //const Class_txWebTermCheck:TGUID='{00007478-0000-C057-0001-5465726D4368}';
 
@@ -69,8 +69,9 @@ begin
     //FEngine:=CoEngine.Create;
     try
       p:=GetProcAddress(LoadLibrary(PChar(DllPath)),'DllGetClassObject');
-      if (@p=nil) or (p(CLASS_Engine,IClassFactory,f)<>S_OK) then RaiseLastOSError;
-      if f.CreateInstance(nil,IEngine,FEngine)<>S_OK then RaiseLastOSError;
+	  if @p=nil then RaiseLastOSError;
+	  OleCheck(p(CLASS_Engine,IClassFactory,f));
+	  OleCheck(f.CreateInstance(nil,IEngine,FEngine));
       FEngine.WikiParseXML:=ModulePath+'txWikiEngine.xml';
       FEngine.WikiPageCheck:=TTermCheck.Create(Self);
     except
