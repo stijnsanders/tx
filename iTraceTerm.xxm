@@ -98,7 +98,7 @@ case qtype of
               <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
               <a id="[[=name2]]_nodelink_[[=id]]" href="Term.xxm?n=[[=n]]&amp;d=[[=d]]" onclick="treenode_select(event,'[[=name2]]','n','[[=n]]');return(event||window.event||this).ctrlKey;">
               [[=n]]</a>
-              [[if not(d=d1) then begin]]<span style="color:red;">*</span>[[end;]]
+              [[if not(d=d1) then begin <<span style="color:red;">*</span>> end;]]
               <br /></span>
               [[
              end;
@@ -110,7 +110,7 @@ case qtype of
         //TODO: other ItemType's
         else
          begin
-          ]]<b>>=txItemTypeName[ItemType]<</b><br/>[[
+          <<b>>=txItemTypeName[ItemType]<</b><br/>>
          end;
       end;
       //links
@@ -128,7 +128,7 @@ case qtype of
           <a id="[[=name2]]_nodelink_[[=id]]" href="Term.xxm?n=[[=n]]" onclick="treenode_select(event,'[[=name2]]','n','[[=n]]');return(event||window.event||this).ctrlKey;">
           <b>>=n<</b>
           </a>
-          [[if not(d=d1) then begin]]<span style="color:red;">*</span>[[end;]]
+          [[if not(d=d1) then begin <<span style="color:red;">*</span>> end;]]
           <br /></span>
           [[
          end;
@@ -161,7 +161,7 @@ case qtype of
           <a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="treenode_select(event,'[[=name2]]','x','i[[=id]]');return(event||window.event||this).ctrlKey;" title="i[[=id]]">
           [[#txImg(qr.GetInt('icon'))]] [[.name]]
           </a>
-          [[if not(d=d1) then begin]]<span style="color:red;">*</span>[[end;]]
+          [[if not(d=d1) then begin <<span style="color:red;">*</span>> end;]]
           <br /></span>
           [[
          end;
@@ -183,7 +183,7 @@ case qtype of
           <a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=[[=x1]]" onclick="treenode_select(event,'[[=name2]]','x','[[=x1]]');return(event||window.event||this).ctrlKey;">
           [[=x1]]
           </a>
-          [[if not(d=d1) then begin]]<span style="color:red;">*</span>[[end;]]
+          [[if not(d=d1) then begin <<span style="color:red;">*</span>> end;]]
           <br /></span>
           [[
          end;
@@ -200,7 +200,7 @@ case qtype of
       itObj:
        begin
         //list children
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL,[ItemID]);
+        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' ORDER BY Obj.weight, Obj.name, Obj.c_ts',[ItemID]);
         try
           while Context.Connected and qr.Read do
            begin
@@ -220,15 +220,13 @@ case qtype of
       //TODO: other itemtypes
       else
        begin
-        ]]<b>>=txItemTypeName[ItemType]<</b><br />[[
+        <<b>>=txItemTypeName[ItemType]<</b><br />>
        end;
     end;
    end;
 
   else
    begin
-    ]]<b>Unknown qtype [[=qtype]]</b>[[
+    <<b>Unknown qtype [[=qtype]]</b>>
    end;
 end;
-
-]]

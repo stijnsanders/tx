@@ -148,10 +148,12 @@ If a certain filter is relevant to a group of users, store it under a 'user-grou
 
 Every object is stored in only one realm. By default all objects are stored in the default realm.
 
-When multiple realms exist, the realm-configuration determines of which realms you see the objects, when browsing. This is done, either by setting the object the realm can be viewed by, to your user object or an object in it's path, or by setting a token-type the realm can be viewed by, and adding a token of that type to your user object.
+Permission to view or edit objects in a realm is determined by a filter, and if you user object is listed by the filter.
 
 When the total number of objects increases, and some objects have becone less relevant, but are still on the right place in the structure, move them to a separate realm, that is not visible by default. (e.g.: 'done items': tasks that have a 'done' token for some time)
 
 ## Terms
 
-//TODO: describe terms, WikiEngine
+The content entered into text fields is searched for terms written in a certain caps style, much like [WikiWikiWeb](http://c2.com/cgi/wiki/wiki?WikiWikiWeb) pages. (The actual pattern used is configured in the `txWikiEngine.xml` file.)
+
+Terms are shown as links in green, and you can link terms to one or more items.
