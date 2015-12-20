@@ -36,7 +36,7 @@ end;
 if id=0 then //reset pwd
   Session.DbCon.Execute('UPDATE Usr SET pwd=''?''||pwd WHERE id=?',[id1]);
 
-Context.Include('dHead.xxmi',['PageTitle']);
+Context.Include('dHead.xxmi',['Account Password']);
 
 if id=0 then
  begin

@@ -2,7 +2,7 @@
 _tx_ started as a tool to keep track of things. From there it evolved into a new take on data, categorisation, oversight, structure, registration, evaluation...
 
 ## A bit of history
-This project started in 2005 in an attempt to replace a set of task lists in use up till then, in form of either text or spreadsheet, and offer a database of tasks that also stores their history, state and structure. Of paramount importance in a task system is that is balances input and output: adding tasks should be easy, allowed always and anywhere; existing tasks should easily be queried, categorized, filtered, modified, listed, summerized, ordered, etc.
+This project started in 2005 in an attempt to replace a set of task lists in use up till then, in form of either text or spreadsheet, and offer a database of tasks that also stores their history, state and structure. Of paramount importance in a task system is that it balances input and output: adding tasks should be easy, allowed always and anywhere; existing tasks should easily be queried, categorized, filtered, modified, listed, summerized, ordered, etc.
 
 ## What's it do
 
@@ -14,15 +14,15 @@ Items have none or more references to other items. References are of a reference
 
 Items have none or more reports, where additional information or progress of the task at hand can be reported.
 
-Filters can list items that have specific types, tokens or references. By combining criteria filters can get complex to select very specific items. Filters can be used to list items, view a limited tree of items or to render a summary of items.
+Filters can list items that have specific types, tokens or references. By combining criteria, filters can get complex to select very specific items. Filters can be used to list items, view a limited tree of items or to render a summary of items.
 
 If _tx_ is used in a multi-user environment, each user is also represented as an item.
 
 Filters can be stored onto an item. Filters stored onto an item on the path of the user's item are shown on the 'Filters' opening page.
 
-Each item has a weight, that is based on the weight of item types, token types and reference types used by the item, its tokens and references. When displaying a list of items, they are sored by weight first, then alphabetically.
+Each item has a weight, that is based on the weight of item types, token types and reference types used by the item, its tokens and references. When displaying a list of items, they are sorted by weight first, then alphabetically.
 
-And there are many other useful features too numerous to list here, but all geared towards creating a rich environment to store the information about the work in progress.
+And there are many other usefull features too numerous to list here, but all geared towards creating a rich environment to store the information about the work in progress.
 
 ## The Name
 
@@ -30,7 +30,7 @@ Since it started as a thing to keep track of work done, it was called "cover you
 
 ## Where do I start?
 
-An easy way to get started is download the ready-made executable and have a look. It is built using default settings and has a database with a basic setup to get you started.
+An easy way to get started is download the [ready-made executable](http://yoy.be/tx.html) and have a look. It is built using default settings and has a database with a basic setup to get you started.
 
 For setting up a server for a multi-user environment, or having a look under the hood, follow this guide to [install _tx_ from scratch](docs/INSTALL.md).
 
