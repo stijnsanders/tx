@@ -32,7 +32,7 @@ plugins:
 ],
 menubar:"edit insert view format table tools",
 toolbar:"insertfile undo redo | styleselect | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
-skin:"tx",
+skin:"lightgray",
 statusbar:false,
 insertdatetime_formats: ["%H:%M:%S", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"],
 });

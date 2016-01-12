@@ -47,4 +47,3 @@ if (ItemType=itObj) and (pid<>0) then
 <</form>>
 
 Context.Include('dFoot.xxmi');
-]]

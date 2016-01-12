@@ -17,7 +17,7 @@ function XxmProjectLoad(AProjectName:WideString): IXxmProject; stdcall;
 
 implementation
 
-uses txSession, SQLiteData, xxmFReg, Windows, Classes;
+uses txSession, SQLiteData, xxmFReg, Windows, Classes, xxmHeaders;
 
 function XxmProjectLoad(AProjectName:WideString): IXxmProject;
 begin
@@ -108,6 +108,8 @@ begin
    begin
     Result:=XxmFragmentRegistry.GetFragment(Self,Address,'');
     Context.BufferSize:=$40000;//256KiB
+	if (Result=nil) and (copy(s,1,4)<>'img/') then
+	  (Context as IxxmHttpHeaders).ResponseHeaders['Cache-Control']:='max-age=20000000, public';
    end;
 end;
 

@@ -17,10 +17,12 @@ r:=Context['r'].Value;
 
 [[#txForm('aTerm.xxm',['n',n,'d',d,'r',r],'selectnode_required("term","an object to assign the term to")')]]
 <p>>Context.Include('dObjSelect.xxmi',['term',0,0,d,n,true]);<</p>
+<p>
 [[#txFormButton]]
 |
 <a href="[[=Context.ContextString(csReferer)]]" class="linkbutton">back</a>
 <a href="TermLinks.xxm[[?'n',n,'d',d]]" class="linkbutton">links...</a>
+</p>
 </form>>
 
 ic:=TItemCache.Create;
@@ -44,4 +46,3 @@ end;
 //TODO: search other domains?
 
 Context.Include('dFoot.xxmi');
-]]

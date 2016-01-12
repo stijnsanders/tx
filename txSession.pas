@@ -132,7 +132,7 @@ begin
     PageStartTQ:=GetTickCount;
 	  PageStartTF:=0;
    end;
-  sid:=Context.SessionID;
+  sid:=Context.SessionID+'|'+Context.ContextString(csUserAgent);//hash?
   EnterCriticalSection(SessionStoreLock);
   try
     //TODO: much better look-up (sorted?)

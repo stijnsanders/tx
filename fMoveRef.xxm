@@ -25,13 +25,12 @@ if pid=0 then raise Exception.Create('MoveRef can''t keep a reference to root');
 <<input type="hidden" name="x" value="[[=x]]" />
 <input type="hidden" name="pid" value="[[=pid]]" />
 <dl>
-<dt>Move to</dt><dd>[[Context.Include('dObjSelect.xxmi',['parent',pid,ItemID,0,'',true]);]]</dd>
-<dt>Reference type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itRefType,'reftype']);]]</dd>
-<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc','',true]);]]</dd>
+<dt>Move to</dt><dd>>Context.Include('dObjSelect.xxmi',['parent',pid,ItemID,0,'',true]);<</dd>
+<dt>Reference type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'reftype']);<</dd>
+<dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc','',true]);<</dd>
 <dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="" /></dd>
 [[/TODO: realm?]]
 </dl>
 [[#txFormButton]] <a href="Item.xxm?x=[[=x]]">back</a>
 </form>>
 Context.Include('dFoot.xxmi');
-]]
