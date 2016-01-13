@@ -1,4 +1,10 @@
-[[@txSession]]<div id="footer">&plusmn;[[=PageRenderTimeMS]]ms
-- [[if Session<>nil then Context.Send(Session.FooterDisplay);]]
+[[@txSession,txDefs]]<div id="footer">&plusmn;[[=PageRenderTimeMS]]ms
+- [[
+if Session<>nil then
+ begin
+  if Session.RevertUserID<>0 then begin <<a href="aUserImp.xxm?r=[[=Session.RevertUserID]][[=txCallProtect]]">>#lblLocation<</a> [[ end;
+  Context.Send(Session.FooterDisplay);
+ end;
+]]
 - v1.2.3 r474
 &nbsp;</div></body></html>

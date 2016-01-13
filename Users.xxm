@@ -1,14 +1,9 @@
 [[@txDefs,SQLiteData,txSession,Variants,]][[!var
 IsAdmin:boolean;
 qr:TSQLiteStatement;
-id:integer;
-pwd:string;
+id,uid:integer;
+pwd,sqlListUsr:string;
 const
-sqlListUsr=
-  'SELECT Usr.id, Usr.[login], Usr.[pwd], Usr.[auth], Usr.[email], Usr.[uid], Obj.[name], ObjType.[icon], ObjType.[name] AS [typename] '+
-  'FROM Usr '+
-  'LEFT JOIN Obj ON Obj.id=Usr.uid '+
-  'LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id ';
 csel:array[boolean] of string=('',' checked="1"');
 ]][[
 
@@ -28,10 +23,25 @@ if Context['UpdatePrefs'].AsInteger=1 then
 IsAdmin:=Session.IsAdmin('logins');
 Context.Include('dHead.xxmi',['Accounts']);
 
+if Session.RevertUserID<>0 then
+ begin
+  <<p class="buttons"><a href="aUserImp.xxm?r=[[=Session.RevertUserID]][[=txCallProtect]]" class="linkbutton">end impersonation</a></p>>
+ end;
+
 if IsAdmin then
  begin
   <<p class="buttons"><a href="fUser.xxm" class="linkbutton">add...</a></p>>
  end;
+
+sqlListUsr:=
+  'SELECT Usr.id, Usr.[login], Usr.[pwd], Usr.[auth], Usr.[email], Usr.[uid], Obj.[name], ObjType.[icon], ObjType.[name] AS [typename]';
+if Use_ObjTokRefCache then sqlListUsr:=sqlListUsr+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
+sqlListUsr:=sqlListUsr+
+  ' FROM Usr '+
+  'LEFT JOIN Obj ON Obj.id=Usr.uid '+
+  'LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id ';
+if Use_ObjTokRefCache then sqlListUsr:=sqlListUsr+
+  'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id ';
 
 if IsAdmin then
   qr:=TSQLiteStatement.Create(Session.DbCon,sqlListUsr+'ORDER BY Usr.login, Usr.auth',[])
@@ -45,12 +55,16 @@ try
    while qr.Read do
     begin
 	 id:=qr.GetInt('id');
+     uid:=qr.GetInt('uid');
 	 <<tr>
 	 <td style="white-space:nowrap;">
 	 <a href="fUser.xxm?id=[[=id]]" class="linkbutton">edit</a>>
 	 if IsAdmin then begin ]] <a href="fDelete.xxm?x=u[[=id]]" class="linkbutton">delete</a>> end;
+     if IsAdmin and (uid<>Session.UserID) then
+      begin ]] <a href="aUserImp.xxm?u=[[=id]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Attention this will switch your current web session (all windows) to the selected user.');">impersonate</a>> end;
 	 <</td>
-	 <td><a href="Item.xxm?x=i[[.uid]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a></td>
+	 <td><a href="Item.xxm?x=i[[=uid]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
+     Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);<</td>
 	 <td>>.login<</td>
 	 <td style="text-align: center;">>
 	 pwd:=VarToStr(qr['pwd']);
@@ -62,7 +76,7 @@ try
 	  begin
        if IsAdmin then
         begin
-	     <<a href="aUserPwd.xxm?reset=[[=id]]&amp;uid=[[.uid]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to reset the password for [[.login]]?');">clear</a>>
+	     <<a href="aUserPwd.xxm[[?'reset',id,'uid',uid]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to reset the password for [[.login]]?');">clear</a>>
 		 if pwd[1] in ['-','?'] then
 		  begin
 		   //assert Use_NewUserEmailActivation

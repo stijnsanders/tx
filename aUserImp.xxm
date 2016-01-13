@@ -1,0 +1,38 @@
+[[@txSession,SQLiteData]][[!var
+id:integer;
+qr:TSQLiteStatement;
+url:string;
+]][[
+CheckCallProtect(Context);
+url:='Users.xxm';
+id:=Context['u'].AsInteger;
+if (id=0) and (Session.RevertUserID<>0) and (Session.RevertUserID=Context['r'].AsInteger) then
+ begin
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT ? AS uid, ? AS email, 0 AS isanon',[Session.RevertUserID,Session.RevertFooterDisplay]);
+  try
+    //end impersonating
+    Session.RevertUserID:=0;
+    Session.LoadUser(qr);
+  finally
+    qr.Free;
+  end;
+ end
+else
+ begin
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT uid, email, 0 as isanon FROM Usr WHERE id=?',[id]);
+  try
+    if not Session.IsAdmin('logins') then
+      raise Exception.Create('Impersonating is only allowed by login-admininistrator.');
+    if Session.RevertUserID=0 then
+     begin
+      Session.RevertUserID:=Session.UserID;
+      Session.RevertFooterDisplay:=Session.FooterDisplay;
+     end;
+    Session.LoadUser(qr);
+  finally
+    qr.Free;
+  end;
+ end;
+
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

@@ -38,7 +38,7 @@ type
     Data:TObject;//used with import for now, maybe more later, then review this
 
     //TODO: properties
-    UserID,RealmNew,UpdateID,DeleteID:integer;
+    UserID,RealmNew,UpdateID,DeleteID,RevertUserID:integer;
     JsLoaded,QryUnread,Stealth:boolean;
     Realms:array[TtxRealmPermission] of record
       Ids:array of integer;
@@ -47,7 +47,7 @@ type
     end;
     FilterRecent:array[itObj..itRefType,0..FilterRecentCount-1] of integer;
     FilterCache:TStringList;
-    FooterDisplay:string;
+    FooterDisplay,RevertFooterDisplay:string;
     ViewedLast:array[0..ViewedLastCount-1] of integer;
     CssPrefs:record
       BaseSizePt:integer;
@@ -269,6 +269,8 @@ begin
   DeleteID:=0;
   RealmNew:=0;
   FooterDisplay:='';
+  RevertUserID:=0;
+  RevertFooterDisplay:='';
 
   CssPrefs.DemoMode:=false;
   CssPrefs.BaseSizePt:=11;
