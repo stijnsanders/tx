@@ -13,7 +13,7 @@ type
 
   TtxFilterAction=(
 
-    faChild,faObj,faObjType,faTokType,faRefType,faBackRef,
+    faChild,faObj,faObjType,faTokType,faRefType,faRef,faBackRef,
     faCreated,faTokCreated,faRefCreated,faBackRefCreated,
     faRecentObj,faRecentTok,faRecentRef,faRecentBackRef,
     faFilter,faParent,faPath,faPathObjType,faPathTokType,faPathRefType,
@@ -28,7 +28,7 @@ type
 const
   txFilterActionItemType:array[TtxFilterAction] of TtxItemType=(
 
-    itObj,itObj,itObjType,itTokType,itRefType,itObj,
+    itObj,itObj,itObjType,itTokType,itRefType,itObj,itObj,
     itObj,itObj,itObj,itObj,
     itObj,itTokType,itRefType,itObj,
     itFilter,itObj,itObj,itObjType,itTokType,itRefType,
@@ -43,7 +43,7 @@ const
   txFilterOperatorChar:array[TtxFilterOperator] of char=('+','.','/',',',#0);
   txFilterOperatorSQL:array[TtxFilterOperator] of string=('AND','OR','AND NOT','OR NOT','');
 
-  txFilterActionNameCount=95;
+  txFilterActionNameCount=98;
   txFilterActionName:array[0..txFilterActionNameCount-1] of record
     a:TtxFilterAction;
     n:string;
@@ -56,6 +56,7 @@ const
     (a:faObjType             ;n:'ot'),
     (a:faTokType             ;n:'tt'),
     (a:faRefType             ;n:'rt'),
+    (a:faRef                 ;n:'r'),
     (a:faBackRef             ;n:'rx'),
     (a:faCreated             ;n:'uc'),
     (a:faTokCreated          ;n:'ut'),
@@ -110,18 +111,20 @@ const
     (a:faObjType             ;n:'objtype'),
     (a:faTokType             ;n:'toktype'),
     (a:faRefType             ;n:'reftype'),
+    (a:faRef                 ;n:'ref'),
     (a:faBackRef             ;n:'backref'),
     (a:faRecentObj           ;n:'recentobj'),
     (a:faRecentTok           ;n:'recenttok'),
     (a:faRecentRef           ;n:'recentref'),
     (a:faRecentBackRef       ;n:'recentbackref'),
-    (a:faPathObjType         ;n:'parentobjtype'),
-    (a:faPathTokType         ;n:'parenttoktype'),
-    (a:faPathRefType         ;n:'parentreftype'),
+    (a:faPathObjType         ;n:'pathobjtype'),
+    (a:faPathTokType         ;n:'pathtoktype'),
+    (a:faPathRefType         ;n:'pathreftype'),
     (a:faObj                 ;n:'object'),
     (a:faObjType             ;n:'objecttype'),
     (a:faTokType             ;n:'tokentype'),
     (a:faRefType             ;n:'referencetype'),
+    (a:faRef                 ;n:'reference'),
     (a:faBackRef             ;n:'backreference'),
     (a:faCreated             ;n:'created'),
     (a:faRecentObj           ;n:'recentobject'),

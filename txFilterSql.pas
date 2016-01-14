@@ -260,7 +260,7 @@ begin
           if Prefetch then LocalPrefetch;
           AddWhere('Obj.id IN ('+s+')');
          end;
-      faBackRef:
+      faRef,faBackRef:
        begin
         s:='';
         if Parameters<>'' then
@@ -275,7 +275,7 @@ begin
                   inc(AliasCount);
                   t:='rxSQ'+IntToStr(AliasCount);
                   s:=s+' AND Ref.reftype_id'+Criterium(fx[j],
-                    'DISTINCT '+t+'.id','RIGHT JOIN Ref AS '+t+' ON '+t+'.ref_obj1_id=Obj.id',false,false);
+                    'DISTINCT '+t+'.id','RIGHT JOIN Ref AS '+t+' ON '+t+'.ref_obj'+RefBSel[Action=faBackRef]+'_id=Obj.id',false,false);
                  end;
                 faModified:
                   s:=s+' AND Ref.m_ts<'+CritDate(fx[j]);
@@ -287,7 +287,7 @@ begin
             fx.Free;
           end;
          end;
-        AddWhere('Obj.id IN (SELECT Ref.obj1_id FROM Ref WHERE Ref.obj2_id'+Criterium(f[i],
+        AddWhere('Obj.id IN (SELECT Ref.obj'+RefBSel[Action=faRef]+'_id FROM Ref WHERE Ref.obj'+RefBSel[Action=faBackRef]+'_id'+Criterium(f[i],
           'Obj.id','',false,false)+s+')');
        end;
 
@@ -761,17 +761,6 @@ begin
       idSQL:='';
      end;
 
-    if Reverse then //exclude starting point
-      for i:=0 to ids.Count-1 do
-	   begin
-	    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
-		try
-		  ids[i]:=qr.GetInt(0);
-		finally
-		  qr.Free;
-		end;
-	   end;
-
     if El.Descending then
      begin
       if Reverse then
@@ -859,7 +848,18 @@ begin
 		   end;
          end;
 
-     end;
+     end
+    else
+      if Reverse then //one level up
+        for i:=0 to ids.Count-1 do
+	     begin
+	      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
+		  try
+		    ids[i]:=qr.GetInt(0);
+		  finally
+		    qr.Free;
+		  end;
+	     end;
 
     if idSQL='' then
       case ids.Count of

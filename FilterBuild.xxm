@@ -86,6 +86,7 @@ if (action='') and (filter<>'') then
 		    'is of object type',//faObjType
 			'has a token of type',//faTokType
 			'has a reference of type',//faRefType
+            'referred to by',//faRef
 			'refers to',//faBackRef
 		    'is created by',//faCreated
 			'has a token created by',//faTokCreated
@@ -129,7 +130,7 @@ if (action='') and (filter<>'') then
 
       //parameters
 	  case Action of
-	    faTokType, faTokCreated, faRefType, faRefCreated, faBackRef, faBackRefCreated:
+	    faTokType, faTokCreated, faRefType, faRefCreated, faRef, faBackRef, faBackRefCreated:
 		 begin
 		  txFilterP:=TtxFilter.Create;
 		  try
@@ -231,6 +232,7 @@ if ((action='') and (filter='')) or (action='add') then
    <li><a href="[[#Address]]x=ot">objecttype</a>: objects of <b>type</b> &lt;objecttype&gt;</li>
    <li><a href="[[#Address]]x=tt">tokentype</a>: objects with <b>token</b> of type &lt;tokentype&gt;</li>
    <li><a href="[[#Address]]x=rt">referencetype</a>: objects with <b>reference</b> of type &lt;referencetype&gt;</li>
+   <li><a href="[[#Address]]x=r">reference</a>: objects <b>referred to by</b> &lt;object&gt; (with a reference of type &lt;referencetype&gt;)</li>
    <li><a href="[[#Address]]x=rx">backreference</a>: objects <b>referring to</b> &lt;object&gt; (with a reference of type &lt;referencetype&gt;)</li>
    <br />
    <li><a href="[[#Address]]x=uc">created</a>: objects <b>created</b> by &lt;user&gt;</li>

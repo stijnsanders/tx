@@ -1,3 +1,7 @@
+v1.2.4
+- filter: 'r','ref','reference': objects referred to by x
+- filter: 'path$x*' lists full path including any $x
+
 v1.2.3
 - unread items (stealth mode)
 - filter: ID-list "xx(1,2,3)"

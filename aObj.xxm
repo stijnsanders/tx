@@ -8,8 +8,6 @@ end;
 namechanged:boolean;
 ]][[
 
-//TODO: transaction?
-
 id:=Context['id'].AsInteger;
 pid:=Context['pid'].AsInteger;
 newObjTypeID:=Context['objtype'].AsInteger;
