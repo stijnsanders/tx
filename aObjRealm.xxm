@@ -1,25 +1,110 @@
-[[@txDefs,SQLiteData,txSession,Variants,]][[!var
+[[@txDefs,SQLiteData,txSession,Variants,txFilterSql]][[!var
 ItemType:TtxItemType;
-ItemID,RlmID:integer;
+ItemID,RlmID,RlmID1,d,i,j:integer;
+ids,RlmIDs:TIdList;
 url:string;
+qr:TSQLiteStatement;
 ]][[
 
 txItem(Context['x'].Value,ItemType,ItemID);
 RlmID:=Context['rlm'].AsInteger;
+d:=Context['d'].AsInteger;
 CheckFormProtect(Context);
 
 if ItemType<>itObj then raise Exception.Create('Realm change only supported on object');
 //mass changes: see Modify.xxm
 
-if not(Session.IsAdmin('realms')) then
- begin
-  Session.HasRealmPermission(rpEdit,RlmID);
-  Session.HasRealmPermission(rpEdit,
-    DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ItemID],0));
- end;
+RlmID1:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ItemID],0);
 
-Session.DbCon.Execute('UPDATE Obj SET rlm_id=? WHERE id=?',[RlmID,ItemID]);
-//TODO: Session.UpdateID:=ItemID; only when out of view realms?
+ids:=TIdList.Create;
+RlmIDs:=TIdList.Create;
+try
+  RlmIDs.Add(RlmID1);
+  RlmIDs.Add(RlmID);
+  case d of
+    0:ids.Add(ItemID);//this item only
+    1://children of same realm
+      if Use_ObjPath then
+       begin
+        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id FROM ObjPath INNER JOIN Obj ON Obj.id=ObjPath.oid WHERE ObjPath.pid=? AND Obj.rlm_id=?',[ItemID,RlmID1]);
+        try
+          while qr.Read do ids.Add(qr.GetInt('id'));
+        finally
+          qr.Free;
+        end;
+       end
+      else
+       begin
+        ids.Add(ItemID);
+        i:=0;
+        while (i<ids.Count) do
+         begin
+          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id FROM Obj WHERE Obj.pid=?',[ids[i]]);
+          try
+            while qr.Read do if qr.GetInt('rlm_id')=RlmID1 then ids.Add(qr.GetInt('id'));
+          finally
+            qr.Free;
+          end;
+          inc(i);
+         end;
+       end;
+    2://all children (check realm: see below)
+      if Use_ObjPath then
+       begin
+        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id FROM ObjPath INNER JOIN Obj ON Obj.id=ObjPath.oid WHERE ObjPath.pid=?',[ItemID]);
+        try
+          while qr.Read do
+           begin
+            ids.Add(qr.GetInt('id'));
+            j:=qr.GetInt('rlm_id');
+            if not RlmIDs.Contains(j) then RlmIDs.Add(j);
+           end;
+        finally
+          qr.Free;
+        end;
+       end
+      else
+       begin
+        ids.Add(ItemID);
+        i:=0;
+        while (i<ids.Count) do
+         begin
+          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id FROM Obj WHERE Obj.pid=?',[ids[i]]);
+          try
+            while qr.Read do
+             begin
+              ids.Add(qr.GetInt('id'));
+              j:=qr.GetInt('rlm_id');
+              if not RlmIDs.Contains(j) then RlmIDs.Add(j);
+             end;
+          finally
+            qr.Free;
+          end;
+          inc(i);
+         end;
+       end;
+  end;
+
+  if not(Session.IsAdmin('realms')) then
+    for i:=0 to RlmIDs.Count-1 do
+      Session.HasRealmPermission(rpEdit,RlmIDs[i]);
+
+  Session.DbCon.Execute('BEGIN TRANSACTION');
+  try
+
+    Session.DbCon.Execute('UPDATE Obj SET rlm_id=? WHERE id IN ('+ids.List+')',[RlmID]);
+    //TODO: Session.UpdateID:=ItemID; only when out of view realms?
+
+    Session.DbCon.Execute('COMMIT TRANSACTION');
+  except
+    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    raise;
+  end;
+
+finally
+  ids.Free;
+  RlmIDs.Free;
+end;
 
 url:='Item.xxm?x='+Context['x'].Value;
 Context.Redirect(url,true);

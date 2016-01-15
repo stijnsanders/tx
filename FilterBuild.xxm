@@ -42,11 +42,13 @@ ActionAddress:='aFilterBuild.xxm?x='+action;
 if filter<>'' then
  begin
   <<a class="linkbutton" href="Filter.xxm?filter=[[#filterU]]">filter...</a>
+  |
   <a class="linkbutton" href="FrameTree.xxm?filter=[[#filterU]]" target="TreeFrame">filter in tree</a>
   <a class="linkbutton" href="FrameList.xxm?filter=[[#filterU]]" target="TreeFrame">filter as list</a>
+  |
   <a class="linkbutton" href="Log.xxm?filter=[[#filterU]]">log...</a>
   <a class="linkbutton" href="Summary.xxm?filter=[[#filterU]]">summary...</a>
-  <a class="linkbutton" href="Modify.xxm?filter=[[#filterU]]">modify...</a>
+  |
   <a class="linkbutton" href="fFilter.xxm?filter=[[#filterU]]">save</a>
   [[
  end;
@@ -217,9 +219,11 @@ if (action='') and (filter<>'') then
 
   <<p class="buttons">
   <a class="linkbutton" href="Filter.xxm?filter=[[#filterU]]">filter...</a>
-  <a class="linkbutton" href="FilterCount.xxm?filter=[[#filterU]]">count...</a>
+  |
   <a class="linkbutton" href="Log.xxm?filter=[[#filterU]]">log...</a>
   <a class="linkbutton" href="Summary.xxm?filter=[[#filterU]]">summary...</a>
+  <a class="linkbutton" href="FilterCount.xxm?filter=[[#filterU]]">count...</a>
+  <a class="linkbutton" href="Modify.xxm?filter=[[#filterU]]">modify...</a>
   </p>>
 
  end;

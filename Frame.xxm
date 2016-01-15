@@ -15,6 +15,7 @@ pH:=Context['h'].AsInteger;    if pH=0 then pH:=12;
 BODY {border:0px;margin:0px;overflow:hidden;background-color:#808080;user-select:none;-webkit-user-select:none;}
 IFRAME {background-color:white;border:1px inset;user-select:none;-webkit-user-select:none;}
 </style>
+<link rel="icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body>
 <iframe src="[[=url1]]" id="f1" name="TreeFrame">Your browser doesn't support &lt;iframe&gt;</iframe>

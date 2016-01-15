@@ -28,6 +28,9 @@ Read more about how to get started here:
   <a href="Import.xxm" rel="nofollow">import...</a>,
   <a href="fObjs.xxm" rel="nofollow">add multiple...</a>
 </dd>
+<dt>Configure</dt><dd><a href="Users.xxm" rel="nofollow">users...</a>,
+  <a href="Realms.xxm" rel="nofollow">realms...</a>,
+  <a href="Test.xxm" rel="nofollow">test...</a>
 </dl>
 
 --content
