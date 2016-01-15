@@ -27,7 +27,7 @@ qr:=nil;//counter warning
       if ItemID<>0 then
        begin
         qr:=TSQLiteStatement.Create(Session.DbCon,
-		  'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+          'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
           'FROM Obj '+
           'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
           'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
@@ -43,9 +43,9 @@ qr:=nil;//counter warning
         ItemTitle:=qr.GetStr('name');
        end;
 
-	itTok:   Context.Redirect('Item.xxm?x=i'+IntToStr(DBSingleValue('SELECT obj_id FROM Tok WHERE id=?',[ItemID],0))+'#tok'+InttoStr(ItemID),true);
-	itRef:   Context.Redirect('Item.xxm?x=i'+IntToStr(DBSingleValue('SELECT obj1_id FROM Ref WHERE id=?',[ItemID],0))+'#ref'+InttoStr(ItemID),true);
-	itReport:Context.Redirect('Item.xxm?x=i'+IntToStr(DBSingleValue('SELECT obj_id FROM Rpt WHERE id=?',[ItemID],0))+'&hr='+IntToStr(ItemID)+'#rpt'+InttoStr(ItemID),true);
+    itTok:   Context.Redirect('Item.xxm?x=i'+IntToStr(DBSingleValue('SELECT obj_id FROM Tok WHERE id=?',[ItemID],0))+'#tok'+InttoStr(ItemID),true);
+    itRef:   Context.Redirect('Item.xxm?x=i'+IntToStr(DBSingleValue('SELECT obj1_id FROM Ref WHERE id=?',[ItemID],0))+'#ref'+InttoStr(ItemID),true);
+    itReport:Context.Redirect('Item.xxm?x=i'+IntToStr(DBSingleValue('SELECT obj_id FROM Rpt WHERE id=?',[ItemID],0))+'&hr='+IntToStr(ItemID)+'#rpt'+InttoStr(ItemID),true);
 
     //else see below
   end;
@@ -54,20 +54,20 @@ qr:=nil;//counter warning
 
   if ItemID<>0 then
    begin
-	if Session.UpdateID<>0 then
-	 begin
-	  <<script><!--
-	  if(window.parent&&window.parent.frames&&window.parent.frames["TreeFrame"]) window.parent.frames["TreeFrame"].frametree_update('[[=txItemTypeKey[ItemType]]]','[[=Session.UpdateID]]');
-	  //--></script>>
-	  Session.UpdateID:=0;
-	 end;
-	if Session.DeleteID<>0 then
-	 begin
-	  <<script><!--
-	  if(window.parent&&window.parent.frames&&window.parent.frames["TreeFrame"]) window.parent.frames["TreeFrame"].frametree_updatedelete('[[=txItemTypeKey[ItemType]]]','[[=Session.DeleteID]]');
-	  //--></script>>
-	  Session.DeleteID:=0;
-	 end;
+    if Session.UpdateID<>0 then
+     begin
+      <<script><!--
+      if(window.parent&&window.parent.frames&&window.parent.frames["TreeFrame"]) window.parent.frames["TreeFrame"].frametree_update('[[=txItemTypeKey[ItemType]]]','[[=Session.UpdateID]]');
+      //--></script>>
+      Session.UpdateID:=0;
+     end;
+    if Session.DeleteID<>0 then
+     begin
+      <<script><!--
+      if(window.parent&&window.parent.frames&&window.parent.frames["TreeFrame"]) window.parent.frames["TreeFrame"].frametree_updatedelete('[[=txItemTypeKey[ItemType]]]','[[=Session.DeleteID]]');
+      //--></script>>
+      Session.DeleteID:=0;
+     end;
    end;
 
   //now display item data
@@ -76,29 +76,29 @@ qr:=nil;//counter warning
     itObj:
      begin
       if ItemID=0 then
-	   begin
-		//children only
-		<<p class="objectlist">>
-		//TODO: extra queries with all tokens/references?
-		qr:=TSQLiteStatement.Create(Session.DbCon,sqlObjsByPid,[ItemID]);
-		try
-		  while qr.Read and Context.Connected do
-		   begin
-			Context.Include('dObjLinkList.xxmi',[],[qr]);
-			<<br />>
-		   end;
-		finally
-		  qr.Free;
-		end;
-		<</p>
+       begin
+        //children only
+        <<p class="objectlist">>
+        //TODO: extra queries with all tokens/references?
+        qr:=TSQLiteStatement.Create(Session.DbCon,sqlObjsByPid,[ItemID]);
+        try
+          while qr.Read and Context.Connected do
+           begin
+            Context.Include('dObjLinkList.xxmi',[],[qr]);
+            <<br />>
+           end;
+        finally
+          qr.Free;
+        end;
+        <</p>
         <p class="buttons">
         <a href="fObj.xxm" class="linkbutton" rel="nofollow">add object here</a>
         |
         <a href="Item.xxm?x=ot0" class="linkbutton">object types</a>
         <a href="Item.xxm?x=tt0" class="linkbutton">token types</a>
         <a href="Item.xxm?x=rt0" class="linkbutton">reference types</a>
-		|
-		<a href="Menu.xxm" class="linkbutton">other...</a>
+        |
+        <a href="Menu.xxm" class="linkbutton">other...</a>
         </p>>
         if Use_Unread then
          begin
@@ -108,22 +108,22 @@ qr:=nil;//counter warning
           <a href="Read.xxm?x=4" class="linkbutton" rel="nofollow" onclick="return confirm('Are you sure to reset all your read-indicators?');">mark <i>all</i> as unread</a>
           </p>>
          end;
-	   end
-	  else
+       end
+      else
        begin
-	    try
-		  d:=TermStore.GetDomainID(ItemID);
+        try
+          d:=TermStore.GetDomainID(ItemID);
           Context.Include('dObj.xxmi',[d],[qr]);
           RlmID:=qr.GetInt('rlm_id');
-		finally
+        finally
           qr.Free;
-		end;
+        end;
 
         //reports
         //TODO: order by desc?
         IsAdminReports:=Session.IsAdmin('reports');
-		qr:=TSQLiteStatement.Create(Session.DbCon,
-		  'SELECT Rpt.id, Rpt.obj_id, Rpt.[desc], Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id, Rpt.weight, '+
+        qr:=TSQLiteStatement.Create(Session.DbCon,
+          'SELECT Rpt.id, Rpt.obj_id, Rpt.[desc], Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id, Rpt.weight, '+
           '  UsrObj.id AS [usrid], UsrObj.[name] AS [usrname], UsrObjType.[icon] AS [usricon], UsrObjType.[name] AS [usrtypename], '+
           '  RelTokType.[icon] AS [tokicon], RelTokType.[name] AS [tokname], RelTokType.[system] AS [toksystem], '+
           '  RelRefType.[icon] AS [reficon], RelRefType.[name] AS [refname], '+
@@ -142,7 +142,7 @@ qr:=nil;//counter warning
         try
           <<p class="midnav">reports</p>>
           while qr.Read and Context.Connected do Context.Include('dReport.xxmi',[d,IsAdminReports],[qr]);
-		  <<p class="buttons">>
+          <<p class="buttons">>
           InControl:=true;
           try
             Session.HasRealmPermission(rpEdit,RlmID);
@@ -157,38 +157,38 @@ qr:=nil;//counter warning
            begin
             <<a href="fLogon.xxm" class="linkbutton" rel="nofollow">report...</a> [[
            end;
-		  <<a href="Log.xxm?filter=i[[=ItemID]]*" class="linkbutton" rel="nofollow">full log</a>
-		  </p>>
+          <<a href="Log.xxm?filter=i[[=ItemID]]*" class="linkbutton" rel="nofollow">full log</a>
+          </p>>
         finally
           qr.Free;
         end;
 
-		//terms
-		qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Trm.id, Trm.domain_id, Trm.term FROM Trm WHERE Trm.obj_id=? ORDER BY Trm.term',[ItemID]);
-		try
-		  if not qr.EOF then
-		   begin
-		    <<p class="midnav">terms</p>
-			<p>>
-		    while qr.Read and Context.Connected do
-		     begin
-		      d1:=qr.GetInt('domain_id');
-		      <<a href="TermLinks.xxm[[?'n',qr['term'],'d',d1]]"[[
-			  if d<>d1 then
-			   begin
-			    ]] style="font-style:italic;"[[
-			   end;
-			  ]] rel="nofollow">>.term<</a>
-			  [[
-		     end;
-			<</p>>
-		   end;
-		finally
-		  qr.Free;
-		end;
+        //terms
+        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Trm.id, Trm.domain_id, Trm.term FROM Trm WHERE Trm.obj_id=? ORDER BY Trm.term',[ItemID]);
+        try
+          if not qr.EOF then
+           begin
+            <<p class="midnav">terms</p>
+            <p>>
+            while qr.Read and Context.Connected do
+             begin
+              d1:=qr.GetInt('domain_id');
+              <<a href="TermLinks.xxm[[?'n',qr['term'],'d',d1]]"[[
+              if d<>d1 then
+               begin
+                ]] style="font-style:italic;"[[
+               end;
+              ]] rel="nofollow">>.term<</a>
+              [[
+             end;
+            <</p>>
+           end;
+        finally
+          qr.Free;
+        end;
 
         //unread, moved to below iFoot
- 	  end;
+       end;
 
      end;
 
@@ -196,7 +196,7 @@ qr:=nil;//counter warning
      begin
       if ItemID<>0 then
        begin
-	    Context.Include('dType.xxmi',[ItemType],[qr]);
+        Context.Include('dType.xxmi',[ItemType],[qr]);
         qr.Free;
        end;
 
@@ -263,7 +263,7 @@ qr:=nil;//counter warning
     else
      begin
       <<p>Unknown item type: <b>>=txItemTypeName[ItemType]<</b></p>>
-	 end;
+     end;
   end;
 
 Context.Include('dFoot.xxmi');

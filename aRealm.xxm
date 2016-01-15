@@ -1,7 +1,7 @@
 [[@txDefs,SQLiteData,txSession,Variants,txTerms,]][[!var
 id:integer;
 qr:TSQLiteStatement;
-url,v1,v2,e1,e2:string;
+url,v1,v2,e1,e2,l1,l2:string;
 RefreshRealms:boolean;
 desc:WideString;
 ]][[
@@ -14,17 +14,19 @@ if not(Session.IsAdmin('realms')) then Session.HasRealmPermission(rpEdit,id);
 
 //TODO test new filter expressions!
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT view_expression,edit_expression FROM Rlm WHERE id=?',[id]);
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT view_expression,edit_expression,limit_expression FROM Rlm WHERE id=?',[id]);
 try
   if qr.Read then
    begin
     v1:=qr.GetStr('view_expression');
 	e1:=qr.GetStr('edit_expression');
+    l1:=qr.GetStr('limit_expression');
    end
   else
    begin
     v1:='';//invalid ex?
 	e1:='';
+    l1:='';
    end;
 finally
   qr.Free;
@@ -35,17 +37,19 @@ v2:=Context['view1'].Value;
 if v2='' then v2:=Context['view2'].Value;
 e2:=Context['edit1'].Value;
 if e2='' then e2:=Context['edit2'].Value;
+l2:=Context['limit1'].Value;
+if l2='' then l2:=Context['limit2'].Value;
 if (v1<>v2) or (e1<>e2) then RefreshRealms:=true;
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
 
 	if id=0 then
-	  Session.DbCon.Execute('INSERT INTO Rlm (name,desc,system,view_expression,edit_expression,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?)',
-		[Context['name'].Value,desc,Context['system'].Value,v2,e2,VNow,Session.UserID,VNow,Session.UserID],id)
+	  Session.DbCon.Execute('INSERT INTO Rlm (name,desc,system,view_expression,edit_expression,limit_expression,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?)',
+		[Context['name'].Value,desc,Context['system'].Value,v2,e2,l2,VNow,Session.UserID,VNow,Session.UserID],id)
 	else
-	  Session.DbCon.Execute('UPDATE Rlm SET name=?, desc=?, system=?, view_expression=?, edit_expression=?, m_ts=?, m_uid=? WHERE id=?',
-		[Context['name'].Value,desc,Context['system'].Value,v2,e2,VNow,Session.UserID,id]);
+	  Session.DbCon.Execute('UPDATE Rlm SET name=?, desc=?, system=?, view_expression=?, edit_expression=?, limit_expression=?, m_ts=?, m_uid=? WHERE id=?',
+		[Context['name'].Value,desc,Context['system'].Value,v2,e2,l2,VNow,Session.UserID,id]);
 
 	TermStore.StoreTerms(itRealm,id,0,desc);
 

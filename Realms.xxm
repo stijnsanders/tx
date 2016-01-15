@@ -6,6 +6,18 @@
 const
   ImgSuffix:array[boolean] of string=('0','1');
   SetClear:array[boolean] of string=('s','c');
+
+function BriefSQL(const sql:string):string;
+var
+  i,l:integer;
+begin
+  l:=Length(sql);
+  i:=4;//assert Copy(sql,1,4)='IN (';
+  while (i<=l) and (sql[i]<>')') do inc(i);
+  Result:=Copy(sql,4,i-3);
+  if i<l then Result:=Result+'*';
+end;
+
 ]][[
 IsAdmin:=Session.IsAdmin('realms');
 Context.Include('dHead.xxmi',['Realms']);
@@ -17,16 +29,16 @@ if s<>'' then
  begin
   case s[1] of
     'r':Session.LoadRealmPermissions;//test
-	's':Session.SetViewRealm(true,StrToInt(Copy(s,2,Length(s)-1)));//set
-	'c':Session.SetViewRealm(false,StrToInt(Copy(s,2,Length(s)-1)));//clear
-	'n':with Session.Realms[rpEdit] do//new items realm
-	 begin
-	  id:=StrToInt(Copy(s,2,Length(s)-1));
-	  i:=0;
-	  while (i<Count) and (Ids[i]<>id) do inc(i);
-	  if (i<Count) then Session.RealmNew:=id else
-	    raise Exception.Create('Selected realm for new objects is not a realm in control.');
-	 end;
+    's':Session.SetViewRealm(true,StrToInt(Copy(s,2,Length(s)-1)));//set
+    'c':Session.SetViewRealm(false,StrToInt(Copy(s,2,Length(s)-1)));//clear
+    'n':with Session.Realms[rpEdit] do//new items realm
+     begin
+      id:=StrToInt(Copy(s,2,Length(s)-1));
+      i:=0;
+      while (i<Count) and (Ids[i]<>id) do inc(i);
+      if (i<Count) then Session.RealmNew:=id else
+        raise Exception.Create('Selected realm for new objects is not a realm in control.');
+     end;
   end;
  end;
 
@@ -40,70 +52,99 @@ if IsAdmin then
 qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rlm',[]);
 try
   <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
-  <tr><th>&nbsp;</th><th>realm</th><th>new</th><th>description</th><th>system</th><th>viewable by</th><th>editable by</th><th>id</th></tr>>
+  <tr>
+  <th>&nbsp;</th>
+  <th>realm</th>
+  <th>new</th>
+  <th>description</th>
+  <th>system</th>
+  <th>viewable by</th>
+  <th>editable by</th>>
+  if Use_ObjPath then begin <<th>limit to</th>> end;
+  <</tr>>
   while qr.Read do
    begin
     id:=qr.GetInt('id');
 
-	InView:=true;
+    InView:=true;
     try
       Session.HasRealmPermission(rpView,id);
     except
       on ERealmNotEditableByUser do InView:=false;
     end;
-	InControl:=true;
+    InControl:=true;
     try
       Session.HasRealmPermission(rpEdit,id);
     except
       on ERealmNotEditableByUser do InControl:=false;
     end;
 
-	//TODO: setting incontrol can edit/delete?
-	//TermLinks: default domain?
+    //TODO: setting incontrol can edit/delete?
+    //TermLinks: default domain?
 
     <<tr>
-	<td style="white-space:nowrap;">>
-	if IsAdmin {or InControl} then begin <<a href="fRealm.xxm?id=[[=id]]" class="linkbutton">edit</a> [[ end;
-	if IsAdmin {or InControl} then begin <<a href="fDelete.xxm?x=rm[[=id]]" class="linkbutton">delete</a> [[ end;
-	<</td>
-	<td>>
-		if IsAdmin or InControl then begin
-		<<a href="[[=USelf]][[=SetClear[InView]]][[=id]]" id="toggle[[=id]]"><img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16" [[#globalIconAlign]]/></a> [[
-		end else begin
-		<<img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/> [[
-		end;
-		<<label for="toggle[[=id]]">>.name<</label>
-	</td>
-	<td style="text-align: center;">>
-		if InView and InControl then begin
-		<<a href="[[=USelf]]n[[=id]]"><img src="img_radio[[=ImgSuffix[Session.RealmNew=id]]].png" width="16" height="16" [[#globalIconAlign]]/></a>>
-		end else begin
-		<<img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>>
-		end;
-	<</td>
-	<td>>#TermStore.TermLinks(itRealm,id,0,qr.GetStr('desc'))]]&nbsp;</td>
-	<td><span class="sysref">>.system<</span>&nbsp;</td>
-	<td style="white-space:nowrap;">>
-		s:=qr.GetStr('view_expression');
-        if s='' then begin ]]-[[ end else
+    <td style="white-space:nowrap;">>
+    if IsAdmin {or InControl} then begin <<a href="fRealm.xxm?id=[[=id]]" class="linkbutton">edit</a> [[ end;
+    if IsAdmin {or InControl} then begin <<a href="fDelete.xxm?x=rm[[=id]]" class="linkbutton">delete</a> [[ end;
+    <</td>>
+    if IsAdmin or InControl then
+     begin
+      <<td onclick="document.getElementById('toggle[[=id]]').click();">
+      <a href="[[=USelf]][[=SetClear[InView]]][[=id]]" id="toggle[[=id]]"><img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16" [[#globalIconAlign]]/></a>>
+     end
+    else
+     begin
+      <<td>
+      <img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>>
+     end;
+    ]] [[.name<<br />
+    <img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>
+    #[[=id]]
+    </td>
+    <td style="text-align: center;">>
+    if InView and InControl then
+     begin
+      <<a href="[[=USelf]]n[[=id]]"><img src="img_radio[[=ImgSuffix[Session.RealmNew=id]]].png" width="16" height="16" [[#globalIconAlign]]/></a>>
+     end
+    else
+     begin
+      <<img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>>
+     end;
+    <</td>
+    <td>>#TermStore.TermLinks(itRealm,id,0,qr.GetStr('desc'))]]&nbsp;</td>
+    <td><span class="sysref">>.system<</span>&nbsp;</td>
+    <td style="white-space:nowrap;">>
+    s:=qr.GetStr('view_expression');
+    if s='' then Context.SendHTML('&ndash;') else
+     begin
+      <<span class="litref">>=s<</span><br />
+      <a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
+      <a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>>
+     end;
+    <</td>
+    <td style="white-space:nowrap;">>
+    s:=qr.GetStr('edit_expression');
+    if s='' then Context.SendHTML('&ndash;') else
+     begin
+      <<span class="litref">>=s<</span><br />
+      <a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
+      <a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>>
+     end;
+    <</td>>
+    if Use_ObjPath then
+     begin
+      <<td style="white-space:nowrap;">>
+        s:=qr.GetStr('limit_expression');
+        if s='' then Context.SendHTML('&ndash;') else
          begin
-		  <<span class="litref">>=s<</span><br />
-		  <a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
-		  <a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>>
+          <<span class="litref">>=s<</span><br />
+          <a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
+          <a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>>
          end;
-	<</td>
-	<td style="white-space:nowrap;">>
-		s:=qr.GetStr('edit_expression');
-        if s='' then begin ]]-[[ end else
-         begin
-		  <<span class="litref">>=s<</span><br />
-		  <a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
-		  <a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>>
-         end;
-	<</td>
-	<td>>=id<</td>
-	[[//TODO: cmw]]
-	</tr>>
+      <</td>>
+     end;
+    //TODO: created, modified
+    <</tr>>
    end;
 
   id:=0;
@@ -117,19 +158,25 @@ try
 
   <<tr><th>&nbsp;</th>
   <th style="text-align:left;">
-		<a href="[[=USelf]][[=SetClear[InView]]][[=id]]"><img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16" [[#globalIconAlign]]/></a>
-		Default realm
+    <a href="[[=USelf]][[=SetClear[InView]]][[=id]]"><img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16" [[#globalIconAlign]]/></a>
+    Default realm<br />
+    <img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>
+    #0
   </th>
   <th style="text-align:center;">
-		<a href="[[=USelf]]n[[=id]]"><img src="img_radio[[=ImgSuffix[Session.RealmNew=id]]].png" width="16" height="16" [[#globalIconAlign]]/></a>
+    <a href="[[=USelf]]n[[=id]]"><img src="img_radio[[=ImgSuffix[Session.RealmNew=id]]].png" width="16" height="16" [[#globalIconAlign]]/></a>
   </th>
-  <th style="text-align:left;font-weight:normal;" colspan="4">
-	View <b>>=StringReplace(Session.Realms[rpView].SQL,'IN ','',[])<</b>,
-	Control <b>>=StringReplace(Session.Realms[rpEdit].SQL,'IN ','',[])<</b>,
-	<br />
-	Uncheck all or <a href="[[=USelf]]reset">click here to reset defaults</a>.
+  <th style="text-align:left;font-weight:normal;">
+    View <b>>=BriefSQL(Session.Realms[rpView].SQL)<</b>
+    Control <b>>=BriefSQL(Session.Realms[rpEdit].SQL)<</b>
+    <br />
+    Uncheck all or <a href="[[=USelf]]reset">click here to reset defaults</a>.
   </th>
-  <th>0</th>
+  <th>&nbsp;</th>
+  <th style="text-align:left;font-weight:normal;" colspan="3">
+    &nbsp;<br />
+    <a href="Item.xxm?x=i[[=Session.UserID]]">user obj...</a>
+  </th>
   </tr>
   </table>>
 finally
@@ -138,7 +185,10 @@ end;
 
 if IsAdmin then
  begin
-  <<p class="buttons"><a href="fRealm.xxm" class="linkbutton">add...</a></p>>
+  <<p class="buttons">
+  <a href="fRealm.xxm" class="linkbutton">add...</a>
+  <a href="FilterCount.xxm?realms=1" class="linkbutton">count...</a>
+  </p>>
  end;
 
 Context.Include('dFoot.xxmi');

@@ -1,4 +1,5 @@
 v1.2.4
+- realm limit_expression
 - object change realm: options for descendants
 - filter: 'r','ref','reference': objects referred to by x
 - filter: 'path$x*' lists full path including any $x

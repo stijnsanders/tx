@@ -43,7 +43,7 @@ type
     Realms:array[TtxRealmPermission] of record
       Ids:array of integer;
       Count,Size:integer;
-      SQL:string;
+      SQL,SQLExtra:string;
     end;
     FilterRecent:array[itObj..itRefType,0..FilterRecentCount-1] of integer;
     FilterCache:TStringList;
@@ -352,8 +352,8 @@ end;
 
 procedure TtxSession.LoadRealmPermissions;
 var
-  qr:TSQLiteStatement;
-  fx:string;
+  qr,qr1:TSQLiteStatement;
+  fx,s:string;
   f:TtxFilter;
   fq:TtxSqlQueryFragments;
   rid,i,fcl:integer;
@@ -372,15 +372,16 @@ begin
    begin
     Count:=0;
     Ids[Grow(rp)]:=0;//TODO: setting default realm?
+    SQL:='';
+    SQLExtra:='';
    end;
   fcl:=0;
   SetLength(fc,fcl);
   //rpView, rpEdit only, rpAny, rpBoth: see BuildRealmPermissionsSQL
-  qr:=TSQLiteStatement.Create(DbCon,'SELECT Rlm.id, Rlm.view_expression, Rlm.edit_expression FROM Rlm');
+  qr:=TSQLiteStatement.Create(DbCon,'SELECT id, view_expression, edit_expression, limit_expression FROM Rlm');
   try
     while qr.Read do
      begin
-      //TODO: cache filter results, some realms may use same expression
       rid:=qr.GetInt('id');
       for rp:=rpView to rpEdit do
        begin
@@ -421,6 +422,37 @@ begin
         //add to list
         if b then Realms[rp].Ids[Grow(rp)]:=rid;
        end;
+      fx:=qr.GetStr('limit_expression');
+      if (fx<>'') and Use_ObjPath then
+       begin
+        f:=TtxFilter.Create;
+        fq:=TtxSqlQueryFragments.Create(itObj);
+        try
+          fq.Fields:='Obj.id';
+          fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+          //fq.Where:='';
+          fq.GroupBy:='';
+          fq.Having:='';
+          fq.OrderBy:='';
+          f.FilterExpression:=fx;
+          fq.AddFilter(f);
+          qr1:=TSQLiteStatement.Create(Session.DbCon,fq.Sql,[]);
+          try
+            if not qr1.EOF then
+             begin
+              s:='';
+              while qr1.Read do s:=s+IntToStr(qr1['id'])+',';
+              s[Length(s)]:=')';
+              Realms[rpView].SQLExtra:=' AND (Obj.rlm_id<>'+IntToStr(rid)+' OR EXISTS (SELECT lvl FROM ObjPath WHERE ObjPath.oid=Obj.id AND ObjPath.pid IN ('+s+'))';
+             end;
+          finally
+            qr1.Free;
+          end;
+        finally
+          f.Free;
+          fq.Free;
+        end;
+       end;
      end;
   finally
     qr.Free;
@@ -457,6 +489,7 @@ begin
    end;
   //build SQL
   for rp:=rpView to rpBoth do with Realms[rp] do
+   begin
     if Count=0 then
       SQL:='=-1' //??
     else
@@ -465,6 +498,8 @@ begin
       for i:=0 to Count-1 do SQL:=SQL+IntToStr(Ids[i])+',';
       SQL[Length(SQL)]:=')';
      end;
+    SQL:=SQL+SQLExtra;
+   end;
 end;
 
 procedure TtxSession.HasRealmPermission(RealmPerm:TtxRealmPermission;RealmID:integer);
@@ -539,13 +574,13 @@ begin
   if id<>0 then
    begin
     i:=0;
-      while (FilterRecent[ItemType,i]<>id) and (i<FilterRecentCount) do inc(i);
-       while (FilterRecent[ItemType,i]<>0) and (i<FilterRecentCount-1) do
-        begin
-        FilterRecent[ItemType,i]:=FilterRecent[ItemType,i+1];
-        inc(i);
-       end;
-      if i<FilterRecentCount then FilterRecent[ItemType,i]:=0;
+    while (FilterRecent[ItemType,i]<>id) and (i<FilterRecentCount) do inc(i);
+     while (FilterRecent[ItemType,i]<>0) and (i<FilterRecentCount-1) do
+      begin
+      FilterRecent[ItemType,i]:=FilterRecent[ItemType,i+1];
+      inc(i);
+     end;
+    if i<FilterRecentCount then FilterRecent[ItemType,i]:=0;
    end;
 end;
 

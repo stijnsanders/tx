@@ -47,8 +47,8 @@ for di:=0 to d1.Count-1 do
 
 <h1>realm permissions</h1>
 [[@Windows,txDefs,txSession,SQLiteData,txFilter,txFilterSql]][[!var
-  qr:TSQLiteStatement;
-  fx,fr:string;
+  qr,qr1:TSQLiteStatement;
+  fx,fr,s:string;
   f:TtxFilter;
   fq:TtxSqlQueryFragments;
   i,fi,fcl:integer;
@@ -56,7 +56,7 @@ for di:=0 to d1.Count-1 do
   b:boolean;
   fc:array of record
     x:string;
-	b:boolean;
+    b:boolean;
   end;
 const
   rname:array[0..1] of string=('view','edit');
@@ -65,58 +65,103 @@ const
 tc1:=GetTickCount;
 fcl:=0;
 SetLength(fc,fcl);
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT name, view_expression, edit_expression FROM Rlm',[]);
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT name, view_expression, edit_expression, limit_expression FROM Rlm',[]);
 try
   while qr.Read do
    begin
     <<p><b>>.name<</b>:
-	[[
-	for fi:=0 to 1 do
-	 begin
+    [[
+    for fi:=0 to 1 do
+     begin
       fx:=qr.GetStr(rname[fi]+'_expression');
-	  if fx='' then Context.SendHTML('<s style="color:#0000CC;">'+rname[fi]+'</s> <i>not set</i> ') else
-	   begin
-	    i:=0;
-		while (i<fcl) and (fc[i].x<>fx) do inc(i);
-		if i<fcl then
-		 begin
-		  b:=fc[i].b;
-		  fr:='<i>cached</i>';
-		 end
-		else
-		 begin
-		  tc2:=GetTickCount;
-	      f:=TtxFilter.Create;
-	      fq:=TtxSqlQueryFragments.Create(itObj);
-	      try
+      if fx='' then Context.SendHTML('<s style="color:#0000CC;">'+rname[fi]+'</s> <i>not set</i> ') else
+       begin
+        i:=0;
+        while (i<fcl) and (fc[i].x<>fx) do inc(i);
+        if i<fcl then
+         begin
+          b:=fc[i].b;
+          fr:='<i>cached</i>';
+         end
+        else
+         begin
+          tc2:=GetTickCount;
+          f:=TtxFilter.Create;
+          fq:=TtxSqlQueryFragments.Create(itObj);
+          try
             fq.Fields:='Obj.id';
             fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
             fq.Where:='Obj.id='+IntToStr(Session.UserID)+' AND ';
             fq.GroupBy:='';
             fq.Having:='';
             fq.OrderBy:='';
-	        f.FilterExpression:=fx;
-	        fq.AddFilter(f);
-			b:=Session.DbCon.Exists(fq.Sql);
-	      finally
-    	    f.Free;
+            f.FilterExpression:=fx;
+            fq.AddFilter(f);
+            b:=Session.DbCon.Exists(fq.Sql);
+          finally
+            f.Free;
             fq.Free;
-	      end;
-		  //add result to cache
-		  SetLength(fc,fcl+1);
-		  fc[fcl].x:=fx;
-		  fc[fcl].b:=b;
-		  inc(fcl);
-		  //
-		  fr:=IntToStr(GetTickCount-tc2)+'ms';
-		 end;
-		if b then
-		  Context.SendHTML('<b style="color:#00CC00;">'+rname[fi]+'</b> '+fr+' ')
-		else
-		  Context.SendHTML('<s style="color:#CC0000;">'+rname[fi]+'</s> '+fr+' ');
-	  end;
-	end;
-	<</p>>
+          end;
+          //add result to cache
+          SetLength(fc,fcl+1);
+          fc[fcl].x:=fx;
+          fc[fcl].b:=b;
+          inc(fcl);
+          //
+          fr:=IntToStr(GetTickCount-tc2)+'ms';
+         end;
+        if b then
+          Context.SendHTML('<b style="color:#00CC00;">'+rname[fi]+'</b> '+fr+' ')
+        else
+          Context.SendHTML('<s style="color:#CC0000;">'+rname[fi]+'</s> '+fr+' ');
+      end;
+    end;
+
+    fx:=qr.GetStr('limit_expression');
+    if (fx<>'') and Use_ObjPath then
+     begin
+      tc2:=GetTickCount;
+      f:=TtxFilter.Create;
+      fq:=TtxSqlQueryFragments.Create(itObj);
+      try
+        fq.Fields:='Obj.id';
+        fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+        //fq.Where:='';
+        fq.GroupBy:='';
+        fq.Having:='';
+        fq.OrderBy:='';
+        f.FilterExpression:=fx;
+        fq.AddFilter(f);
+        qr1:=TSQLiteStatement.Create(Session.DbCon,fq.Sql,[]);
+        try
+          if qr1.EOF then
+           begin
+            fr:=IntToStr(GetTickCount-tc2)+'ms';
+            Context.SendHTML('<s style="color:#0000CC;">limit</s> '+fr+' ');
+           end
+          else
+           begin
+            s:='';
+            i:=0;
+            while qr1.Read do
+             begin
+              s:=s+'?'+IntToStr(qr1['id']);
+              inc(i);
+             end;
+            s[Length(s)]:=')';
+            fr:=IntToStr(GetTickCount-tc2)+'ms';
+            Context.SendHTML('<b style="color:#00CC00;">limit</b> (#'+IntToStr(i)+') '+fr+' ');
+           end;
+        finally
+          qr1.Free;
+        end;
+      finally
+        f.Free;
+        fq.Free;
+      end;
+     end;
+
+    <</p>>
    end;
 finally
   qr.Free;
