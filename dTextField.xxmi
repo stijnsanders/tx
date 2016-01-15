@@ -42,3 +42,7 @@ window.onbeforeunload=function(){
     if(i!=0)return "Changes made to \""+tinymce.editors[i-1].id+"\"";
 };
 //--></script>
+<style type="text/css"><!--
+.mce-txt{font-family:Calibri,Verdana,sans-serif;}
+.mce-btn button{padding:1px 4px;}
+//--></style>

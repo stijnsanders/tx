@@ -284,6 +284,8 @@ begin
    begin
     Count:=0;
     Size:=0;
+    SQL:='=0';//'safe' defaults
+    SQLExtra:='';
    end;
   //LoadRealmPermissions called later (see LoadUser)
 end;
