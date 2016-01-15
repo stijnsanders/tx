@@ -3,13 +3,15 @@ fv:TtxFilterViewInfo;
 fs:string;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
-i:integer;
+i,j:integer;
 qr:TSQLiteStatement;
 tc1,tc2,tc3,tc4:cardinal;
+realms:boolean;
 ]][[
 GetFilterViewInfo(Context,fv);
 Context.Include('dHead.xxmi',['Filter Count','filter='+fv.filterU]);
-if fv.filter='' then
+realms:=Context['realms'].AsInteger=1;
+if (fv.filter='') and not(realms) then
  begin
   <<p class="information">No current filter.<br /><a href="FilterBuild.xxm">Click here</a> to create a filter.</p>>
  end
@@ -18,59 +20,111 @@ else
   f:=TtxFilter.Create;
   fq:=TtxSqlQueryFragments.Create(itObj);
   try
-    tc1:=GetTickCount;  
+    tc1:=GetTickCount;
     f.FilterExpression:=fv.filter;
-	if f.ParseError<>'' then
-	 begin
-	  <<p style="color:red;">>=f.ParseError<</p>>
-	 end;
-	 
-	i:=Session.FilterCache.IndexOf(fv.filter);
-	if i>0 then Session.FilterCache.Delete(i);
-	if i<>0 then Session.FilterCache.Insert(0,fv.filter);
-  
+    if f.ParseError='' then
+     begin
+      i:=Session.FilterCache.IndexOf(fv.filter);
+      if i>0 then Session.FilterCache.Delete(i);
+      if i<>0 then Session.FilterCache.Insert(0,fv.filter);
+     end
+    else
+     begin
+      <<p style="color:red;">>=f.ParseError<</p>>
+     end;
+
     tc2:=GetTickCount;
     <<p class="buttons">
-	<a href="Filter.xxm?filter=[[#fv.filterU]]" class="linkbutton">filter...</a>
-	<a href="FilterBuild.xxm?filter=[[#fv.filterU]]" class="linkbutton">edit filter</a>
+    <a href="Filter.xxm?filter=[[#fv.filterU]]" class="linkbutton">filter...</a>
+    |
+    <a href="FilterBuild.xxm?filter=[[#fv.filterU]]" class="linkbutton">edit filter</a>
     <a class="linkbutton" href="FrameTree.xxm?filter=[[#fv.filterU]]" target="TreeFrame">tree</a>
-	<a class="linkbutton" href="FrameList.xxm?filter=[[#fv.filterU]]" target="TreeFrame">list</a>
+    <a class="linkbutton" href="FrameList.xxm?filter=[[#fv.filterU]]" target="TreeFrame">list</a>
+    |
     <a class="linkbutton" href="Log.xxm?filter=[[#fv.filterU]]">log...</a>
     <a class="linkbutton" href="Summary.xxm?filter=[[#fv.filterU]]">summary...</a>
     <a class="linkbutton" href="Modify.xxm?filter=[[#fv.filterU]]">modify...</a>
-	</p>
-	<p>
-	<span id="filterCount">>#lblLoading<</span>
-	<span class="weight">parse: [[=tc2-tc1]]ms</span>>
-	Context.Flush;
-	fq.AddFilter(f);
-    fq.Where:='Obj.rlm_id'+Session.Realms[fv.rp].SQL+' AND ('+fq.Where+')';
-    fq.Fields:='COUNT(*)';
-	fq.OrderBy:='';
+    </p>
+    <p>
+    <span id="filterCount">>#lblLoading<</span>
+    <span class="weight">parse: [[=tc2-tc1]]ms</span>>
+    Context.Flush;
+    if realms then
+     begin
+      if not Session.IsAdmin('realms') then raise Exception.Create('Access denied');//?
+      fq.Fields:='Rlm.id,Rlm.name,COUNT(Obj.id) AS ocount';
+      fq.Tables:='Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id LEFT OUTER JOIN Rlm ON Rlm.id=Obj.rlm_id'#13#10;
+      fq.AddFilter(f);
+      fq.GroupBy:='Rlm.id,Rlm.name';
+      fq.OrderBy:='Rlm.id';
+     end
+    else
+     begin
+      fq.Fields:='COUNT(*)';
+      fq.Tables:='Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+      fq.AddFilter(f);
+      fq.Where:='Obj.rlm_id'+Session.Realms[fv.rp].SQL+' AND ('+fq.Where+')';
+      fq.OrderBy:='';
+     end;
     fs:=fq.SQL;
   finally
     f.Free;
     fq.Free;
   end;
-  
+
   tc3:=GetTickCount;
   <<span class="weight">build: [[=tc3-tc1]]ms</span>>
   Context.Flush;
   qr:=TSQLiteStatement.Create(Session.DbCon,fs);
   try
-	tc4:=GetTickCount;
-	<<span class="weight">query: [[=tc4-tc3]]ms</span>
-	</p>
-	<p style="font-size:100pt;margin:4pt;font-weight:bold;">>=qr.GetInt(0)<</p>>
-	 
+    tc4:=GetTickCount;
+    <<span class="weight">query: [[=tc4-tc3]]ms</span>
+    </p>>
+    if realms then
+     begin
+      <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+      <tr>
+      <th colspan="2">realm</th>
+      <th>#</th>
+      </tr>>
+      while qr.Read and Context.Connected do
+       begin
+        i:=qr.GetInt('ocount');
+        inc(j,i);
+        <<tr>>
+        if qr.IsNull('id') then
+         begin
+          <<td><b>default</b></td><td>#0</td>>
+         end
+        else
+         begin
+          <<td>>.name<</td><td>#[[.id]]</td>>
+         end;
+        <<td style="text-align:right;">>=i<</td>
+        </tr>>
+       end;
+      <<tr>
+      <th colspan="2">&nbsp;</th>
+      <th style="text-align:right;">>=j<</th>
+      </tr>
+      </table>>
+     end
+    else
+     begin
+       <<p style="font-size:100pt;margin:4pt;font-weight:bold;">>=qr.GetInt(0)<</p>>
+       if Session.IsAdmin('realms') then
+        begin
+         <<p><a href="FilterCount.xxm?[[=Context.ContextString(csQueryString)]]&amp;realms=1" class="linkbutton">realms...</a></p>>
+        end;
+     end;
+
   finally
-	qr.Free;
+    qr.Free;
   end;
  end;
-  
+
 <<script><!--
 $("#filterCount").remove();
 //--></script>>
-  
+
 Context.Include('dFoot.xxmi');
-]]

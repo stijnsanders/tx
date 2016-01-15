@@ -16,7 +16,7 @@ if limit=0 then limit:=50;//default
 if (keywords='') and (filter='') then
  begin
   <<div style="margin:0em;">
-  <input type="text" id="searchText_[[=name]]" name="keywords" value="[[=Context['dss'].Value]]" size="50" 
+  <input type="text" id="searchText_[[=name]]" name="keywords" value="[[=Context['dss'].Value]]" size="50"
   onfocus="search_textEnter('[[=name]]','[[=exclude]]',this);" onblur="search_textLeave(this);" />
   <input type="checkbox" id="searchTextName_[[=name]]" name="wholename" value="1" />
   <label for="searchTextName_[[=name]]">match whole name</label>
@@ -30,14 +30,14 @@ if (keywords='') and (filter='') then
   if Session.FilterCache.Count<>0 then
    begin
     <<b>recent filters:</b><br />>
-	for i:=0 to Session.FilterCache.Count-1 do
-	 begin
-	  <<a href="Filter.xxm?filter=[[=URLEncode(Session.FilterCache[i])]]" onclick="return search_textFilter('[[=name]]',[[=exclude]],this);">>=Session.FilterCache[i]<</a><br />>
-	 end;
+    for i:=0 to Session.FilterCache.Count-1 do
+     begin
+      <<a href="Filter.xxm?filter=[[=URLEncode(Session.FilterCache[i])]]" onclick="return search_textFilter('[[=name]]',[[=exclude]],this);">>=Session.FilterCache[i]<</a><br />>
+     end;
    end;
   <</div>>
  end
-else 
+else
  begin
   if filter='' then
    begin
@@ -45,19 +45,19 @@ else
     filter:=filter+'"'+StringReplace(keywords,'"','""',[rfReplaceAll])+'"'
    end;
   if exclude<>0 then filter:=filter+'/i'+IntToStr(exclude);
-  
+
   <<span class="litref">>=filter<</span><br />>
   Context.Flush;
-  
+
   f:=TtxFilter.Create;
   fq:=TtxSqlQueryFragments.Create(itObj);
   try
     f.FilterExpression:=filter;
-	if f.ParseError<>'' then
-	 begin
-	  <<p style="color:red;">>=f.ParseError<</p>>
-	 end;
-  	fq.AddFilter(f);
+    if f.ParseError<>'' then
+     begin
+      <<p style="color:red;">>=f.ParseError<</p>>
+     end;
+    fq.AddFilter(f);
     fq.Where:='Obj.rlm_id'+Session.Realms[rpView].SQL+' AND ('+fq.Where+')';
     //fq.Limit:=limit;//slows query performance tremendously on SQLServer! see loop below
     fs:=fq.SQL;
@@ -70,28 +70,28 @@ else
   qr:=TSQLiteStatement.Create(Session.DbCon,fs);
   try
     if qr.EOF then
-	 begin
-	  <<i>none found</i>>
-	 end;
+     begin
+      <<i>none found</i>>
+     end;
     c:=0;
     while qr.Read and Context.Connected and (c<limit) do
-	 begin
+     begin
       inc(c);
-	  //haschildren?
-	    id:=qr.GetInt('id');
-		<<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);" title="[[.typename]]">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a>>
-		Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
-		Context.Include('dObjLocMini.xxmi',[],[qr,ic]);
-		<<br />>
-	 end;
+      //haschildren?
+        id:=qr.GetInt('id');
+        <<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);" title="[[.typename]]">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a>>
+        Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
+        Context.Include('dObjLocMini.xxmi',[],[qr,ic]);
+        <<br />>
+     end;
     if c=limit then
      begin
       <<i>&nbsp;(results limited to [[=limit]])</i>>
      end;
   finally
-	qr.Free;
-	ic.Free;
+    qr.Free;
+    ic.Free;
   end;
-  
+
  end;
 ]]

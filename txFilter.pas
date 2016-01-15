@@ -8,8 +8,8 @@ type
   TtxFilterIDType=(dtNumber,dtNumberList,dtSystem,dtSubQuery,dtEnvironment);
   TtxFilterOperator=(
     foAnd,foOr,foAndNot,foOrNot,
-	//add new here above
-	fo_Unknown);
+    //add new here above
+    fo_Unknown);
 
   TtxFilterAction=(
 
@@ -19,7 +19,7 @@ type
     faFilter,faParent,faPath,faPathObjType,faPathTokType,faPathRefType,
 
     faSearch,faSearchReports,faSearchName,faName,faDesc,faTerm,faModified,
-	faAlwaysTrue,faAlwaysFalse,faExtra,faSQL,faUser,faRealm,faUnread,
+    faAlwaysTrue,faAlwaysFalse,faExtra,faSQL,faUser,faRealm,faUnread,
 
     //add new here above
     fa_Unknown
@@ -33,8 +33,8 @@ const
     itObj,itTokType,itRefType,itObj,
     itFilter,itObj,itObj,itObjType,itTokType,itRefType,
 
-	itObj,itObj,itObj,itObj,itObj,itObj,it_Unknown,
-	it_Unknown,it_Unknown,it_Unknown,it_Unknown,itUser,itRealm,itUser,
+    itObj,itObj,itObj,itObj,itObj,itObj,it_Unknown,
+    it_Unknown,it_Unknown,it_Unknown,it_Unknown,itUser,itRealm,itUser,
 
     //add new here above
     it_Unknown
@@ -88,8 +88,8 @@ const
     (a:faSearchReports       ;n:'rsearch'),
     (a:faSearchName          ;n:'nsearch'),
     (a:faName                ;n:'name'),
-	(a:faDesc                ;n:'desc'),
-	(a:faTerm                ;n:'term'),
+    (a:faDesc                ;n:'desc'),
+    (a:faTerm                ;n:'term'),
     (a:faAlwaysTrue          ;n:'true'),
     (a:faAlwaysFalse         ;n:'false'),
     (a:faFilter              ;n:'filter'),
@@ -143,7 +143,7 @@ const
     (a:faModified            ;n:'modified'),
     (a:faAlwaysTrue          ;n:'alwaystrue'),
     (a:faAlwaysFalse         ;n:'alwaysfalse'),
-	(a:faDesc                ;n:'description'),
+    (a:faDesc                ;n:'description'),
     (a:faSearchName          ;n:'namesearch'),
     (a:faSearchName          ;n:'searchname'),
     (a:faSearchReports       ;n:'reportsearch'),
@@ -159,9 +159,9 @@ const
 type
   TtxFilterEnvVar=(
     feMe,
-	feUs,
-	feThis,
-	feParent,
+    feUs,
+    feThis,
+    feParent,
     //add new here above
     fe_Unknown
   );
@@ -169,9 +169,9 @@ type
 const
   txFilterEnvVarName:array[TtxFilterEnvVar] of string=(
     'me',
-	'us',
-	'this',
-	'parent',
+    'us',
+    'this',
+    'parent',
     //add new here above
     ''
   );
@@ -325,16 +325,16 @@ begin
             X.IDType:=dtSubQuery;
             inc(i);
             j:=i;
-			k:=1;
+            k:=1;
             while (i<=l) and (k<>0) do
-			 begin
-			  case Ex[i] of
-			   '{':inc(k);
-			   '}':dec(k);
-			   '"':while (i<=l) and (Ex[i]<>'"') do inc(i);
-			  end;
-			  inc(i);
-			 end;
+             begin
+              case Ex[i] of
+               '{':inc(k);
+               '}':dec(k);
+               '"':while (i<=l) and (Ex[i]<>'"') do inc(i);
+              end;
+              inc(i);
+             end;
             x.ID:=Copy(Ex,j,i-j-1);
           end;
         '"':
@@ -445,9 +445,9 @@ begin
     //operator
     if (i<=l) then
      begin
-	  x.Operator:=TtxFilterOperator(0);
-	  while (x.Operator<>fo_Unknown) and (Ex[i]<>txFilterOperatorChar[x.Operator]) do inc(x.Operator);
-	  if x.Operator=fo_Unknown then Error('Unknown operator "'+Ex[i]+'"');
+      x.Operator:=TtxFilterOperator(0);
+      while (x.Operator<>fo_Unknown) and (Ex[i]<>txFilterOperatorChar[x.Operator]) do inc(x.Operator);
+      if x.Operator=fo_Unknown then Error('Unknown operator "'+Ex[i]+'"');
       inc(i);
      end
     else

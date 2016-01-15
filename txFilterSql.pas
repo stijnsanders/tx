@@ -121,8 +121,8 @@ begin
   end;
   if Use_ObjTokRefCache and (FItemType in [itObj,itReport]) then
    begin
-	  Fields:=Fields+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
-	  Tables:=Tables+'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id'#13#10;
+      Fields:=Fields+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
+      Tables:=Tables+'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id'#13#10;
    end;
   for fe:=TtxFilterEnvVar(0) to fe_Unknown do EnvVars[feMe]:=0;
   EnvVars[feMe]:=Session.UserID;
@@ -159,12 +159,12 @@ var
   begin
     with TIdList.Create do
       try
-	    qr:=TSQLiteStatement.Create(Session.DbCon,s);
-		try
-		  while qr.Read do Add(qr.GetInt(0));
-		finally
-		  qr.Free;
-		end;
+        qr:=TSQLiteStatement.Create(Session.DbCon,s);
+        try
+          while qr.Read do Add(qr.GetInt(0));
+        finally
+          qr.Free;
+        end;
         s:=List;
       finally
         Free;
@@ -732,7 +732,7 @@ begin
           fq.OrderBy:='';
 
           idSQL:=fq.BuildSQL;
-		  //TODO: realms?
+          //TODO: realms?
         finally
           f.Free;
           fq.Free;
@@ -740,11 +740,11 @@ begin
        end;
       dtEnvironment:
        begin
-	    fe:=TtxFilter.GetFilterEnvVar(El.ID);
+        fe:=TtxFilter.GetFilterEnvVar(El.ID);
         case fe of
-		  feUs:idSQL:='SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(EnvVars[feMe]);
+          feUs:idSQL:='SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(EnvVars[feMe]);
           fe_Unknown:raise EtxSqlQueryError.Create('Unknown Filter Environment Variable: '+El.ID);
-		  else ids.Add(EnvVars[fe]);
+          else ids.Add(EnvVars[fe]);
         end;
        end;
       else raise EtxSqlQueryError.Create('Unsupported IDType at position '+IntToStr(El.Idx1));
@@ -752,52 +752,52 @@ begin
 
     if (El.Descending or El.Prefetch) and (idSQL<>'') then
      begin
-	  qr:=TSQLiteStatement.Create(Session.DbCon,idSQL);
-	  try
-	    while qr.Read do ids.Add(qr.GetInt(0));
-	  finally
-	    qr.Free;
-	  end;
+      qr:=TSQLiteStatement.Create(Session.DbCon,idSQL);
+      try
+        while qr.Read do ids.Add(qr.GetInt(0));
+      finally
+        qr.Free;
+      end;
       idSQL:='';
      end;
 
     if El.Descending then
      begin
       if Reverse then
-	    if Use_ObjPath and (ItemType=itObj) then
-		  if idSQL='' then
+        if Use_ObjPath and (ItemType=itObj) then
+          if idSQL='' then
             if ids.Count=1 then
-		      idSQL:='SELECT pid FROM ObjPath WHERE oid='+IntToStr(ids[0])
+              idSQL:='SELECT pid FROM ObjPath WHERE oid='+IntToStr(ids[0])
             else
-		      idSQL:='SELECT pid FROM ObjPath WHERE oid IN ('+ids.List+')'
-		  else
-		    idSQL:='SELECT pid FROM ObjPath WHERE oid IN ('+idSQL+')'
-		else
+              idSQL:='SELECT pid FROM ObjPath WHERE oid IN ('+ids.List+')'
+          else
+            idSQL:='SELECT pid FROM ObjPath WHERE oid IN ('+idSQL+')'
+        else
          begin
           i:=0;
           while i<ids.Count do
            begin
-		    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
-		    try
-		      while qr.Read do ids.Add(qr.GetInt(0));
-		    finally
-		      qr.Free;
-		    end;
+            qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
+            try
+              while qr.Read do ids.Add(qr.GetInt(0));
+            finally
+              qr.Free;
+            end;
             inc(i);
            end;
          end
       else
         if ParentsOnly then
          begin
-		  if Use_ObjPath and (ItemType=itObj) then
-		    if idSQL='' then
+          if Use_ObjPath and (ItemType=itObj) then
+            if idSQL='' then
               if ids.Count=1 then
-		        idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid='+IntToStr(ids[0])
+                idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid='+IntToStr(ids[0])
               else
-		        idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid IN ('+ids.List+')'
-			else
-			  idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid IN ('+idSQL+')'
-		  else
+                idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid IN ('+ids.List+')'
+            else
+              idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid IN ('+idSQL+')'
+          else
            begin
             ids1:=TIdList.Create;
             try
@@ -807,13 +807,13 @@ begin
               while i<ids1.Count do
                begin
                 //only add those with children
-			    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids1[i]));
-			    try
-			      if not qr.EOF then ids.Add(ids1[i]);
-				  while qr.Read do ids1.AddClip(qr.GetInt(0),i);
-			    finally
-			      qr.Free;
-			    end;
+                qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids1[i]));
+                try
+                  if not qr.EOF then ids.Add(ids1[i]);
+                  while qr.Read do ids1.AddClip(qr.GetInt(0),i);
+                finally
+                  qr.Free;
+                end;
                 inc(i);
                end;
             finally
@@ -824,42 +824,42 @@ begin
         else
          begin
           //full expand
-		  if Use_ObjPath and (ItemType=itObj) then
-		    if idSQL='' then
+          if Use_ObjPath and (ItemType=itObj) then
+            if idSQL='' then
               if ids.Count=1 then
-		        idSQL:='SELECT oid FROM ObjPath WHERE pid='+IntToStr(ids[0])
+                idSQL:='SELECT oid FROM ObjPath WHERE pid='+IntToStr(ids[0])
               else
-		        idSQL:='SELECT oid FROM ObjPath WHERE pid IN ('+ids.List+')'
-			else
-			  idSQL:='SELECT oid FROM ObjPath WHERE pid IN ('+idSQL+')'
-		  else
-		   begin
+                idSQL:='SELECT oid FROM ObjPath WHERE pid IN ('+ids.List+')'
+            else
+              idSQL:='SELECT oid FROM ObjPath WHERE pid IN ('+idSQL+')'
+          else
+           begin
             i:=0;
             while i<ids.Count do
              begin
-		      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids[i]));
-			  try
-			    while qr.Read do ids.Add(qr.GetInt(0));
-			  finally
-			    qr.Free;
-			  end;
+              qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids[i]));
+              try
+                while qr.Read do ids.Add(qr.GetInt(0));
+              finally
+                qr.Free;
+              end;
               inc(i);
              end;
-		   end;
+           end;
          end;
 
      end
     else
       if Reverse then //one level up
         for i:=0 to ids.Count-1 do
-	     begin
-	      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
-		  try
-		    ids[i]:=qr.GetInt(0);
-		  finally
-		    qr.Free;
-		  end;
-	     end;
+         begin
+          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
+          try
+            ids[i]:=qr.GetInt(0);
+          finally
+            qr.Free;
+          end;
+         end;
 
     if idSQL='' then
       case ids.Count of
