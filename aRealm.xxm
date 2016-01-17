@@ -10,7 +10,8 @@ id:=Context['id'].AsInteger;
 RefreshRealms:=false;
 CheckFormProtect(Context);
 
-if not(Session.IsAdmin('realms')) then Session.HasRealmPermission(rpEdit,id);
+if not(Session.IsAdmin('realms')) then
+  Session.HasRealmPermission(0,id,rpEdit);
 
 //TODO test new filter expressions!
 
@@ -19,13 +20,13 @@ try
   if qr.Read then
    begin
     v1:=qr.GetStr('view_expression');
-	e1:=qr.GetStr('edit_expression');
+    e1:=qr.GetStr('edit_expression');
     l1:=qr.GetStr('limit_expression');
    end
   else
    begin
     v1:='';//invalid ex?
-	e1:='';
+    e1:='';
     l1:='';
    end;
 finally
@@ -44,21 +45,21 @@ if (v1<>v2) or (e1<>e2) then RefreshRealms:=true;
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
 
-	if id=0 then
-	  Session.DbCon.Execute('INSERT INTO Rlm (name,desc,system,view_expression,edit_expression,limit_expression,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?)',
-		[Context['name'].Value,desc,Context['system'].Value,v2,e2,l2,VNow,Session.UserID,VNow,Session.UserID],id)
-	else
-	  Session.DbCon.Execute('UPDATE Rlm SET name=?, desc=?, system=?, view_expression=?, edit_expression=?, limit_expression=?, m_ts=?, m_uid=? WHERE id=?',
-		[Context['name'].Value,desc,Context['system'].Value,v2,e2,l2,VNow,Session.UserID,id]);
+    if id=0 then
+      Session.DbCon.Execute('INSERT INTO Rlm (name,desc,system,view_expression,edit_expression,limit_expression,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?)',
+        [Context['name'].Value,desc,Context['system'].Value,v2,e2,l2,VNow,Session.UserID,VNow,Session.UserID],id)
+    else
+      Session.DbCon.Execute('UPDATE Rlm SET name=?, desc=?, system=?, view_expression=?, edit_expression=?, limit_expression=?, m_ts=?, m_uid=? WHERE id=?',
+        [Context['name'].Value,desc,Context['system'].Value,v2,e2,l2,VNow,Session.UserID,id]);
 
-	TermStore.StoreTerms(itRealm,id,0,desc);
+    TermStore.StoreTerms(itRealm,id,0,desc);
 
-	//force realm perm refresh on all session
-	if RefreshRealms then
-	 begin
-	  inc(RealmsCounter);
-	  Session.LoadRealmPermissions;
-	 end;
+    //force realm perm refresh on all session
+    if RefreshRealms then
+     begin
+      inc(RealmsCounter);
+      Session.LoadRealmPermissions;
+     end;
 
     Session.DbCon.Execute('COMMIT TRANSACTION');
 except

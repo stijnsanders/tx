@@ -28,7 +28,7 @@ if fv.filter='' then
       pid:=qr.GetInt('pid');
       InControl:=true;
       try
-        Session.HasRealmPermission(rpEdit,qr.GetInt('rlm_id'));
+        Session.HasRealmPermission(id,qr.GetInt('rlm_id'),rpEdit);
       except
         on ERealmNotEditableByUser do InControl:=false;
       end;

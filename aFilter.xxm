@@ -1,4 +1,5 @@
 [[@txDefs,txSession,SQLiteData,]][[!var
+qr:TSQLiteStatement;
 id,objid:integer;
 url:string;
 desc:WideString;
@@ -8,12 +9,18 @@ objid:=Context['obj'].AsInteger;
 CheckFormProtect(Context);
 
 if id<>0 then
-  Session.HasRealmPermission(rpEdit,
-    DBSingleValue('SELECT Obj.rlm_id FROM Flt INNER JOIN Obj ON Obj.id=Flt.obj_id WHERE Flt.id=?',[id],Session.RealmNew));
+ begin
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id,Obj.rlm_id FROM Flt INNER JOIN Obj ON Obj.id=Flt.obj_id WHERE Flt.id=?',[id]);
+  try
+    Session.HasRealmPermission(qr.GetInt('id'),qr.GetInt('rlm_id'),rpEdit);
+  finally
+    qr.Free;
+  end;
+ end;
 
-//if objid=0 check edit permissions of realmnew
-Session.HasRealmPermission(rpEdit,
-  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew));
+Session.HasRealmPermission(objid,
+  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew),
+  rpEdit);
 
 desc:=Context['desc'].Value;
 

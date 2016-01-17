@@ -45,9 +45,9 @@ end;
 
     case x of
       //1://add token: see aTok.Xxm
-	  //11://add reference: see aRef.xxm
+      //11://add reference: see aRef.xxm
       //2://remove token: see aTokDelete.xxm
-	  3://change weight
+      3://change weight
        begin
         //TODO check realm? (filter done with rpEdit...)
         weight:=Context['weight'].AsInteger;
@@ -64,23 +64,23 @@ end;
         <p>[[=ids.Count]] objects changed to realm [[=id]].</p>>
        end;
       5://move items
-	    raise Exception.Create('Not implemented');
-	  6://change object type
-	   begin
+        raise Exception.Create('Not implemented');
+      6://change object type
+       begin
         for i:=0 to ids.Count-1 do
-		  Session.HasRealmPermission(rpEdit,
-            DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ids[i]],Session.RealmNew));
+          Session.HasRealmPermission(ids[i],
+            DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[],Session.RealmNew),rpEdit);
         id:=Context['objtype'].AsInteger;
-		weight:=DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[id],0)+Context['weight'].AsInteger;
+        weight:=DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[id],0)+Context['weight'].AsInteger;
         for i:=0 to ids.Count-1 do
-		  Session.DbCon.Execute('UPDATE Obj SET weight=weight-?+?, objtype_id=? WHERE id=?',//AND objtype_id<>?
-		    [DBSingleValue('SELECT ObjType.weight FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ids[i]],0),weight,id,ids[i]]);
+          Session.DbCon.Execute('UPDATE Obj SET weight=weight-?+?, objtype_id=? WHERE id=?',//AND objtype_id<>?
+            [DBSingleValue('SELECT ObjType.weight FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ids[i]],0),weight,id,ids[i]]);
         <<script>$("#loadingDisplay").hide();</script>
         <p>[[=ids.Count]] objects changed to object type [[=id]].</p>>
         //if Use_Unread then Obx?
-	   end;
-	  else
-	    raise Exception.Create('Unknown action code: '+IntToStr(x));
+       end;
+      else
+        raise Exception.Create('Unknown action code: '+IntToStr(x));
     end;
 
   finally

@@ -14,21 +14,21 @@ finally
 end;
 
 //check realm
-Session.HasRealmPermission(rpEdit,
-  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew));
+Session.HasRealmPermission(objid,
+  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew),rpEdit);
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
 
-	Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['t'+IntToStr(id)]);
-	Session.DbCon.Execute('DELETE FROM Tok WHERE id=?',[id]);
-	if weight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id=?',[-weight,objid]);
-	if Use_ObjTokRefCache then Context.Include('aObjTokRefCache.xxmi',[objid]);
+  Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['t'+IntToStr(id)]);
+  Session.DbCon.Execute('DELETE FROM Tok WHERE id=?',[id]);
+  if weight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id=?',[-weight,objid]);
+  if Use_ObjTokRefCache then Context.Include('aObjTokRefCache.xxmi',[objid]);
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.Execute('COMMIT TRANSACTION');
 except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
-    raise;
+  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  raise;
 end;
 
 Session.UpdateID:=objid;

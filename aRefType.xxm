@@ -8,7 +8,7 @@ newWeight:=Context['weight'].AsInteger;
 //when new: default weight from parent?
 
 //check edit permission in default realm
-Session.HasRealmPermission(rpEdit,0);
+Session.HasRealmPermission(0,0,rpEdit);
 
 //TODO: transaction?
 id:=Context['id'].AsInteger;

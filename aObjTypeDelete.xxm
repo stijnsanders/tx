@@ -16,7 +16,7 @@ finally
 end;
 
 //check edit permission in default realm
-Session.HasRealmPermission(rpEdit,0);
+Session.HasRealmPermission(0,0,rpEdit);
 
 //TODO: check object's realm
 
@@ -33,22 +33,22 @@ try
     nid:=Context['movechto'].AsInteger;
     if nid=0 then raise Exception.Create('Object type to move children to required.');
     Session.AddFilterRecent(itObjType,nid);
-	Session.DbCon.Execute('UPDATE ObjType SET pid=? WHERE pid=?',[nid,id]);
+    Session.DbCon.Execute('UPDATE ObjType SET pid=? WHERE pid=?',[nid,id]);
     if Context['objects'].AsInteger=1 then
      begin
       nid:=Context['moveobjto'].AsInteger;
       if nid=0 then raise Exception.Create('Object type to change objects to required.');
       Session.AddFilterRecent(itObjType,nid);
-	  w:=-weight+DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[nid],0);
-	  if w<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[w,id]);
-	  Session.DbCon.Execute('UPDATE Obj SET objtype_id=? WHERE objtype_id=?',[nid,id]);
-	 end
-	else
-	 begin
-	  //if weight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[-weight,id]);
+      w:=-weight+DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[nid],0);
+      if w<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[w,id]);
+      Session.DbCon.Execute('UPDATE Obj SET objtype_id=? WHERE objtype_id=?',[nid,id]);
+     end
+    else
+     begin
+      //if weight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[-weight,id]);
       //TODO: copy/use extra deletes from aObjDelete.xxmi
-	  Session.DbCon.Execute('DELETE FROM Obj WHERE objtype_id=?',[id]);
-	 end;
+      Session.DbCon.Execute('DELETE FROM Obj WHERE objtype_id=?',[id]);
+     end;
     Session.DbCon.Execute('DELETE FROM ObjType WHERE id=?',[id]);
    end
   else
@@ -69,36 +69,36 @@ try
         inc(i);
        end;
 
-	   //objects
-	  if Context['objects'].AsInteger=1 then
-	   begin
-	    nid:=Context['moveobjto'].AsInteger;
-	    if nid=0 then raise Exception.Create('Object type to change objects to required.');
-	    Session.AddFilterRecent(itObjType,nid);
-		for i:=0 to ids.Count-1 do
-		 begin
-		  id:=ids[i];
-		  //TODO: update weight!
-		  w:=-weight+DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[nid],0);
-		  if w<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[w,id]);
-		  Session.DbCon.Execute('UPDATE Obj SET objtype_id=? WHERE objtype_id=?',[nid,id]);
-		 end;
-	   end
-	  else
-	    for i:=0 to ids.Count-1 do
-		 begin
-		  id:=ids[i];
-		  //if weight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[-weight,id]);
+       //objects
+      if Context['objects'].AsInteger=1 then
+       begin
+        nid:=Context['moveobjto'].AsInteger;
+        if nid=0 then raise Exception.Create('Object type to change objects to required.');
+        Session.AddFilterRecent(itObjType,nid);
+        for i:=0 to ids.Count-1 do
+         begin
+          id:=ids[i];
+          //TODO: update weight!
+          w:=-weight+DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[nid],0);
+          if w<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[w,id]);
+          Session.DbCon.Execute('UPDATE Obj SET objtype_id=? WHERE objtype_id=?',[nid,id]);
+         end;
+       end
+      else
+        for i:=0 to ids.Count-1 do
+         begin
+          id:=ids[i];
+          //if weight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[-weight,id]);
           //TODO: copy/use extra deletes from aObjDelete.xxmi
-		  Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['i'+IntToStr(id)]);
-		  Session.DbCon.Execute('DELETE FROM Obj WHERE objtype_id=?',[id]);
-		 end;
+          Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['i'+IntToStr(id)]);
+          Session.DbCon.Execute('DELETE FROM Obj WHERE objtype_id=?',[id]);
+         end;
 
       for i:=ids.Count-1 downto 0 do
        begin
         id:=ids[i];
-		//Delete_ObjByObjTypeID: see above
-		Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['tt'+IntToStr(id)]);
+        //Delete_ObjByObjTypeID: see above
+        Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['tt'+IntToStr(id)]);
         Session.DbCon.Execute('DELETE FROM ObjType WHERE id=?',[id]);
        end;
     finally

@@ -145,7 +145,7 @@ qr:=nil;//counter warning
           <<p class="buttons">>
           InControl:=true;
           try
-            Session.HasRealmPermission(rpEdit,RlmID);
+            Session.HasRealmPermission(ItemID,RlmID,rpEdit);
           except
             on ERealmNotEditableByUser do InControl:=false;
           end;

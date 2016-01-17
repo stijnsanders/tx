@@ -12,7 +12,7 @@ defChild:=Context['default'].AsInteger;
 CheckFormProtect(Context);
 
 //check edit permission in default realm
-Session.HasRealmPermission(rpEdit,0);
+Session.HasRealmPermission(0,0,rpEdit);
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
@@ -26,28 +26,28 @@ try
     if id=0 then
       Session.DbCon.Execute('INSERT INTO ObjType (pid,icon,name,dft,weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?)',[
         Context['pid'].AsInteger,
-    	Context['icon'].AsInteger,
-    	Context['name'].Value,
-    	defChild,
-    	newWeight,
-    	VNow,Session.UserID,VNow,Session.UserID
-    	],id)
+        Context['icon'].AsInteger,
+        Context['name'].Value,
+        defChild,
+        newWeight,
+        VNow,Session.UserID,VNow,Session.UserID
+        ],id)
     else
       Session.DbCon.Execute('UPDATE ObjType SET icon=?, name=?, dft=?, weight=?, m_ts=?, m_uid=? WHERE id=?',[
         Context['icon'].AsInteger,
-    	Context['name'].Value,
-    	defChild,
-    	newWeight,
-    	VNow,
-    	Session.UserID,
-    	id]);
+        Context['name'].Value,
+        defChild,
+        newWeight,
+        VNow,
+        Session.UserID,
+        id]);
       //pid: use move to move existing items
 
     Session.AddFilterRecent(itObjType,defChild);
 
     if Session.IsAdmin('config') then
       Session.DbCon.Execute('UPDATE ObjType SET system=? WHERE id=?',[
-    	Context['system'].Value,
+        Context['system'].Value,
         id]);
     if newWeight<>oldWeight then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE objtype_id=?',[newWeight-oldWeight,id]);
 

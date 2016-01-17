@@ -37,18 +37,18 @@ try
     id:=qr.GetInt('id');
     InControl:=true;
     try
-      if not IsAdmin then Session.HasRealmPermission(rpEdit,id);
+      if not IsAdmin then Session.HasRealmPermission(0,id,rpEdit);
     except
       on ERealmNotEditableByUser do InControl:=false;
     end;
     if InControl then
      begin
       <<p>
-	  <input type="radio" name="rlm" value="[[=id]]" id="Rlm[[=id]]" [[if RlmID=id then Context.SendHTML('checked="1"');]] />
-	  <label for="Rlm[[=id]]"><b>>.name<</b> #[[=id<</label>
-	  </p>
-	  <div style="margin-left:2em;">>#qr['desc']<</div>>
-	  //TODO: SafeHTML
+      <input type="radio" name="rlm" value="[[=id]]" id="Rlm[[=id]]" [[if RlmID=id then Context.SendHTML('checked="1"');]] />
+      <label for="Rlm[[=id]]"><b>>.name<</b> #[[=id<</label>
+      </p>
+      <div style="margin-left:2em;">>#qr['desc']<</div>>
+      //TODO: SafeHTML
      end;
    end;
 finally

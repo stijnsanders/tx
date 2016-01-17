@@ -6,10 +6,13 @@ url,s:string;
 ]][[
 qr:=Objects[0] as TSQLiteStatement;
 id:=qr.GetInt('id');
+
+Session.HasRealmPermission(id,qr.GetInt('rlm_id'),rpView);
+
 ShowControls:=(Length(Values)<2) or boolean(Values[1]);
 InControl:=ShowControls;
 try
-  if ShowControls then Session.HasRealmPermission(rpEdit,qr.GetInt('rlm_id'));
+  if ShowControls then Session.HasRealmPermission(id,qr.GetInt('rlm_id'),rpEdit);
 except
   on ERealmNotEditableByUser do InControl:=false;
 end;
@@ -29,20 +32,20 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
 
   if InControl then
    begin
-	<<p class="buttons">
-	<a href="fObj.xxm?pid=[[.pid]]" class="linkbutton" rel="nofollow">add another</a>
-	<a href="fObj.xxm?pid=[[=id]]" class="linkbutton" rel="nofollow">add child</a>
-	|
-	<a href="fTok.xxm?id=[[=id]]" class="linkbutton" rel="nofollow">add token</a>
-	<a href="fRef.xxm?id=[[=id]]" class="linkbutton" rel="nofollow">add reference</a>
-	|
-	<a href="fObj.xxm?id=[[=id]]" class="linkbutton" rel="nofollow">edit</a>
-	<a href="fMove.xxm?x=i[[=id]]" class="linkbutton" rel="nofollow">move</a>
-	<a href="fObjRealm.xxm?x=i[[=id]]" class="linkbutton" rel="nofollow">realm #[[.rlm_id<</a>
+    <<p class="buttons">
+    <a href="fObj.xxm?pid=[[.pid]]" class="linkbutton" rel="nofollow">add another</a>
+    <a href="fObj.xxm?pid=[[=id]]" class="linkbutton" rel="nofollow">add child</a>
+    |
+    <a href="fTok.xxm?id=[[=id]]" class="linkbutton" rel="nofollow">add token</a>
+    <a href="fRef.xxm?id=[[=id]]" class="linkbutton" rel="nofollow">add reference</a>
+    |
+    <a href="fObj.xxm?id=[[=id]]" class="linkbutton" rel="nofollow">edit</a>
+    <a href="fMove.xxm?x=i[[=id]]" class="linkbutton" rel="nofollow">move</a>
+    <a href="fObjRealm.xxm?x=i[[=id]]" class="linkbutton" rel="nofollow">realm #[[.rlm_id<</a>
     [[if Use_Unread then begin <<a href="aUnread.xxm?id=[[=id]][[#txCallProtect]]" class="linkbutton" rel="nofollow">mark unread</a>> end;]]
-	|
-	<a href="fDelete.xxm?x=i[[=id]]" class="linkbutton" rel="nofollow">delete</a>
-	</p>>
+    |
+    <a href="fDelete.xxm?x=i[[=id]]" class="linkbutton" rel="nofollow">delete</a>
+    </p>>
    end
   else if Session.IsAnonymous then
    begin
@@ -59,28 +62,28 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
   //children
   qr:=TSQLiteStatement.Create(Session.DbCon,sqlObjsByPid,[id]);
   try
-	if not qr.EOF then
-	 begin
-	  <<p class="midnav">[[#lblDescendants]] children
-		<a href="Search.xxm?pid=[[=id]]" class="linkbutton" rel="nofollow">search...</a>
-		<a href="Filter.xxm?filter=c[[=id]]*" class="linkbutton" rel="nofollow">filter...</a>>
+    if not qr.EOF then
+     begin
+      <<p class="midnav">[[#lblDescendants]] children
+        <a href="Search.xxm?pid=[[=id]]" class="linkbutton" rel="nofollow">search...</a>
+        <a href="Filter.xxm?filter=c[[=id]]*" class="linkbutton" rel="nofollow">filter...</a>>
         if Use_Unread then
          begin
           ]] <span id="markread[[=id]]"><a href="Read.xxm?id=[[=id]]" class="linkbutton" rel="nofollow" onclick="if(confirm('Mark children read?'))$('#markread[[=id]]').load('Read.xxm[[?'x',1,'id',id]]',function(){$('.u').removeClass('u');$('.nc').remove();});return false;">mark as read</a></span>>
          end;
-	  <</p>
-	  <p class="objectlist">>
-	  //TODO: extra queries with all tokens/references?
-	  while qr.Read and Context.Connected do
-	   begin
-		Context.Include('dObjLinkList.xxmi',[],[qr]);
-		]]<br />
-		[[
-	   end;
-	  <</p>>
-	 end;
+      <</p>
+      <p class="objectlist">>
+      //TODO: extra queries with all tokens/references?
+      while qr.Read and Context.Connected do
+       begin
+        Context.Include('dObjLinkList.xxmi',[],[qr]);
+        ]]<br />
+        [[
+       end;
+      <</p>>
+     end;
   finally
-	qr.Free;
+    qr.Free;
   end;
 
   qr1:=TSQLiteStatement.Create(Session.DbCon,
@@ -88,87 +91,87 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
     'FROM Tok  '+
     'INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
     'WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',
-	[id]);
+    [id]);
   try
-	if not(qr1.EOF) then
-	 begin
-	  hi:=Context['htok'].AsInteger;
-	  <<p class="objectlisthead">[[#lblTokens]] tokens</p>>
-	  while qr1.Read and Context.Connected do
-	   begin
-		qid:=qr1.GetInt('id');
-		if hi=qid then begin <<div class="highlighteditem">> end;
-		<<p class="objecttitle"><a name="tok[[=qid]]"></a>>
-		s:=qr1.GetStr('system');
-		if (s<>'') and (s[1]=':') then
-		 begin
-		  <<a href="Log.xxm?filter=tt[[,toktype_id]]*" title="[[,name]]" rel="nofollow"><img src="img/cat_[[=Copy(s,2,Length(s)-1)]].png" width="54" height="16" alt="[[,name]]" [[#globalIconAlign]]/></a>>
-		 end
-		else
-		 begin
-		  ]][[#txImg(qr1['icon'],qr1['name'])]] [[,name]][[
-		 end;
-		<</p>
-		[[#TermStore.TermLinks(itTok,qid,d,qr1.GetStr('desc'))]]
-		<p>>
-		Context.Include('d_cmw.xxmi',[],[qr1]);
-		if InControl then
-		 begin
-		  ]]
-		  <a href="fTok.xxm?tid=[[,id]]" class="linkbutton" rel="nofollow">edit</a>
-		  |
-		  <a href="fDelete.xxm?x=t[[,id]]" class="linkbutton" rel="nofollow">delete</a>
-		  [[
-		 end;
-		<</p>>
-		if hi=qid then begin <</div>> end;
-	   end;
-	 end;
+    if not(qr1.EOF) then
+     begin
+      hi:=Context['htok'].AsInteger;
+      <<p class="objectlisthead">[[#lblTokens]] tokens</p>>
+      while qr1.Read and Context.Connected do
+       begin
+        qid:=qr1.GetInt('id');
+        if hi=qid then begin <<div class="highlighteditem">> end;
+        <<p class="objecttitle"><a name="tok[[=qid]]"></a>>
+        s:=qr1.GetStr('system');
+        if (s<>'') and (s[1]=':') then
+         begin
+          <<a href="Log.xxm?filter=tt[[,toktype_id]]*" title="[[,name]]" rel="nofollow"><img src="img/cat_[[=Copy(s,2,Length(s)-1)]].png" width="54" height="16" alt="[[,name]]" [[#globalIconAlign]]/></a>>
+         end
+        else
+         begin
+          ]][[#txImg(qr1['icon'],qr1['name'])]] [[,name]][[
+         end;
+        <</p>
+        [[#TermStore.TermLinks(itTok,qid,d,qr1.GetStr('desc'))]]
+        <p>>
+        Context.Include('d_cmw.xxmi',[],[qr1]);
+        if InControl then
+         begin
+          ]]
+          <a href="fTok.xxm?tid=[[,id]]" class="linkbutton" rel="nofollow">edit</a>
+          |
+          <a href="fDelete.xxm?x=t[[,id]]" class="linkbutton" rel="nofollow">delete</a>
+          [[
+         end;
+        <</p>>
+        if hi=qid then begin <</div>> end;
+       end;
+     end;
   finally
     qr1.Free;
   end;
   qr1:=TSQLiteStatement.Create(Session.DbCon,
     'SELECT Ref.id, Ref.obj1_id, Ref.reftype_id, Ref.obj2_id, Ref.[desc], Ref.[weight], Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts,'+
-	' RefType.[icon], RefType.[name] AS [typename], Obj.[name], ObjType.[icon] AS [objicon], ObjType.[name] AS [objtypename],'+
-	' ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+    ' RefType.[icon], RefType.[name] AS [typename], Obj.[name], ObjType.[icon] AS [objicon], ObjType.[name] AS [objtypename],'+
+    ' ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
     'FROM Ref '+
     'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
     'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+
     'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
-	'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
+    'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
     'WHERE Ref.obj1_id=? AND Obj.rlm_id'+Session.Realms[rpAny].SQL+' ORDER BY Ref.weight, Obj.weight',
-	[id]);
+    [id]);
   try
-	if not(qr1.EOF) then
-	 begin
-	  hi:=Context['href'].AsInteger;
-	  <<p class="objectlisthead">[[#lblReferences]] references</p>>
-	  while qr1.Read and Context.Connected do
-	   begin
-		qid:=qr1.GetInt('id');
-		if hi=qid then begin ]]<div class="highlighteditem">[[ end;
-		<<p class="objecttitle"><a name="ref[[=qid]]"></a>[[#txImg(qr1['icon'])]] [[,typename]]
-		<a href="Item.xxm?x=i[[,obj2_id]]" title="[[,objtypename]]">
-		[[#txImg(qr1['objicon'])]]
-		[[,name]]</a>>
-		Context.Include('dObjTokRef.xxmi',[qr1.GetInt('obj2_id')],[qr1]);
-		<</p>>#TermStore.TermLinks(itRef,qid,d,qr1.GetStr('desc'))<<p>>
-		//TODO: show obj2's toks, refs?
-		Context.Include('d_cmw.xxmi',[],[qr1]);
-		if InControl then
-		 begin
-		  ]]
-		  <a href="fRef.xxm?rid=[[,id]]" class="linkbutton" rel="nofollow">edit</a>
-		  |
-		  <a href="fDelete.xxm?x=r[[,id]]" class="linkbutton" rel="nofollow">delete</a>
-		  [[
-		 end;
-		<</p>>
-		if hi=qid then begin <</div>> end;
-	   end;
-	 end;
+    if not(qr1.EOF) then
+     begin
+      hi:=Context['href'].AsInteger;
+      <<p class="objectlisthead">[[#lblReferences]] references</p>>
+      while qr1.Read and Context.Connected do
+       begin
+        qid:=qr1.GetInt('id');
+        if hi=qid then begin ]]<div class="highlighteditem">[[ end;
+        <<p class="objecttitle"><a name="ref[[=qid]]"></a>[[#txImg(qr1['icon'])]] [[,typename]]
+        <a href="Item.xxm?x=i[[,obj2_id]]" title="[[,objtypename]]">
+        [[#txImg(qr1['objicon'])]]
+        [[,name]]</a>>
+        Context.Include('dObjTokRef.xxmi',[qr1.GetInt('obj2_id')],[qr1]);
+        <</p>>#TermStore.TermLinks(itRef,qid,d,qr1.GetStr('desc'))<<p>>
+        //TODO: show obj2's toks, refs?
+        Context.Include('d_cmw.xxmi',[],[qr1]);
+        if InControl then
+         begin
+          ]]
+          <a href="fRef.xxm?rid=[[,id]]" class="linkbutton" rel="nofollow">edit</a>
+          |
+          <a href="fDelete.xxm?x=r[[,id]]" class="linkbutton" rel="nofollow">delete</a>
+          [[
+         end;
+        <</p>>
+        if hi=qid then begin <</div>> end;
+       end;
+     end;
   finally
-	qr1.Free;
+    qr1.Free;
   end;
 
 i:=DBSingleValue('SELECT COUNT(*) FROM Ref INNER JOIN Obj ON Obj.id=Ref.obj1_id WHERE Ref.obj2_id=? AND Obj.rlm_id'+Session.Realms[rpAny].SQL,[id],0);
@@ -186,14 +189,14 @@ if i<>0 then
     <a href="Filter.xxm?filter=rx[[#id]]" class="linkbutton" rel="nofollow">filter...</a>
     <a href="FilterBuild.xxm?x=rx&amp;id=[[#id]]" class="linkbutton" rel="nofollow">build...</a>
     <a href="FrameTrace.xxm?id=[[#id]]" class="linkbutton" target="TreeFrame" rel="nofollow">trace...</a>
-	[[
+    [[
    end
   else
    begin
     ]]
     <a href="Filter.xxm?filter=rx[[#id]]" class="linkbutton" rel="nofollow">filter...</a>
     <a href="FilterBuild.xxm?x=rx&amp;id=[[#id]]" class="linkbutton" rel="nofollow">build...</a>
-	[[
+    [[
    end;
   <</p></span>>
  end;

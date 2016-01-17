@@ -18,11 +18,11 @@ try
   while qr.Read do
    begin
     s:=qr.GetStr('system');
-	if (s<>'') and (s[1]=':') then
-	  toks:=toks+'<a href="Log.xxm?filter=tt'+IntToStr(qr.GetInt('id'))+'*" title="'+
-	    qr.GetStr('name')+'"><img src="img/cat_'+Copy(s,2,Length(s)-1)+'.png" width="54" height="16" alt="'+
-		qr.GetStr('name')+'"'+globalIconAlign+'/></a>'#13#10
-	else
+    if (s<>'') and (s[1]=':') then
+      toks:=toks+'<a href="Log.xxm?filter=tt'+IntToStr(qr.GetInt('id'))+'*" title="'+
+        qr.GetStr('name')+'"><img src="img/cat_'+Copy(s,2,Length(s)-1)+'.png" width="54" height="16" alt="'+
+        qr.GetStr('name')+'"'+globalIconAlign+'/></a>'#13#10
+    else
       toks:=toks+txImg(qr.GetInt('icon'),qr.GetStr('name'))+#13#10;
    end;
 finally
@@ -40,7 +40,7 @@ qr:=TSQLiteStatement.Create(Session.DbCon,
   ' ORDER BY Ref.weight, Obj.weight',[id]);
 try
   while qr.Read do refs:=refs+'<a href="&1'+IntToStr(qr.GetInt('obj2_id'))+'&2" title="'+HTMLEncode(qr['typename'])+' '+HTMLEncode(qr['name'])+'">'+
-	txImg(qr.GetInt('icon'))+txImg(qr.GetInt('objicon'))+'</a>'#13#10;
+    txImg(qr.GetInt('icon'))+txImg(qr.GetInt('objicon'))+'</a>'#13#10;
 finally
   qr.Free;
 end;

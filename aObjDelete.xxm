@@ -15,7 +15,7 @@ try
 finally
   qr.Free;
 end;
-Session.HasRealmPermission(rpEdit,RlmID);
+Session.HasRealmPermission(id,RlmID,rpEdit);
 
 Session.DeleteID:=id;//pass to client-side script to update tree
 Session.RemoveFilterRecent(itObj,id);
@@ -27,105 +27,105 @@ if Context['full'].AsInteger=1 then
   Session.DbCon.Execute('BEGIN TRANSACTION');
   try
 
-  //tokens
-  i:=Context['tokens'].AsInteger;
-  if i<>0 then
-   begin
-    if i=1 then
-	  nid:=Context['movechto'].AsInteger
-	else
-	  nid:=Context['movetokto'].AsInteger;
-    if nid=0 then raise Exception.Create('Object to move tokens to required.');
-    Session.HasRealmPermission(rpEdit,
-      DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],Session.RealmNew));
-    Session.AddFilterRecent(itObj,nid);
-    Session.DbCon.Execute('UPDATE Tok SET obj_id=? WHERE obj_id=?',[nid,id]);
-   end
-  else
-    Session.DbCon.Execute('DELETE FROM Tok WHERE obj_id=?',[id]);
-  //references
-  i:=Context['refs'].AsInteger;
-  if i<>0 then
-   begin
-    if i=1 then
-	  nid:=Context['movechto'].AsInteger
-	else
-	  nid:=Context['moverefto'].AsInteger;
-    if nid=0 then raise Exception.Create('Object to move references to required.');
-    Session.HasRealmPermission(rpEdit,
-      DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],Session.RealmNew));
-    Session.AddFilterRecent(itObj,nid);
-    Session.DbCon.Execute('UPDATE Ref SET obj1_id=? WHERE obj1_id=?',[nid,id]);
-    Session.DbCon.Execute('UPDATE Ref SET obj2_id=? WHERE obj2_id=?',[nid,id]);
-   end
-  else
-   begin
-    Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['r'+IntToStr(id)]);
-    Session.DbCon.Execute('DELETE FROM Ref WHERE obj1_id=?',[id]);
-    Session.DbCon.Execute('DELETE FROM Ref WHERE obj2_id=?',[id]);
-   end;
+    //tokens
+    i:=Context['tokens'].AsInteger;
+    if i<>0 then
+     begin
+      if i=1 then
+        nid:=Context['movechto'].AsInteger
+      else
+        nid:=Context['movetokto'].AsInteger;
+      if nid=0 then raise Exception.Create('Object to move tokens to required.');
+      Session.HasRealmPermission(nid,
+        DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],Session.RealmNew),rpEdit);
+      Session.AddFilterRecent(itObj,nid);
+      Session.DbCon.Execute('UPDATE Tok SET obj_id=? WHERE obj_id=?',[nid,id]);
+     end
+    else
+      Session.DbCon.Execute('DELETE FROM Tok WHERE obj_id=?',[id]);
+    //references
+    i:=Context['refs'].AsInteger;
+    if i<>0 then
+     begin
+      if i=1 then
+        nid:=Context['movechto'].AsInteger
+      else
+        nid:=Context['moverefto'].AsInteger;
+      if nid=0 then raise Exception.Create('Object to move references to required.');
+      Session.HasRealmPermission(nid,
+        DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],Session.RealmNew),rpEdit);
+      Session.AddFilterRecent(itObj,nid);
+      Session.DbCon.Execute('UPDATE Ref SET obj1_id=? WHERE obj1_id=?',[nid,id]);
+      Session.DbCon.Execute('UPDATE Ref SET obj2_id=? WHERE obj2_id=?',[nid,id]);
+     end
+    else
+     begin
+      Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['r'+IntToStr(id)]);
+      Session.DbCon.Execute('DELETE FROM Ref WHERE obj1_id=?',[id]);
+      Session.DbCon.Execute('DELETE FROM Ref WHERE obj2_id=?',[id]);
+     end;
 
-  //children
-  if Context['children'].AsInteger=1 then
-   begin
-    //move to
-    nid:=Context['movechto'].AsInteger;
-	//if nid=0 then move to root!
-    Session.HasRealmPermission(rpEdit,
-      DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],Session.RealmNew));
-    Session.AddFilterRecent(itObj,nid);
-    Session.DbCon.Execute('UPDATE Obj SET pid=? WHERE pid=?',[nid,id]);
-    Session.DbCon.Execute('UPDATE Flt SET obj_id=? WHERE obj_id=?',[nid,id]);
-    Session.DbCon.Execute('UPDATE Rpt SET obj_id=? WHERE obj_id=?',[nid,id]);
-	if Use_ObjTokRefCache then Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id]=?',[id]);
-	if Use_ObjPath then
-	 begin
-	  Session.DbCon.Execute('DELETE FROM ObjPath WHERE pid=? AND oid IN (SELECT Y.oid FROM ObjPath X INNER JOIN ObjPath Y on Y.oid=X.oid AND Y.pid=? WHERE X.pid=?)',[nid,nid,id]);
-	  Session.DbCon.Execute('DELETE FROM ObjPath WHERE oid=? AND pid IN (SELECT Y.pid FROM ObjPath X INNER JOIN ObjPath Y on Y.pid=X.pid AND Y.oid=? WHERE X.oid=?)',[nid,nid,id]);
-	  Session.DbCon.Execute('UPDATE ObjPath SET pid=? WHERE pid=?',[nid,id]);
-	  Session.DbCon.Execute('UPDATE ObjPath SET oid=? WHERE oid=?',[nid,id]);
-	 end;
-	Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['i'+IntToStr(id)]);
-    Session.DbCon.Execute('DELETE FROM Obj WHERE id=?',[id]);
-	pid:=nid;//see forward below
-   end
-  else
-   begin
-    //delete cascaded
-    ids:=TIdList.Create;
-    try
-      ids.Add(id);
-      i:=0;
-      while i<ids.Count do
+    //children
+    if Context['children'].AsInteger=1 then
+     begin
+      //move to
+      nid:=Context['movechto'].AsInteger;
+      //if nid=0 then move to root!
+      Session.HasRealmPermission(nid,
+        DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],Session.RealmNew),rpEdit);
+      Session.AddFilterRecent(itObj,nid);
+      Session.DbCon.Execute('UPDATE Obj SET pid=? WHERE pid=?',[nid,id]);
+      Session.DbCon.Execute('UPDATE Flt SET obj_id=? WHERE obj_id=?',[nid,id]);
+      Session.DbCon.Execute('UPDATE Rpt SET obj_id=? WHERE obj_id=?',[nid,id]);
+      if Use_ObjTokRefCache then Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id]=?',[id]);
+      if Use_ObjPath then
        begin
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(ids[i]));
-        try
-          while qr.Read do ids.Add(qr.GetInt(0));
-        finally
-          qr.Free;
-        end;
-        inc(i);
+        Session.DbCon.Execute('DELETE FROM ObjPath WHERE pid=? AND oid IN (SELECT Y.oid FROM ObjPath X INNER JOIN ObjPath Y on Y.oid=X.oid AND Y.pid=? WHERE X.pid=?)',[nid,nid,id]);
+        Session.DbCon.Execute('DELETE FROM ObjPath WHERE oid=? AND pid IN (SELECT Y.pid FROM ObjPath X INNER JOIN ObjPath Y on Y.pid=X.pid AND Y.oid=? WHERE X.oid=?)',[nid,nid,id]);
+        Session.DbCon.Execute('UPDATE ObjPath SET pid=? WHERE pid=?',[nid,id]);
+        Session.DbCon.Execute('UPDATE ObjPath SET oid=? WHERE oid=?',[nid,id]);
        end;
+      Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['i'+IntToStr(id)]);
+      Session.DbCon.Execute('DELETE FROM Obj WHERE id=?',[id]);
+      pid:=nid;//see forward below
+     end
+    else
+     begin
+      //delete cascaded
+      ids:=TIdList.Create;
+      try
+        ids.Add(id);
+        i:=0;
+        while i<ids.Count do
+         begin
+          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(ids[i]));
+          try
+            while qr.Read do ids.Add(qr.GetInt(0));
+          finally
+            qr.Free;
+          end;
+          inc(i);
+         end;
 
-      for i:=ids.Count-1 downto 0 do
-       begin
-        id:=ids[i];
-        Session.DbCon.Execute('DELETE FROM Tok WHERE obj_id=?',[id]);
-        Session.DbCon.Execute('DELETE FROM Ref WHERE obj1_id=?',[id]);
-        Session.DbCon.Execute('DELETE FROM Ref WHERE obj2_id=?',[id]);
-        Session.DbCon.Execute('DELETE FROM Flt WHERE obj_id=?',[id]);
-		Session.DbCon.Execute('DELETE FROM Trl WHERE source IN (SELECT ''rp''||id FROM Rpt WHERE obj_id=?)',[id]);
-        Session.DbCon.Execute('DELETE FROM Rpt WHERE obj_id=?',[id]);
-		Session.DbCon.Execute('DELETE FROM Trm WHERE Trm.obj_id=?',[id]);
-		Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['i'+IntToStr(id)]);
-		if Use_ObjTokRefCache then Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id]=?',[id]);
-		if Use_ObjPath then Session.DbCon.Execute('DELETE FROM ObjPath WHERE pid=? OR oid=?',[id,id]);
-        Session.DbCon.Execute('DELETE FROM Obj WHERE id=?',[id]);
-       end;
-    finally
-      ids.Free;
-    end;
-   end;
+        for i:=ids.Count-1 downto 0 do
+         begin
+          id:=ids[i];
+          Session.DbCon.Execute('DELETE FROM Tok WHERE obj_id=?',[id]);
+          Session.DbCon.Execute('DELETE FROM Ref WHERE obj1_id=?',[id]);
+          Session.DbCon.Execute('DELETE FROM Ref WHERE obj2_id=?',[id]);
+          Session.DbCon.Execute('DELETE FROM Flt WHERE obj_id=?',[id]);
+          Session.DbCon.Execute('DELETE FROM Trl WHERE source IN (SELECT ''rp''||id FROM Rpt WHERE obj_id=?)',[id]);
+          Session.DbCon.Execute('DELETE FROM Rpt WHERE obj_id=?',[id]);
+          Session.DbCon.Execute('DELETE FROM Trm WHERE Trm.obj_id=?',[id]);
+          Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['i'+IntToStr(id)]);
+          if Use_ObjTokRefCache then Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id]=?',[id]);
+          if Use_ObjPath then Session.DbCon.Execute('DELETE FROM ObjPath WHERE pid=? OR oid=?',[id,id]);
+          Session.DbCon.Execute('DELETE FROM Obj WHERE id=?',[id]);
+         end;
+      finally
+        ids.Free;
+      end;
+     end;
 
     Session.DbCon.Execute('COMMIT TRANSACTION');
   except
@@ -139,12 +139,12 @@ else
   RlmID:=0;
   qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Rlm.id FROM Rlm WHERE Rlm.system LIKE ''deleted''',[]);
   try
-	if qr.Read then RlmID:=qr.GetInt('id');
+    if qr.Read then RlmID:=qr.GetInt('id');
   finally
     qr.Free;
   end;
-  //assert(not(RlmID=0
-  Session.HasRealmPermission(rpEdit,RlmID);
+  //assert(RlmID<>0
+  Session.HasRealmPermission(0,RlmID,rpEdit);
 
   Session.DbCon.Execute('BEGIN TRANSACTION');
   try

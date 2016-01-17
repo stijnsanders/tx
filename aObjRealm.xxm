@@ -87,7 +87,7 @@ try
 
   if not(Session.IsAdmin('realms')) then
     for i:=0 to RlmIDs.Count-1 do
-      Session.HasRealmPermission(rpEdit,RlmIDs[i]);
+      Session.HasRealmPermission(ItemID,RlmIDs[i],rpEdit);//TODO: keep 'top' id per realm? (or first?)
 
   Session.DbCon.Execute('BEGIN TRANSACTION');
   try

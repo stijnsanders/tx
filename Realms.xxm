@@ -1,7 +1,7 @@
 [[@txDefs,SQLiteData,txSession,txTerms,]][[!var
   IsAdmin,InView,InControl:boolean;
   qr:TSQLiteStatement;
-  s,USelf:string;
+  s,t,USelf:string;
   i,id:integer;
 const
   ImgSuffix:array[boolean] of string=('0','1');
@@ -68,13 +68,13 @@ try
 
     InView:=true;
     try
-      Session.HasRealmPermission(rpView,id);
+      Session.HasRealmPermission(0,id,rpView);
     except
       on ERealmNotEditableByUser do InView:=false;
     end;
     InControl:=true;
     try
-      Session.HasRealmPermission(rpEdit,id);
+      Session.HasRealmPermission(0,id,rpEdit);
     except
       on ERealmNotEditableByUser do InControl:=false;
     end;
@@ -117,18 +117,20 @@ try
     s:=qr.GetStr('view_expression');
     if s='' then Context.SendHTML('&ndash;') else
      begin
+      t:='?filter='+URLEncode(s);
       <<span class="litref">>=s<</span><br />
-      <a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
-      <a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>>
+      <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
+      <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
      end;
     <</td>
     <td style="white-space:nowrap;">>
     s:=qr.GetStr('edit_expression');
     if s='' then Context.SendHTML('&ndash;') else
      begin
+      t:='?filter='+URLEncode(s);
       <<span class="litref">>=s<</span><br />
-      <a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
-      <a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>>
+      <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
+      <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
      end;
     <</td>>
     if Use_ObjPath then
@@ -137,9 +139,10 @@ try
         s:=qr.GetStr('limit_expression');
         if s='' then Context.SendHTML('&ndash;') else
          begin
+          t:='?filter='+URLEncode(s);
           <<span class="litref">>=s<</span><br />
-          <a href="Filter.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">filter</a>
-          <a href="FilterBuild.xxm?filter=[[=URLEncode(s)]]" class="linkbutton">build</a>>
+          <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
+          <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
          end;
       <</td>>
      end;
@@ -150,7 +153,7 @@ try
   id:=0;
   InView:=true;
   try
-    Session.HasRealmPermission(rpView,id);
+    Session.HasRealmPermission(0,id,rpView);
   except
     on ERealmNotEditableByUser do InView:=false;
   end;

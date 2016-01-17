@@ -43,8 +43,9 @@ type
     Realms:array[TtxRealmPermission] of record
       Ids:array of integer;
       Count,Size:integer;
-      SQL,SQLExtra:string;
+      SQL:string;
     end;
+    RealmsSQLExtra:string;
     FilterRecent:array[itObj..itRefType,0..FilterRecentCount-1] of integer;
     FilterCache:TStringList;
     FooterDisplay,RevertFooterDisplay:string;
@@ -66,7 +67,7 @@ type
     procedure LoadRealmPermissions;
     procedure BuildRealmPermissionsSQL;
     procedure SetViewRealm(AddRemove:boolean;RealmID:integer);//used by Realm.xxm only!
-    procedure HasRealmPermission(RealmPerm:TtxRealmPermission;RealmID:integer);
+    procedure HasRealmPermission(ObjID,RealmID:integer;RealmPerm:TtxRealmPermission);
     function IsAdmin(const Key:string):boolean;
     procedure AddFilterRecent(ItemType:TtxItemType;id:integer);
     procedure RemoveFilterRecent(ItemType:TtxItemType;id:integer);
@@ -284,9 +285,9 @@ begin
    begin
     Count:=0;
     Size:=0;
-    SQL:='=0';//'safe' defaults
-    SQLExtra:='';
+    SQL:=' = (NULL)';//'safe' defaults
    end;
+  RealmsSQLExtra:='';
   //LoadRealmPermissions called later (see LoadUser)
 end;
 
@@ -375,8 +376,8 @@ begin
     Count:=0;
     Ids[Grow(rp)]:=0;//TODO: setting default realm?
     SQL:='';
-    SQLExtra:='';
    end;
+  RealmsSQLExtra:='';
   fcl:=0;
   SetLength(fc,fcl);
   //rpView, rpEdit only, rpAny, rpBoth: see BuildRealmPermissionsSQL
@@ -445,7 +446,7 @@ begin
               s:='';
               while qr1.Read do s:=s+IntToStr(qr1['id'])+',';
               s[Length(s)]:=')';
-              Realms[rpView].SQLExtra:=' AND (Obj.rlm_id<>'+IntToStr(rid)+' OR EXISTS (SELECT lvl FROM ObjPath WHERE ObjPath.oid=Obj.id AND ObjPath.pid IN ('+s+'))';
+              RealmsSQLExtra:=' AND (Obj.rlm_id<>'+IntToStr(rid)+' OR EXISTS (SELECT lvl FROM ObjPath WHERE ObjPath.oid=Obj.id AND ObjPath.pid IN ('+s+'))';
              end;
           finally
             qr1.Free;
@@ -500,21 +501,34 @@ begin
       for i:=0 to Count-1 do SQL:=SQL+IntToStr(Ids[i])+',';
       SQL[Length(SQL)]:=')';
      end;
-    SQL:=SQL+SQLExtra;
+    SQL:=SQL+RealmsSQLExtra;
    end;
 end;
 
-procedure TtxSession.HasRealmPermission(RealmPerm:TtxRealmPermission;RealmID:integer);
+procedure TtxSession.HasRealmPermission(ObjID,RealmID:integer;RealmPerm:TtxRealmPermission);
 var
   i:integer;
+  qr:TSQLiteStatement;
 begin
   if FRealmsCounter<>RealmsCounter then LoadRealmPermissions;
+  //assert RealmID=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ObjID],0), got by any previous query
   with Realms[RealmPerm] do
    begin
     i:=0;
     while (i<Count) and (Ids[i]<>RealmID) do inc(i);
     if not(i<Count) then
       raise ERealmNotEditableByUser.CreateFmt('You''re not allowed to control this realm. %d',[RealmID]);
+    //else
+    if (RealmsSQLExtra<>'') then //and (ObjID<>0) then
+     begin
+      qr:=TSQLiteStatement.Create(DbCon,'SELECT id FROM Obj WHERE id=?'+RealmsSQLExtra,[ObjID]);
+      try
+        if qr.EOF then
+          raise ERealmNotEditableByUser.CreateFmt('Your control is limited in this realm. %d',[RealmID]);
+      finally
+        qr.Free;
+      end;
+     end;
    end;
 end;
 

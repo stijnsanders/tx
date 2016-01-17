@@ -16,7 +16,7 @@ finally
 end;
 
 //check edit permission in default realm
-Session.HasRealmPermission(rpEdit,0);
+Session.HasRealmPermission(0,0,rpEdit);
 
 //TODO: check reference's object's realm
 
@@ -28,81 +28,81 @@ Session.DeleteID:=id;//pass to client-side script to update tree
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
 
-ids:=TIdList.Create;
-try
-  ids.Add(id);
+  ids:=TIdList.Create;
+  try
+    ids.Add(id);
 
-  //children
-  if Context['children'].AsInteger=1 then
-   begin
-    //move to
-    nid:=Context['movechto'].AsInteger;
-    if nid=0 then raise Exception.Create('Reference type to move children to required.');
-    Session.AddFilterRecent(itRefType,nid);
-	Session.DbCon.Execute('UPDATE RefType SET pid=? WHERE pid=?',[nid,id]);
-   end
-  else
-   begin
-    //cascaded
-      i:=0;
-      while i<ids.Count do
+    //children
+    if Context['children'].AsInteger=1 then
+     begin
+      //move to
+      nid:=Context['movechto'].AsInteger;
+      if nid=0 then raise Exception.Create('Reference type to move children to required.');
+      Session.AddFilterRecent(itRefType,nid);
+      Session.DbCon.Execute('UPDATE RefType SET pid=? WHERE pid=?',[nid,id]);
+     end
+    else
+     begin
+      //cascaded
+        i:=0;
+        while i<ids.Count do
+         begin
+          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT RefType.id FROM RefType WHERE RefType.pid='+IntToStr(ids[i]));
+          try
+            while qr.Read do ids.Add(qr.GetInt(0));
+          finally
+            qr.Free;
+          end;
+          inc(i);
+         end;
+     end;
+
+     //references
+    if Context['refs'].AsInteger=1 then
+     begin
+      nid:=Context['moverefto'].AsInteger;
+      if nid=0 then raise Exception.Create('Reference type to change references to required.');
+      Session.AddFilterRecent(itRefType,nid);
+      for i:=0 to ids.Count-1 do
        begin
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT RefType.id FROM RefType WHERE RefType.pid='+IntToStr(ids[i]));
-        try
-          while qr.Read do ids.Add(qr.GetInt(0));
-        finally
-          qr.Free;
-        end;
-        inc(i);
+        id:=ids[i];
+        //TODO: update weight!
+        w:=-weight+DBSingleValue('SELECT weight FROM RefType WHERE id=?',[nid],0);
+        if w<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id IN (SELECT obj1_id FROM Ref WHERE reftype_id=?)',[w,id]);
+        if Use_ObjTokRefCache then //TODO: re-create entries? see MaintObjTokRefCache.xxm
+          Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj1_id] FROM Ref WHERE reftype_id=?)',[id]);
+        Session.DbCon.Execute('UPDATE Ref SET reftype_id=? WHERE reftype_id=?',[nid,id]);
+        Session.DbCon.Execute('UPDATE Rpt SET reftype_id=? WHERE reftype_id=?',[nid,id]);
        end;
-   end;
+     end
+    else
+      for i:=0 to ids.Count-1 do
+       begin
+        id:=ids[i];
+        if weight<>0 then Session.DbCon.Execute('Update_RefTypeWeight2',[-weight,id]);
+        if Use_ObjTokRefCache then //TODO: re-create entries? see MaintObjTokRefCache.xxm
+          Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj1_id] FROM Ref WHERE reftype_id=?)',[id]);
+        Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['r'+IntToStr(id)]);
+        Session.DbCon.Execute('DELETE FROM Ref WHERE reftype_id=?',[id]);
+        Session.DbCon.Execute('DELETE FROM Trl WHERE source IN (SELECT ''rp''||id FROM Rpt WHERE reftype_id=?)',[id]);
+        Session.DbCon.Execute('DELETE FROM Rpt WHERE reftype_id=?',[id]);
+       end;
 
-   //references
-  if Context['refs'].AsInteger=1 then
-   begin
-	nid:=Context['moverefto'].AsInteger;
-	if nid=0 then raise Exception.Create('Reference type to change references to required.');
-	Session.AddFilterRecent(itRefType,nid);
-	for i:=0 to ids.Count-1 do
-	 begin
-	  id:=ids[i];
-	  //TODO: update weight!
-	  w:=-weight+DBSingleValue('SELECT weight FROM RefType WHERE id=?',[nid],0);
-	  if w<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id IN (SELECT obj1_id FROM Ref WHERE reftype_id=?)',[w,id]);
-	  if Use_ObjTokRefCache then //TODO: re-create entries? see MaintObjTokRefCache.xxm
-	    Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj1_id] FROM Ref WHERE reftype_id=?)',[id]);
-	  Session.DbCon.Execute('UPDATE Ref SET reftype_id=? WHERE reftype_id=?',[nid,id]);
-	  Session.DbCon.Execute('UPDATE Rpt SET reftype_id=? WHERE reftype_id=?',[nid,id]);
-	 end;
-   end
-  else
-	for i:=0 to ids.Count-1 do
-	 begin
-	  id:=ids[i];
-	  if weight<>0 then Session.DbCon.Execute('Update_RefTypeWeight2',[-weight,id]);
-	  if Use_ObjTokRefCache then //TODO: re-create entries? see MaintObjTokRefCache.xxm
-	    Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj1_id] FROM Ref WHERE reftype_id=?)',[id]);
-	  Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['r'+IntToStr(id)]);
-	  Session.DbCon.Execute('DELETE FROM Ref WHERE reftype_id=?',[id]);
-	  Session.DbCon.Execute('DELETE FROM Trl WHERE source IN (SELECT ''rp''||id FROM Rpt WHERE reftype_id=?)',[id]);
-	  Session.DbCon.Execute('DELETE FROM Rpt WHERE reftype_id=?',[id]);
-	 end;
+    for i:=ids.Count-1 downto 0 do
+     begin
+      id:=ids[i];
+      //Delete_RefByRefTypeID: see above
+      Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['rt'+IntToStr(id)]);
+      Session.DbCon.Execute('DELETE FROM RefType WHERE id=?',[id]);
+     end;
+  finally
+    ids.Free;
+  end;
 
-  for i:=ids.Count-1 downto 0 do
-   begin
-	id:=ids[i];
-	//Delete_RefByRefTypeID: see above
-	Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['rt'+IntToStr(id)]);
-	Session.DbCon.Execute('DELETE FROM RefType WHERE id=?',[id]);
-   end;
-finally
-  ids.Free;
-end;
-
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.Execute('COMMIT TRANSACTION');
 except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
-    raise;
+  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  raise;
 end;
 
 

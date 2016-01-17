@@ -23,7 +23,7 @@ CheckFormProtect(Context);
 
 //check realm
 RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[pids[0]],Session.RealmNew);
-Session.HasRealmPermission(rpEdit,RlmID);
+Session.HasRealmPermission(pids[0],RlmID,rpEdit);
 
 //quick add tokens, list first, get weight-delta from token types
   x:=Context['addtokenCount'].AsInteger;

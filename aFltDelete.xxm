@@ -15,12 +15,20 @@ finally
   qr.Free;
 end;
 
-Session.HasRealmPermission(rpEdit,
-  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew));
+Session.HasRealmPermission(objid,
+  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew),rpEdit);
 
-Session.DbCon.Execute('DELETE FROM Flg WHERE flt_id=?',[id]);
-Session.DbCon.Execute('DELETE FROM Flt WHERE id=?',[id]);
-//Todo: flg?!
+Session.DbCon.Execute('BEGIN TRANSACTION');
+try
+  
+  Session.DbCon.Execute('DELETE FROM Flg WHERE flt_id=?',[id]);
+  Session.DbCon.Execute('DELETE FROM Flt WHERE id=?',[id]);
+
+  Session.DbCon.Execute('COMMIT TRANSACTION');
+except
+  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  raise;
+end;
 
 //url:='Item.xxm?x=i'+IntToStr(objid);
 url:='FilterBuild.xxm?filter='+URLEncode(filter);

@@ -29,9 +29,9 @@ if ItemType<>itObj then raise Exception.Create('MoveRef not allowed on non-Obj')
 
 //check realm
 RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ItemID],0);
-Session.HasRealmPermission(rpEdit,RlmID);
+Session.HasRealmPermission(ItemID,RlmID,rpEdit);
 if newPid=0 then RlmID:=0 else RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[newPid],0);
-Session.HasRealmPermission(rpEdit,RlmID);
+Session.HasRealmPermission(newPid,RlmID,rpEdit);
 //TODO: else RealmPermission(rpEdit,0)?
 
 //realm on obj2 also?

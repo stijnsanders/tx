@@ -24,13 +24,13 @@ ID:=string(Values[2]);
             qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[StrToInt(ID)]);
             try
               if qr.Read then
-			   begin
+               begin
                 <<a href="Item.xxm?x=i[[.id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
-			   end
+               end
               else
-			   begin
-			    ]][[#txImg(-1)]]&nbsp;<i>?[[=txItemTypeName[ItemType]]]?[[=ID<</i>>
-			   end;
+               begin
+                ]][[#txImg(-1)]]&nbsp;<i>?[[=txItemTypeName[ItemType]]]?[[=ID<</i>>
+               end;
             finally
               qr.Free;
             end;
@@ -40,7 +40,7 @@ ID:=string(Values[2]);
             Context.SendHTML(txImg(-1)+' <i>none</i>')
           else
            begin
-		    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, icon, name FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[StrToInt(ID)]);
+            qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, icon, name FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[StrToInt(ID)]);
             try
                if qr.Read then
                  Context.Include('dTypeLink.xxmi',[ItemType],[qr])
@@ -51,19 +51,19 @@ ID:=string(Values[2]);
             end;
            end;
 
-		//itFilter
+        //itFilter
         itRealm:
           if ID='' then
             Context.SendHTML(' <i style="color:red;">unknown</i>')
           else
-		   begin
+           begin
             InView:=true;
             try
-              Session.HasRealmPermission(rpView,StrToInt(ID));
+              Session.HasRealmPermission(0,StrToInt(ID),rpView);
             except
               on ERealmNotEditableByUser do InView:=false;
             end;
-		    <<img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16"   [[#globalIconAlign]]/>>
+            <<img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16"   [[#globalIconAlign]]/>>
             if (ID='') or (ID='0') then
               Context.SendHTML(' <i>default realm</i>')
             else
@@ -78,7 +78,7 @@ ID:=string(Values[2]);
                 qr.Free;
               end;
              end;
-		   end;
+           end;
 
         it_Unknown:
          begin
@@ -99,15 +99,15 @@ ID:=string(Values[2]);
     dtSubQuery:
      begin
       <<i>by sub-query</i> <span class="litref">>=ID<</span>
-	  <a href="Filter.xxm?filter=[[=URLEncode(ID)]]" class="linkbutton">filter</a>
-	  <a href="FilterBuild.xxm?filter=[[=URLEncode(ID)]]" class="linkbutton">build</a>
-	  [[
+      <a href="Filter.xxm?filter=[[=URLEncode(ID)]]" class="linkbutton">filter</a>
+      <a href="FilterBuild.xxm?filter=[[=URLEncode(ID)]]" class="linkbutton">build</a>
+      [[
       //TODO: link to FilterBuild? (and update link back?)
      end;
-	dtEnvironment:
-	 begin
-	  <<span class="sysref">>=ID<</span>>
-	 end;
+    dtEnvironment:
+     begin
+      <<span class="sysref">>=ID<</span>>
+     end;
   end;
 
 ]]
