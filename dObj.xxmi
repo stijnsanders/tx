@@ -7,8 +7,6 @@ url,s:string;
 qr:=Objects[0] as TSQLiteStatement;
 id:=qr.GetInt('id');
 
-Session.HasRealmPermission(id,qr.GetInt('rlm_id'),rpView);
-
 ShowControls:=(Length(Values)<2) or boolean(Values[1]);
 InControl:=ShowControls;
 try
@@ -16,6 +14,9 @@ try
 except
   on ERealmNotEditableByUser do InControl:=false;
 end;
+if not InControl then
+  Session.HasRealmPermission(id,qr.GetInt('rlm_id'),rpView);cmd
+
 d:=Values[0];
 Context.Include('dObjLocation.xxmi',[true],[qr]);
 <<p class="objecttitle" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[#TermStore.TermLinks(itObj,id,d,HTMLEncode(qr.GetStr('name')))<</p>>
