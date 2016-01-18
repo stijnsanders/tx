@@ -15,7 +15,7 @@ except
   on ERealmNotEditableByUser do InControl:=false;
 end;
 if not InControl then
-  Session.HasRealmPermission(id,qr.GetInt('rlm_id'),rpView);cmd
+  Session.HasRealmPermission(id,qr.GetInt('rlm_id'),rpView);
 
 d:=Values[0];
 Context.Include('dObjLocation.xxmi',[true],[qr]);
