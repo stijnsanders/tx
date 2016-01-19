@@ -82,6 +82,8 @@ const
   txFormButton='<input type="submit" value="Apply" id="formsubmitbutton" class="formsubmitbutton" />';
   lblLoading='<i style="color:#CC3300;"><img src="loading.gif" width="16" height="16" alt="" '+globalIconAlign+'/> Loading...</i>';
 
+  EmailCheckRegEx='^[-_\.a-z0-9]+?@[-\.a-z0-9]+?\.[a-z][a-z]+$';//TODO: unicode?
+
 procedure txItem(const Key:string;var ItemType:TtxItemType;var ItemID:integer);
 function txImg(IconNr:integer; const Desc:string=''):string;
 function txForm(const Action:string; const HVals:array of OleVariant;const OnSubmitEval:string=''):string; overload;

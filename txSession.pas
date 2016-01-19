@@ -16,6 +16,7 @@ const
 var
   //see LoadProjectSettings
   AdministratorEmailAddress: string;
+  UseNTAuth: boolean;
 
 type
   TtxRealmPermission=(rpView,rpEdit,rpAny,rpBoth);
@@ -28,7 +29,7 @@ type
   TtxSession=class(TObject)
   private
     FSessionID,FSessionCrypt:string;
-    FRealmsCounter: integer;
+    FRealmsCounter,FLogonAttemptCount: integer;
     FTerms: TTermStore;
     FIsAnonymous: boolean;
     function Grow(rp:TtxRealmPermission):integer;
@@ -38,7 +39,7 @@ type
     Data:TObject;//used with import for now, maybe more later, then review this
 
     //TODO: properties
-    UserID,RealmNew,UpdateID,DeleteID,RevertUserID:integer;
+    UserID,RealmNew,UpdateID,DeleteID:integer;
     JsLoaded,QryUnread,Stealth:boolean;
     Realms:array[TtxRealmPermission] of record
       Ids:array of integer;
@@ -48,7 +49,7 @@ type
     RealmsSQLExtra:string;
     FilterRecent:array[itObj..itRefType,0..FilterRecentCount-1] of integer;
     FilterCache:TStringList;
-    FooterDisplay,RevertFooterDisplay:string;
+    FooterDisplay:string;
     ViewedLast:array[0..ViewedLastCount-1] of integer;
     CssPrefs:record
       BaseSizePt:integer;
@@ -56,6 +57,8 @@ type
       DemoMode:boolean;
     end;
     CssModSince,JsModSince:string;
+    RevertUserID:integer;
+    RevertFooterDisplay:string;
 
     constructor Create(const SessionID:string);
     destructor Destroy; override;
@@ -73,6 +76,7 @@ type
     procedure RemoveFilterRecent(ItemType:TtxItemType;id:integer);
     procedure AddViewedLast(id:integer);
     procedure RemoveViewedLast(id:integer);
+    procedure LogonAttemptCheck;
     class procedure Abandon;
     class function PermissionByName(const x:string):TtxRealmPermission;
   end;
@@ -131,7 +135,7 @@ begin
     QueryPerformanceFrequency(PageStartTF)) then
    begin
     PageStartTQ:=GetTickCount;
-	  PageStartTF:=0;
+    PageStartTF:=0;
    end;
   sid:=Context.SessionID+'|'+Context.ContextString(csUserAgent);//hash?
   EnterCriticalSection(SessionStoreLock);
@@ -204,6 +208,7 @@ begin
     //relative?
     if (DbFilePath<>'') and not(DbFilePath[2] in [':','\']) then DbFilePath:=ModulePath+DbFilePath;
     AdministratorEmailAddress:=sl.Values['AdministratorEmailAddress'];
+    UseNTAuth:=sl.Values['NTAuth']='1';
   finally
     sl.Free;
   end;
@@ -217,9 +222,9 @@ begin
     Result:=GetTickCount-PageStartTQ
   else
     if QueryPerformanceCounter(x) then
-	    Result:=(x-PageStartTQ)*1000 div PageStartTF
-	else
-	  Result:=9009009;//error?raise?
+      Result:=(x-PageStartTQ)*1000 div PageStartTF
+    else
+      Result:=9009009;//error?raise?
 end;
 
 function TermStore:TTermStore;
@@ -254,6 +259,7 @@ begin
   FSessionID:=SessionID;
   FSessionCrypt:=Copy(SHA1Hash(SessionCryptSalt+FSessionID),7,17);
   FIsAnonymous:=false;
+  FLogonAttemptCount:=0;
   FilterCache:=TStringList.Create;
   Data:=nil;
   FTerms:=nil;
@@ -312,7 +318,7 @@ begin
   EnterCriticalSection(SessionStoreLock);
   try
     SessionStore.Delete(SessionStore.IndexOf(Session.SessionID));
-	Session.Free;
+    Session.Free;
   finally
     LeaveCriticalSection(SessionStoreLock);
   end;
@@ -334,6 +340,7 @@ begin
     AddFilterRecent(itObj,UserID);
    end;
   QryUnread:=Use_Unread and not(FIsAnonymous);
+  FLogonAttemptCount:=0;//reset
   //Stealth:=?
   LoadRealmPermissions;
 end;
@@ -647,6 +654,15 @@ begin
   Result:=(UserID=-1) or DbCon.Execute(
     'SELECT Tok.id FROM Tok LEFT JOIN TokType ON TokType.id=Tok.toktype_id '+
     'WHERE Tok.obj_id=? AND TokType.system=?',[UserID,'auth.'+Key]);
+end;
+
+procedure TtxSession.LogonAttemptCheck;
+var
+  i:integer;
+begin
+  inc(FLogonAttemptCount);
+  i:=FLogonAttemptCount div 3;
+  if i<>0 then Sleep(i*500);//slow down many failed attempts (//TODO: block? log? blacklist?)
 end;
 
 procedure ClearSessionStore;

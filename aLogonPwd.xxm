@@ -5,11 +5,14 @@ sc:TStringContext;
 s:string;
 ]][[
 
+Session.LogonAttemptCheck;
 id:=Context['id'].AsInteger;
 id1:=0;
 if id=0 then
  begin
   qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.email=?',[Context['email'].Value]);
+  if qr.GetStr('auth')='anonymous' then
+    raise Exception.Create('Resetting password on anonymous user not allowed');
   s:='New';
  end
 else

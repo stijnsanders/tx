@@ -16,7 +16,7 @@ Context.Include('dHead.xxmi',['Account']);
   <script><!--
   function email1Check(x)
   {
-    if(new RegExp("^[a-z\.0-9_]+?@[a-z0-9]+?\.[a-z]{2,4}$","i").test(x))
+    if(new RegExp("[[#EmailCheckRegEx]]","i").test(x))
       $("#email1Check").html('<span style="background-color:#00CC00;padding:0.2em;">ok</span>');
     else
       $("#email1Check").html('<span style="background-color:#CC0000;color:#FFCC00;padding:0.2em;">not an e-mail address?</span>');

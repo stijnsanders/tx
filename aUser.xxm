@@ -15,6 +15,7 @@ if not(IsAdmin) and (uid<>Session.UserID) then
 //TODO: refresh session when uid changes?
 //TODO: if IsAdmin=nil then refuse change uid?
 
+Session.LogonAttemptCheck;
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
     if id=0 then
@@ -24,10 +25,10 @@ try
 	 begin
       Session.DbCon.Execute('UPDATE Usr SET uid=?, login=?, email=?, m_ts=?, m_uid=? WHERE id=?',[
         uid,Context['login'].Value,Context['email'].Value,VNow,Session.UserID,id]);//pwd?
-	  if IsAdmin then 
+	  if IsAdmin then
 	    Session.DbCon.Execute('UPDATE Usr SET auth=? WHERE id=?',[Context['auth'].Value,id]);
 	 end;
-		
+
     Session.DbCon.Execute('COMMIT TRANSACTION');
 except
     Session.DbCon.Execute('ROLLBACK TRANSACTION');
