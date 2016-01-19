@@ -42,8 +42,10 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
     |
     <a href="fObj.xxm?id=[[=id]]" class="linkbutton" rel="nofollow">edit</a>
     <a href="fMove.xxm?x=i[[=id]]" class="linkbutton" rel="nofollow">move</a>
-    <a href="fObjRealm.xxm?x=i[[=id]]" class="linkbutton" rel="nofollow">realm #[[.rlm_id<</a>
-    [[if Use_Unread then begin <<a href="aUnread.xxm?id=[[=id]][[#txCallProtect]]" class="linkbutton" rel="nofollow">mark unread</a>> end;]]
+    [[if Session.Realms[rpEdit].Count>1 then
+      begin <<a href="fObjRealm.xxm?x=i[[=id]]" class="linkbutton" rel="nofollow">realm #[[.rlm_id<</a>> end;]]
+    [[if Use_Unread then
+      begin <<a href="aUnread.xxm?id=[[=id]][[#txCallProtect]]" class="linkbutton" rel="nofollow">mark unread</a>> end;]]
     |
     <a href="fDelete.xxm?x=i[[=id]]" class="linkbutton" rel="nofollow">delete</a>
     </p>>
