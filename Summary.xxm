@@ -697,7 +697,9 @@ const
             if (tokref in [4,5]) and Context.Connected then
              begin
               //tokens, full
-              qrTok:=TSQLiteStatement.Create(Session.DbCon,'SELECT TokType.icon FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
+              qrTok:=TSQLiteStatement.Create(Session.DbCon,'SELECT TokType.icon, TokType.name, Tok.desc, Tok.c_ts, Tok.m_ts, Tok.Weight '+
+                'FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
+                'WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
               try
                 while qrTok.Read and Context.Connected do
                  begin
@@ -730,7 +732,8 @@ const
              begin
               //references, full
               qrRef:=TSQLiteStatement.Create(Session.DbCon,
-                'SELECT RefType.icon, ObjType.icon AS objicon FROM Ref '+
+                'SELECT RefType.icon, RefType.name as typename, ObjType.icon AS objicon, Obj.name, Ref.desc, Ref.c_ts, Ref.m_ts, Ref.weight '+
+                'FROM Ref '+
                 'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
                 'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+
                 'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
