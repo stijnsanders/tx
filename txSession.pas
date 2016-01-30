@@ -526,7 +526,7 @@ begin
     if not(i<Count) then
       raise ERealmNotEditableByUser.CreateFmt('You''re not allowed to control this realm. %d',[RealmID]);
     //else
-    if (RealmsSQLExtra<>'') then //and (ObjID<>0) then
+    if (RealmsSQLExtra<>'') and (ObjID<>0) then
      begin
       qr:=TSQLiteStatement.Create(DbCon,'SELECT id FROM Obj WHERE id=?'+RealmsSQLExtra,[ObjID]);
       try
