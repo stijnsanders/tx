@@ -21,6 +21,7 @@ type
     procedure VerticalIncrement;
     procedure AddFilter(q:TSQLiteStatement;clr:integer);
     procedure AddFilterLegend(name:string;clr:integer);
+    function Unique:cardinal;
   end;
 
 implementation
@@ -272,6 +273,11 @@ begin
     end;
     inc(FLegendY,LegendSize+LegendMarginY);
    end;
+end;
+
+function TFilterGraph.Unique:cardinal;
+begin
+  Result:=GetTickCount;//Random?
 end;
 
 initialization
