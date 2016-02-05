@@ -1,12 +1,16 @@
 [[@txDefs,SQLiteData,txSession,Classes,]][[!var
-id,pid,pidx,i,l,sl_i,x,newObjTypeID,newWeight,RlmID:integer;
+id,pid,pidx,i,j,l,sl_i,x,newObjTypeID,newWeight,RlmID:integer;
 pids:array of integer;
-url:string;
+url,s:string;
 name,desc:WideString;
 tokens:array of record
   id,weight:integer;
 end;
+references:array of record
+  reftype,obj2,weight:integer;
+end;
 sl:TStringList;
+par:IXxmParameter;
 ]][[
 
 //TODO: transaction?
@@ -25,20 +29,49 @@ CheckFormProtect(Context);
 RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[pids[0]],Session.RealmNew);
 Session.HasRealmPermission(pids[0],RlmID,rpEdit);
 
-//quick add tokens, list first, get weight-delta from token types
-  x:=Context['addtokenCount'].AsInteger;
-  SetLength(tokens,x);
-  for i:=0 to x-1 do
+//quick add tokref, list first, get weight-delta from types
+//if id=0 then
+ begin
+  SetLength(tokens,FilterRecentCount);
+  par:=Context['addtok'];
+  i:=0;
+  while par<>nil do
    begin
-	tokens[i].id:=Context['addtoken'+IntToStr(i)].AsInteger;
-	if tokens[i].id<>0 then
-	 begin
-	  tokens[i].weight:=DBSingleValue('SELECT weight FROM TokType WHERE id=?',[tokens[i].id],0);
-	  inc(newWeight,tokens[i].weight);
-	 end;
+    s:=par.Value;
+    if s<>'' then
+     begin
+      tokens[i].id:=StrToInt(s);
+      tokens[i].weight:=DBSingleValue('SELECT weight FROM TokType WHERE id=?',[tokens[i].id],0);
+  	  inc(newWeight,tokens[i].weight);
+      inc(i);
+     end;
+    par:=par.NextBySameName;
    end;
+  SetLength(tokens,i);
+  SetLength(references,FilterRecentCount);
+  par:=Context['addref'];
+  i:=0;
+  while par<>nil do
+   begin
+    s:=par.Value;
+    if s<>'' then
+     begin
+      l:=Length(s);
+      j:=1;
+      while (j<=l) and (s[j]<>';') do inc(j);
+      SetLength(references,i+1);
+      references[i].reftype:=StrToInt(Copy(s,1,j-1));
+      references[i].obj2:=StrToInt(Copy(s,j+1,l-j));
+      references[i].weight:=DBSingleValue('SELECT weight FROM RefType WHERE id=?',[references[i].reftype],0);
+      inc(newWeight,references[i].weight);
+      inc(i);
+     end;
+    par:=par.NextBySameName;
+   end;
+  SetLength(references,i);
+ end;
 
-  newWeight:=newWeight+DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[newObjTypeID],0);
+newWeight:=newWeight+DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[newObjTypeID],0);
 
 id:=pids[0];
 desc:='';
@@ -91,15 +124,23 @@ try
   	    Session.DbCon.Execute('INSERT INTO ObjHist (obj_id,rlm_id,ts,uid,name,[desc],weight) VALUES (?,?,?,?,?,?,?)',
   	  	[id,RlmID,VNow,Session.UserID,name,desc,newWeight],i);
 
-  	  //quick add tokens
-  	  for i:=0 to Length(tokens)-1 do
-  	    if tokens[i].id<>0 then
-  	     begin
-  	  	  Session.DbCon.Execute('INSERT INTO Tok (obj_id,toktype_id,[desc],weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',
-  	  	    [id,tokens[i].id,'',tokens[i].weight,VNow,Session.UserID,VNow,Session.UserID]);
-  	  	  Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,toktype_id) VALUES (?,?,?,?,?,?)',
-  	  	    [id,VNow,Session.UserID,'',newWeight,tokens[i].id]);
-  	     end;
+	  //quick add tokens, references
+	  for i:=0 to Length(tokens)-1 do
+	    if tokens[i].id<>0 then
+	     begin
+		  Session.DbCon.Execute('INSERT INTO Tok (obj_id,toktype_id,[desc],weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',
+		    [id,tokens[i].id,'',tokens[i].weight,VNow,Session.UserID,VNow,Session.UserID]);
+		  Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,toktype_id) VALUES (?,?,?,?,?,?)',
+		    [id,VNow,Session.UserID,'',tokens[i].weight,tokens[i].id]);
+	     end;
+      for i:=0 to Length(references)-1 do
+        if references[i].reftype<>0 then
+         begin
+          Session.DbCon.Execute('INSERT INTO Ref (obj1_id,reftype_id,obj2_id,[desc],weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?)',
+            [id,references[i].reftype,references[i].obj2,'',references[i].weight,VNow,Session.UserID,VNow,Session.UserID]);
+          Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,reftype_id,obj2_id) VALUES (?,?,?,?,?,?,?)',
+            [id,VNow,Session.UserID,'',references[i].weight,references[i].reftype,references[i].obj2]);
+         end;
 
   	  if Use_ObjTokRefCache then
   	    Context.Include('aObjTokRefCache.xxmi',[id]);

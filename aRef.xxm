@@ -106,7 +106,7 @@ try
 
         //report
         Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,reftype_id,obj2_id) VALUES (?,?,?,?,?,?,?)',
-          [id,VNow,Session.UserID,desc,newWeight,newRefTypeId,obj2id]);
+          [id,VNow,Session.UserID,desc,newWeight,newRefTypeID,obj2id]);
 
         TermStore.StoreTerms(itRef,rid,id,desc);
         if Use_ObjTokRefCache then Context.Include('aObjTokRefCache.xxmi',[id]);
@@ -121,12 +121,20 @@ try
     end;
 
    end;
-  if filter='' then url:='Item.xxm?x=i'+IntToStr(id) else url:='Modify.xxm?x=99&filter='+URLEncode(filter)+'&c='+IntToStr(ids.Count);
+  if filter='' then
+    case Context['x'].AsInteger of
+      0:url:='Item.xxm?x=i'+IntToStr(id);
+      1:url:='fTok.xxm?id='+IntToStr(id);
+      2:url:='fRef.xxm?id='+IntToStr(id);
+    end
+  else
+    url:='Modify.xxm?x=99&filter='+URLEncode(filter)+'&c='+IntToStr(ids.Count);
 finally
   ids.Free;
 end;
 Session.AddFilterRecent(itObj,obj2id);
 Session.AddFilterRecent(itRefType,newRefTypeID);
+Session.AddRecentReference(newRefTypeID,obj2id);
 Session.UpdateID:=id;
 
 Context.Redirect(url,true);

@@ -1,11 +1,15 @@
 [[@txDefs,SQLiteData,txSession,]][[!var
-id,pid,i,x,oldObjTypeID,newObjTypeID,newWeight,RlmID:integer;
-url:string;
+id,pid,i,j,l,x,oldObjTypeID,newObjTypeID,newWeight,RlmID,addOther:integer;
+s,url:string;
 name,desc:WideString;
 tokens:array of record
   id,weight:integer;
 end;
+references:array of record
+  reftype,obj2,weight:integer;
+end;
 namechanged:boolean;
+par:IXxmParameter;
 ]][[
 
 id:=Context['id'].AsInteger;
@@ -21,26 +25,57 @@ Session.HasRealmPermission(x,RlmID,rpEdit);
 
 name:=Context['name'].Value;
 desc:=Context['desc'].Value;
+addOther:=0;
 
 if id<>0 then Session.UpdateID:=id;
 
-//quick add tokens, list first, get weight-delta from token types
+//quick add tokref, list first, get weight-delta from types
 if id=0 then
  begin
-  x:=Context['addtokenCount'].AsInteger;
-  SetLength(tokens,x);
-  for i:=0 to x-1 do
+  SetLength(tokens,FilterRecentCount);
+  par:=Context['addtok'];
+  i:=0;
+  while par<>nil do //and (i<FilterRecentCount)?
    begin
-    tokens[i].id:=Context['addtoken'+IntToStr(i)].AsInteger;
-	if tokens[i].id<>0 then
-	 begin
-	  tokens[i].weight:=DBSingleValue('SELECT weight FROM TokType WHERE id=?',[tokens[i].id],0);
-	  inc(newWeight,tokens[i].weight);
-	 end;
+    s:=par.Value;
+    if s='new' then addOther:=1 else
+    if s<>'' then
+     begin
+      tokens[i].id:=StrToInt(s);
+      tokens[i].weight:=DBSingleValue('SELECT weight FROM TokType WHERE id=?',[tokens[i].id],0);
+  	  inc(newWeight,tokens[i].weight);
+      inc(i);
+     end;
+    par:=par.NextBySameName;
    end;
+  par:=Context['addref'];
+  SetLength(tokens,i);
+  SetLength(references,FilterRecentCount);
+  i:=0;
+  while par<>nil do
+   begin
+    s:=par.Value;
+    if s='new' then addOther:=2 else
+    if s<>'' then
+     begin
+      l:=Length(s);
+      j:=1;
+      while (j<=l) and (s[j]<>';') do inc(j);
+      references[i].reftype:=StrToInt(Copy(s,1,j-1));
+      references[i].obj2:=StrToInt(Copy(s,j+1,l-j));
+      references[i].weight:=DBSingleValue('SELECT weight FROM RefType WHERE id=?',[references[i].reftype],0);
+      inc(newWeight,references[i].weight);
+      inc(i);
+     end;
+    par:=par.NextBySameName;
+   end;
+  SetLength(references,i);
  end
 else
+ begin
   SetLength(tokens,0);
+  SetLength(references,0);
+ end;
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
@@ -90,15 +125,23 @@ try
 	  Session.DbCon.Execute('INSERT INTO ObjHist (obj_id,rlm_id,ts,uid,name,[desc],weight) VALUES (?,?,?,?,?,?,?)',
 		[id,RlmID,VNow,Session.UserID,name,desc,newWeight],i);
 
-	//quick add tokens
+	//quick add tokens, references
 	for i:=0 to Length(tokens)-1 do
 	  if tokens[i].id<>0 then
 	   begin
 		Session.DbCon.Execute('INSERT INTO Tok (obj_id,toktype_id,[desc],weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',
 		  [id,tokens[i].id,'',tokens[i].weight,VNow,Session.UserID,VNow,Session.UserID]);
 		Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,toktype_id) VALUES (?,?,?,?,?,?)',
-		  [id,VNow,Session.UserID,'',newWeight,tokens[i].id]);
+		  [id,VNow,Session.UserID,'',tokens[i].weight,tokens[i].id]);
 	   end;
+    for i:=0 to Length(references)-1 do
+      if references[i].reftype<>0 then
+       begin
+        Session.DbCon.Execute('INSERT INTO Ref (obj1_id,reftype_id,obj2_id,[desc],weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?)',
+          [id,references[i].reftype,references[i].obj2,'',references[i].weight,VNow,Session.UserID,VNow,Session.UserID]);
+        Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,reftype_id,obj2_id) VALUES (?,?,?,?,?,?,?)',
+          [id,VNow,Session.UserID,'',references[i].weight,references[i].reftype,references[i].obj2]);
+       end;
 
 	if Use_ObjTokRefCache then
 	 begin
@@ -116,9 +159,11 @@ except
     raise;
 end;
 
-if Context['addtokenOther'].AsInteger=1 then
-  url:='fTok.xxm?id='+IntToStr(id)
-else
-  url:='Item.xxm?x=i'+IntToStr(id);
+case addOther of
+  0:url:='Item.xxm?x=i'+IntToStr(id);
+  1:url:='fTok.xxm?id='+IntToStr(id);
+  2:url:='fRef.xxm?id='+IntToStr(id);
+end;
+
 Context.Redirect(url,true);
 <<a href="[[=url]]">>=url<</a>

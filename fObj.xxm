@@ -1,6 +1,6 @@
 [[@txSession,txDefs,SQLiteData,]][[!var
-id,id1,i,pid,bid,ObjTypeID:integer;
-qr,qr1:TSQLiteStatement;
+id,pid,bid,ObjTypeID:integer;
+qr:TSQLiteStatement;
 ]][[
 Context.Include('dHead.xxmi',['Object']);
 id:=Context['id'].AsInteger;
@@ -14,48 +14,15 @@ try
 
 //if editing, get object's type
 ObjTypeID:=qr.GetDefault('objtype_id',ObjTypeID);
-]]
-<h2>Object</h2>
+<<h2>Object</h2>
 [[#txForm('aObj.xxm',['id',id,'pid',pid],'selectnode_required("objtype","an object type")')]]
 [[#txFormProtect]]
 <dl>
 <dt>Name</dt><dd><input type="text" name="name" id="ObjName" value="[[=qr.GetDefault('name','')]]" class="textfield" /></dd>
 <dt>Object type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itObjType,'objtype',ObjTypeID]);]]</dd>
-<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc','')]);]]</dd>
-[[
-if id=0 then
- begin
-  ]]
-  <dt>Quick add tokens</dt>
-  <dd>[[
-  i:=0;
-  while (i<FilterRecentCount) and not(Session.FilterRecent[itTokType,i]=0) do
-   begin
-    qr1:=TSQLiteStatement.Create(Session.DbCon,
-	  'SELECT TokType.id, TokType.pid, TokType.[name], TokType.[icon], TokType.[system], TokType.[weight], TokType.dft, TokType.c_uid, TokType.c_ts, TokType.m_uid, TokType.m_ts '+
-      'FROM TokType WHERE TokType.id=?',[Session.FilterRecent[itTokType,i]]);
-	try
-	  if not(qr1.EOF) then
-	   begin
-	    id1:=qr1.GetInt('id');
-        ]]
-		<input type="hidden" id="addtoken[[=i]]" name="addtoken[[=i]]" value="" />
-		<a class="quickaddoption" id="quickadd[[=i]]" href="Item.xxm?x=ot[[=id1]]" onclick="quickadd_select([[=i]],[[=id1]]);return(event||window.event||this).ctrlKey;">>#txImg(qr1.GetInt('icon'))<<span class="quickaddtitle"> [[,name]]</span></a>
-	    [[
-	   end;
-	finally
-	  qr1.Free;
-	end;
-    inc(i);
-   end;
-  ]]
-  <input type="hidden" name="addtokenCount" value="[[=i]]" />
-  <input type="hidden" id="addtokenOther" name="addtokenOther" value="" />
-  <a class="quickaddoption" id="quickaddOther" href="#" onclick="return quickadd_select('Other',1);">select...</a>
-  </dd>[[
- end;
-]]
-<dt>URL</dt><dd><input type="text" name="url" value="[[=qr.GetDefault('url','')]]" class="textfield" /></dd>
+<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc','')]);]]</dd>>
+if id=0 then Context.Include('fObjTokRef.xxmi');
+<<dt>URL</dt><dd><input type="text" name="url" value="[[=qr.GetDefault('url','')]]" class="textfield" /></dd>
 <dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetDefault('weight',0)]]" /></dd>
 [[/TODO: realm?]]
 </dl>
@@ -69,11 +36,9 @@ if id=0 then //and Session.IsAdmin?
 ]]
 <a href="Item.xxm?x=i[[=bid]]">back</a>
 </form>
-<script>$("#ObjName")[0].focus();</script>
-[[
+<script>$("#ObjName")[0].focus();</script>>
 
 finally
   qr.Free;
 end;
 Context.Include('dFoot.xxmi');
-]]

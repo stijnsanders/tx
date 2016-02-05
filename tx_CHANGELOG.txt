@@ -3,6 +3,7 @@ v1.2.4
 - object change realm: options for descendants
 - filter: 'r','ref','reference': objects referred to by x
 - filter: 'path$x*' lists full path including any $x
+- new item: quick add references (as well as tokens)
 
 v1.2.3
 - unread items (stealth mode)

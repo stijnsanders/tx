@@ -119,10 +119,11 @@ try
 
    end;
   if filter='' then
-    if Context['x1'].AsInteger=1 then
-      url:='fTok.xxm?id='+IntToStr(id)
-    else
-      url:='Item.xxm?x=i'+IntToStr(id)
+    case Context['x'].AsInteger of
+      0:url:='Item.xxm?x=i'+IntToStr(id);
+      1:url:='fTok.xxm?id='+IntToStr(id);
+      2:url:='fRef.xxm?id='+IntToStr(id);
+    end
   else
     url:='Modify.xxm?x=99&filter='+URLEncode(filter)+'&c='+IntToStr(ids.Count);
 finally

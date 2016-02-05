@@ -235,14 +235,60 @@ function quickadd_select(x,y)
 		{
 			xx.removeClass("quickaddoption");
 			xx.addClass("quickaddselect");
-			$("#addtoken"+x)[0].value=y;
+			$("#add"+x)[0].value=y;
 		}
 		else
 		{
 			xx.removeClass("quickaddselect");
 			xx.addClass("quickaddoption");
-			$("#addtoken"+x)[0].value="";
+			$("#add"+x)[0].value="";
 		}
+	return false;
+}
+function quickadd_toggle(x)
+{
+	var t=$("#quickaddtokNew");
+	var r=$("#quickaddrefNew");
+	if(x=="tok")
+	{
+		if(t.hasClass("quickaddoption"))
+		{
+			t.removeClass("quickaddoption");
+			t.addClass("quickaddselect");
+			$("#addtokNew")[0].value="new";
+		}
+		else
+		{
+			t.removeClass("quickaddselect");
+			t.addClass("quickaddoption");
+			$("#addtokNew")[0].value="";
+		}
+		if(r.hasClass("quickaddselect")){
+			r.removeClass("quickaddselect");
+			r.addClass("quickaddoption");
+			$("#addrefNew")[0].value="";
+		}
+	}
+	else
+	{
+		if(r.hasClass("quickaddoption"))
+		{
+			r.removeClass("quickaddoption");
+			r.addClass("quickaddselect");
+			$("#addrefNew")[0].value="new";
+		}
+		else
+		{
+			r.removeClass("quickaddselect");
+			r.addClass("quickaddoption");
+			$("#addrefNew")[0].value="";
+		}
+		if(t.hasClass("quickaddselect")){
+			t.removeClass("quickaddselect");
+			t.addClass("quickaddoption");
+			$("#addtokNew")[0].value="";
+		}
+	}
 	return false;
 }
 function default_form_submit(x)

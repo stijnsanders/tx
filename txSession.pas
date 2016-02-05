@@ -59,6 +59,7 @@ type
     CssModSince,JsModSince:string;
     RevertUserID:integer;
     RevertFooterDisplay:string;
+    RecentReferences:array[0..FilterRecentCount-1] of record reftype,obj2:integer; end;
 
     constructor Create(const SessionID:string);
     destructor Destroy; override;
@@ -76,6 +77,7 @@ type
     procedure RemoveFilterRecent(ItemType:TtxItemType;id:integer);
     procedure AddViewedLast(id:integer);
     procedure RemoveViewedLast(id:integer);
+    procedure AddRecentReference(reftype,obj2:integer);
     procedure LogonAttemptCheck;
     class procedure Abandon;
     class function PermissionByName(const x:string):TtxRealmPermission;
@@ -285,6 +287,7 @@ begin
   CssModSince:=RFC822DateGMT(Now);
 
   for i:=itObj to itRefType do for j:=0 to FilterRecentCount-1 do FilterRecent[i,j]:=0;
+  for j:=0 to FilterRecentCount-1 do begin RecentReferences[j].reftype:=0; RecentReferences[j].obj2:=0; end;
   for j:=0 to ViewedLastCount-1 do ViewedLast[j]:=0;
 
   for rp:=rpView to rpBoth do with Realms[rp] do
@@ -579,14 +582,14 @@ begin
     repeat
       a:=FilterRecent[ItemType,i+d];
       FilterRecent[ItemType,i]:=b;
-      if a=id then
+      if (a=id) and (i+d<FilterRecentCount) then
        begin
         inc(d);
         a:=FilterRecent[ItemType,i+d];
        end;
       inc(i);
       b:=a;
-    until (a=0) or (i+d>=FilterRecentCount);
+    until (a=0) or (i+d=FilterRecentCount);
    end;
 end;
 
@@ -597,8 +600,8 @@ begin
   if id<>0 then
    begin
     i:=0;
-    while (FilterRecent[ItemType,i]<>id) and (i<FilterRecentCount) do inc(i);
-     while (FilterRecent[ItemType,i]<>0) and (i<FilterRecentCount-1) do
+    while (i<FilterRecentCount) and (FilterRecent[ItemType,i]<>id) do inc(i);
+    while (i<FilterRecentCount-1) and (FilterRecent[ItemType,i]<>0) do
       begin
       FilterRecent[ItemType,i]:=FilterRecent[ItemType,i+1];
       inc(i);
@@ -633,13 +636,41 @@ var
   i:integer;
 begin
   i:=0;
-  while (ViewedLast[i]<>id) and (i<ViewedLastCount) do inc(i);
-  while (ViewedLast[i]<>0) and (i<ViewedLastCount-1) do
+  while (i<ViewedLastCount) and (ViewedLast[i]<>id) do inc(i);
+  while (i<ViewedLastCount-1) and (ViewedLast[i]<>0) do
    begin
     ViewedLast[i]:=ViewedLast[i+1];
     inc(i);
    end;
   if i<ViewedLastCount then ViewedLast[i]:=0;
+end;
+
+procedure TtxSession.AddRecentReference(reftype,obj2:integer);
+var
+  i,r1,x1,r2,x2,d:integer;
+begin
+  if (reftype<>0) and (obj2<>0) then
+   begin
+    i:=0;
+    d:=0;
+    r2:=reftype;
+    x2:=obj2;
+    repeat
+      r1:=RecentReferences[i+d].reftype;
+      x1:=RecentReferences[i+d].obj2;
+      RecentReferences[i].reftype:=r2;
+      RecentReferences[i].obj2:=x2;
+      if (r1=reftype) and (x1=obj2) and (i+d<FilterRecentCount) then
+       begin
+        inc(d);
+        r1:=RecentReferences[i+d].reftype;
+        x1:=RecentReferences[i+d].obj2;
+       end;
+      inc(i);
+      r2:=r1;
+      x2:=x1;
+    until (r1=0) or (x1=0) or (i+d=FilterRecentCount);
+   end;
 end;
 
 class function TtxSession.PermissionByName(const x:string):TtxRealmPermission;

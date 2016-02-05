@@ -1,6 +1,5 @@
 [[@txSession,txDefs,SQLiteData,]][[!var
-{id,}id1,i,pid,ObjTypeID:integer;
-qr1:TSQLiteStatement;
+{id,}pid,ObjTypeID:integer;
 ]][[
 Context.Include('dHead.xxmi',['Object']);
 //id:=Context['id'].AsInteger;
@@ -15,37 +14,9 @@ ObjTypeID:=DBSingleValue('SELECT ObjType.dft FROM ObjType INNER JOIN Obj ON Obj.
 <dl>
 <dt>Multiple items, one per line, optionally indented with whitespace</dt><dd><textarea name="names" id="names1" style="width:90%;" cols="40" rows="16"></textarea></dd>
 <dt>Parent</dt><dd>>Context.Include('dObjSelect.xxmi',['pid',pid,0,0,'',true]);<</dd>
-<dt>Object type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itObjType,'objtype',ObjTypeID]);<</dd>>
-i:=0;
-while (i<FilterRecentCount) and (Session.FilterRecent[itTokType,i]=0) do inc(i);
-if i<FilterRecentCount then
- begin
-  <<dt>Quick add tokens</dt>
-  <dd>>
-  i:=0;
-  while (i<FilterRecentCount) and not(Session.FilterRecent[itTokType,i]=0) do
-   begin
-    qr1:=TSQLiteStatement.Create(Session.DbCon,
-	  'SELECT TokType.id, TokType.pid, TokType.[name], TokType.[icon], TokType.[system], TokType.[weight], TokType.dft, TokType.c_uid, TokType.c_ts, TokType.m_uid, TokType.m_ts '+
-      'FROM TokType WHERE TokType.id=?',[Session.FilterRecent[itTokType,i]]);
-	try
-	  if not(qr1.EOF) then
-	   begin
-	    id1:=qr1.GetInt('id');
-        <<input type="hidden" id="addtoken[[=i]]" name="addtoken[[=i]]" value="" />
-		<a class="quickaddoption" id="quickadd[[=i]]" href="Item.xxm?x=ot[[=id1]]" onclick="quickadd_select([[=i]],[[=id1]]);return(event||window.event||this).ctrlKey;">>#txImg(qr1.GetInt('icon'))<<span class="quickaddtitle"> [[,name]]</span></a>>
-	   end;
-	finally
-	  qr1.Free;
-	end;
-    inc(i);
-   end;
-  <<input type="hidden" name="addtokenCount" value="[[=i]]" />
-  <input type="hidden" id="addtokenOther" name="addtokenOther" value="" />
-  </dd>>
- end;
-//TODO: realm?
-<</dl>
+<dt>Object type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itObjType,'objtype',ObjTypeID]);<</dd>
+[[Context.Include('fObjTokRef.xxmi',[false]);]]
+</dl>
 [[#txFormButton]]
 <a href="fObj.xxm?pid=[[=pid]]">back</a>
 </form>
