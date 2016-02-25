@@ -17,10 +17,13 @@ copy loading.gif rel_1\
 copy favicon.ico rel_1\
 copy tx*.txt rel_1\
 copy tx*.xml rel_1\ /y
+copy tx_UPGRADE.sql rel_1\ /y
 copy img_*.png rel_1\
 copy Maint*.txt rel_1\
 copy robots.txt rel_1\
+copy D:\Data\2016\TSQLite\SQLiteBatch.exe rel_1\
+copy
 echo DB=tx.db > rel_1\tx.ini
-D:\Data\2014\TSQLite\SQLiteBatch.exe rel_1\tx.db tx.sql
+rel_1\SQLiteBatch.exe rel_1\tx.db tx.sql
 "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" /cc "tx_so.iss"
 pause

@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "tx"
-#define MyAppVersion "1.0"
+#define MyAppVersion "1.2.4"
 #define MyAppPublisher "yoy.be"
 #define MyAppURL "http://yoy.be/tx/"
 #define MyAppExeName "tx.exe"
@@ -35,7 +35,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "rel_1\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "rel_1\*"; Excludes: "tx.db"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs restartreplace
+Source: "rel_1\tx.db"; DestDir: "{app}"; Flags: onlyifdoesntexist uninsneveruninstall
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -44,6 +45,8 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]
+Filename: "{app}\SQLiteBatch.exe"; Parameters: "tx.db -I tx_UPGRADE.sql"; Flags: runhidden
+Filename: "{sys}\cmd.exe"; Parameters: "/C del {app}\SQLiteBatch.exe"; Flags: runhidden
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
 
 [UninstallRun]

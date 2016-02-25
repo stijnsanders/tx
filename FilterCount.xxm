@@ -87,6 +87,7 @@ else
       <th colspan="2">realm</th>
       <th>#</th>
       </tr>>
+      j:=0;
       while qr.Read and Context.Connected do
        begin
         i:=qr.GetInt('ocount');

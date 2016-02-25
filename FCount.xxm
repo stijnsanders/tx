@@ -289,7 +289,7 @@ try
    begin
     s:=fg.Save;
     i:=Length(ModulePath)+1;
-    <<p><img src="[[=StringReplace(Copy(s,i+1,Length(s)-i),'\','/',[rfReplaceAll])]]?ts=[[=fg.Unique]]"/></p>
+    <<p style="overflow-x:auto;"><img src="[[=StringReplace(Copy(s,i+1,Length(s)-i),'\','/',[rfReplaceAll])]]?ts=[[=fg.Unique]]"/></p>
     <p class="small">Min:[[=fg.MinVal]], Max:[[=fg.MaxVal]]</p>
 	<script><!--
 	$("#waitdisplay").hide();
