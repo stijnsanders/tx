@@ -45,8 +45,7 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]
-Filename: "{app}\SQLiteBatch.exe"; Parameters: "tx.db -I tx_UPGRADE.sql"; Flags: runhidden
-Filename: "{sys}\cmd.exe"; Parameters: "/C del {app}\SQLiteBatch.exe"; Flags: runhidden
+Filename: "{app}\SQLiteBatch.exe"; WorkingDir: "{app}"; Parameters: "tx.db -I tx_UPGRADE.sql"; Flags: runhidden
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
 
 [UninstallRun]
