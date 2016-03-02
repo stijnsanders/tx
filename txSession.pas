@@ -117,7 +117,7 @@ var
 
 implementation
 
-uses Windows, txFilter, txFilterSql, sha1, Math, SQLite;
+uses Windows, txFilter, txFilterSql, sha1, Math;
 
 //TODO: something better than plain objectlist
 //TODO: thread to check session expiry
@@ -314,7 +314,7 @@ begin
   if ThreadDbCon=nil then
    begin
     ThreadDBCon:=TSQLiteConnection.Create(DbFilePath);
-    sqlite3_check(sqlite3_busy_timeout(ThreadDBCon.Handle,30000));
+    ThreadDBCon.BusyTimeout:=30000;
    end;
   Result:=ThreadDbCon;
 end;
