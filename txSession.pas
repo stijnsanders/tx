@@ -110,13 +110,14 @@ function RFC822DateGMT(dd: TDateTime): string;
 threadvar
   Session: TtxSession;
   PageStartTQ,PageStartTF:int64;
-var //see SQLITE_CONFIG_SERIALIZED: one connection may be used over several threads! (otherwise will throw "database is locked" under load)
+threadvar
   ThreadDbCon: TSQLiteConnection;
+var
   RealmsCounter: integer;
 
 implementation
 
-uses Windows, txFilter, txFilterSql, sha1, Math;
+uses Windows, txFilter, txFilterSql, sha1, Math, SQLite;
 
 //TODO: something better than plain objectlist
 //TODO: thread to check session expiry
@@ -270,8 +271,6 @@ begin
   QryUnread:=false;//see LoadUser
   Stealth:=false;
 
-  //FDbCon:=TSQLiteConnection.Create(DbFilePath);//moved to ThreadDBCon
-
   //start session
   UserID:=0;
   UpdateID:=0;
@@ -312,7 +311,11 @@ end;
 
 function TtxSession.GetDbCon: TSQLiteConnection;
 begin
-  if ThreadDbCon=nil then ThreadDBCon:=TSQLiteConnection.Create(DbFilePath);
+  if ThreadDbCon=nil then
+   begin
+    ThreadDBCon:=TSQLiteConnection.Create(DbFilePath);
+    sqlite3_check(sqlite3_busy_timeout(ThreadDBCon.Handle,30000));
+   end;
   Result:=ThreadDbCon;
 end;
 

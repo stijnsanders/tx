@@ -17,38 +17,38 @@ begin
   if Context.Connected then
    begin
     Context.Send(#13#10+tbl+'('+txItemTypeName[itype]+')'#13#10);
-	ids:=TIdList.Create;
-	try
-	  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id FROM '+tbl+qry);
+    ids:=TIdList.Create;
+    try
+      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id FROM '+tbl+qry);
       try
-	    while qr.Read and Context.Connected do ids.Add(qr.GetInt('id'));
-	  finally
-	    qr.Free;
-	  end;
-	  for i:=0 to ids.Count-1 do
-	   begin
-	    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT [desc], '+objid+' AS oid FROM '+tbl+' WHERE id='+IntToStr(ids[i]));
-		try
-		  desc:=qr.GetStr('desc');
-		  id:=qr.GetInt('oid');
-		finally
-		  qr.Free;
-		end;
-		try
-		  if desc<>'' then TermStore.StoreTerms(itype,ids[i],id,desc);
-		  Context.Send(IntToStr(ids[i])+' ');
-		except
-		  on e:Exception do
-		   begin
-		    Context.SendHTML('<br /><span style="color:red;">');
-		    Context.Send(IntToStr(ids[i])+'['+e.ClassName+']"'+e.Message+'"');
-			Context.SendHTML('</span><br /> ');
-		   end;
-		end;
-	   end;
-	finally
-	  ids.Free;
-	end;
+        while qr.Read and Context.Connected do ids.Add(qr.GetInt('id'));
+      finally
+        qr.Free;
+      end;
+      for i:=0 to ids.Count-1 do
+       begin
+        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT [desc], '+objid+' AS oid FROM '+tbl+' WHERE id='+IntToStr(ids[i]));
+        try
+          desc:=qr.GetStr('desc');
+          id:=qr.GetInt('oid');
+        finally
+          qr.Free;
+        end;
+        try
+          if desc<>'' then TermStore.StoreTerms(itype,ids[i],id,desc);
+          Context.Send(IntToStr(ids[i])+' ');
+        except
+          on e:Exception do
+           begin
+            Context.SendHTML('<br /><span style="color:red;">');
+            Context.Send(IntToStr(ids[i])+'['+e.ClassName+']"'+e.Message+'"');
+          Context.SendHTML('</span><br /> ');
+           end;
+        end;
+       end;
+    finally
+      ids.Free;
+    end;
   end;
 end;
 
@@ -59,20 +59,21 @@ if not Use_Terms then raise Exception.Create('Use_Terms not enabled');
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
-	Context.Send('Clearing...');
-	Session.DbCon.Execute('DELETE FROM Trl');
+  Context.BufferSize:=0;
+  Context.Send('Clearing...');
+  Session.DbCon.Execute('DELETE FROM Trl');
 
-	FillTrl('Obj','','id',itObj);
-	FillTrl('Tok','','obj_id',itTok);
-	FillTrl('Ref','','obj1_id',itRef);
-	FillTrl('Flt','','obj_id',itFilter);
-	FillTrl('Rpt',' WHERE toktype_id is null and reftype_id is null','obj_id',itReport);
-	FillTrl('Rlm','','0',itRealm);
+  FillTrl('Obj','','id',itObj);
+  FillTrl('Tok','','obj_id',itTok);
+  FillTrl('Ref','','obj1_id',itRef);
+  FillTrl('Flt','','obj_id',itFilter);
+  FillTrl('Rpt',' WHERE toktype_id is null and reftype_id is null','obj_id',itReport);
+  FillTrl('Rlm','','0',itRealm);
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.Execute('COMMIT TRANSACTION');
 except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
-    raise;
+  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  raise;
 end;
 
 <<br />

@@ -9,13 +9,13 @@ type
   private
     FEnabled:boolean;
     FInitError:string;
-	  FInitTimeMS:integer;
+      FInitTimeMS:integer;
     FEngine:IEngine;
     FList:TStringList;
     FCurrentDomain:integer;
-  	FCurrentSource:string;
-	FRenderLock:TRTLCriticalSection;
-	procedure DoCommands;
+      FCurrentSource:string;
+    FRenderLock:TRTLCriticalSection;
+    procedure DoCommands;
   public
     constructor Create(const DllPath: string);
     destructor Destroy; override;
@@ -23,7 +23,7 @@ type
     procedure StoreTerms(ItemType:TtxItemType;ItemID,domainFromObjID:integer;xHTML:WideString);
     function GetDomainID(ObjID:integer):integer;
     property InitError:string read FInitError;
-	property InitTimeMS:integer read FInitTimeMS;
+    property InitTimeMS:integer read FInitTimeMS;
   end;
 
   TTermCheck=class(TInterfacedObject, IWikiPageCheck)
@@ -69,9 +69,9 @@ begin
     //FEngine:=CoEngine.Create;
     try
       p:=GetProcAddress(LoadLibrary(PChar(DllPath)),'DllGetClassObject');
-	  if @p=nil then RaiseLastOSError;
-	  OleCheck(p(CLASS_Engine,IClassFactory,f));
-	  OleCheck(f.CreateInstance(nil,IEngine,FEngine));
+      if @p=nil then RaiseLastOSError;
+      OleCheck(p(CLASS_Engine,IClassFactory,f));
+      OleCheck(f.CreateInstance(nil,IEngine,FEngine));
       FEngine.WikiParseXML:=ModulePath+'txWikiEngine.xml';
       FEngine.WikiPageCheck:=TTermCheck.Create(Self);
     except
@@ -81,7 +81,7 @@ begin
         FInitError:='{'+e.ClassName+'}'+e.Message;
        end;
     end;
-	FInitTimeMS:=integer(GetTickCount)-tc;
+    FInitTimeMS:=integer(GetTickCount)-tc;
    end
   else
    begin
@@ -111,23 +111,23 @@ begin
   FCurrentSource:=txItemTypeKey[ITemType]+IntToStr(ItemID);
   try
     if FEnabled then
-	 begin
+     begin
       EnterCriticalSection(FRenderLock);
-	  try
-	    Result:=FEngine.Render(xHTML,'');
-		DoCommands;
-	  finally
+      try
+        Result:=FEngine.Render(xHTML,'');
+        DoCommands;
+      finally
         LeaveCriticalSection(FRenderLock);
-	  end;
-	 end
+      end;
+     end
     else Result:=xHTML;
   except
     on ETermStoreException do raise;
-	on Exception do
-	 begin
+    on Exception do
+     begin
       //TODO: log error somewhere?
-	  Result:=xHTML;
-	 end;
+      Result:=xHTML;
+     end;
   end;
   if FEnabled then FList.Clear;
 end;
@@ -166,11 +166,11 @@ begin
     try
       try
         FEngine.Render(xHTML,'');
-		DoCommands;
-  	except
-	  on ETermStoreException do raise;
-	  on Exception do  //silent
-  	end;
+        DoCommands;
+      except
+        on ETermStoreException do raise;
+        on Exception do ;//silent
+      end;
     finally
       LeaveCriticalSection(FRenderLock);
     end;
@@ -189,7 +189,7 @@ begin
    begin
      if x='error' then raise ETermStoreException.Create(y)
      else
-  	   raise ETermStoreException.Create('[TermStore]Unknown command "'+x+'"');
+         raise ETermStoreException.Create('[TermStore]Unknown command "'+x+'"');
    end;
 end;
 
