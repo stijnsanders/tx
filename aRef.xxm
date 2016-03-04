@@ -55,7 +55,7 @@ try
     //check realm
     if rid=0 then
      begin
-      RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[id],Session.RealmNew);
+      RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[id],DefaultRlmID);
       oldRefTypeID:=0;
       oldWeight:=0;
      end
@@ -71,7 +71,7 @@ try
          end
         else
          begin
-          RlmID:=Session.RealmNew;
+          RlmID:=DefaultRlmID;//?
           oldRefTypeID:=0;
           oldWeight:=0;
          end;

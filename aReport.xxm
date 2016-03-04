@@ -10,7 +10,7 @@ desc:=Context['desc'].Value;
 
 //check realm
 Session.HasRealmPermission(id,
-  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[id],0),rpEdit);
+  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[id],DefaultRlmID),rpEdit);
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try

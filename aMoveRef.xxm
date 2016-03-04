@@ -28,9 +28,9 @@ if aid<>0 then raise Exception.Create('Can''t move item to a branch under itself
 if ItemType<>itObj then raise Exception.Create('MoveRef not allowed on non-Obj');
 
 //check realm
-RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ItemID],0);
+RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ItemID],DefaultRlmID);
 Session.HasRealmPermission(ItemID,RlmID,rpEdit);
-if newPid=0 then RlmID:=0 else RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[newPid],0);
+if newPid=0 then RlmID:=0 else RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[newPid],DefaultRlmID);
 Session.HasRealmPermission(newPid,RlmID,rpEdit);
 //TODO: else RealmPermission(rpEdit,0)?
 

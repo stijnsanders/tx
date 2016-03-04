@@ -31,6 +31,7 @@ Read more about how to get started here:
 <dt>Configure</dt><dd><a href="Users.xxm" rel="nofollow">users...</a>,
   <a href="Realms.xxm" rel="nofollow">realms...</a>,
   <a href="Test.xxm" rel="nofollow">test...</a>
+</dd>
 </dl>
 
 --content

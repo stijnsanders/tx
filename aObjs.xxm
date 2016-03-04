@@ -26,7 +26,7 @@ newWeight:=0;//Context['weight'].AsInteger;
 CheckFormProtect(Context);
 
 //check realm
-RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[pids[0]],Session.RealmNew);
+RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[pids[0]],DefaultRlmID);
 Session.HasRealmPermission(pids[0],RlmID,rpEdit);
 
 //quick add tokref, list first, get weight-delta from types

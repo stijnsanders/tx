@@ -20,7 +20,7 @@ CheckFormProtect(Context);
 
 //check realm
 if id=0 then x:=pid else x:=id;
-RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[x],Session.RealmNew);
+RlmID:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[x],DefaultRlmID);
 Session.HasRealmPermission(x,RlmID,rpEdit);
 
 name:=Context['name'].Value;

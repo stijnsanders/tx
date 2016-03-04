@@ -31,14 +31,6 @@ if s<>'' then
     'r':Session.LoadRealmPermissions;//test
     's':Session.SetViewRealm(true,StrToInt(Copy(s,2,Length(s)-1)));//set
     'c':Session.SetViewRealm(false,StrToInt(Copy(s,2,Length(s)-1)));//clear
-    'n':with Session.Realms[rpEdit] do//new items realm
-     begin
-      id:=StrToInt(Copy(s,2,Length(s)-1));
-      i:=0;
-      while (i<Count) and (Ids[i]<>id) do inc(i);
-      if (i<Count) then Session.RealmNew:=id else
-        raise Exception.Create('Selected realm for new objects is not a realm in control.');
-     end;
   end;
  end;
 
@@ -55,7 +47,6 @@ try
   <tr>
   <th>&nbsp;</th>
   <th>realm</th>
-  <th>new</th>
   <th>description</th>
   <th>system</th>
   <th>viewable by</th>
@@ -101,16 +92,6 @@ try
     <img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>
     #[[=id]]
     </td>
-    <td style="text-align: center;">>
-    if InView and InControl then
-     begin
-      <<a href="[[=USelf]]n[[=id]]"><img src="img_radio[[=ImgSuffix[Session.RealmNew=id]]].png" width="16" height="16" [[#globalIconAlign]]/></a>>
-     end
-    else
-     begin
-      <<img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>>
-     end;
-    <</td>
     <td>>#TermStore.TermLinks(itRealm,id,0,qr.GetStr('desc'))]]&nbsp;</td>
     <td><span class="sysref">>.system<</span>&nbsp;</td>
     <td style="white-space:nowrap;">>
@@ -165,9 +146,6 @@ try
     Default realm<br />
     <img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>
     #0
-  </th>
-  <th style="text-align:center;">
-    <a href="[[=USelf]]n[[=id]]"><img src="img_radio[[=ImgSuffix[Session.RealmNew=id]]].png" width="16" height="16" [[#globalIconAlign]]/></a>
   </th>
   <th style="text-align:left;font-weight:normal;">
     View <b>>=BriefSQL(Session.Realms[rpView].SQL)<</b>

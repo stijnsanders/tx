@@ -19,7 +19,7 @@ if id<>0 then
  end;
 
 Session.HasRealmPermission(objid,
-  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew),
+  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],DefaultRlmID),
   rpEdit);
 
 desc:=Context['desc'].Value;
@@ -27,7 +27,7 @@ desc:=Context['desc'].Value;
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
   if id=0 then
-    Session.DbCon.Execute('INSERT INTO Flt (obj_id,name,expression,[desc],showgraph,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',[
+    Session.DbCon.Execute('INSERT INTO Flt (obj_id,name,expression,[desc],showgraph,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?)',[
       objid,Context['name'].Value,Context['filter'].Value,desc,Context['g'].AsInteger,VNow,Session.UserID,VNow,Session.UserID],id)
   else
     Session.DbCon.Execute('UPDATE Flt SET obj_id=?, name=?, expression=?, [desc]=?, showgraph=?, m_ts=?, m_uid=? WHERE id=?',[

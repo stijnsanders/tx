@@ -43,7 +43,7 @@ Context.SendHTML([LogPr,'Items added'#13#10#13#10]);
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
-	if DBSingleValue('SELECT COUNT(*) FROM ObjTokRefCache',[],Session.RealmNew)=0 then
+	if DBSingleValue('SELECT COUNT(*) FROM ObjTokRefCache',[],0)=0 then
 	  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT [id] FROM Obj ORDER BY [id]')
 	else
 	  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT [id] FROM Obj WHERE NOT EXISTS (SELECT [id] FROM ObjTokRefCache WHERE ObjTokRefCache.[id]=Obj.[id]) ORDER BY [id]'); //TODO: skip deleted realm?

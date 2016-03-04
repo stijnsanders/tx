@@ -37,7 +37,7 @@ if Context['full'].AsInteger=1 then
         nid:=Context['movetokto'].AsInteger;
       if nid=0 then raise Exception.Create('Object to move tokens to required.');
       Session.HasRealmPermission(nid,
-        DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],Session.RealmNew),rpEdit);
+        DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],DefaultRlmID),rpEdit);
       Session.AddFilterRecent(itObj,nid);
       Session.DbCon.Execute('UPDATE Tok SET obj_id=? WHERE obj_id=?',[nid,id]);
      end
@@ -53,7 +53,7 @@ if Context['full'].AsInteger=1 then
         nid:=Context['moverefto'].AsInteger;
       if nid=0 then raise Exception.Create('Object to move references to required.');
       Session.HasRealmPermission(nid,
-        DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],Session.RealmNew),rpEdit);
+        DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],DefaultRlmID),rpEdit);
       Session.AddFilterRecent(itObj,nid);
       Session.DbCon.Execute('UPDATE Ref SET obj1_id=? WHERE obj1_id=?',[nid,id]);
       Session.DbCon.Execute('UPDATE Ref SET obj2_id=? WHERE obj2_id=?',[nid,id]);
@@ -72,7 +72,7 @@ if Context['full'].AsInteger=1 then
       nid:=Context['movechto'].AsInteger;
       //if nid=0 then move to root!
       Session.HasRealmPermission(nid,
-        DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],Session.RealmNew),rpEdit);
+        DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[nid],DefaultRlmID),rpEdit);
       Session.AddFilterRecent(itObj,nid);
       Session.DbCon.Execute('UPDATE Obj SET pid=? WHERE pid=?',[nid,id]);
       Session.DbCon.Execute('UPDATE Flt SET obj_id=? WHERE obj_id=?',[nid,id]);

@@ -39,7 +39,7 @@ type
     Data:TObject;//used with import for now, maybe more later, then review this
 
     //TODO: properties
-    UserID,RealmNew,UpdateID,DeleteID:integer;
+    UserID,UpdateID,DeleteID:integer;
     JsLoaded,QryUnread,Stealth:boolean;
     Realms:array[TtxRealmPermission] of record
       Ids:array of integer;
@@ -275,7 +275,6 @@ begin
   UserID:=0;
   UpdateID:=0;
   DeleteID:=0;
-  RealmNew:=0;
   FooterDisplay:='';
   RevertUserID:=0;
   RevertFooterDisplay:='';
@@ -473,7 +472,6 @@ begin
   finally
     qr.Free;
   end;
-  //TODO RealmNew:=?
   BuildRealmPermissionsSQL;
 end;
 
@@ -524,7 +522,7 @@ var
   qr:TSQLiteStatement;
 begin
   if FRealmsCounter<>RealmsCounter then LoadRealmPermissions;
-  //assert RealmID=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ObjID],0), got by any previous query
+  //assert RealmID=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ObjID],DefaultRlmID), got by any previous query
   with Realms[RealmPerm] do
    begin
     i:=0;
@@ -568,7 +566,6 @@ begin
          end;
         dec(Count);
        end;
-      if RealmNew=RealmID then RealmNew:=0;//?
      end;
   BuildRealmPermissionsSQL;
 end;

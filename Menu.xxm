@@ -1,14 +1,33 @@
-[[Context.Include('dHead.xxmi',['Welcome']);]]
-<meta name="robots" content="nofollow" />
+[[
+Context.Include('dHead.xxmi',['Welcome']);
+<<meta name="robots" content="nofollow" />
 <h1>Welcome to <i>tx</i></h1>
 <p class="information">information...</p>
 <dl>
-<dt>View items</dt><dd><a href="Item.xxm">browse...</a>, <a href="ViewedLast.xxm">viewed recently...</a></dd>
-<dt>View selected items</dt><dd><a href="Filter.xxm">filter...</a>, <a href="FCount.xxm">filter statistics...</a></dd>
-<dt>Search for items</dt><dd><a href="Search.xxm">search...</a></dd>
-<dt>View changes to items</dt><dd><a href="Log.xxm">log...</a>, <a href="fLog.xxm">advanced...</a>, <a href="Rss.xxm">rss...</a></dd>
-<dt>View by structure</dt><dd><a href="Tree.xxm">tree...</a>, <a href="Trace.xxm">trace...</a>, <a href="TermTrace.xxm">terms..</a></dd>
-<dt>Transport items</dt><dd><a href="Export.xxm">export...</a>, <a href="Import.xxm">import...</a></dd>
-<dt>Administration</dt><dd><a href="Users.xxm">accounts...</a>, <a href="Realms.xxm">realms...</a>, <a href="Test.xxm">diagnostic...</a></dd>
-</dl>
-[[Context.Include('dFoot.xxmi');]]
+<dt>View items</dt><dd><a href="Item.xxm">browse...</a>,
+  <a href="ViewedLast.xxm" rel="nofollow">viewed recently...</a>,
+  <a href="SelectedLast.xxm" rel="nofollow">selected recently...</a>
+</dd>
+<dt>Select items</dt><dd><a href="Filter.xxm" rel="nofollow">filter...</a>,
+  <a href="FCount.xxm" rel="nofollow">filter statistics...</a>
+</dd>
+<dt>Search for items</dt><dd><a href="Search.xxm" rel="nofollow">search...</a></dd>
+<dt>View changes to items</dt><dd><a href="Log.xxm" rel="nofollow">log...</a>,
+  <a href="fLog.xxm" rel="nofollow">advanced...</a>,
+  <a href="Rss.xxm" rel="nofollow">rss...</a>
+</dd>
+<dt>View by structure</dt><dd><a href="Tree.xxm" rel="nofollow">tree...</a>,
+  <a href="Trace.xxm" rel="nofollow">trace...</a>,
+  <a href="TermTrace.xxm" rel="nofollow">terms..</a>
+</dd>
+<dt>Transport items</dt><dd><a href="Export.xxm" rel="nofollow">export...</a>,
+  <a href="Import.xxm" rel="nofollow">import...</a>,
+  <a href="fObjs.xxm" rel="nofollow">add multiple...</a>
+</dd>
+<dt>Configure</dt><dd><a href="Users.xxm" rel="nofollow">users...</a>,
+  <a href="Realms.xxm" rel="nofollow">realms...</a>,
+  <a href="Filters.xxm" rel="nofollow">stored filters...</a>,
+  <a href="Test.xxm" rel="nofollow">test...</a>
+</dd>
+</dl>>
+Context.Include('dFoot.xxmi');

@@ -14,7 +14,7 @@ CheckFormProtect(Context);
 if ItemType<>itObj then raise Exception.Create('Realm change only supported on object');
 //mass changes: see Modify.xxm
 
-RlmID1:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ItemID],0);
+RlmID1:=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ItemID],DefaultRlmID);
 
 ids:=TIdList.Create;
 RlmIDs:=TIdList.Create;

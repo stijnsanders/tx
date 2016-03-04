@@ -16,11 +16,11 @@ finally
 end;
 
 Session.HasRealmPermission(objid,
-  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],Session.RealmNew),rpEdit);
+  DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],DefaultRlmID),rpEdit);
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
-  
+
   Session.DbCon.Execute('DELETE FROM Flg WHERE flt_id=?',[id]);
   Session.DbCon.Execute('DELETE FROM Flt WHERE id=?',[id]);
 

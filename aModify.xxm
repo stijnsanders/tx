@@ -69,7 +69,7 @@ end;
        begin
         for i:=0 to ids.Count-1 do
           Session.HasRealmPermission(ids[i],
-            DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[],Session.RealmNew),rpEdit);
+            DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[],DefaultRlmID),rpEdit);
         id:=Context['objtype'].AsInteger;
         weight:=DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[id],0)+Context['weight'].AsInteger;
         for i:=0 to ids.Count-1 do
