@@ -1,16 +1,17 @@
 [[@txDefs,txSession,SQLiteData,]][[!var
 id,DelRlmID:integer;
+qr:TSQLiteStatement;
 ]][[
 id:=Values[0];
 
 DelRlmID:=0;
-with TSQLiteStatement.Create(Session.DbCon,'SELECT id, system FROM Rlm',[]) do
-  try
-    while Read and (DelRlmID=0) do
-      if LowerCase(GetStr('system'))='deleted' then DelRlmID:=GetInt('id');
-  finally
-    Free;
-  end;
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, system FROM Rlm',[]);
+try
+  while qr.Read and (DelRlmID=0) do
+    if LowerCase(qr.GetStr('system'))='deleted' then DelRlmID:=qr.GetInt('id');
+finally
+  qr.Free;
+end;
 
 //check realm here?
 

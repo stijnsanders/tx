@@ -91,10 +91,16 @@ qr:=nil;//counter warning
           qr.Free;
         end;
         <</p>
-        <p class="buttons">
-        <a href="fObj.xxm" class="linkbutton" rel="nofollow">add object here</a>
-        |
-        <a href="Item.xxm?x=ot0" class="linkbutton">object types</a>
+        <p class="buttons">>
+        try
+          Session.HasRealmPermission(0,DefaultRlmID,rpEdit);
+          <<a href="fObj.xxm" class="linkbutton" rel="nofollow">add object here</a>
+          |
+          [[
+        except
+          on ERealmNotEditableByUser do ;
+        end;
+        <<a href="Item.xxm?x=ot0" class="linkbutton">object types</a>
         <a href="Item.xxm?x=tt0" class="linkbutton">token types</a>
         <a href="Item.xxm?x=rt0" class="linkbutton">reference types</a>
         |

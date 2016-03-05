@@ -72,7 +72,7 @@ if ItemType=itObj then
  end
 else
  begin
-    Session.HasRealmPermission(0,0,rpEdit);
+    Session.HasRealmPermission(0,DefaultRlmID,rpEdit);
     Session.DbCon.Execute(txItemSQL_Move[ItemType],[newPid,ItemID]);
     Session.AddFilterRecent(ItemType,newPid);
  end;

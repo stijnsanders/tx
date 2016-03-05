@@ -5,17 +5,16 @@ qr:TSQLiteStatement;
 
 Context.Include('dHead.xxmi',['Realm']);
 
-id:=Context['id'].AsInteger;
+if not(Session.IsAdmin('realms')) then
+	raise Exception.Create('Default realm permissions editable by realms administrator only');
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id=?',[id]);
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id=0',[]);
 try
-<<h2>Realm</h2>
-[[#txForm('aRealm.xxm',['id',id])]]
+<<h2>Default realm permissions</h2>
+[[#txForm('aRealm0.xxm',[])]]
 [[#txFormProtect]]
+[[//TODO: attention message here about dangers of limiting the default realm?]]
 <dl>
-<dt>Name</dt><dd><input type="text" name="name" id="RlmName" value="[[=qr.GetDefault('name','')]]" class="textfield" /></dd>
-<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc','')]);]]</dd>
-<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetDefault('system','')]]" class="systemfield" /></dd>
 <dt>Viewable by <span style="font-weight:normal;">(e.g.: <span class="litref">true1</span>)</span></dt><dd>
 	[[if Session.FilterCache.Count<>0 then begin]]
 	<select name="view1" id="RlmViewFilter" onchange="if(this.value=='') $('#RlmViewEx').show(); else $('#RlmViewEx').hide();">
@@ -58,8 +57,7 @@ try
 </dl>
 [[#txFormButton]]
 <a href="Realms.xxm">back</a>
-</form>
-<script>$("#RlmName")[0].focus();</script>>
+</form>>
 finally
   qr.Free;
 end;

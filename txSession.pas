@@ -386,15 +386,16 @@ begin
   for rp:=rpView to rpEdit do with Realms[rp] do
    begin
     Count:=0;
-    Ids[Grow(rp)]:=0;//TODO: setting default realm?
     SQL:='';
    end;
   RealmsSQLExtra:='';
   fcl:=0;
   SetLength(fc,fcl);
   //rpView, rpEdit only, rpAny, rpBoth: see BuildRealmPermissionsSQL
-  qr:=TSQLiteStatement.Create(DbCon,'SELECT id, view_expression, edit_expression, limit_expression FROM Rlm');
+  qr:=TSQLiteStatement.Create(DbCon,'SELECT id, view_expression, edit_expression, limit_expression FROM Rlm ORDER BY id');
   try
+    if qr.EOF or (qr.GetInt('id')<>0) then
+      for rp:=rpView to rpEdit do Realms[rp].Ids[Grow(rp)]:=0;
     while qr.Read do
      begin
       rid:=qr.GetInt('id');

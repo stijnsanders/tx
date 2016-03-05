@@ -1,0 +1,70 @@
+[[@txDefs,SQLiteData,txSession,Variants,txTerms,]][[!var
+qr:TSQLiteStatement;
+url,v1,v2,e1,e2,l1,l2:string;
+RefreshRealms:boolean;
+id:integer;
+]][[
+
+RefreshRealms:=false;
+CheckFormProtect(Context);
+
+if not(Session.IsAdmin('realms')) then
+	raise Exception.Create('Default realm permissions editable by realms administrator only');
+
+//TODO test new filter expressions!
+
+id:=-1;//see below
+v1:='';
+e1:='';
+l1:='';
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT view_expression,edit_expression,limit_expression FROM Rlm WHERE id=0',[]);
+try
+  if qr.Read then
+   begin
+    v1:=qr.GetStr('view_expression');
+    e1:=qr.GetStr('edit_expression');
+    l1:=qr.GetStr('limit_expression');
+   end
+  else
+    id:=0;//do insert
+finally
+  qr.Free;
+end;
+
+v2:=Context['view1'].Value;
+if v2='' then v2:=Context['view2'].Value;
+e2:=Context['edit1'].Value;
+if e2='' then e2:=Context['edit2'].Value;
+l2:=Context['limit1'].Value;
+if l2='' then l2:=Context['limit2'].Value;
+if (v1<>v2) or (e1<>e2) or (l1<>l2) then RefreshRealms:=true;
+
+Session.DbCon.Execute('BEGIN TRANSACTION');
+try
+
+  	if (v2='') and (e2='') and (l2='') then
+			Session.DbCon.Execute('DELETE FROM Rlm WHERE id=0')
+		else
+    if id=0 then
+      Session.DbCon.Execute('INSERT INTO Rlm (id,name,desc,system,view_expression,edit_expression,limit_expression,c_ts,c_uid,m_ts,m_uid) VALUES (0,?,?,?,?,?,?,?,?,?,?)',
+        ['','','default',v2,e2,l2,VNow,Session.UserID,VNow,Session.UserID],id)
+    else
+      Session.DbCon.Execute('UPDATE Rlm SET view_expression=?, edit_expression=?, limit_expression=?, m_ts=?, m_uid=? WHERE id=0',
+        [v2,e2,l2,VNow,Session.UserID]);
+
+    //force realm perm refresh on all session
+    if RefreshRealms then
+     begin
+      inc(RealmsCounter);
+      Session.LoadRealmPermissions;
+     end;
+
+    Session.DbCon.Execute('COMMIT TRANSACTION');
+except
+    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    raise;
+end;
+
+url:='Realms.xxm';
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

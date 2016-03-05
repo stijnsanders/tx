@@ -1,8 +1,8 @@
 [[@txDefs,SQLiteData,txSession,txTerms,]][[!var
   IsAdmin,InView,InControl:boolean;
   qr:TSQLiteStatement;
-  s,t,USelf:string;
-  i,id:integer;
+  s,t,USelf,df1,df2,df3:string;
+  id:integer;
 const
   ImgSuffix:array[boolean] of string=('0','1');
   SetClear:array[boolean] of string=('s','c');
@@ -41,8 +41,15 @@ if IsAdmin then
  end;
 
 //TODO: fRealm.xxm fDelete.xxm?x=rm
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rlm',[]);
+qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rlm ORDER BY id',[]);
 try
+  if (not qr.EOF) and (qr.GetInt('id')=0) then
+   begin
+    qr.Read;//load first record
+    df1:=qr.GetStr('view_expression');
+    df2:=qr.GetStr('edit_expression');
+    df3:=qr.GetStr('limit_expression');
+   end;
   <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
   <tr>
   <th>&nbsp;</th>
@@ -117,14 +124,14 @@ try
     if Use_ObjPath then
      begin
       <<td style="white-space:nowrap;">>
-        s:=qr.GetStr('limit_expression');
-        if s='' then Context.SendHTML('&ndash;') else
-         begin
-          t:='?filter='+URLEncode(s);
-          <<span class="litref">>=s<</span><br />
-          <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
-          <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
-         end;
+      s:=qr.GetStr('limit_expression');
+      if s='' then Context.SendHTML('&ndash;') else
+       begin
+        t:='?filter='+URLEncode(s);
+        <<span class="litref">>=s<</span><br />
+        <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
+        <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
+       end;
       <</td>>
      end;
     //TODO: created, modified
@@ -140,8 +147,16 @@ try
   end;
   //InControl:=Session.RealmPermission(rpEdit,id);
 
-  <<tr><th>&nbsp;</th>
-  <th style="text-align:left;">
+  <<tr>>
+  if IsAdmin then
+   begin
+    <<td><a href="fRealm0.xxm" class="linkbutton">edit...</a></td>>
+   end
+  else
+   begin
+    <<th>&nbsp;</th>>
+   end;
+  <<th style="text-align:left;">
     <a href="[[=USelf]][[=SetClear[InView]]][[=id]]"><img src="img_check[[=ImgSuffix[InView]]].png" width="16" height="16" [[#globalIconAlign]]/></a>
     Default realm<br />
     <img src="img_trx.png" width="16" height="16" [[#globalIconAlign]]/>
@@ -153,23 +168,61 @@ try
     <br />
     Uncheck all or <a href="[[=USelf]]reset">click here to reset defaults</a>.
   </th>
-  <th>&nbsp;</th>
-  <th style="text-align:left;font-weight:normal;" colspan="3">
-    &nbsp;<br />
-    <a href="Item.xxm?x=i[[=Session.UserID]]">user obj...</a>
-  </th>
-  </tr>
+  <th>&nbsp;</th>>
+  if IsAdmin and not((df1='') and (df2='') and (df3='')) then
+   begin
+    <<td style="white-space:nowrap;">>
+    s:=df1;//s:=qr.GetStr('view_expression');
+    if s='' then Context.SendHTML('&ndash;') else
+     begin
+      t:='?filter='+URLEncode(s);
+      <<span class="litref">>=s<</span><br />
+      <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
+      <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
+     end;
+    <</td>
+    <td style="white-space:nowrap;">>
+    s:=df2;//s:=qr.GetStr('edit_expression');
+    if s='' then Context.SendHTML('&ndash;') else
+     begin
+      t:='?filter='+URLEncode(s);
+      <<span class="litref">>=s<</span><br />
+      <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
+      <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
+     end;
+    <</td>>
+    if Use_ObjPath then
+     begin
+      <<td style="white-space:nowrap;">>
+      s:=df3;//s:=qr.GetStr('limit_expression');
+      if s='' then Context.SendHTML('&ndash;') else
+       begin
+        t:='?filter='+URLEncode(s);
+        <<span class="litref">>=s<</span><br />
+        <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
+        <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
+       end;
+      <</td>>
+     end;
+   end
+  else
+   begin
+    <<th colspan="[[if Use_ObjPath then Context.SendHTML('3') else Context.SendHTML('2');]]">&nbsp;</th>>
+   end;
+  <</tr>
   </table>>
 finally
   qr.Free;
 end;
 
+<<p class="buttons">>
 if IsAdmin then
  begin
-  <<p class="buttons">
-  <a href="fRealm.xxm" class="linkbutton">add...</a>
+  <<a href="fRealm.xxm" class="linkbutton">add...</a>
   <a href="FilterCount.xxm?realms=1" class="linkbutton">count...</a>
-  </p>>
+  [[
  end;
+<<a href="Item.xxm?x=i[[=Session.UserID]]" class="linkbutton">user obj...</a>
+</p>>
 
 Context.Include('dFoot.xxmi');

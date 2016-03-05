@@ -12,7 +12,7 @@ defChild:=Context['default'].AsInteger;
 CheckFormProtect(Context);
 
 //check edit permission in default realm
-Session.HasRealmPermission(0,0,rpEdit);
+Session.HasRealmPermission(0,DefaultRlmID,rpEdit);
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try

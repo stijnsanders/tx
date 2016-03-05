@@ -137,9 +137,10 @@ if Context['full'].AsInteger=1 then
 else
  begin
   RlmID:=0;
-  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Rlm.id FROM Rlm WHERE Rlm.system LIKE ''deleted''',[]);
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, system FROM Rlm',[]);
   try
-    if qr.Read then RlmID:=qr.GetInt('id');
+    while qr.Read and (RlmID=0) do
+      if LowerCase(qr.GetStr('system'))='deleted' then RlmID:=qr.GetInt('id');
   finally
     qr.Free;
   end;

@@ -15,23 +15,23 @@ if not(Session.IsAdmin('realms')) then
 
 //TODO test new filter expressions!
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT view_expression,edit_expression,limit_expression FROM Rlm WHERE id=?',[id]);
-try
-  if qr.Read then
-   begin
-    v1:=qr.GetStr('view_expression');
-    e1:=qr.GetStr('edit_expression');
-    l1:=qr.GetStr('limit_expression');
-   end
-  else
-   begin
-    v1:='';//invalid ex?
-    e1:='';
-    l1:='';
-   end;
-finally
-  qr.Free;
-end;
+v1:='';
+e1:='';
+l1:='';
+if id<>0 then
+ begin
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT view_expression,edit_expression,limit_expression FROM Rlm WHERE id=?',[id]);
+  try
+    if qr.Read then
+     begin
+      v1:=qr.GetStr('view_expression');
+      e1:=qr.GetStr('edit_expression');
+      l1:=qr.GetStr('limit_expression');
+     end;
+  finally
+    qr.Free;
+  end;
+ end;
 
 desc:=Context['desc'].Value;
 v2:=Context['view1'].Value;
@@ -40,7 +40,7 @@ e2:=Context['edit1'].Value;
 if e2='' then e2:=Context['edit2'].Value;
 l2:=Context['limit1'].Value;
 if l2='' then l2:=Context['limit2'].Value;
-if (v1<>v2) or (e1<>e2) then RefreshRealms:=true;
+if (v1<>v2) or (e1<>e2) or (l1<>l2) then RefreshRealms:=true;
 
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try

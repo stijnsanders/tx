@@ -132,7 +132,7 @@ case x of
       <input type="radio" name="realm" value="0" id="realm0" checked="1" />
       <label for="realm0"><i>default realm</i></label>
       <br />>
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, name FROM Rlm',[]);
+        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, name FROM Rlm WHERE id>0 ORDER BY id',[]);
         try
           while qr.Read and Context.Connected do
            begin
