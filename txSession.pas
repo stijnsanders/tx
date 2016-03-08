@@ -403,7 +403,7 @@ begin
        begin
         fx:=qr.GetStr(rname[rp]+'_expression');
         if fx='' then
-          b:=false//no access by default //TODO: setting?
+          b:=rid=0 //no access by default, except with default realm
         else
          begin
           i:=0;
