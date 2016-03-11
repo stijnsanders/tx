@@ -22,24 +22,25 @@ if Length(Values)<2 then value:='' else value:=Values[1];
 <textarea id="[[=instanceName]]" name="[[=instanceName]]" style="width:90%;" cols="40" rows="16">>#value<</textarea>
 <script><!--
 $('#[[=instanceName]]').tinymce({
-script_url:"js/tinymce/tinymce.min.js",
-content_css:"txContent.css.xxm",
-[[if Length(Values)>2 then begin]]auto_focus:"[[=instanceName]]",[[end;]]
-plugins:
-["advlist autolink lists link image charmap preview anchor textcolor"
-,"searchreplace visualblocks code fullscreen"
-,"insertdatetime media table contextmenu paste"
-],
-menubar:"edit insert view format table tools",
-toolbar:"insertfile undo redo | styleselect | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
-skin:"lightgray",
-statusbar:false,
-insertdatetime_formats: ["%H:%M:%S", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"],
-});
+  script_url:"js/tinymce/tinymce.min.js",
+  content_css:"txContent.css.xxm",
+  [[if Length(Values)>2 then begin]]auto_focus:"[[=instanceName]]",[[end;]]
+  plugins:
+  ["advlist autolink lists link image charmap preview anchor textcolor"
+  ,"searchreplace visualblocks code fullscreen"
+  ,"insertdatetime media table contextmenu paste"
+  ],
+  menubar:"edit insert view format table tools",
+  toolbar:"insertfile undo redo | styleselect | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+  skin:"lightgray",
+  statusbar:false,
+  insertdatetime_formats:["%H:%M:%S", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"],
+  setup:function(e){e.shortcuts.add("ctrl+13","submit",function(){$('#[[=instanceName]]')[0].form.submit();});}
+})
 window.onbeforeunload=function(){
-    var i=tinymce.editors.length;
-    while(i!=0&&!tinymce.editors[i-1].isDirty())i--;
-    if(i!=0)return "Changes made to \""+tinymce.editors[i-1].id+"\"";
+  var i=tinymce.editors.length;
+  while(i!=0&&!tinymce.editors[i-1].isDirty())i--;
+  if(i!=0)return "Changes made to \""+tinymce.editors[i-1].id+"\"";
 };
 //--></script>
 <style type="text/css"><!--
