@@ -1,3 +1,6 @@
+v1.2.5
+- 'name' columns 'collate nocase' (IMPORTANT: upgrade with "tx_v1.2.5_collate_nocase.sql")
+
 v1.2.4
 - realm limit_expression
 - object change realm: options for descendants

@@ -10,5 +10,6 @@ Content-Type: text/html
 <dt>referer</dt><dd>>=Context.ContextString(csReferer)<</dd>
 <dt>address</dt><dd>[[=Context.ContextString(csRemoteAddress)]] ([[=Context.ContextString(csRemoteHost)]])
 <dt>user</dt><dd>>=Context.ContextString(csAuthUser)<</dd>
+<dt>agent</dt><dd>>=Context.ContextString(csUserAgent)<</dd>
 <dt>now</dt><dd>>=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',Now)<</dd>
 </body></html>
