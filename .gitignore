@@ -60,7 +60,6 @@ __history/
 
 
 
-
 src/
 .svn/
 *.xxl
@@ -68,3 +67,4 @@ src/
 tx.ini
 fcount/*.jpg
 Thumbs.db
+js/tinymce/
