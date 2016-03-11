@@ -1,8 +1,8 @@
 --v1.2.5
 --prior versions did not have 'collate nocase' on 'name' columns and sorted items case-sensitive.
 --use this script on an existing database to enable case-insensitive sorting, as this does not require other code changes.
--- BACK-UP FIRST (MaintDBB.xxm)
--- USE A TRANSACTION (SQLiteBatch.exe -T)
+--!!! BACK-UP FIRST (MaintDBB.xxm)
+--!!! USE A TRANSACTION (SQLiteBatch.exe -T)
 
 create table ObjX (
 id integer primary key autoincrement,
@@ -19,7 +19,7 @@ m_ts datetime null,
 m_uid int null,
 constraint FK_Obj_ObjType foreign key (objtype_id) references ObjType (id)
 );
-insert into ObjX select * from Obj;
+insert into ObjX select id,pid,objtype_id,name,desc,url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid from Obj;
 drop table Obj;
 alter table ObjX rename to Obj;
 
@@ -37,7 +37,7 @@ m_ts datetime null,
 m_uid int null
 );
 
-insert into ObjTypeX select * from ObjType;
+insert into ObjTypeX select i,dpid,icon,name,system,weight,dft,c_ts,c_uid,m_ts,m_uid from ObjType;
 drop table ObjType;
 alter table ObjTypeX rename to ObjType;
 
@@ -55,7 +55,7 @@ m_ts datetime null,
 m_uid int null
 );
 
-insert into RlmX select * from Rlm;
+insert into RlmX select id,name,desc,system,view_expression,edit_expression,limit_expression,c_ts,c_uid,m_ts,m_uid from Rlm;
 drop table Rlm;
 alter table RlmX rename to Rlm;
 
@@ -73,7 +73,7 @@ m_ts datetime null,
 m_uid int null
 );
 
-insert into TokTypeX select * from TokType;
+insert into TokTypeX select id,pid,icon,name,system,weight,dft,c_ts,c_uid,m_ts,m_uid from TokType;
 drop table TokType;
 alter table TokTypeX rename to TokType;
 
@@ -91,7 +91,7 @@ m_ts datetime null,
 m_uid int null
 );
 
-insert into RefTypeX select * from RefType;
+insert into RefTypeX select id,pid,icon,name,system,weight,dft,c_ts,c_uid,m_ts,m_uid from RefType;
 drop table RefType;
 alter table RefTypeX rename to RefType;
 
@@ -109,6 +109,6 @@ m_uid int null,
 constraint FK_Flt_Obj foreign key (obj_id) references Obj (id)
 );
 
-insert into FltX select * from Flt;
+insert into FltX select id,obj_id,name,expression,desc,showgraph,c_ts,c_uid,m_ts,m_uid from Flt;
 drop table Flt;
 alter table FltX rename to Flt;

@@ -110,7 +110,6 @@ function RFC822DateGMT(dd: TDateTime): string;
 threadvar
   Session: TtxSession;
   PageStartTQ,PageStartTF:int64;
-threadvar
   ThreadDbCon: TSQLiteConnection;
 var
   RealmsCounter: integer;
