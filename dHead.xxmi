@@ -45,44 +45,44 @@ if not(Session.IsAnonymous) then
 <body bgcolor="#FFFFFF">
 <div id="topnav"><div id="toplogo">>=ApplicationName<</div><div id="topnavbar" style="padding-left:2.3em;">
 
-	<span id="frameLink"><a href="Frame.xxm" onclick="document.location.replace('Frame.xxm?url='+document.location);return false;">&raquo; frame</a> | </span>
+  <span id="frameLink"><a href="Frame.xxm" onclick="document.location.replace('Frame.xxm?url='+document.location.href);return false;">&raquo; frame</a> | </span>
 
-	<script><!--
-	if(window.name=="MainFrame")
-	{
-	  $("#frameLink").hide();
-	  window.top.document.title=document.title;
-	}
-	//--></script>
-	<a href="Default.xxm">home</a>
-	<a href="Item.xxm">browse</a>
-	<a href="Filter.xxm" rel="nofollow">filter</a>
-	<a href="Search.xxm" rel="nofollow">search</a>
+  <script><!--
+  if(window.name=="MainFrame")
+  {
+    $("#frameLink").hide();
+    window.top.document.title=document.title;
+  }
+  //--></script>
+  <a href="Default.xxm">home</a>
+  <a href="Item.xxm">browse</a>
+  <a href="Filter.xxm" rel="nofollow">filter</a>
+  <a href="Search.xxm" rel="nofollow">search</a>
     [[
-	if Session.Data<>nil then
-	 begin
-	  <<a href="Import.xxm">import</a>>
-	 end;
-	if not(Session.IsAnonymous) then
-	 begin
-	]]
-	|
-	<a href="Users.xxm" rel="nofollow">account</a>
-	<a href="Realms.xxm" rel="nofollow">realm</a>
-	<a href="FCount.xxm" rel="nofollow">fcount</a>
-	<a href="Test.xxm" rel="nofollow">test</a>
-	[[
-	 end;
-	]]
-	|
-	<a href="[[=Context.ContextString(csURL)]]" rel="nofollow">refresh</a>
-	|
+  if Session.Data<>nil then
+   begin
+    <<a href="Import.xxm">import</a>>
+   end;
+  if not(Session.IsAnonymous) then
+   begin
+  ]]
+  |
+  <a href="Users.xxm" rel="nofollow">account</a>
+  <a href="Realms.xxm" rel="nofollow">realm</a>
+  <a href="FCount.xxm" rel="nofollow">fcount</a>
+  <a href="Test.xxm" rel="nofollow">test</a>
+  [[
+   end;
+  ]]
+  |
+  <a href="[[=Context.ContextString(csURL)]]" rel="nofollow">refresh</a>
+  |
     [[if (Session=nil) or (Session.UserID=0) or Session.IsAnonymous then begin]]
-	<a href="Logon.xxm" rel="nofollow">log on</a>
+  <a href="Logon.xxm" rel="nofollow">log on</a>
     [[end else begin]]
-	<a href="Logoff.xxm" rel="nofollow">log off</a>
+  <a href="Logoff.xxm" rel="nofollow">log off</a>
     [[end;]]
 </div></div>
 <div id="topinfo"><b><u>tx</u></b> &nbsp;
-	printed [[=DateTimeToStr(Now)]] by [[=Session.FooterDisplay]]
+  printed [[=DateTimeToStr(Now)]] by [[=Session.FooterDisplay]]
 </div>

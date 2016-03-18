@@ -6,7 +6,7 @@ $().ajaxComplete(function(){safeScrollToX("tracetree_selectScrollTo");});
 $("#selbox").load("iTrace.xxm?name=tracetree&id=[[=Context['id'].AsInteger]][[#txCallProtect]]");
 function treenode_select(e,name,id)
 {
-	document.location="Trace.xxm?id="+id;
+	document.location.href="Trace.xxm?id="+id;
 	return (e||window.event||this).shiftKey;
 }
 //--></script>

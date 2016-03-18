@@ -1,5 +1,11 @@
 --content
-<div style="margin-left:0em;margin-right:18em;">
+<style type="text/css"><!--
+@media screen and (min-width: 36em) {
+  .hmain {margin-left:0em;margin-right:18em;}
+  .hbar {position:absolute;top:1.2em;width:18em;right:0em;}
+}
+//--></style>
+<div class="hmain">
 
 --content
 <h1>Welcome to <i>tx</i></h1>
@@ -42,7 +48,7 @@ anyrealm=0
 limit=50
 --content
 </div>
-<div style="position:absolute;top:1.2em;width:18em;right:0em;">
+<div class="hbar">
 --query
 select Obj.id, Obj.name, ObjType.name as typename, ObjType.icon, Tok.desc
 from Tok

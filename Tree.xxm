@@ -16,7 +16,7 @@ $().ajaxComplete(function(){safeScrollToX("mastertree_selectScrollTo");});
 $("#selbox").load("iSelect.xxm?x=[[=x]]&name=mastertree[[#txCallProtect]]");
 function treenode_select(e,name,id)
 {
-	document.location="Item.xxm?x=[[=y]]"+id;
+	document.location.href="Item.xxm?x=[[=y]]"+id;
 	return (e||window.event||this).shiftKey;
 }
 //--></script>

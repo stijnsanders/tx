@@ -1,1 +1,3 @@
+;move tasks with a 'done' token for 7 days to the 'done realm'
+;IMPORTANT: update numbers and system strings to values are configured in your database
 ot"wf.task"*+tt"wf.quant.pas"*[m7]+rlm(0,4):3

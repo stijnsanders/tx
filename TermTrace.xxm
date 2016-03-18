@@ -6,7 +6,7 @@ $().ajaxComplete(function(){safeScrollToX("tracetree_selectScrollTo");});
 $("#selbox").load("iTraceTerm.xxm?name=tracetree[[#txCallProtect]]&[[#Context.ContextString(csQueryString)]]");
 function treenode_select(e,name,x1,x2)
 {
-	document.location="TermTrace.xxm?"+x1+"="+x2;
+	document.location.href="TermTrace.xxm?"+x1+"="+x2;
 	return (e||window.event||this).shiftKey;
 }
 //--></script>
