@@ -25,7 +25,7 @@ if id=0 then qtype:=0 else
 	$("#selbox").load("iTrace.xxm?name=tracetree&id=[[=id]]&q=[[=qtype]][[#txCallProtect]]");
 	function treenode_select(e,name,id)
 	{
-		window.parent.frames["MainFrame"].location="Item.xxm?x=i"+id;
+		window.parent.frames["MainFrame"].location.replace("Item.xxm?x=i"+id);
 		return (e||window.event||this).shiftKey;
 	}
 	function frametree_expandto(t,p)
@@ -46,4 +46,3 @@ if id=0 then qtype:=0 else
 //--></script>>
 
 Context.Include('dFrameFoot.xxmi');
-]]

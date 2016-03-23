@@ -35,7 +35,7 @@ filter:=Context['filter'].Value;
 		if(window.parent.frames["MainFrame"].window.catchTreeClick)
 			window.parent.frames["MainFrame"].window.catchTreeClick(id,$("#listitem_"+id)[0]);
 		else
-			window.parent.frames["MainFrame"].location="Item.xxm?x=i"+id;
+			window.parent.frames["MainFrame"].location.replace("Item.xxm?x=i"+id);
 		return (e||window.event||this).shiftKey;
 	}
 //--></script>
@@ -90,4 +90,3 @@ $(".fli")
 .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#fliTitle").text("");});
 //--></script>>
 Context.Include('dFrameFoot.xxmi');
-]]

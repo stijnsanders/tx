@@ -79,7 +79,7 @@ try
         qr.Free;
       end;
      end;
-    Session.HasRealmPermission(rid,RlmID,rpEdit);
+    Session.HasRealmPermission(id,RlmID,rpEdit);
 
     //realm on obj2 also?
 

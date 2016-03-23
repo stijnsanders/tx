@@ -44,12 +44,12 @@ if Context['x'].AsInteger=0 then
 	<br />
 
 	<input type="checkbox" id="XRefered1" name="refered" value="1" />
-	<label for="XRefered1">Refered objects outside of primary selection</label>
+	<label for="XRefered1">Referred objects outside of primary selection</label>
 	<br />
 
 	<div style="margin-top: 0em; margin-right: 0em; margin-bottom: 0em; margin-left: 2em;">
 		<input type="checkbox" id="XRefPath1" name="refpath" value="1" checked="1" />
-		<label for="XRefPath1">Objects in path of refered objects</label>
+		<label for="XRefPath1">Objects in path of referred objects</label>
 		<br />
 
 		<input type="checkbox" id="XRefChildren1" name="refchildren" value="1" />

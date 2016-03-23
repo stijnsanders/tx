@@ -3,13 +3,13 @@
   i,id:integer;
 ]][[
 
-Context.Include('dHead.xxmi',['Viewed recently']);
+Context.Include('dHead.xxmi',['Referred to recently']);
 
-<h2>Viewed recently</h2>
+<h2>Referred to recently</h2>
 
-if (ViewedLastCount=0) or (Session.ViewedLast[0]=0) then
+if (FilterRecentCount=0) or (Session.RecentReferences[0].obj2=0) then
  begin
-  <<p class="information">No items viewed yet.</p>
+  <<p class="information">No items referred to yet.</p>
   <p>
   <a href="Item.xxm">browse...</a>,
   <a href="Filter.xxm">filter...</a>,
@@ -19,9 +19,16 @@ if (ViewedLastCount=0) or (Session.ViewedLast[0]=0) then
  end;
 
 i:=0;
-while not(i=ViewedLastCount) and not(Session.ViewedLast[i]=0) and Context.Connected do
+while not(i=FilterRecentCount) and not(Session.RecentReferences[i].obj2=0) and Context.Connected do
  begin
-  id:=Session.ViewedLast[i];
+  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT icon, name FROM RefType WHERE id=?',[Session.RecentReferences[i].reftype]);
+  try
+    ]][[#txImg(qr.GetInt('icon'))]]&nbsp;[[=qr.GetStr('name')]]
+    [[
+  finally
+    qr.Free;
+  end;
+  id:=Session.RecentReferences[i].obj2;
   qr:=TSQLiteStatement.Create(Session.DbCon,
     'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
     'FROM Obj '+

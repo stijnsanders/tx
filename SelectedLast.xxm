@@ -34,7 +34,7 @@ while (i<>FilterRecentCount) and (Session.FilterRecent[ItemType,i]<>0) and Conte
       'WHERE Obj.id=?',[id]);
     try
       Context.Include('dObjLink.xxmi',[],[qr]);
-	  Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
+      Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
       Context.Include('d_cmw.xxmi',[],[qr]);
       <<br />>
     finally
@@ -44,12 +44,12 @@ while (i<>FilterRecentCount) and (Session.FilterRecent[ItemType,i]<>0) and Conte
   else
    begin
     qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[id]);
-	try
-	  Context.Include('dTypeLinkList.xxmi',[ItemType],[qr]);
-	  <<br />>
-	finally
-	  qr.Free;
-	end;
+    try
+      Context.Include('dTypeLinkList.xxmi',[ItemType],[qr]);
+      <<br />>
+    finally
+      qr.Free;
+    end;
    end;
   inc(i);
  end;

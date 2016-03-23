@@ -6,7 +6,8 @@ Context.Include('dHead.xxmi',['Welcome']);
 <dl>
 <dt>View items</dt><dd><a href="Item.xxm">browse...</a>,
   <a href="ViewedLast.xxm" rel="nofollow">viewed recently...</a>,
-  <a href="SelectedLast.xxm" rel="nofollow">selected recently...</a>
+  <a href="SelectedLast.xxm" rel="nofollow">selected recently...</a>,
+  <a href="ReferedLast.xxm" rel="nofollow">referred to recently...</a>
 </dd>
 <dt>Select items</dt><dd><a href="Filter.xxm" rel="nofollow">filter...</a>,
   <a href="FCount.xxm" rel="nofollow">filter statistics...</a>

@@ -48,11 +48,9 @@ integer(0){ATTENTION: don't use "qr.GetDefault('weight',0)" here as Rpt.weight o
 [[#txFormButton]]
 <a href="Item.xxm?x=i[[=pid]]">back</a>
 </form>
-<script>$("#ObjName")[0].focus();</script>
+<script>$("#ObjName")[0].focus();</script>>
 
-[[
 finally
   qr.Free;
 end;
 Context.Include('dFoot.xxmi');
-]]
