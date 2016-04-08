@@ -68,5 +68,6 @@ tx.ini
 fcount/*.jpg
 Thumbs.db
 js/tinymce/
+js_tmp/
 rel_1/
 src_1/
