@@ -14,7 +14,7 @@
 AppId={{CA98A6F4-3D6A-49DF-BD84-C902C02A8001}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -26,6 +26,7 @@ LicenseFile=LICENSE
 OutputBaseFilename=txLocalOnlySetup
 Compression=lzma
 SolidCompression=yes
+UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
