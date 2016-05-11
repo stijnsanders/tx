@@ -1,12 +1,12 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
+[[@txDefs,txSession,DataLank,]][[!var
 id,pid,rid,ObjTypeID:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 
 Context.Include('dHead.xxmi',['Promote report']);
 
 id:=Context['id'].AsInteger;
-qr:=TSQLiteStatement.Create(Session.DbCon,
+qr:=TQueryResult.Create(Session.DbCon,
   'SELECT Rpt.id, Rpt.obj_id, Rpt.[desc], Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id,'+
   '  UsrObj.id AS [usrid], UsrObj.[name] AS [usrname], UsrObjType.[icon] AS [usricon], UsrObjType.[name] AS [usrtypename],'+
   '  RelTokType.[icon] AS [tokicon], RelTokType.[name] AS [tokname], RelTokType.[system] AS [toksystem],'+

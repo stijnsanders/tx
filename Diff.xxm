@@ -1,6 +1,6 @@
-[[@SQLiteData,txDefs,txSession,txTerms,VBScript_RegExp_55_TLB,]][[!var
+[[@DataLank,txDefs,txSession,txTerms,VBScript_RegExp_55_TLB,]][[!var
 id,did,h1,h2,x1,x2,r,cc:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 s1,s2,f1,f2:string;
 re:RegExp;
 mc1,mc2:IMatchCollection2;
@@ -41,7 +41,7 @@ if Context['all'].AsInteger=1 then
  begin
     <<form method="get">
 	<input type="hidden" name="id" value="[[=id]]" />>
-    qr:=TSQLiteStatement.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC',[id]);
+    qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC',[id]);
 	try
 	  while Context.Connected and qr.Read do
 	   begin
@@ -72,9 +72,9 @@ else
 	 end;
 
     if h1=0 then
-	  qr:=TSQLiteStatement.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC LIMIT 0,1',[id])
+	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC LIMIT 0,1',[id])
 	else
-	  qr:=TSQLiteStatement.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h1]);
+	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h1]);
 	try
 	  if qr.EOF then
 	   begin
@@ -97,9 +97,9 @@ else
 	end;
 
 	if (h2=0) or (h1=h2) then
-	  qr:=TSQLiteStatement.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? AND ObjHist.id<? ORDER BY ObjHist.id DESC LIMIT 0,1',[id,h1])
+	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? AND ObjHist.id<? ORDER BY ObjHist.id DESC LIMIT 0,1',[id,h1])
 	else
-	  qr:=TSQLiteStatement.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h2]);
+	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h2]);
 	try
 	  if qr.EOF then h2:=0 else
 	   begin

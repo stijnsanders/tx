@@ -1,7 +1,7 @@
-[[@txDefs,SQLiteData,txSession,]][[!var
+[[@txDefs,DataLank,txSession,]][[!var
   ItemType:TtxItemType;
   name:string;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   fr,i,id,exclude:integer;
 ]][[
 CheckCallProtect(Context);
@@ -22,7 +22,7 @@ case fr of
 	  id:=Session.ViewedLast[i];
 	  if id<>exclude then
 	   begin
-	    qr:=TSQLiteStatement.Create(Session.DbCon,
+	    qr:=TQueryResult.Create(Session.DbCon,
 		  'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
           'FROM Obj '+
           'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
@@ -42,7 +42,7 @@ case fr of
 	  id:=Session.FilterRecent[itObj,i];
 	  if id<>exclude then
 	   begin
-	    qr:=TSQLiteStatement.Create(Session.DbCon,
+	    qr:=TQueryResult.Create(Session.DbCon,
 		  'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
           'FROM Obj '+
           'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
@@ -62,7 +62,7 @@ case fr of
 	  id:=Session.FilterRecent[ItemType,i];
 	  if id<>exclude then
 	   begin
-	    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT icon, name FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[id]);
+	    qr:=TQueryResult.Create(Session.DbCon,'SELECT icon, name FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[id]);
 	    try
 	      Context.Include('dTypeListMini.xxmi',[ItemType,name,id],[qr]);
 	    finally

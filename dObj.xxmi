@@ -1,10 +1,10 @@
-[[@txDefs,txSession,SQLiteData,txTerms,]][[!var
-qr,qr1:TSQLiteStatement;
+[[@txDefs,txSession,DataLank,txTerms,]][[!var
+qr,qr1:TQueryResult;
 id,qid,i,d,hi:integer;
 ShowControls,InControl:boolean;
 url,s:string;
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 id:=qr.GetInt('id');
 
 ShowControls:=(Length(Values)<2) or boolean(Values[1]);
@@ -63,7 +63,7 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
    end;
 
   //children
-  qr:=TSQLiteStatement.Create(Session.DbCon,sqlObjsByPid,[id]);
+  qr:=TQueryResult.Create(Session.DbCon,sqlObjsByPid,[id]);
   try
     if not qr.EOF then
      begin
@@ -89,7 +89,7 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
     qr.Free;
   end;
 
-  qr1:=TSQLiteStatement.Create(Session.DbCon,
+  qr1:=TQueryResult.Create(Session.DbCon,
     'SELECT Tok.id, Tok.obj_id, Tok.toktype_id, Tok.[desc], Tok.[weight], Tok.c_uid, Tok.c_ts, Tok.m_uid, Tok.m_ts, TokType.[icon], TokType.[name], TokType.[system] '+
     'FROM Tok  '+
     'INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
@@ -133,7 +133,7 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
   finally
     qr1.Free;
   end;
-  qr1:=TSQLiteStatement.Create(Session.DbCon,
+  qr1:=TQueryResult.Create(Session.DbCon,
     'SELECT Ref.id, Ref.obj1_id, Ref.reftype_id, Ref.obj2_id, Ref.[desc], Ref.[weight], Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts,'+
     ' RefType.[icon], RefType.[name] AS [typename], Obj.[name], ObjType.[icon] AS [objicon], ObjType.[name] AS [objtypename],'+
     ' ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
@@ -204,7 +204,7 @@ if i<>0 then
   <</p></span>>
  end;
 
-qr:=TSQLiteStatement.Create(Session.DbCon,
+qr:=TQueryResult.Create(Session.DbCon,
   'SELECT Flt.id, Flt.[name], Flt.[desc], Flt.[expression], Flt.c_uid, Flt.c_ts, Flt.m_uid, Flt.m_ts '+
   'FROM Flt WHERE Flt.obj_id=? ORDER BY Flt.c_ts',[id]);
 try

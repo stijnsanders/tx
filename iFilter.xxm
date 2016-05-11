@@ -1,6 +1,6 @@
-[[@txDefs,SQLiteData,txSession,txFilter,txFilterSql,]][[!var
-qr,qr1:TSQLiteStatement;
-qrStack:array of TSQLiteStatement;
+[[@txDefs,DataLank,txSession,txFilter,txFilterSql,]][[!var
+qr,qr1:TQueryResult;
+qrStack:array of TQueryResult;
 ItemID,RootID,id,px,qx:integer;
 fv:TtxFilterViewInfo;
 fw,name,fsql:string;
@@ -52,7 +52,7 @@ try
 
   fq.Fields:='Obj.id, Obj.pid';
   fq.Where:=fw;
-  qr:=TSQLiteStatement.Create(Session.DbCon,fq.SQL);
+  qr:=TQueryResult.Create(Session.DbCon,fq.SQL);
   try
     while qr.Read and Context.Connected do
      begin
@@ -69,7 +69,7 @@ try
     {
     for i:=1 to searchUpLevels do
      begin
-      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT DISTINCT Obj.id, Obj.pid FROM Obj WHERE Obj.id IN ('+idf.List+')');
+      qr:=TQueryResult.Create(Session.DbCon,'SELECT DISTINCT Obj.id, Obj.pid FROM Obj WHERE Obj.id IN ('+idf.List+')');
       try
         //TODO: sort? unique?
         idf.Clear;
@@ -98,7 +98,7 @@ try
      end;
 
 	fsql:=sqlObjsByPid;
-	qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[RootID]);
+	qr:=TQueryResult.Create(Session.DbCon,fsql,[RootID]);
     try
       repeat
         while Context.Connected and qr.Read do
@@ -117,7 +117,7 @@ try
               fq.Where:='Obj.id='+IntToStr(idx)+' AND '+fw;
               if idf.Contains(idx) or Session.DbCon.Exists(fq.SQL) then doNode:=true else
                begin
-                qr1:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(idx));
+                qr1:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(idx));
                 try
                   while qr1.Read and Context.Connected do idc.Add(qr1.GetInt(0));
                 finally
@@ -146,7 +146,7 @@ try
 			  SetLength(qrStack,qx+1);
 			  qrStack[qx]:=qr;
 			  inc(qx);
-			  qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[id]);
+			  qr:=TQueryResult.Create(Session.DbCon,fsql,[id]);
              end;//if preExpand
            end;//if doNode
          end;//while ids

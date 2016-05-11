@@ -26,7 +26,7 @@ function XmlToDate(d:string):TDateTime;
   
 implementation
 
-uses SysUtils, txSession, SQLiteData, Variants;
+uses SysUtils, txSession, DataLank, Variants;
 
 function DefAttr(x:IXMLDOMElement;aname:string;dval:integer):integer;
 var
@@ -91,7 +91,7 @@ var
   xl:IXMLDOMNodeList;
   x:IXMLDOMElement;
   id:integer;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   sql:string;
 begin
   //Clear?
@@ -102,13 +102,13 @@ begin
     id:=x.getAttribute('id');
 
     //TODO: fix QName into query!
-	qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id FROM '+QName+' WHERE id=?',[id]);
+	qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM '+QName+' WHERE id=?',[id]);
     if qr.EOF then
      begin
       qr.Free;
 	  sql:='SELECT id FROM '+QName+' WHERE name LIKE ?';
 	  if QName='Obj' then sql:=sql+' AND rlm_id'+Session.Realms[rpView].SQL;
-      qr:=TSQLiteStatement.Create(Session.DbCon,sql,[x.selectSingleNode('name').text]);
+      qr:=TQueryResult.Create(Session.DbCon,sql,[x.selectSingleNode('name').text]);
      end;
     if not(qr.EOF) then
      begin

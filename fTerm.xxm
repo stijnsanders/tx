@@ -1,6 +1,6 @@
-[[@txDefs,txSession,SQLiteData,txCache,]][[!var
+[[@txDefs,txSession,DataLank,txCache,]][[!var
 n,r:string;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 d:integer;
 ic:TItemCache;
 ]][[
@@ -26,7 +26,7 @@ r:=Context['r'].Value;
 </form>>
 
 ic:=TItemCache.Create;
-qr:=TSQLiteStatement.Create(Session.DbCon,
+qr:=TQueryResult.Create(Session.DbCon,
   'SELECT Obj.id, Obj.pid, Obj.[name], Obj.[desc], ObjType.[icon], ObjType.[name] AS [typename] '+
   'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
   'WHERE Obj.name LIKE ? AND Obj.rlm_id'+Session.Realms[rpView].SQL,[n]);

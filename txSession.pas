@@ -2,7 +2,7 @@ unit txSession;
 
 interface
 
-uses SysUtils, Classes, xxm, SQLiteData, txDefs, txTerms;
+uses SysUtils, Classes, xxm, DataLank, txDefs, txTerms;
 
 const
   //SessionTimeout=20\1440; //20 mins
@@ -33,7 +33,7 @@ type
     FTerms: TTermStore;
     FIsAnonymous: boolean;
     function Grow(rp:TtxRealmPermission):integer;
-    function GetDbCon: TSQLiteConnection;
+    function GetDbCon: TDataConnection;
   public
     Expires:TDateTime;
     Data:TObject;//used with import for now, maybe more later, then review this
@@ -65,9 +65,9 @@ type
     destructor Destroy; override;
     property SessionID:string read FSessionID;
     property SessionCrypt:string read FSessionCrypt;
-    property DbCon: TSQLiteConnection read GetDbCon;
+    property DbCon: TDataConnection read GetDbCon;
     property IsAnonymous: boolean read FIsAnonymous;
-    procedure LoadUser(qr:TSQLiteStatement);
+    procedure LoadUser(qr:TQueryResult);
     procedure LoadRealmPermissions;
     procedure BuildRealmPermissionsSQL;
     procedure SetViewRealm(AddRemove:boolean;RealmID:integer);//used by Realm.xxm only!
@@ -110,7 +110,7 @@ function RFC822DateGMT(dd: TDateTime): string;
 threadvar
   Session: TtxSession;
   PageStartTQ,PageStartTF:int64;
-  ThreadDbCon: TSQLiteConnection;
+  ThreadDbCon: TDataConnection;
 var
   RealmsCounter: integer;
 
@@ -307,11 +307,11 @@ begin
   inherited;
 end;
 
-function TtxSession.GetDbCon: TSQLiteConnection;
+function TtxSession.GetDbCon: TDataConnection;
 begin
   if ThreadDbCon=nil then
    begin
-    ThreadDBCon:=TSQLiteConnection.Create(DbFilePath);
+    ThreadDBCon:=TDataConnection.Create(DbFilePath);
     ThreadDBCon.BusyTimeout:=30000;
    end;
   Result:=ThreadDbCon;
@@ -329,7 +329,7 @@ begin
   Session:=nil;
 end;
 
-procedure TtxSession.LoadUser(qr:TSQLiteStatement);
+procedure TtxSession.LoadUser(qr:TQueryResult);
 begin
   FIsAnonymous:=qr.EOF or (qr.GetInt('isanon')=1);
   if qr.EOF then
@@ -366,7 +366,7 @@ end;
 
 procedure TtxSession.LoadRealmPermissions;
 var
-  qr,qr1:TSQLiteStatement;
+  qr,qr1:TQueryResult;
   fx,s:string;
   f:TtxFilter;
   fq:TtxSqlQueryFragments;
@@ -391,7 +391,7 @@ begin
   fcl:=0;
   SetLength(fc,fcl);
   //rpView, rpEdit only, rpAny, rpBoth: see BuildRealmPermissionsSQL
-  qr:=TSQLiteStatement.Create(DbCon,'SELECT id, view_expression, edit_expression, limit_expression FROM Rlm ORDER BY id');
+  qr:=TQueryResult.Create(DbCon,'SELECT id, view_expression, edit_expression, limit_expression FROM Rlm ORDER BY id');
   try
     if qr.EOF or (qr.GetInt('id')<>0) then
       for rp:=rpView to rpEdit do Realms[rp].Ids[Grow(rp)]:=0;
@@ -451,7 +451,7 @@ begin
           fq.OrderBy:='';
           f.FilterExpression:=fx;
           fq.AddFilter(f);
-          qr1:=TSQLiteStatement.Create(Session.DbCon,fq.Sql,[]);
+          qr1:=TQueryResult.Create(Session.DbCon,fq.Sql,[]);
           try
             if not qr1.EOF then
              begin
@@ -519,7 +519,7 @@ end;
 procedure TtxSession.HasRealmPermission(ObjID,RealmID:integer;RealmPerm:TtxRealmPermission);
 var
   i:integer;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
 begin
   if FRealmsCounter<>RealmsCounter then LoadRealmPermissions;
   //assert RealmID=DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[ObjID],DefaultRlmID), got by any previous query
@@ -532,7 +532,7 @@ begin
     //else
     if (RealmsSQLExtra<>'') and (ObjID<>0) then
      begin
-      qr:=TSQLiteStatement.Create(DbCon,'SELECT id FROM Obj WHERE id=?'+RealmsSQLExtra,[ObjID]);
+      qr:=TQueryResult.Create(DbCon,'SELECT id FROM Obj WHERE id=?'+RealmsSQLExtra,[ObjID]);
       try
         if qr.EOF then
           raise ERealmNotEditableByUser.CreateFmt('Your control is limited in this realm. %d',[RealmID]);
@@ -713,9 +713,9 @@ end;
 
 function DBSingleValue(SQL:UTF8String;Parameters:array of OleVariant;Default:OleVariant):OleVariant;
 var
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
 begin
-  qr:=TSQLiteStatement.Create(Session.DbCon,SQL,Parameters);
+  qr:=TQueryResult.Create(Session.DbCon,SQL,Parameters);
   try
     if qr.Read and not(qr.IsNull(0)) then Result:=qr[0] else Result:=Default;
   finally
@@ -828,7 +828,7 @@ procedure NewAutoLogonToken(Context:IXxmContext;UslID:integer);
 var
   x:string;
 begin
-  //assert caller does SQLite transaction
+  //assert caller does transaction
   x:=SHA1Hash(IntToHex(integer(Session),8)+'_'+Context.ContextString(csRemoteAddress)+'_'+IntToStr(GetTickCount)+'_'+FormatDateTime('yyyymmss_hhnnss_zzz',Now));
   //assert called did UPDATE Ust SET seq=seq+1 WHERE usl_id=?
   Session.DbCon.Execute('INSERT INTO Ust (usl_id,seq,token,address,agent,c_ts) VALUES (?,0,?,?,?,?)',[

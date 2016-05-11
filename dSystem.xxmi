@@ -1,5 +1,5 @@
-[[@SQLiteData,]][[!var s:string;]][[
-s:=TSQLiteStatement(Objects[0]).GetStr('system');
+[[@DataLank,]][[!var s:string;]][[
+s:=TQueryResult(Objects[0]).GetStr('system');
 if not(s='') then
  begin
   ]]

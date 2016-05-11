@@ -1,6 +1,6 @@
-[[@txDefs,SQLiteData,txSession,Variants,txTerms,]][[!var
+[[@txDefs,DataLank,txSession,Variants,txTerms,]][[!var
 id:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 url,v1,v2,e1,e2,l1,l2:string;
 RefreshRealms:boolean;
 desc:WideString;
@@ -20,7 +20,7 @@ e1:='';
 l1:='';
 if id<>0 then
  begin
-  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT view_expression,edit_expression,limit_expression FROM Rlm WHERE id=?',[id]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT view_expression,edit_expression,limit_expression FROM Rlm WHERE id=?',[id]);
   try
     if qr.Read then
      begin

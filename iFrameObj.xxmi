@@ -1,12 +1,12 @@
-[[@txDefs,SQLiteData,txSession]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,DataLank,txSession]][[!var
+qr:TQueryResult;
 id,c:integer;
 name:string;
 hasChildren,preExpand,highlight:boolean;
 const
 preExpandImgNr:array[boolean] of string=('1','0');
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 name:=Values[0];
 id:=Values[1];
 hasChildren:=Values[2];

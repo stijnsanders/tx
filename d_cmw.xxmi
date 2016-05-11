@@ -1,8 +1,8 @@
-[[@SQLiteData,Variants,txDefs,]][[!var
-  qr:TSQLiteStatement;
+[[@DataLank,Variants,txDefs,]][[!var
+  qr:TQueryResult;
   prefix:string;
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 if Length(Values)=0 then prefix:='' else prefix:=VarToStr(Values[0]);
 ]]
 <span style="white-space: nowrap;"><span class="weight">weight: [[=qr[prefix+'weight']]]</span>

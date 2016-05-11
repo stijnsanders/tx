@@ -1,9 +1,9 @@
-[[@txDefs,SQLiteData,]][[!var
-  qr:TSQLiteStatement;
+[[@txDefs,DataLank,]][[!var
+  qr:TQueryResult;
   name:string;
   id:integer;
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 name:=Values[0];
 id:=Values[1];
 ]]

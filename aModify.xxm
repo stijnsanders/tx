@@ -1,9 +1,9 @@
-[[@txDefs,SQLiteData,txSession,txFilter,txFilterSql,]][[!var
+[[@txDefs,DataLank,txSession,txFilter,txFilterSql,]][[!var
 filter,filterU,fs:string;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
 x,i,id,weight:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ids:TIdList;
 rpFilter:TtxRealmPermission;
 ]][[
@@ -36,7 +36,7 @@ end;
 
   ids:=TIdList.Create;
   try
-    qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+    qr:=TQueryResult.Create(Session.DbCon,fs);
     try
       while qr.Read and Context.Connected do ids.Add(qr.GetInt('id'));
     finally

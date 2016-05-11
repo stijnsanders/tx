@@ -1,4 +1,4 @@
-[[@txDefs,SQLiteData,]][[!var
-qr:TSQLiteStatement;]][[
-qr:=Objects[0] as TSQLiteStatement;
+[[@txDefs,DataLank,]][[!var
+qr:TQueryResult;]][[
+qr:=Objects[0] as TQueryResult;
 <<a href="Item.xxm?x=[[=txItemTypeKey[TtxItemType(Values[0])]]][[.id]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>

@@ -1,6 +1,6 @@
-[[@txDefs,SQLiteData,txSession,Variants,]][[!var
+[[@txDefs,DataLank,txSession,Variants,]][[!var
 IsAdmin:boolean;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 id,uid:integer;
 pwd,sqlListUsr:string;
 const
@@ -44,9 +44,9 @@ if Use_ObjTokRefCache then sqlListUsr:=sqlListUsr+
   'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id ';
 
 if IsAdmin then
-  qr:=TSQLiteStatement.Create(Session.DbCon,sqlListUsr+'ORDER BY Usr.login, Usr.auth',[])
+  qr:=TQueryResult.Create(Session.DbCon,sqlListUsr+'ORDER BY Usr.login, Usr.auth',[])
 else
-  qr:=TSQLiteStatement.Create(Session.DbCon,sqlListUsr+'WHERE Usr.uid=?',[Session.UserID]);
+  qr:=TQueryResult.Create(Session.DbCon,sqlListUsr+'WHERE Usr.uid=?',[Session.UserID]);
 
 //TODO: fUser.xxm fUserPwd.xxm fDelete.xxm?x=u?
 try
@@ -120,7 +120,7 @@ if Use_Unread then
 </form>
 
 <h2>Previous auto-logons</h2>>
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Ust.* FROM Usr INNER JOIN Usl ON Usl.usr_id=Usr.id INNER JOIN Ust ON Ust.usl_id=Usl.id WHERE Usr.uid=? ORDER BY Ust.c_ts DESC',[Session.UserID]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Ust.* FROM Usr INNER JOIN Usl ON Usl.usr_id=Usr.id INNER JOIN Ust ON Ust.usl_id=Usl.id WHERE Usr.uid=? ORDER BY Ust.c_ts DESC',[Session.UserID]);
 try
   <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
   <tr>

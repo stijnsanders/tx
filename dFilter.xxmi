@@ -1,6 +1,6 @@
-[[@txDefs,txSession,SQLiteData,txTerms,]][[!var
+[[@txDefs,txSession,DataLank,txTerms,]][[!var
   id:integer;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   name,filter,filterU:string;
 ]][[
 if Length(Objects)=0 then
@@ -12,7 +12,7 @@ if Length(Objects)=0 then
  end
 else
  begin
-  qr:=Objects[0] as TSQLiteStatement;
+  qr:=Objects[0] as TQueryResult;
   name:=qr.GetStr('name');
   filter:=qr.GetStr('expression');
   id:=qr.GetInt('id');

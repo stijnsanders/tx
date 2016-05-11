@@ -1,8 +1,8 @@
-[[@txDefs,SQLiteData,]][[!var
-  qr:TSQLiteStatement;
+[[@txDefs,DataLank,]][[!var
+  qr:TQueryResult;
   id:integer;
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 id:=qr.GetInt('id');
 Context.Include('dObjLocation.xxmi',Values,Objects);
 ]]

@@ -1,10 +1,10 @@
-[[@txDefs,SQLiteData,txSession,txTerms,]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,DataLank,txSession,txTerms,]][[!var
+qr:TQueryResult;
 IsAdmin,IsRef:boolean;
 d,id,id1,hr:integer;
 s:string;
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 d:=Values[0];
 IsAdmin:=Values[1];
 id:=qr.GetInt('id');

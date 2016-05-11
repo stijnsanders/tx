@@ -1,3 +1,7 @@
+v1.3.0
+- switch to DataLank (https://github.com/stijnsanders/DataLank)
+- PostgreSQL branch (using DataLank and LibPQ)
+
 v1.2.5
 - editable filters on default realm (for realms administrator only!)
 - 'name' columns 'collate nocase' (IMPORTANT: upgrade with "tx_v1.2.5_collate_nocase.sql")

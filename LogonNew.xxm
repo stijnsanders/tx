@@ -1,7 +1,7 @@
-[[@txDefs,txSession,SQLiteData,sha1,]][[!var
+[[@txDefs,txSession,DataLank,sha1,]][[!var
 s,t,u:string;
 id:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 const
 hex:array[0..15] of char='0123456789abcdef';
 ]][[
@@ -18,7 +18,7 @@ id:=
   ((((byte(s[23]) shr 6) and 1)*9+(byte(s[23]) and $F)) shl 8) or
   ((((byte(s[31]) shr 6) and 1)*9+(byte(s[31]) and $F)) shl 12);
 u:=' ';
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Usr.uid,Usr.login,Obj.name,Usr.email,Usr.pwd,0 as isanon FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Usr.uid,Usr.login,Obj.name,Usr.email,Usr.pwd,0 as isanon FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.id=?',[id]);
 try
   if qr.EOF then t:='' else
    begin

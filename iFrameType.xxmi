@@ -1,5 +1,5 @@
-[[@txDefs,SQLiteData,]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,DataLank,]][[!var
+qr:TQueryResult;
 id:integer;
 ItemType:TtxItemType;
 name:string;
@@ -7,7 +7,7 @@ hasChildren,preExpand,highlight:boolean;
 const
 preExpandImgNr:array[boolean] of string=('1','0');  
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 name:=Values[0];
 ItemType:=TtxItemType(Values[1]);
 id:=Values[2];

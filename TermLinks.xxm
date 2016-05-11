@@ -1,7 +1,7 @@
-[[@Variants,txDefs,txSession,SQLiteData,]][[!var
+[[@Variants,txDefs,txSession,DataLank,]][[!var
 n,r,src,url:string;
 d,d1,ItemID:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ItemType:TtxItemType;
 odl:boolean;
 ]][[
@@ -15,7 +15,7 @@ odl:=false;
 
 <<h2>Term links "[[=n]]" <a href="Item.xxm?x=i[[=d]]" class="domainlink">&lsaquo;</a></h2>
 <p class="midnav">links</p>>
-qr:=TSQLiteStatement.Create(Session.DbCon,
+qr:=TQueryResult.Create(Session.DbCon,
   'SELECT Trm.domain_id, Trm.term, Trm.id as term_id, Obj.id, Obj.pid, Obj.[name], Obj.[desc], Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
   'FROM Trm '+
   'LEFT JOIN Obj ON Obj.id=Trm.obj_id '+
@@ -45,7 +45,7 @@ if odl then
 <<p><a href="fTerm.xxm[[?'d',d,'n',n]]" class="linkbutton">add</a></p>>
 
 <<p class="midnav">backlinks</p>>
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Trl.id, Trl.source, Trl.domain_id FROM Trl WHERE lower(Trl.term)=lower(?)',[n]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Trl.id, Trl.source, Trl.domain_id FROM Trl WHERE lower(Trl.term)=lower(?)',[n]);
 try
   while qr.Read and Context.Connected do
    begin

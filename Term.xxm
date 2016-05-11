@@ -1,14 +1,14 @@
-[[@SQLiteData,txSession,txCache,]][[!var
+[[@DataLank,txSession,txCache,]][[!var
 n:string;
 d,d1:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ObjLocationCache:TItemCache;
 odl:boolean;
 ]][[
 n:=Context['n'].Value;
 d:=Context['d'].AsInteger;
 odl:=false;
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT MIN(Trm.obj_id) AS id, COUNT(*) AS tcount FROM Trm WHERE Trm.domain_id=? AND lower(Trm.term)=lower(?)',[d,n]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT MIN(Trm.obj_id) AS id, COUNT(*) AS tcount FROM Trm WHERE Trm.domain_id=? AND lower(Trm.term)=lower(?)',[d,n]);
 try
   if qr.Read then
     if qr.GetInt('tcount')=1 then Context.Redirect('Item.xxm?x=i'+IntToStr(qr.GetInt('id')),true);
@@ -18,7 +18,7 @@ end;
 Context.Include('dHead.xxmi',['Term "'+n+'"']);
 <<h2>Term "[[=n]]" <a href="Item.xxm?x=i[[=d]]" class="domainlink">&lsaquo;</a></h2>>
 
-qr:=TSQLiteStatement.Create(Session.DbCon,
+qr:=TQueryResult.Create(Session.DbCon,
   'SELECT Trm.domain_id, Trm.term, Trm.id as term_id, Obj.id, Obj.pid, Obj.[name], Obj.[desc], Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
   'FROM Trm '+
   'LEFT JOIN Obj ON Obj.id=Trm.obj_id '+

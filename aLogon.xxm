@@ -1,13 +1,13 @@
-[[@txDefs,SQLiteData,txSession,xxmString,]][[!var
+[[@txDefs,DataLank,txSession,xxmString,]][[!var
 id,uid,pid,newObjTypeID,RlmID,newWeight:integer;
 url,login,name,desc,salt,pwd,email:string;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 sc:TStringContext;
 const
 dflag:array[boolean] of string=('','-');
 ]][[
 CheckFormProtect(Context);
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id, ObjType.dft FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE ObjType.system=? ORDER BY Obj.id LIMIT 1',['usergroup']);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id, ObjType.dft FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE ObjType.system=? ORDER BY Obj.id LIMIT 1',['usergroup']);
 try
   pid:=qr.GetInt('id');
   newObjTypeID:=qr.GetInt('dft');
@@ -60,7 +60,7 @@ if Use_NewUserEmailActivation then
  end
 else
  begin
-  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT uid, email, 0 as isanon FROM Usr WHERE id=?',[id]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 0 as isanon FROM Usr WHERE id=?',[id]);
   try
     Session.LoadUser(qr);
   finally

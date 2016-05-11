@@ -1,13 +1,13 @@
-[[@txDefs,SQLiteData,txSession,txFilterSql,]][[!var
+[[@txDefs,DataLank,txSession,txFilterSql,]][[!var
 id,pid,nid,i,weight,w:integer;
 url:string;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ids:TIdList;
 ]][[
 
 CheckFormProtect(Context);
 id:=Context['id'].AsInteger;
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT pid, weight FROM TokType WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT pid, weight FROM TokType WHERE id=?',[id]);
 try
   pid:=qr.GetInt('pid');
   weight:=qr.GetInt('weight');
@@ -47,7 +47,7 @@ try
         i:=0;
         while i<ids.Count do
          begin
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT TokType.id FROM TokType WHERE TokType.pid='+IntToStr(ids[i]));
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT TokType.id FROM TokType WHERE TokType.pid='+IntToStr(ids[i]));
           try
             while qr.Read do ids.Add(qr.GetInt(0));
           finally

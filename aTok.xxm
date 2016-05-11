@@ -1,11 +1,11 @@
-[[@txDefs,SQLiteData,txSession,txFilter,txFilterSql,]][[!var
+[[@txDefs,DataLank,txSession,txFilter,txFilterSql,]][[!var
 i,id,tid,oldTokTypeID,newTokTypeID,oldWeight,newWeight1,newWeight,RlmID:integer;
 url:string;
 desc:WideString;
 filter,fs:string;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ids:TIdList;
 ]][[
 
@@ -37,7 +37,7 @@ try
       fq.Free;
     end;
 
-    qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+    qr:=TQueryResult.Create(Session.DbCon,fs);
     try
       while qr.Read and Context.Connected do ids.Add(qr.GetInt('id'));
     finally
@@ -60,7 +60,7 @@ try
      end
     else
      begin
-      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.rlm_id, Tok.toktype_id, Tok.weight FROM Tok INNER JOIN Obj ON Obj.id=Tok.obj_id WHERE Tok.id=?',[tid]);
+      qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.rlm_id, Tok.toktype_id, Tok.weight FROM Tok INNER JOIN Obj ON Obj.id=Tok.obj_id WHERE Tok.id=?',[tid]);
       try
         if qr.Read then
          begin

@@ -1,4 +1,4 @@
-[[@txSession,Classes,SQLiteData,SQLite]][[!var
+[[@txSession,Classes,DataLank,SQLite]][[!var
 sl:TStringList;
 d,fn:string;
 b:HSQLiteDB;

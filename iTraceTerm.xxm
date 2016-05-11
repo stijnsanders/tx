@@ -1,5 +1,5 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
-  qr:TSQLiteStatement;
+[[@txDefs,txSession,DataLank,]][[!var
+  qr:TQueryResult;
   ItemType:TtxItemType;
   ItemID,id,qtype,d,d1:integer;
   n,name,name2,level,x1:string;
@@ -50,7 +50,7 @@ case qtype of
           //item info
           if qtype=1 then
            begin
-            qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT ObjType.icon, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ItemID]);
+            qr:=TQueryResult.Create(Session.DbCon,'SELECT ObjType.icon, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ItemID]);
             try
               if Context.Connected and qr.Read then
                begin
@@ -69,7 +69,7 @@ case qtype of
            end;
           //children
           name2:=name+'I'+level;
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id FROM Obj WHERE pid=? AND rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[ItemID]);
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM Obj WHERE pid=? AND rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[ItemID]);
           try
             id:=ItemID;
             if qr.Read then
@@ -86,7 +86,7 @@ case qtype of
           end;
           //terms for object
           name2:=name+'T'+level;
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Trm.id, Trm.domain_id, Trm.term FROM Trm WHERE Trm.obj_id=? ORDER BY Trm.term',[ItemID]);
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT Trm.id, Trm.domain_id, Trm.term FROM Trm WHERE Trm.obj_id=? ORDER BY Trm.term',[ItemID]);
           try
             while Context.Connected and qr.Read do
              begin
@@ -115,7 +115,7 @@ case qtype of
       end;
       //links
       name2:=name+'L'+level;
-      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Trl.id, Trl.term, Trl.domain_id FROM Trl WHERE Trl.source=?',[txItemTypeKey[ItemType]+IntToStr(ItemID)]);
+      qr:=TQueryResult.Create(Session.DbCon,'SELECT Trl.id, Trl.term, Trl.domain_id FROM Trl WHERE Trl.source=?',[txItemTypeKey[ItemType]+IntToStr(ItemID)]);
       try
         while Context.Connected and qr.Read do
          begin
@@ -142,7 +142,7 @@ case qtype of
       //term objects
       level:=level+n;
       name2:=name+'O'+level;
-      qr:=TSQLiteStatement.Create(Session.DbCon,
+      qr:=TQueryResult.Create(Session.DbCon,
 	    'SELECT Trm.domain_id, Trm.term, Trm.id as term_id, Obj.id, Obj.pid, Obj.[name], Obj.[desc], Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
         'FROM Trm '+
         'LEFT JOIN Obj ON Obj.id=Trm.obj_id '+
@@ -170,7 +170,7 @@ case qtype of
       end;
       //term links
       name2:=name+'B'+level;
-      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Trl.id, Trl.source, Trl.domain_id FROM Trl WHERE lower(Trl.term)=lower(?)',[n]);
+      qr:=TQueryResult.Create(Session.DbCon,'SELECT Trl.id, Trl.source, Trl.domain_id FROM Trl WHERE lower(Trl.term)=lower(?)',[n]);
       try
         while Context.Connected and qr.Read do
          begin
@@ -200,7 +200,7 @@ case qtype of
       itObj:
        begin
         //list children
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' ORDER BY Obj.weight, Obj.name, Obj.c_ts',[ItemID]);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' ORDER BY Obj.weight, Obj.name, Obj.c_ts',[ItemID]);
         try
           while Context.Connected and qr.Read do
            begin

@@ -1,7 +1,7 @@
-[[@txDefs,SQLiteData,txSession,txFilter,txFilterSql,]][[!var
+[[@txDefs,DataLank,txSession,txFilter,txFilterSql,]][[!var
   filter,filterU,FormButton:string;
   id,x:integer;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
 const
   FormConfirm='confirm(''Are you sure to modify these objects?'')';
   FormAllRealm='<br /><input type="checkbox" name="all" value="1" id="allRealm1" />'#13#10+
@@ -132,7 +132,7 @@ case x of
       <input type="radio" name="realm" value="0" id="realm0" checked="1" />
       <label for="realm0"><i>default realm</i></label>
       <br />>
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, name FROM Rlm WHERE id>0 ORDER BY id',[]);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT id, name FROM Rlm WHERE id>0 ORDER BY id',[]);
         try
           while qr.Read and Context.Connected do
            begin

@@ -1,6 +1,6 @@
-[[@txDefs,txSession,SQLiteData]][[!var
+[[@txDefs,txSession,DataLank]][[!var
 x,id,i,id0,id1,id2:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 s:string;
 ]][[
 
@@ -23,7 +23,7 @@ try
       if x=2 then
        begin
         s:='Items in view marked read';
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT DISTINCT Obx.id, X.id'+
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT DISTINCT Obx.id, X.id'+
           ' FROM Obj'+
           ' INNER JOIN Obx ON Obx.obj_id=Obj.id'+
           ' LEFT OUTER JOIN Urx ON Urx.uid='+IntToStr(Session.UserID)+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
@@ -34,7 +34,7 @@ try
       else
        begin
         s:='Children marked read';
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT DISTINCT Obx.id, X.id'+
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT DISTINCT Obx.id, X.id'+
           ' FROM ObjPath '+
           ' INNER JOIN Obj ON Obj.id=ObjPath.oid AND Obj.rlm_id'+Session.Realms[rpView].SQL+
           ' INNER JOIN Obx ON Obx.obj_id=Obj.id'+

@@ -2,7 +2,7 @@ unit txFilterSql;
 
 interface
 
-uses SysUtils, txDefs, txFilter, SQLiteData;
+uses SysUtils, txDefs, txFilter, DataLank;
 
 type
   TtxSqlQueryFragments=class(TObject)
@@ -10,7 +10,7 @@ type
     FItemType:TtxItemType;
     AliasCount,FParentID:integer;
     AddedWhere:boolean;
-    DbCon:TSQLiteConnection;
+    DbCon:TDataConnection;
     function BuildSQL:string;
 
     function SqlStr(s:string):string;
@@ -152,14 +152,14 @@ procedure TtxSqlQueryFragments.AddFilter(f: TtxFilter);
 var
   i,j,k:integer;
   s,t:string;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   fx:TtxFilter;
   fq:TtxSqlQueryFragments;
   procedure LocalPrefetch;
   begin
     with TIdList.Create do
       try
-        qr:=TSQLiteStatement.Create(Session.DbCon,s);
+        qr:=TQueryResult.Create(Session.DbCon,s);
         try
           while qr.Read do Add(qr.GetInt(0));
         finally
@@ -316,7 +316,7 @@ begin
         fx:=TtxFilter.Create;
         try
           //TODO: detect loops?
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Flt.expression FROM Flt WHERE Flt.id'+Criterium(f[i],'','',false,false)+' LIMIT 1');
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT Flt.expression FROM Flt WHERE Flt.id'+Criterium(f[i],'','',false,false)+' LIMIT 1');
           try
             if qr.EOF then raise EtxSqlQueryError.Create('Filter not found at position '+IntToStr(Idx1));
               fx.FilterExpression:=qr.GetStr(0);
@@ -677,7 +677,7 @@ var
   fe:TtxFilterEnvVar;
   f:TtxFilter;
   fq:TtxSqlQueryFragments;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
 begin
   ItemType:=txFilterActionItemType[El.Action];
   idSQL:='';
@@ -752,7 +752,7 @@ begin
 
     if (El.Descending or El.Prefetch) and (idSQL<>'') then
      begin
-      qr:=TSQLiteStatement.Create(Session.DbCon,idSQL);
+      qr:=TQueryResult.Create(Session.DbCon,idSQL);
       try
         while qr.Read do ids.Add(qr.GetInt(0));
       finally
@@ -777,7 +777,7 @@ begin
           i:=0;
           while i<ids.Count do
            begin
-            qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
+            qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
             try
               while qr.Read do ids.Add(qr.GetInt(0));
             finally
@@ -807,7 +807,7 @@ begin
               while i<ids1.Count do
                begin
                 //only add those with children
-                qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids1[i]));
+                qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids1[i]));
                 try
                   if not qr.EOF then ids.Add(ids1[i]);
                   while qr.Read do ids1.AddClip(qr.GetInt(0),i);
@@ -837,7 +837,7 @@ begin
             i:=0;
             while i<ids.Count do
              begin
-              qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids[i]));
+              qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids[i]));
               try
                 while qr.Read do ids.Add(qr.GetInt(0));
               finally
@@ -853,7 +853,7 @@ begin
       if Reverse then //one level up
         for i:=0 to ids.Count-1 do
          begin
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
           try
             ids[i]:=qr.GetInt(0);
           finally

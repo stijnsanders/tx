@@ -1,6 +1,6 @@
-[[@txSession,SQLiteData,]][[!var
+[[@txSession,DataLank,]][[!var
 x:string;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 id:integer;
 ]][[
 //TODO: if present erase cookie AutoLogonCookieName
@@ -11,7 +11,7 @@ if x<>'' then
   ClearAutoLogonToken(Context);
   Session.DbCon.Execute('BEGIN TRANSACTION');
   try
-    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT usl_id FROM Ust WHERE token=?',[x]);
+    qr:=TQueryResult.Create(Session.DbCon,'SELECT usl_id FROM Ust WHERE token=?',[x]);
 	try
 	  id:=qr.GetInt('usl_id');
 	finally

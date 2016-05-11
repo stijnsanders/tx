@@ -37,7 +37,7 @@ type
 
 implementation
 
-uses SysUtils, SQLiteData, txSession, ComObj, ActiveX;
+uses SysUtils, DataLank, txSession, ComObj, ActiveX;
 
 //const Class_txWebTermCheck:TGUID='{00007478-0000-C057-0001-5465726D4368}';
 

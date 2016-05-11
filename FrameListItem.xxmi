@@ -1,11 +1,11 @@
-[[@Windows,txDefs,SQLiteData,txSession,txFilter,txFilterSql,txCache,txNodes,]][[!var
-qr:TSQLiteStatement;
+[[@Windows,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,txNodes,]][[!var
+qr:TQueryResult;
 id,pid:integer;
 ic:TItemCache;
 s:string;
 ln:TLocationNode;
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 ic:=Objects[1] as TItemCache;
 id:=qr.GetInt('id');
 pid:=qr.GetInt('pid');

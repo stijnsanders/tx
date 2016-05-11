@@ -1,5 +1,5 @@
-[[@txSession,SQLiteData,]][[!var
-qr:TSQLiteStatement;
+[[@txSession,DataLank,]][[!var
+qr:TQueryResult;
 s:string;
 ]][[
 CheckCallProtect(Context);
@@ -10,7 +10,7 @@ if Length(s)<3 then
  end
 else
  begin
-  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id FROM Usr WHERE login=?',[s]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM Usr WHERE login=?',[s]);
   try
     if qr.EOF then
      begin

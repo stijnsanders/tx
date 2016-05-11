@@ -1,8 +1,8 @@
-[[@txDefs,SQLiteData,txFilter,txSession,]][[!var
+[[@txDefs,DataLank,txFilter,txSession,]][[!var
   ItemType:TtxItemType;
   IDType:TtxFilterIDType;
   ID:string;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   InView:boolean;
 const
   ImgSuffix:array[boolean] of string=('0','1');
@@ -21,7 +21,7 @@ ID:=string(Values[2]);
             Context.SendHTML(txImg(-1)+' <i>none</i>')
           else
            begin
-            qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[StrToInt(ID)]);
+            qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[StrToInt(ID)]);
             try
               if qr.Read then
                begin
@@ -40,7 +40,7 @@ ID:=string(Values[2]);
             Context.SendHTML(txImg(-1)+' <i>none</i>')
           else
            begin
-            qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, icon, name FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[StrToInt(ID)]);
+            qr:=TQueryResult.Create(Session.DbCon,'SELECT id, icon, name FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[StrToInt(ID)]);
             try
                if qr.Read then
                  Context.Include('dTypeLink.xxmi',[ItemType],[qr])
@@ -68,7 +68,7 @@ ID:=string(Values[2]);
               Context.SendHTML(' <i>default realm</i>')
             else
              begin
-              qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT name FROM Rlm WHERE   id=?',[StrToInt(ID)]);
+              qr:=TQueryResult.Create(Session.DbCon,'SELECT name FROM Rlm WHERE   id=?',[StrToInt(ID)]);
               try
                  if qr.Read then
                    Context.SendHTML(qr.GetStr('name'))

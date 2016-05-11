@@ -1,9 +1,9 @@
-[[@Windows,Variants,txDefs,SQLiteData,txSession,txFilter,txFilterSql,txCache,txTerms,txNodes,]][[!var
+[[@Windows,Variants,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,txTerms,txNodes,]][[!var
   filter,filterU,fs1,fs2,s:string;
   f:TtxFilter;
   fq1,fq2:TtxSqlQueryFragments;
   id,pid,limit,d,c1,c2:integer;
-  qr1,qr2:TSQLiteStatement;
+  qr1,qr2:TQueryResult;
   qs1,qs2:boolean;
   tc1,tc2,tc3,tc4:cardinal;
   d1,d2:TDateTime;
@@ -94,8 +94,8 @@ end;
     [[
    end;
    
-  qr1:=TSQLiteStatement.Create(Session.DbCon,fs1);
-  qr2:=TSQLiteStatement.Create(Session.DbCon,fs2);
+  qr1:=TQueryResult.Create(Session.DbCon,fs1);
+  qr2:=TQueryResult.Create(Session.DbCon,fs2);
   c1:=0;
   c2:=0;
   LocationCache:=TItemCache.Create;

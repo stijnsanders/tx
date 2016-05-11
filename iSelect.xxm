@@ -1,6 +1,6 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
-  qr:TSQLiteStatement;
-  qrStack:array of TSQLiteStatement;
+[[@txDefs,txSession,DataLank,]][[!var
+  qr:TQueryResult;
+  qrStack:array of TQueryResult;
   ItemType:TtxITemType;
   idp:array of integer;
   ItemID,RootID,id,exclude,px,qx:integer;
@@ -44,7 +44,7 @@ case ItemType of
 	 end;
 
 	fsql:=sqlObjsByPid;
-	qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[RootID]);
+	qr:=TQueryResult.Create(Session.DbCon,fsql,[RootID]);
 	try
 	  repeat
 		while Context.Connected and qr.Read do
@@ -73,7 +73,7 @@ case ItemType of
 			  SetLength(qrStack,qx+1);
 			  qrStack[qx]:=qr;
 			  inc(qx);
-			  qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[id]);
+			  qr:=TQueryResult.Create(Session.DbCon,fsql,[id]);
 			 end;//if preExpand
 		   end;//if not id=exclude
 		 end;//while qr.Read
@@ -116,7 +116,7 @@ case ItemType of
 	 end;
 
     fsql:='SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE pid=? ORDER BY weight, name, c_ts';
-	qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[RootID]);
+	qr:=TQueryResult.Create(Session.DbCon,fsql,[RootID]);
 	try
 	  repeat
 		while Context.Connected and qr.Read do
@@ -145,7 +145,7 @@ case ItemType of
 			  SetLength(qrStack,qx+1);
 			  qrStack[qx]:=qr;
 			  inc(qx);
-			  qr:=TSQLiteStatement.Create(Session.DbCon,fsql,[id]);
+			  qr:=TQueryResult.Create(Session.DbCon,fsql,[id]);
 			 end;//if preExpand
 		   end;//if not(id=exclude
 		 end;//while qr.Read

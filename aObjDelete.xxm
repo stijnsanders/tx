@@ -1,14 +1,14 @@
-[[@txDefs,SQLiteData,txSession,txFilterSql,]][[!var
+[[@txDefs,DataLank,txSession,txFilterSql,]][[!var
 id,pid,nid,RlmID,i:integer;
 url:string;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ids:TIdList;
 ]][[
 
 id:=Context['id'].AsInteger;
 CheckFormProtect(Context);
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT pid, rlm_id FROM Obj WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT pid, rlm_id FROM Obj WHERE id=?',[id]);
 try
   pid:=qr.GetInt('pid');
   RlmID:=qr.GetInt('rlm_id');
@@ -98,7 +98,7 @@ if Context['full'].AsInteger=1 then
         i:=0;
         while i<ids.Count do
          begin
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(ids[i]));
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(ids[i]));
           try
             while qr.Read do ids.Add(qr.GetInt(0));
           finally
@@ -137,7 +137,7 @@ if Context['full'].AsInteger=1 then
 else
  begin
   RlmID:=0;
-  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, system FROM Rlm',[]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT id, system FROM Rlm',[]);
   try
     while qr.Read and (RlmID=0) do
       if LowerCase(qr.GetStr('system'))='deleted' then RlmID:=qr.GetInt('id');
@@ -156,7 +156,7 @@ else
       i:=0;
       while i<ids.Count do
        begin
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(ids[i]));
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(ids[i]));
         try
           while qr.Read do ids.Add(qr.GetInt(0));
         finally

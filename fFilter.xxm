@@ -1,13 +1,13 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
+[[@txDefs,txSession,DataLank,]][[!var
 id:integer;
 filter:string;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 Context.Include('dHead.xxmi',['Stored filter']);
 
 filter:=Context['filter'].Value;
 id:=Context['id'].AsInteger;
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Flt WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Flt WHERE id=?',[id]);
 try
   <<h2>Stored filter</h2>
   [[#txForm('aFilter.xxm',[])]]

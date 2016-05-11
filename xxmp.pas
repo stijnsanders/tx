@@ -17,7 +17,7 @@ function XxmProjectLoad(AProjectName:WideString): IXxmProject; stdcall;
 
 implementation
 
-uses txSession, SQLiteData, xxmFReg, Windows, Classes, xxmHeaders;
+uses txSession, DataLank, xxmFReg, Windows, Classes, xxmHeaders;
 
 function XxmProjectLoad(AProjectName:WideString): IXxmProject;
 begin
@@ -30,7 +30,7 @@ end;
 function TXxmtx.LoadPage(Context:IXxmContext;Address:WideString): IXxmFragment;
 var
   uname,s,x:string;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   id:integer;
 begin
   inherited;
@@ -40,14 +40,14 @@ begin
     try
       uname:=Context.ContextString(csAuthUser);
       if uname='' then qr:=nil else
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT uid, email, 0 AS isanon FROM Usr WHERE LOWER(auth)=LOWER(?)',[uname]);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 0 AS isanon FROM Usr WHERE LOWER(auth)=LOWER(?)',[uname]);
       if (qr=nil) or (qr.EOF) then
        begin
         if qr<>nil then FreeAndNil(qr);
         x:=Context.GetCookie(AutoLogonCookieName);
         if x<>'' then
          begin
-          qr:=TSQLiteStatement.Create(Session.DbCon,
+          qr:=TQueryResult.Create(Session.DbCon,
             'SELECT Usr.id, Usr.uid, Usr.email, 0 AS isanon, Ust.usl_id, Ust.seq'+
             ' FROM Usr INNER JOIN Usl ON Usl.usr_id=Usr.id'+
             ' INNER JOIN Ust ON Ust.usl_id=Usl.id WHERE Ust.token=?',[x]);
@@ -87,7 +87,7 @@ begin
       if (qr=nil) or (qr.EOF) then
        begin
         if qr<>nil then qr.Free;
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT uid, email, 1 AS isanon FROM Usr WHERE auth=?',['anonymous']);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 1 AS isanon FROM Usr WHERE auth=?',['anonymous']);
        end;
       if qr.EOF then
        begin

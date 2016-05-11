@@ -1,6 +1,6 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
+[[@txDefs,txSession,DataLank,]][[!var
 id:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 Context.Include('dHead.xxmi',['Report']);
 id:=Context['id'].AsInteger;
@@ -12,7 +12,7 @@ id:=Context['id'].AsInteger;
 
 <<h2>Report</h2>>
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name '+
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name '+
   'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id]);
 try
   <<p><a href="Item.xxm?x=i[[=id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a></p>>

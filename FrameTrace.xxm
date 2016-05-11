@@ -1,5 +1,5 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,txSession,DataLank,]][[!var
+qr:TQueryResult;
 id,qtype:integer;
 ]][[
 Context.Include('dFrameHead.xxmi',['Trace']);
@@ -7,7 +7,7 @@ id:=Context['id'].AsInteger;
 if id=0 then qtype:=0 else
  begin
 	qtype:=9;
-	qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id]);
+	qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id]);
 	try
 	  <<p class="objecttitle">
 	  <a href="Item.xxm?x=i[[.id]]" title="[[.typename]]" target="MainFrame">>#txImg(qr.GetInt('icon'))]] [[.name<</a>

@@ -1,8 +1,8 @@
-[[@txDefs,txSession,SQLiteData,txFCount,]][[!var
+[[@txDefs,txSession,DataLank,txFCount,]][[!var
 itemcount,run,imgonly:boolean;
 timedelta,i,j,k,id,x,y,incs,orig:integer;
 legend:boolean;
-q:TSQLiteStatement;
+q:TQueryResult;
 fg:TFilterGraph;
 d1,d2:TDateTime;
 dy,dm,dd:word;
@@ -151,7 +151,7 @@ function doClr()
 <select name="addf">
 <option value="" style="color:#00F;">[select a filter to add]</option>>
 
-q:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, name FROM Flt WHERE showgraph=1 ORDER BY name',[]);
+q:=TQueryResult.Create(Session.DbCon,'SELECT id, name FROM Flt WHERE showgraph=1 ORDER BY name',[]);
 try
   while q.Read and Context.Connected do
    begin
@@ -184,7 +184,7 @@ doClr();
 
 for i:=0 to Length(filters)-1 do
  begin
-  q:=TSQLiteStatement.Create(Session.DbCon,'SELECT name FROM Flt WHERE id=?',[filters[i].id]);
+  q:=TQueryResult.Create(Session.DbCon,'SELECT name FROM Flt WHERE id=?',[filters[i].id]);
   try
     filters[i].name:=q.GetStr('name');
   finally
@@ -258,7 +258,7 @@ try
       end;
       for i:=0 to Length(filters)-1 do
        begin
-        q:=TSQLiteStatement.Create(Session.DbCon,FlgQuery[itemcount],[filters[i].id,d1,d2]);
+        q:=TQueryResult.Create(Session.DbCon,FlgQuery[itemcount],[filters[i].id,d1,d2]);
         try
           fg.AddFilter(q,DClr(filters[i].clr));
         finally

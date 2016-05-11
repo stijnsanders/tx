@@ -1,4 +1,4 @@
-[[@MSXML,txDefs,txSession,SQLiteData,txImport,Variants,]][[!var
+[[@MSXML,txDefs,txSession,DataLank,txImport,Variants,]][[!var
 im:TtxImport;
 xl,xl2:IXMLDOMNodeList;
 x,y,x1:IXMLDOMElement;
@@ -6,7 +6,7 @@ q,{id1,}id2,pid1,pid2,tid,rid,xid,retryCount,icon,i{,j}:integer;
 pfound,dd:boolean;
 name:WideString;
 s:string;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 xx:array of OleVariant;
 
 procedure dset(i:integer;v1,v2:OleVariant);
@@ -91,7 +91,7 @@ for q:=1 to 3 do
           name:=x.selectSingleNode('name').text;
           dd:=false;
           SetLength(xx,5);
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT icon, name, system, weight FROM '+QName[q]+' WHERE id=?',[id2]);//, dft
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT icon, name, system, weight FROM '+QName[q]+' WHERE id=?',[id2]);//, dft
           try
             dset(0,qr['icon'],icon);
             dset(1,qr['name'],name);
@@ -192,7 +192,7 @@ for q:=1 to 3 do
           icon:=DefAttr(y,'icon',-1);
           dd:=false;
           SetLength(xx,6);
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT objtype_id,name,[desc],url,weight FROM Obj WHERE id=?',[id2]);
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT objtype_id,name,[desc],url,weight FROM Obj WHERE id=?',[id2]);
           try
             dset(0,qr['objtype_id'],tid);
             dset(1,qr['name'],name);

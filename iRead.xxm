@@ -1,5 +1,5 @@
-[[@txSession,SQLiteData,]][[!var
-qr:TSQLiteStatement;
+[[@txSession,DataLank,]][[!var
+qr:TQueryResult;
 ]][[
 
 //assert Use_Unread
@@ -7,7 +7,7 @@ qr:TSQLiteStatement;
 
 CheckCallProtect(Context);
 Context.ContentType:='text/plain';
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT ObjPath.pid, '+
+qr:=TQueryResult.Create(Session.DbCon,'SELECT ObjPath.pid, '+
 {
   '(SELECT MIN(Obx.id) FROM Obx LEFT OUTER JOIN Urx'+
   ' ON Urx.uid='+IntToStr(Session.UserID)+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+

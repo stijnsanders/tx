@@ -1,5 +1,5 @@
-[[@txDefs,txSession,SQLiteData,txFilter,txFilterSql,]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,txSession,DataLank,txFilter,txFilterSql,]][[!var
+qr:TQueryResult;
 i,ItemCount,TotalWeight:integer;
 fl:array of record
   id:integer;
@@ -19,7 +19,7 @@ CheckMaintProtect(Context);
 dry:=Context['dry'].AsInteger<>0;
 
 i:=0;
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT [id], [name], [expression] FROM Flt');
+qr:=TQueryResult.Create(Session.DbCon,'SELECT [id], [name], [expression] FROM Flt');
 try
   while qr.Read do
    begin
@@ -59,7 +59,7 @@ for i:=0 to Length(fl)-1 do
       fq.Free;
     end;
 
-    qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+    qr:=TQueryResult.Create(Session.DbCon,fs);
     try
       ItemCount:=qr.GetInt('ItemCount');
       TotalWeight:=qr.GetInt('TotalWeight');

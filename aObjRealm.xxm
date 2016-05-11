@@ -1,9 +1,9 @@
-[[@txDefs,SQLiteData,txSession,Variants,txFilterSql]][[!var
+[[@txDefs,DataLank,txSession,Variants,txFilterSql]][[!var
 ItemType:TtxItemType;
 ItemID,RlmID,RlmID1,d,i,j:integer;
 ids,RlmIDs:TIdList;
 url:string;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 
 txItem(Context['x'].Value,ItemType,ItemID);
@@ -26,7 +26,7 @@ try
     1://children of same realm
       if Use_ObjPath then
        begin
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id FROM ObjPath INNER JOIN Obj ON Obj.id=ObjPath.oid WHERE ObjPath.pid=? AND Obj.rlm_id=?',[ItemID,RlmID1]);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM ObjPath INNER JOIN Obj ON Obj.id=ObjPath.oid WHERE ObjPath.pid=? AND Obj.rlm_id=?',[ItemID,RlmID1]);
         try
           while qr.Read do ids.Add(qr.GetInt('id'));
         finally
@@ -39,7 +39,7 @@ try
         i:=0;
         while (i<ids.Count) do
          begin
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id FROM Obj WHERE Obj.pid=?',[ids[i]]);
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id FROM Obj WHERE Obj.pid=?',[ids[i]]);
           try
             while qr.Read do if qr.GetInt('rlm_id')=RlmID1 then ids.Add(qr.GetInt('id'));
           finally
@@ -51,7 +51,7 @@ try
     2://all children (check realm: see below)
       if Use_ObjPath then
        begin
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id FROM ObjPath INNER JOIN Obj ON Obj.id=ObjPath.oid WHERE ObjPath.pid=?',[ItemID]);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id FROM ObjPath INNER JOIN Obj ON Obj.id=ObjPath.oid WHERE ObjPath.pid=?',[ItemID]);
         try
           while qr.Read do
            begin
@@ -69,7 +69,7 @@ try
         i:=0;
         while (i<ids.Count) do
          begin
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id FROM Obj WHERE Obj.pid=?',[ids[i]]);
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id FROM Obj WHERE Obj.pid=?',[ids[i]]);
           try
             while qr.Read do
              begin

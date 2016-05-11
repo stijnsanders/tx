@@ -1,6 +1,6 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
+[[@txDefs,txSession,DataLank,]][[!var
 id,pid,xid:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 
 Context.Include('dHead.xxmi',['Object Type']);
@@ -9,7 +9,7 @@ id:=Context['id'].AsInteger;
 pid:=Context['pid'].AsInteger;
 if pid=0 then xid:=id else xid:=pid;
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM ObjType WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM ObjType WHERE id=?',[id]);
 try
 
 <<h2>Object Type</h2>

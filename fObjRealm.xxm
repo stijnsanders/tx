@@ -1,7 +1,7 @@
-[[@txDefs,SQLiteData,txSession,]][[!var
+[[@txDefs,DataLank,txSession,]][[!var
   ItemType:TtxItemType;
   ItemID,RlmID,id:integer;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   IsAdmin,InControl:boolean;
   x:string;
 ]][[
@@ -18,7 +18,7 @@ IsAdmin:=Session.IsAdmin('realms');
 [[#txForm('aObjRealm.xxm',[])]]
 [[#txFormProtect]]
 [[
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ItemID]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, Obj.rlm_id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ItemID]);
 try
   <<p class="objecttitle">[[Context.Include('dObjLink.xxmi',[],[qr]);]]</p>>
   RlmID:=qr.GetInt('rlm_id');
@@ -30,7 +30,7 @@ end;
 <input type="radio" name="rlm" value="0" id="Rlm0" [[if RlmID=0 then Context.SendHTML('checked="1"');]] />
 <label for="Rlm0"><i>Default realm</i> #0</label>
 </p>>
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id,[name],[desc] FROM Rlm WHERE id>0 ORDER BY id',[]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT id,[name],[desc] FROM Rlm WHERE id>0 ORDER BY id',[]);
 try
   while qr.Read and Context.Connected do
    begin

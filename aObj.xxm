@@ -1,4 +1,4 @@
-[[@txDefs,SQLiteData,txSession,]][[!var
+[[@txDefs,DataLank,txSession,]][[!var
 id,pid,i,j,l,x,oldObjTypeID,newObjTypeID,newWeight,RlmID,addOther:integer;
 s,url:string;
 name,desc:WideString;

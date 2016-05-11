@@ -1,5 +1,5 @@
-[[@txDefs,SQLiteData,txSession,]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,DataLank,txSession,]][[!var
+qr:TQueryResult;
 aid,bid:integer;
 InControl:boolean;
 ]][[
@@ -9,7 +9,7 @@ Context.Include('dHead.xxmi',['Filters Overview']);
 <<h2>Filters Overview</h2>>
 
 aid:=-1;
-qr:=TSQLiteStatement.Create(Session.DbCon,
+qr:=TQueryResult.Create(Session.DbCon,
   'SELECT Flt.*, Obj.objtype_id, Obj.[name] AS objname, Obj.rlm_id, ObjType.[icon], ObjType.[name] AS [typename] '+
   'FROM Flt '+
   'LEFT OUTER JOIN Obj ON Obj.id=Flt.obj_id '+

@@ -1,6 +1,6 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
+[[@txDefs,txSession,DataLank,]][[!var
 id:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 IsAdmin:boolean;
 ]][[
 Context.Include('dHead.xxmi',['Account']);
@@ -10,7 +10,7 @@ Context.Include('dHead.xxmi',['Account']);
     id:=Context['id'].AsInteger
   else
     id:=DBSingleValue('SELECT id FROM Usr WHERE uid=?',[Session.UserID],0);
-  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Usr WHERE id=?',[id]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Usr WHERE id=?',[id]);
   try
   <<h2>Account</h2>
   <script><!--

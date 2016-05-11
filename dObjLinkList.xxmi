@@ -1,8 +1,8 @@
-[[@txDefs,SQLiteData,txSession]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,DataLank,txSession]][[!var
+qr:TQueryResult;
 id,c:integer;
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 id:=qr.GetInt('id');
 <<a href="Item.xxm?x=i[[=id]]" title="[[.typename]]"[[
 if Session.QryUnread and (qr.GetInt('r0')<>0) then begin ]] class="u"[[ end;

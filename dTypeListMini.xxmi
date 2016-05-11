@@ -1,10 +1,10 @@
-[[@txDefs,SQLiteData,]][[!var
+[[@txDefs,DataLank,]][[!var
   ItemType:TtxItemType;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   name:string;
   id:integer;
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 ItemType:=Values[0];
 name:=Values[1];
 id:=Values[2];

@@ -1,6 +1,6 @@
-[[@txDefs,SQLiteData,txSession,Variants,]][[!var
+[[@txDefs,DataLank,txSession,Variants,]][[!var
 id:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 msg:string;
 IsAdmin:boolean;
 ]][[
@@ -11,7 +11,7 @@ msg:=Context['msg'].Value;
 
 IsAdmin:=Session.IsAdmin('logins');
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Usr WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Usr WHERE id=?',[id]);
 try
   if not(IsAdmin) and (qr.GetInt('uid')<>Session.UserID) then
     raise Exception.Create('Updating accounts other than own is only allowed by login-admininistrator.');

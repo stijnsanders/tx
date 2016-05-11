@@ -2,7 +2,7 @@ unit txFCount;
 
 interface
 
-uses Windows, Graphics, SQLiteData;
+uses Windows, Graphics, DataLank;
 
 type
   TFilterGraph=class(TObject)
@@ -19,7 +19,7 @@ type
     function StartPosition(Lbl:string):boolean;
     procedure SecondLabel(Lbl:string);
     procedure VerticalIncrement;
-    procedure AddFilter(q:TSQLiteStatement;clr:integer);
+    procedure AddFilter(q:TQueryResult;clr:integer);
     procedure AddFilterLegend(name:string;clr:integer);
     function Unique:cardinal;
   end;
@@ -200,7 +200,7 @@ begin
    end;
 end;
 
-procedure TFilterGraph.AddFilter(q: TSQLiteStatement; clr: integer);
+procedure TFilterGraph.AddFilter(q: TQueryResult; clr: integer);
 var
   a,b,c,d,x,y:integer;
 begin

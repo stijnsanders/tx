@@ -1,6 +1,6 @@
-[[@txSession,txDefs,SQLiteData,]][[!var
+[[@txSession,txDefs,DataLank,]][[!var
 id,pid,bid,ObjTypeID:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 Context.Include('dHead.xxmi',['Object']);
 id:=Context['id'].AsInteger;
@@ -9,7 +9,7 @@ if id=0 then bid:=pid else bid:=id;
 //get default new child type
 //TODO: cascade up?
 ObjTypeID:=DBSingleValue('SELECT ObjType.dft FROM ObjType INNER JOIN Obj ON Obj.objtype_id=ObjType.id WHERE Obj.id=?',[pid],0);
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Obj WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Obj WHERE id=?',[id]);
 try
 
 //if editing, get object's type

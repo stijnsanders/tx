@@ -1,5 +1,5 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
-  qr,qrTok:TSQLiteStatement;
+[[@txDefs,txSession,DataLank,]][[!var
+  qr,qrTok:TQueryResult;
   id,pid,rid,qtype:integer;
   name,name2,level:string;
 function ShortID(x:integer):string;
@@ -32,7 +32,7 @@ if qtype in [0,1] then
   //object level
 	if rid=0 then
 	 begin
-	  qr:=TSQLiteStatement.Create(Session.DbCon,
+	  qr:=TQueryResult.Create(Session.DbCon,
 	    'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name'+
 		' FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'+
 		' WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+
@@ -41,7 +41,7 @@ if qtype in [0,1] then
 	 end
 	else
 	 begin
-	  qr:=TSQLiteStatement.Create(Session.DbCon,
+	  qr:=TQueryResult.Create(Session.DbCon,
 		'SELECT Obj.id, Obj.pid, Obj.[name], ObjType.[icon], ObjType.[name] AS [typename]'+
         ' FROM Ref'+
         ' INNER JOIN Obj ON Obj.id=Ref.obj'+IntToStr(2-qtype)+'_id'+
@@ -58,7 +58,7 @@ if qtype in [0,1] then
 		<<span id="[[=name2]]_node_[[=id]]" expandurl="iTrace.xxm[[?'name',name,'id',id,'q',qtype,'l',level]][[=txCallProtect]]">
 		<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
 		<a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name2]]',[[=id]])||(event||window.event||this).ctrlKey;" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
-		qrTok:=TSQLiteStatement.Create(Session.DbCon,
+		qrTok:=TQueryResult.Create(Session.DbCon,
 		  'SELECT TokType.[icon], TokType.[name]'+
 		  ' FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id'+
 		  ' WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
@@ -97,7 +97,7 @@ else
 	id:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[pid],0);
 	if qtype<>8 then
 	 begin
-		qr:=TSQLiteStatement.Create(Session.DbCon,
+		qr:=TQueryResult.Create(Session.DbCon,
 		  'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name'+
 		  ' FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'+
 		  ' WHERE Obj.id=?',[id]);
@@ -109,7 +109,7 @@ else
 			<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_parent_[[=id]]');" />
 			<img src="img_loc.png" width="16" height="16" alt="parent" [[#globalIconAlign]]/>
 			<a id="[[=name2]]_parentlink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name2]]',[[=id]])||(event||window.event||this).ctrlKey;" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
-			qrTok:=TSQLiteStatement.Create(Session.DbCon,
+			qrTok:=TQueryResult.Create(Session.DbCon,
 			  'SELECT TokType.[icon], TokType.[name]'+
 			  ' FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id'+
 			  ' WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
@@ -131,7 +131,7 @@ else
 		end;
 	 end;
 
-    qr:=TSQLiteStatement.Create(Session.DbCon,
+    qr:=TQueryResult.Create(Session.DbCon,
 	  'SELECT RefType.id, RefType.[name], RefType.[icon]'+
       ' FROM RefType'+
       ' WHERE RefType.id IN (SELECT Ref.reftype_id FROM Ref'+
@@ -153,7 +153,7 @@ else
 	finally
 	  qr.Free;
 	end;
-    qr:=TSQLiteStatement.Create(Session.DbCon,
+    qr:=TQueryResult.Create(Session.DbCon,
 	  'SELECT RefType.id, RefType.[name], RefType.[icon]'+
 	  ' FROM RefType'+
 	  ' WHERE RefType.id IN (SELECT Ref.reftype_id FROM Ref'+

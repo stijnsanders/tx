@@ -1,6 +1,6 @@
-[[@txDefs,SQLiteData,txSession,Variants,]][[!var
+[[@txDefs,DataLank,txSession,Variants,]][[!var
 IsAdmin:boolean;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 id:integer;
 pwd,url,salt,s:string;
 allok:boolean;
@@ -24,7 +24,7 @@ if not(IsAdmin) and (Context['uid'].AsInteger<>Session.UserID) then
 
 url:='Users.xxm';
 allok:=false;//default false
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT salt, pwd FROM Usr WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT salt, pwd FROM Usr WHERE id=?',[id]);
 try
   salt:=qr.GetStr('salt');
   s:=qr.GetStr('pwd');

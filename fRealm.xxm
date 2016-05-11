@@ -1,13 +1,13 @@
-[[@txDefs,SQLiteData,txSession,]][[!var
+[[@txDefs,DataLank,txSession,]][[!var
 id,i:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 
 Context.Include('dHead.xxmi',['Realm']);
 
 id:=Context['id'].AsInteger;
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id=?',[id]);
 try
 <<h2>Realm</h2>
 [[#txForm('aRealm.xxm',['id',id])]]

@@ -1,8 +1,8 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
+[[@txDefs,txSession,DataLank,]][[!var
 x:string;
 ItemType:TtxItemType;
 ItemID,pid:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 Context.Include('dHead.xxmi',['Move and keep a reference']);
 x:=Context['x'].Value;
@@ -12,7 +12,7 @@ txItem(x,ItemType,ItemID);
 [[#txFormProtect]]
 [[
 if ItemType<>itObj then raise Exception.Create('MoveRef not allowed on non-Obj');
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.pid, Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ItemID]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.pid, Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[ItemID]);
 try
   <<p class="objecttitle">>
   Context.Include('dObjLink.xxmi',[],[qr]);

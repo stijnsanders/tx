@@ -1,7 +1,7 @@
-[[@txDefs,SQLiteData,txSession,txCache,]][[!var
+[[@txDefs,DataLank,txSession,txCache,]][[!var
   ItemType:TtxItemType;
   name,keywords:string;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   id,exclude,c,limit:integer;
   ic:TItemCache;
 const
@@ -38,12 +38,12 @@ else
 
   ic:=TItemCache.Create;
   if ItemType=itObj then
-    qr:=TSQLiteStatement.Create(Session.DbCon,
+    qr:=TQueryResult.Create(Session.DbCon,
 	  'SELECT Obj.id, Obj.pid, Obj.[name], Obj.[desc], ObjType.[icon], ObjType.[name] AS [typename] '+
 	  'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
     'WHERE Obj.name LIKE ? AND Obj.id <> ? AND Obl.rlm_id'+Session.Realms[rpView].SQL,[keywords,exclude])
   else
-    qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id,pid,[name],[icon] FROM '+txItemTypeTable[ItemType]+' WHERE name LIKE ? AND id<>? ORDER BY weight, name, c_ts',[keywords,exclude]);
+    qr:=TQueryResult.Create(Session.DbCon,'SELECT id,pid,[name],[icon] FROM '+txItemTypeTable[ItemType]+' WHERE name LIKE ? AND id<>? ORDER BY weight, name, c_ts',[keywords,exclude]);
   try
     if qr.EOF then
 	 begin

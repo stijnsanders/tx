@@ -1,11 +1,11 @@
-[[@txDefs,SQLiteData,txCache,txNodes,]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,DataLank,txCache,txNodes,]][[!var
+qr:TQueryResult;
 pid:integer;
 ic:TItemCache;
 s:string;
 ln:TLocationNode;
 ]][[
-qr:=Objects[0] as TSQLiteStatement;
+qr:=Objects[0] as TQueryResult;
 if Length(Objects)>1 then ic:=Objects[1] as TItemCache else ic:=nil;
 pid:=qr.GetInt('pid');
 Context.SendHTML(lblLocation+' ');

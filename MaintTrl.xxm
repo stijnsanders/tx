@@ -5,11 +5,11 @@
 Run this script selectivly (preferably not scheduled),
 e.g. when the 'term pattern' has changed
 
-]][[@txDefs,SQLiteData,txSession,txTerms,txFilterSql,]][[!
+]][[@txDefs,DataLank,txSession,txTerms,txFilterSql,]][[!
 
 procedure FillTrl(tbl,qry,objid:string;itype:TtxItemType);
 var
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   i,id:integer;
   ids:TIdList;
   desc:string;
@@ -19,7 +19,7 @@ begin
     Context.Send(#13#10+tbl+'('+txItemTypeName[itype]+')'#13#10);
     ids:=TIdList.Create;
     try
-      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id FROM '+tbl+qry);
+      qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM '+tbl+qry);
       try
         while qr.Read and Context.Connected do ids.Add(qr.GetInt('id'));
       finally
@@ -27,7 +27,7 @@ begin
       end;
       for i:=0 to ids.Count-1 do
        begin
-        qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT [desc], '+objid+' AS oid FROM '+tbl+' WHERE id='+IntToStr(ids[i]));
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT [desc], '+objid+' AS oid FROM '+tbl+' WHERE id='+IntToStr(ids[i]));
         try
           desc:=qr.GetStr('desc');
           id:=qr.GetInt('oid');

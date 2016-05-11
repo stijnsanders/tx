@@ -1,4 +1,4 @@
-[[@Variants,txDefs,SQLiteData,txSession,txFilter,txFilterSql,txCache,]][[!var
+[[@Variants,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,]][[!var
 title:WideString;
 urlprefix,fs1,fs2,s:string;
 sy,sm,sd,ey,em,ed:word;
@@ -6,7 +6,7 @@ fv:TtxFilterViewInfo;
 f:TtxFilter;
 fq1,fq2:TtxSqlQueryFragments;
 id,limit:integer;
-qr1,qr2:TSQLiteStatement;
+qr1,qr2:TQueryResult;
 qs1,qs2,filterme:boolean;
 d1,d2:TDateTime;
 ObjLocationCache:TItemCache;
@@ -127,8 +127,8 @@ finally
   fq1.Free;
   fq2.Free;
 end;
-  qr1:=TSQLiteStatement.Create(Session.DbCon,fs1);
-  qr2:=TSQLiteStatement.Create(Session.DbCon,fs2);
+  qr1:=TQueryResult.Create(Session.DbCon,fs1);
+  qr2:=TQueryResult.Create(Session.DbCon,fs2);
   ObjLocationCache:=TItemCache.Create;
   try
 	qs1:=qr1.Read;

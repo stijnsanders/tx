@@ -46,8 +46,8 @@ for di:=0 to d1.Count-1 do
 
 
 <h1>realm permissions</h1>
-[[@Windows,txDefs,txSession,SQLiteData,txFilter,txFilterSql]][[!var
-  qr,qr1:TSQLiteStatement;
+[[@Windows,txDefs,txSession,DataLank,txFilter,txFilterSql]][[!var
+  qr,qr1:TQueryResult;
   fx,fr,s:string;
   f:TtxFilter;
   fq:TtxSqlQueryFragments;
@@ -65,7 +65,7 @@ const
 tc1:=GetTickCount;
 fcl:=0;
 SetLength(fc,fcl);
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id, name, system, view_expression, edit_expression, limit_expression FROM Rlm ORDER BY id',[]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT id, name, system, view_expression, edit_expression, limit_expression FROM Rlm ORDER BY id',[]);
 try
   while qr.Read do
    begin
@@ -132,7 +132,7 @@ try
         fq.OrderBy:='';
         f.FilterExpression:=fx;
         fq.AddFilter(f);
-        qr1:=TSQLiteStatement.Create(Session.DbCon,fq.Sql,[]);
+        qr1:=TQueryResult.Create(Session.DbCon,fq.Sql,[]);
         try
           if qr1.EOF then
            begin

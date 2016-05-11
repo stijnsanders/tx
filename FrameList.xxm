@@ -1,5 +1,5 @@
-[[@Windows,txDefs,SQLiteData,txSession,txFilter,txFilterSql,txCache,]][[!var
-qr:TSQLiteStatement;
+[[@Windows,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,]][[!var
+qr:TQueryResult;
 filter,fs:string;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
@@ -64,7 +64,7 @@ filter:=Context['filter'].Value;
   <a class="linkbutton" href="FilterBuild.xxm?filter=[[=URLEncode(filter)]]" target="MainFrame">build</a>
   </p>>
 
-  qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+  qr:=TQueryResult.Create(Session.DbCon,fs);
   try
     if qr.EOF then
 	 begin

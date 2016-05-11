@@ -1,5 +1,5 @@
-[[@txDefs,SQLiteData,txSession]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,DataLank,txSession]][[!var
+qr:TQueryResult;
 i,uid,id,id2:integer;
 b:boolean;
 ]][[
@@ -16,7 +16,7 @@ try
     id:=0;
     id2:=0;
 	b:=false;
-	qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Urx ORDER BY uid, id2, id1');
+	qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Urx ORDER BY uid, id2, id1');
 	try
 	  while qr.Read do
 	   begin

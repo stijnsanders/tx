@@ -1,5 +1,5 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,txSession,DataLank,]][[!var
+qr:TQueryResult;
 id,objid:integer;
 url:string;
 desc:WideString;
@@ -10,7 +10,7 @@ CheckFormProtect(Context);
 
 if id<>0 then
  begin
-  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT Obj.id,Obj.rlm_id FROM Flt INNER JOIN Obj ON Obj.id=Flt.obj_id WHERE Flt.id=?',[id]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id,Obj.rlm_id FROM Flt INNER JOIN Obj ON Obj.id=Flt.obj_id WHERE Flt.id=?',[id]);
   try
     Session.HasRealmPermission(qr.GetInt('id'),qr.GetInt('rlm_id'),rpEdit);
   finally

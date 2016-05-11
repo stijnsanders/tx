@@ -1,6 +1,6 @@
-[[@txSession,SQLiteData,]][[!var
+[[@txSession,DataLank,]][[!var
 id,pid,x1,x2,id1,id2,i:integer;
-qr,qr1:TSQLiteStatement;
+qr,qr1:TQueryResult;
 url:string;
 ]][[
 
@@ -11,21 +11,21 @@ CheckCallProtect(Context);
 id:=Context['id'].AsInteger;
 Session.DbCon.Execute('BEGIN TRANSACTION');
 try
-  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT pid FROM Obj WHERE id=?',[id]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT pid FROM Obj WHERE id=?',[id]);
   try
     pid:=qr.GetInt(0);
   finally
     qr.Free;
   end;
   url:='Item.xxm?x=i'+IntToStr(pid);
-  qr1:=TSQLiteStatement.Create(Session.DbCon,'SELECT id FROM Obx WHERE obj_id=? ORDER BY id',[id]);
+  qr1:=TQueryResult.Create(Session.DbCon,'SELECT id FROM Obx WHERE obj_id=? ORDER BY id',[id]);
   try
     while qr1.Read do
      begin
       id:=qr1.GetInt('id');
       id1:=0;
       id2:=0;
-      qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Urx WHERE uid=? AND ? BETWEEN id1 AND id2 ORDER BY Urx.id1',[Session.UserID,id]);
+      qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Urx WHERE uid=? AND ? BETWEEN id1 AND id2 ORDER BY Urx.id1',[Session.UserID,id]);
       try
         if qr.Read then//first read needed, see while qr.Read below!
          begin

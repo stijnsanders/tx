@@ -1,5 +1,5 @@
-[[@txDefs,txSession,SQLiteData,Variants,]][[!var
-qr:TSQLiteStatement;
+[[@txDefs,txSession,DataLank,Variants,]][[!var
+qr:TQueryResult;
 id:integer;
 toks,refs,s:string;
 
@@ -10,7 +10,7 @@ const MaxCacheFieldLength=2000; //see ObjTokRefCache table field definition
 //assert Use_ObjTokRefCache
 id:=Values[0];
 toks:='';
-qr:=TSQLiteStatement.Create(Session.DbCon,
+qr:=TQueryResult.Create(Session.DbCon,
   'SELECT TokType.id, TokType.[icon], TokType.[name], TokType.[system] '+
   'FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
   'WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
@@ -30,7 +30,7 @@ finally
 end;
 
 refs:='';
-qr:=TSQLiteStatement.Create(Session.DbCon,
+qr:=TQueryResult.Create(Session.DbCon,
   'SELECT Ref.obj2_id, RefType.[icon], RefType.[name] AS [typename], Obj.[name], ObjType.[icon] AS [objicon] '+
   'FROM Ref '+
   'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+

@@ -1,6 +1,6 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
+[[@txDefs,txSession,DataLank,]][[!var
 id,rid,tid:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 
 Context.Include('dHead.xxmi',['Reference']);
@@ -9,7 +9,7 @@ id:=Context['id'].AsInteger;
 rid:=Context['rid'].AsInteger;
 tid:=Context['target'].AsInteger;//proposed target
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Ref WHERE id=?',[rid]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Ref WHERE id=?',[rid]);
 try
 //TODO: default?
 

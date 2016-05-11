@@ -1,12 +1,12 @@
-[[@Variants,txDefs,txSession,SQLiteData,txTerms,]][[!var
+[[@Variants,txDefs,txSession,DataLank,txTerms,]][[!var
 s,dsp:string;
 dspx:array of record
   x,y:integer;
 end;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 i,j,l,id,c:integer;
 ]][[
-//Values[0] see TSQLiteStatement.Create below
+//Values[0] see TQueryResult.Create below
 dsp:=Values[1];
 
 l:=Length(dsp);
@@ -28,7 +28,7 @@ while i<l do
  end;
 
 //TODO: getdomain?
-qr:=TSQLiteStatement.Create(Session.DbCon,StringReplace(Values[0],'[[realms]]',Session.Realms[rpView].SQL,[]));
+qr:=TQueryResult.Create(Session.DbCon,StringReplace(Values[0],'[[realms]]',Session.Realms[rpView].SQL,[]));
 try
   while qr.Read and Context.Connected do
    begin

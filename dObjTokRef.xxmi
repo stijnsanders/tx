@@ -1,6 +1,6 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
+[[@txDefs,txSession,DataLank,]][[!var
 id:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 b:boolean;
 s,prefix,suffix,l1,l2:string;
 ]][[
@@ -23,7 +23,7 @@ Context.SendHTML(' ');
 b:=false;
 if Use_ObjTokRefCache then
  begin
-  qr:=(Objects[0] as TSQLiteStatement);
+  qr:=(Objects[0] as TQueryResult);
   if not qr.IsNull('tokHTML') then //and not qr.IsNull('refHTML') then
    begin
 	  s:=qr.GetStr('tokHTML');
@@ -55,7 +55,7 @@ if Use_ObjTokRefCache then
 
 if not(b) then
  begin
-	qr:=TSQLiteStatement.Create(Session.DbCon,
+	qr:=TQueryResult.Create(Session.DbCon,
 	  'SELECT Tok.id, Tok.obj_id, Tok.toktype_id, Tok.[desc], Tok.[weight], Tok.c_uid, Tok.c_ts, Tok.m_uid, Tok.m_ts, TokType.[icon], TokType.[name] '+
 	  'FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
 	  'WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',
@@ -78,7 +78,7 @@ if not(b) then
 	finally
 	  qr.Free;
 	end;
-	qr:=TSQLiteStatement.Create(Session.DbCon,
+	qr:=TQueryResult.Create(Session.DbCon,
 	  'SELECT Ref.id, Ref.obj1_id, Ref.reftype_id, Ref.obj2_id, Ref.[desc], Ref.[weight], Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts, RefType.[icon], RefType.[name] AS [typename], Obj.[name], ObjType.[icon] AS [objicon], ObjType.[name] AS [objtypename] '+
 	  'FROM Ref '+
 	  'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+

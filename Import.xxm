@@ -1,9 +1,9 @@
-[[@Classes,MSXML,txDefs,txSession,SQLiteData,txImport,Variants,]][[!var
+[[@Classes,MSXML,txDefs,txSession,DataLank,txImport,Variants,]][[!var
 doc:DOMDocument;
 ss:TStringStream;
 im:TtxImport;
 q,act,id1,id2,id3,icon:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 xl:IXMLDOMNodeList;
 x,y:IXMLDOMElement;
 DoPageLayout,SingleItem:boolean;
@@ -183,7 +183,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
 		 end
 		else
 		 begin
-		  qr:=TSQLiteStatement.Create(Session.DbCon,
+		  qr:=TQueryResult.Create(Session.DbCon,
 		    'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
 			'FROM Obj '+
 			'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
@@ -218,7 +218,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
 	 end
 	else
 	 begin
-	  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+QName[q]+' WHERE id=?',[id2]);
+	  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM '+QName[q]+' WHERE id=?',[id2]);
 	  try
 		Context.Include('dTypeLink.xxmi',[QType[q]],[qr]);
 	  finally
@@ -266,7 +266,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
 		 end
 		else
 		 begin
-		  qr:=TSQLiteStatement.Create(Session.DbCon,
+		  qr:=TQueryResult.Create(Session.DbCon,
 		    'SELECT Obj.id, Obj.[name], ObjType.[icon], ObjType.[name] AS [typename] '+
 			'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id2]);
 		  try
@@ -329,7 +329,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
 		 end
 		else
 		 begin
-		  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+QName[q]+' WHERE id=?',[id2]);
+		  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM '+QName[q]+' WHERE id=?',[id2]);
 		  try
 			Context.Include('dTypeLink.xxmi',[QType[q]],[qr]);
 		  finally

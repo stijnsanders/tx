@@ -1,6 +1,6 @@
-[[@txDefs,SQLiteData,txSession,txTerms,]][[!var
+[[@txDefs,DataLank,txSession,txTerms,]][[!var
   IsAdmin,InView,InControl:boolean;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   s,t,USelf,df1,df2,df3:string;
   id:integer;
 const
@@ -41,7 +41,7 @@ if IsAdmin then
  end;
 
 //TODO: fRealm.xxm fDelete.xxm?x=rm
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rlm ORDER BY id',[]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Rlm ORDER BY id',[]);
 try
   if (not qr.EOF) and (qr.GetInt('id')=0) then
    begin

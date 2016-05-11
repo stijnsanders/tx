@@ -1,13 +1,13 @@
-[[@txDefs,SQLiteData,txSession,]][[!var
+[[@txDefs,DataLank,txSession,]][[!var
 id,objid,weight:integer;
 url:string;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 
 CheckFormProtect(Context);
 id:=Context['id'].AsInteger;
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT obj1_id, weight FROM Ref WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT obj1_id, weight FROM Ref WHERE id=?',[id]);
 try
   objid:=qr.GetInt('obj1_id');
   weight:=qr.GetInt('weight');

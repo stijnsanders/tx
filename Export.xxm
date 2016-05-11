@@ -1,4 +1,4 @@
-[[@Classes,txDefs,txSession,SQLiteData,txFilter,txFilterSql,]][[
+[[@Classes,txDefs,txSession,DataLank,txFilter,txFilterSql,]][[
 
 if Context['x'].AsInteger=0 then
  begin
@@ -99,7 +99,7 @@ else
     fq:TtxSqlQueryFragments;
     filter,fs,x,y:string;
     i,id:integer;
-    qr:TSQLiteStatement;
+    qr:TQueryResult;
 	xc:char;
   const
     XmlDateFmt='yyyy-mm-dd"T"hh:nn:ss';
@@ -137,7 +137,7 @@ else
   IdsOut.Sorted:=true;
   try
     //fill IdsIn with filter
-    qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+    qr:=TQueryResult.Create(Session.DbCon,fs);
     try
 	  while qr.Read and Context.Connected do
 	    IdsIn.Add('i'+IntToStr(qr.GetInt('id')));
@@ -180,7 +180,7 @@ else
          end;
         'o'://object
 		 begin
-		  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Obj WHERE id=?',[id]);
+		  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Obj WHERE id=?',[id]);
 		  try
 			AddId('u',qr.GetInt('objtype_id'));
 		    ]]
@@ -195,7 +195,7 @@ else
 		    qr.Free;
 		  end;
 
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Tok WHERE obj_id=?',[id]);
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Tok WHERE obj_id=?',[id]);
           try
             while qr.Read and Context.Connected do
              begin
@@ -212,7 +212,7 @@ else
             qr.Free;
           end;
 
-          qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Ref WHERE obj1_id=?',[id]);
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Ref WHERE obj1_id=?',[id]);
           try
             while qr.Read and Context.Connected do
              begin
@@ -234,7 +234,7 @@ else
             //if (x='i') and DoReports then
 			if DoReports then
 			 begin
-			  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rpt WHERE obj_id=?',[id]);
+			  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Rpt WHERE obj_id=?',[id]);
 			  try
 			    while qr.Read and Context.Connected do
 				 begin
@@ -262,7 +262,7 @@ else
 		 end;
 		'c','d'://children, chilren if ref'd
 		 begin
-		  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id FROM Obj WHERE pid=?',[id]);
+		  qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM Obj WHERE pid=?',[id]);
 		  try
 		    while qr.Read and Context.Connected do
 			 begin
@@ -281,7 +281,7 @@ else
 			'v':y:='TokType';
 			'w':y:='RefType';
 		  end;
-		  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM '+y+' WHERE id=?',[id]);
+		  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM '+y+' WHERE id=?',[id]);
 		  try
 			AddId(xc,qr.GetInt('pid'));
 		    ]]

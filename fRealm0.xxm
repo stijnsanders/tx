@@ -1,6 +1,6 @@
-[[@txDefs,SQLiteData,txSession,]][[!var
+[[@txDefs,DataLank,txSession,]][[!var
 i:integer;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 ]][[
 
 Context.Include('dHead.xxmi',['Realm']);
@@ -8,7 +8,7 @@ Context.Include('dHead.xxmi',['Realm']);
 if not(Session.IsAdmin('realms')) then
 	raise Exception.Create('Default realm permissions editable by realms administrator only');
 
-qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id=0',[]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id=0',[]);
 try
 <<h2>Default realm permissions</h2>
 [[#txForm('aRealm0.xxm',[])]]

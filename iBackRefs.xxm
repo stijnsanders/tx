@@ -1,13 +1,13 @@
-[[@txDefs,txSession,SQLiteData,]][[!
+[[@txDefs,txSession,DataLank,]][[!
 var
   id:integer;
-  qrRef:TSQLiteStatement;
+  qrRef:TQueryResult;
 ]][[
 
 CheckCallProtect(Context);
 id:=Context['id'].AsInteger;
 
-qrRef:=TSQLiteStatement.Create(Session.DbCon,
+qrRef:=TQueryResult.Create(Session.DbCon,
   'SELECT Ref.id, Ref.obj1_id, Ref.obj2_id, Ref.[desc], Ref.[weight], Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts, RefType.[icon], RefType.[name] AS [typename], Obj.[name], ObjType.[icon] AS [objicon], ObjType.[name] AS [objtypename] '+
   'FROM Ref '+
   'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+

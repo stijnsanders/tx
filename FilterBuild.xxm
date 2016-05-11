@@ -1,4 +1,4 @@
-[[@txDefs,txSession,SQLiteData,txFilter,]][[!
+[[@txDefs,txSession,DataLank,txFilter,]][[!
 var
   filter,filterU,action:WideString;
   txFilter,txFilterP:TtxFilter;

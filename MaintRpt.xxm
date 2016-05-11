@@ -1,9 +1,9 @@
-[[@txDefs,SQLiteData,txSession,]][[!var
+[[@txDefs,DataLank,txSession,]][[!var
 root,id,rid,nid,i,j,l,ObjTypeID,RlmID,dweight:integer;
 fmt,n,n1:string;
 d:TDateTime;
 autoCreate:boolean;
-st:TSQLiteStatement;
+st:TQueryResult;
 ]][[
 Context.Include('dHead.xxmi',['Maintenance: re-order reports by date']);
 CheckMaintProtect(Context);
@@ -41,7 +41,7 @@ else
 
 	if autoCreate then
 	 begin
-	  st:=TSQLiteStatement.Create(Session.DbCon,'SELECT ObjType.dft, Obj.rlm_id FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[root]);
+	  st:=TQueryResult.Create(Session.DbCon,'SELECT ObjType.dft, Obj.rlm_id FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[root]);
 	  try
 	    if st.EOF then raise Exception.Create('Object not found');
 		RlmID:=st.GetInt('rlm_id');
@@ -53,7 +53,7 @@ else
 	  dweight:=DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[ObjTypeID],0);
 	 end;
 
-    st:=TSQLiteStatement.Create(Session.DbCon,'SELECT id,ts FROM Rpt WHERE obj_id=?',[root]);
+    st:=TQueryResult.Create(Session.DbCon,'SELECT id,ts FROM Rpt WHERE obj_id=?',[root]);
 	try
 	  while st.Read do
 	   begin

@@ -1,11 +1,11 @@
-[[@txDefs,txSession,SQLiteData,]][[!var
+[[@txDefs,txSession,DataLank,]][[!var
 s:string;
-qr,qr1:TSQLiteStatement;
+qr,qr1:TQueryResult;
 id,pid:integer;
 ItemType:TtxItemType;
 ]][[
 ItemType:=TtxItemType(Values[0]);
-qr:=TSQLiteStatement(Objects[0]);
+qr:=TQueryResult(Objects[0]);
 Context.Include('dTypeLocation.xxmi',[ItemType,true],[qr]);
 ]]<p class="objecttitle">[[Context.Include('dTypeLink.xxmi',Values,Objects);]]</p>
 [[
@@ -24,7 +24,7 @@ if s<>'' then
 case ItemType of
   itObjType:
    begin
-	qr1:=TSQLiteStatement.Create(Session.DbCon,
+	qr1:=TQueryResult.Create(Session.DbCon,
 	  'SELECT ObjType.id, ObjType.pid, ObjType.[name], ObjType.[icon], ObjType.[system], ObjType.[weight], ObjType.dft, ObjType.c_uid, ObjType.c_ts, ObjType.m_uid, ObjType.m_ts '+
       'FROM ObjType WHERE ObjType.id=?',
 	  [qr.GetInt('dft')]);

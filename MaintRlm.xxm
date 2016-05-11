@@ -1,6 +1,6 @@
-[[@txDefs,txSession,Classes,SQLiteData,txFilter,txFilterSql,Variants,]][[!var
+[[@txDefs,txSession,Classes,DataLank,txFilter,txFilterSql,Variants,]][[!var
 sl:TStringList;
-qr:TSQLiteStatement;
+qr:TQueryResult;
 i,j,l,c,RlmID:integer;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
@@ -42,7 +42,7 @@ try
     end;
     Context.SendHTML('Run query...'#13#10);
     try
-      qr:=TSQLiteStatement.Create(Session.DbCon,fs,[VarFromDateTime(Now-7.0)]);//TODO: from settings file!
+      qr:=TQueryResult.Create(Session.DbCon,fs,[VarFromDateTime(Now-7.0)]);//TODO: from settings file!
       try
         Context.SendHTML('List objects...'#13#10);
         while qr.Read and Context.Connected do

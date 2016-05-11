@@ -1,8 +1,8 @@
-[[@Windows,txDefs,SQLiteData,txSession,txFilter,txFilterSql,txCache,txNodes,]][[:
+[[@Windows,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,txNodes,]][[:
 type
-  TSQLiteStatementX=class(TSQLiteStatement)
+  TQueryResultX=class(TQueryResult)
   private
-    Queue:TSQLiteStatementX;
+    Queue:TQueryResultX;
   end;
 ]][[!var
 fv:TtxFilterViewInfo;
@@ -10,8 +10,8 @@ fs1,fs2,s:string;
 f:TtxFilter;
 fq1,fq2:TtxSqlQueryFragments;
 id:integer;
-qr1,qrDsc:TSQLiteStatementX;
-qr2,qrRef,qrTok:TSQLiteStatement;
+qr1,qrDsc:TQueryResultX;
+qr2,qrRef,qrTok:TQueryResult;
 tc1,tc2,tc3,tc4,tc5:cardinal;
 d1,d2:TDateTime;
 ]][[
@@ -450,7 +450,7 @@ const
   <<span class="weight">build: [[=tc3-tc1]]ms</span>>
   Context.Flush;
   fq1:=nil;
-  qr1:=TSQLiteStatementX.Create(Session.DbCon,fs1);
+  qr1:=TQueryResultX.Create(Session.DbCon,fs1);
   LocationCache:=TItemCache.Create;
   try
     qr1.Queue:=nil;
@@ -469,7 +469,7 @@ const
       i:=0;
       while (i<nlist.Count) and Context.Connected do
        begin
-        qrDsc:=TSQLiteStatementX.Create(Session.DbCon,'SELECT pid FROM Obj WHERE id=?',[nlist[i]]);
+        qrDsc:=TQueryResultX.Create(Session.DbCon,'SELECT pid FROM Obj WHERE id=?',[nlist[i]]);
         try
           while qrDsc.Read and Context.Connected do
             nlist.Add(qrDsc.GetInt('pid'));
@@ -484,7 +484,7 @@ const
       fq1:=TtxSqlQueryFragments.Create(itObj);
       fs1:=fq1.Where;
       fq1.AddWhere('Obj.pid=0 AND Obj.id IN ('+nlist.List+')');
-      qr1:=TSQLiteStatementX.Create(Session.DbCon,fq1.SQL);
+      qr1:=TQueryResultX.Create(Session.DbCon,fq1.SQL);
       qr1.Queue:=nil;
 
       <<span class="weight">structure: [[=tc5-tc4]]ms</span>>
@@ -542,7 +542,7 @@ const
                 if (tokref in [1,2]) and Context.Connected then
                  begin
                     //tokens, icons
-                    qrTok:=TSQLiteStatement.Create(Session.DbCon,'SELECT TokType.icon FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
+                    qrTok:=TQueryResult.Create(Session.DbCon,'SELECT TokType.icon FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
                     try
                       if not(qrTok.EOF) then Context.SendHTML('&nbsp;');
                       while qrTok.Read and Context.Connected do
@@ -554,7 +554,7 @@ const
                 if (tokref=2) and Context.Connected then
                  begin
                     //references, icons
-                    qrRef:=TSQLiteStatement.Create(Session.DbCon,
+                    qrRef:=TQueryResult.Create(Session.DbCon,
                       'SELECT RefType.icon, ObjType.icon AS objicon FROM Ref '+
                       'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
                       'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+
@@ -642,7 +642,7 @@ const
              begin
               //tokens and references one-line list
               Context.SendHTML('<p>');
-              qrTok:=TSQLiteStatement.Create(Session.DbCon,'SELECT TokType.icon FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
+              qrTok:=TQueryResult.Create(Session.DbCon,'SELECT TokType.icon FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
               try
                 if not(qrTok.EOF) then
                  begin
@@ -657,7 +657,7 @@ const
               finally
                 qrTok.Free;
               end;
-              qrRef:=TSQLiteStatement.Create(Session.DbCon,
+              qrRef:=TQueryResult.Create(Session.DbCon,
                 'SELECT RefType.icon, ObjType.icon AS objicon FROM Ref '+
                 'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
                 'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+
@@ -685,7 +685,7 @@ const
             if (dspChildren=1) and Context.Connected then
              begin
               //children list, icons only
-              qrDsc:=TSQLiteStatementX.Create(Session.DbCon,sqlObjsByPid,[id]);
+              qrDsc:=TQueryResultX.Create(Session.DbCon,sqlObjsByPid,[id]);
               try
                 while qrDsc.Read and Context.Connected do
                   Context.SendHTML(txImg(qrDsc.GetInt('icon')));
@@ -697,7 +697,7 @@ const
             if (tokref in [4,5]) and Context.Connected then
              begin
               //tokens, full
-              qrTok:=TSQLiteStatement.Create(Session.DbCon,'SELECT TokType.icon, TokType.name, Tok.desc, Tok.c_ts, Tok.m_ts, Tok.Weight '+
+              qrTok:=TQueryResult.Create(Session.DbCon,'SELECT TokType.icon, TokType.name, Tok.desc, Tok.c_ts, Tok.m_ts, Tok.Weight '+
                 'FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
                 'WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
               try
@@ -731,7 +731,7 @@ const
             if (tokref=5) and Context.Connected then
              begin
               //references, full
-              qrRef:=TSQLiteStatement.Create(Session.DbCon,
+              qrRef:=TQueryResult.Create(Session.DbCon,
                 'SELECT RefType.icon, RefType.name as typename, ObjType.icon AS objicon, Obj.name, Ref.desc, Ref.c_ts, Ref.m_ts, Ref.weight '+
                 'FROM Ref '+
                 'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
@@ -772,7 +772,7 @@ const
             if (dspChildren=2) and Context.Connected then
              begin
               //children, full
-              qrDsc:=TSQLiteStatementX.Create(Session.DbCon,sqlObjsByPid,[id]);
+              qrDsc:=TQueryResultX.Create(Session.DbCon,sqlObjsByPid,[id]);
               try
                 while qrDsc.Read and Context.Connected do
                  begin
@@ -809,7 +809,7 @@ const
              begin
               fq1.Where:=fs1;
               fq1.AddWhere('Obj.pid='+IntToStr(id)+' AND Obj.id IN ('+nlist.List+')');
-              qrDsc:=TSQLiteStatementX.Create(Session.DbCon,fq1.SQL);
+              qrDsc:=TQueryResultX.Create(Session.DbCon,fq1.SQL);
               if qrDsc.EOF then
                begin
                 //no children

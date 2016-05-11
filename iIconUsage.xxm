@@ -1,7 +1,7 @@
-[[@txDefs,txSession,SQLiteData,]][[!
+[[@txDefs,txSession,DataLank,]][[!
 var
   i,j,icon:integer;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
 const
   qry:array[0..2] of string=('ObjType','TokType','RefType');
   pfx:array[0..2] of string=('ot','tt','rt');
@@ -15,7 +15,7 @@ i:=0;
 j:=0;
 while (i<3) and Context.Connected do
  begin
-  qr:=TSQLiteStatement.Create(Session.DbCon,'SELECT id,name FROM '+qry[i]+' WHERE icon=? ORDER BY name',[icon]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT id,name FROM '+qry[i]+' WHERE icon=? ORDER BY name',[icon]);
   try
     while qr.Read and Context.Connected do
      begin

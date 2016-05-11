@@ -1,8 +1,8 @@
-[[@txDefs,SQLiteData,txSession,txFilter,txFilterSql,txCache,]][[!var
+[[@txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,]][[!var
   name,keywords,filter,fs:string;
   f:TtxFilter;
   fq:TtxSqlQueryFragments;
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   i,id,exclude,limit,c:integer;
   ic:TItemCache;
 ]][[
@@ -67,7 +67,7 @@ else
   end;
 
   ic:=TItemCache.Create;
-  qr:=TSQLiteStatement.Create(Session.DbCon,fs);
+  qr:=TQueryResult.Create(Session.DbCon,fs);
   try
     if qr.EOF then
      begin

@@ -23,13 +23,13 @@ const
 
 implementation
 
-uses SysUtils, xxm, txSession, SQLiteData;
+uses SysUtils, xxm, txSession, DataLank;
 
 { TLocationNode }
 
 constructor TLocationNode.Create(ItemType:TtxItemType;QueryID:integer);
 var
-  qr:TSQLiteStatement;
+  qr:TQueryResult;
   sql:string;
 begin
   inherited Create;
@@ -38,7 +38,7 @@ begin
     sql:='SELECT Obj.id, Obj.pid, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?'
   else
     sql:='SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE id=?';
-  qr:=TSQLiteStatement.Create(Session.DbCon,sql,[QueryID]);
+  qr:=TQueryResult.Create(Session.DbCon,sql,[QueryID]);
   try
     id:=qr.GetInt('id');
 	pid:=qr.GetInt('pid');
