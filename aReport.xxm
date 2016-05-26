@@ -12,27 +12,26 @@ desc:=Context['desc'].Value;
 Session.HasRealmPermission(id,
   DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[id],DefaultRlmID),rpEdit);
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 
   if obj2id=0 then
-    Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight) VALUES (?,?,?,?,0)',[id,VNow,Session.UserID,desc],rid)
+    rid:=Session.DbCon.Insert('Rpt',['obj_id',id,'ts',VNow,'uid',Session.UserID,sqlDesc,desc,'weight',0],'id')
   else
-    Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,obj2_id) VALUES (?,?,?,?,0,?)',[id,VNow,Session.UserID,desc,obj2id],rid);
+    rid:=Session.DbCon.Insert('Rpt',['obj_id',id,'ts',VNow,'uid',Session.UserID,sqlDesc,desc,'weight',0,'obj2_id',obj2id],'id');
   //weight from object?
 
   TermStore.StoreTerms(itReport,rid,id,desc);
   if obj2id<>0 then Session.AddFilterRecent(itObj,obj2id);
 
   if Use_Unread and not Session.Stealth then
-    Session.DbCon.Execute('INSERT INTO Obx (obj_id) VALUES (?)',[id]);
+    Session.DbCon.Insert('Obx',['obj_id',id]);
 
-  Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.CommitTrans;
 except
-  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  Session.DbCon.RollbackTrans;
   raise;
 end;
-
 
 url:='Item.xxm?x=i'+IntToStr(id);
 Context.Redirect(url,true);

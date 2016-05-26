@@ -27,7 +27,7 @@ try
   [[#txFormProtect]]
   <dl>
   <dt>Login</dt><dd>>.login<</dd>>
-  if not(IsAdmin) and (VarToStr(qr.GetDefault('pwd',''))<>'') then
+  if not(IsAdmin) and (VarToStr(qr.GetStr('pwd'))<>'') then
   begin
   <<dt>Old password</dt><dd><input type="password" name="pwd0" value="" /></dd>>
   end;

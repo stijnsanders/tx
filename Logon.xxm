@@ -43,15 +43,20 @@ if qr<>nil then
 
       if Context['autologon'].AsInteger=1 then
        begin
-        Session.DbCon.Execute('BEGIN TRANSACTION');
+        Session.DbCon.BeginTrans;
         try
 
-          Session.DbCon.Execute('INSERT INTO Usl (usr_id,address,agent,c_ts) VALUES (?,?,?,?)',[qr['id'],Context.ContextString(csRemoteAddress),Context.ContextString(csUserAgent),VNow],i);
+          i:=Session.DbCon.Insert('Usl',
+            ['usr_id',qr['id']
+            ,'address',Context.ContextString(csRemoteAddress)
+            ,'agent',Context.ContextString(csUserAgent)
+            ,'c_ts',VNow
+            ],'id');
           NewAutoLogonToken(Context,i);
 
-          Session.DbCon.Execute('COMMIT TRANSACTION');
+          Session.DbCon.CommitTrans;
         except
-          Session.DbCon.Execute('ROLLBACK TRANSACTION');
+          Session.DbCon.RollbackTrans;
           raise;
         end;
        end;

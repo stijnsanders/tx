@@ -10,13 +10,13 @@ CheckMaintProtect(Context);
 
 if not Use_Unread then raise Exception.Create('Use_Unread not enabled');
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
     uid:=0;
     id:=0;
     id2:=0;
 	b:=false;
-	qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Urx ORDER BY uid, id2, id1');
+	qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Urx ORDER BY uid, id2, id1',[]);
 	try
 	  while qr.Read do
 	   begin
@@ -64,9 +64,9 @@ try
       ' (SELECT A.id FROM Urx A INNER JOIN Urx B ON B.uid=A.uid'+
       ' AND A.id<>B.id AND B.id1<=A.id1 AND B.id2>=A.id2)',[]);
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
 except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
 end;
 

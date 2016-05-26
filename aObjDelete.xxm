@@ -24,7 +24,7 @@ if Context['full'].AsInteger=1 then
  begin
   Session.RemoveViewedLast(id); //if not full check deleted is view realm?
 
-  Session.DbCon.Execute('BEGIN TRANSACTION');
+  Session.DbCon.BeginTrans;
   try
 
     //tokens
@@ -98,7 +98,7 @@ if Context['full'].AsInteger=1 then
         i:=0;
         while i<ids.Count do
          begin
-          qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(ids[i]));
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(ids[i]),[]);
           try
             while qr.Read do ids.Add(qr.GetInt(0));
           finally
@@ -127,9 +127,9 @@ if Context['full'].AsInteger=1 then
       end;
      end;
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
   except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
   end;
 
@@ -147,7 +147,7 @@ else
   //assert(RlmID<>0
   Session.HasRealmPermission(0,RlmID,rpEdit);
 
-  Session.DbCon.Execute('BEGIN TRANSACTION');
+  Session.DbCon.BeginTrans;
   try
     //TODO: check realm on children
     ids:=TIdList.Create;
@@ -156,7 +156,7 @@ else
       i:=0;
       while i<ids.Count do
        begin
-        qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(ids[i]));
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(ids[i]),[]);
         try
           while qr.Read do ids.Add(qr.GetInt(0));
         finally
@@ -170,9 +170,9 @@ else
       ids.Free;
     end;
 
-      Session.DbCon.Execute('COMMIT TRANSACTION');
+      Session.DbCon.CommitTrans;
   except
-      Session.DbCon.Execute('ROLLBACK TRANSACTION');
+      Session.DbCon.RollbackTrans;
       raise;
   end;
 

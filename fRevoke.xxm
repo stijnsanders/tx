@@ -8,11 +8,11 @@ Context.Include('dHead.xxmi',['Revoke report']);
 id:=Context['id'].AsInteger;
 if Use_Terms then d:=TermStore.GetDomainID(id) else d:=0;
 qr:=TQueryResult.Create(Session.DbCon,
-  'SELECT Rpt.id, Rpt.obj_id, Rpt.[desc], Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id, '+
-  '  UsrObj.id AS [usrid], UsrObj.[name] AS [usrname], UsrObjType.[icon] AS [usricon], UsrObjType.[name] AS [usrtypename], '+
-  '  RelTokType.[icon] AS [tokicon], RelTokType.[name] AS [tokname], RelTokType.[system] AS [toksystem], '+
-  '  RelRefType.[icon] AS [reficon], RelRefType.[name] AS [refname], '+
-  '  RelObj.[name] AS [relname], RelObjType.[icon] AS [relicon], RelObjType.[name] AS [reltypename], '+
+  'SELECT Rpt.id, Rpt.obj_id, Rpt.'+sqlDesc+', Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id, '+
+  '  UsrObj.id AS usrid, UsrObj.name AS usrname, UsrObjType.icon AS usricon, UsrObjType.name AS usrtypename, '+
+  '  RelTokType.icon AS tokicon, RelTokType.name AS tokname, RelTokType.system AS toksystem, '+
+  '  RelRefType.icon AS reficon, RelRefType.name AS refname, '+
+  '  RelObj.name AS relname, RelObjType.icon AS relicon, RelObjType.name AS reltypename, '+
   '  ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
   'FROM Rpt '+
   '  INNER JOIN Obj AS UsrObj ON UsrObj.id=Rpt.uid '+

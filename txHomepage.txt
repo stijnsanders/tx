@@ -57,8 +57,8 @@ inner join Obj on Obj.id=Tok.obj_id
 inner join ObjType on ObjType.id=Obj.objtype_id
 where Toktype.system='on homepage' and Obj.rlm_id[[realms]]
 order by Tok.c_ts desc
-limit 0,25
+limit 25
 
-<div style="border:1px solid #CCCCCC;"><p>[[name]]</p>[[desc]]</div>
+<div style="border:1px solid #CCCCCC;"><p>["name"]</p>["desc"]</div>
 --content
 </div>

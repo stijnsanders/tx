@@ -2,6 +2,10 @@
 id:integer;
 filter:string;
 qr:TQueryResult;
+function qrGetDefault(const FieldName:string;DefaultValue:OleVariant):OleVariant;
+begin
+  if qr.IsNull(FieldName) then Result:=DefaultValue else Result:=qr[FieldName];
+end;
 ]][[
 Context.Include('dHead.xxmi',['Stored filter']);
 
@@ -14,10 +18,10 @@ try
   [[#txFormProtect]]
   <input type="hidden" name="id" value="[[=id]]" />
   <dl>
-  <dt>Filter expression</dt><dd><input type="text" id="filterEdit" value="[[=qr.GetDefault('expression',filter)]]" name="filter" class="textfield" /></dd>
-  <dt>Name</dt><dd><input type="text" name="name" id="ObjName" value="[[=qr.GetDefault('name','')]]" class="textfield" /></dd>
-  <dt>Attached to object</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',qr.GetDefault('obj_id',Session.UserID)]);<</dd>
-  <dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc','')]);<</dd>
+  <dt>Filter expression</dt><dd><input type="text" id="filterEdit" value="[[=qrGetDefault('expression',filter)]]" name="filter" class="textfield" /></dd>
+  <dt>Name</dt><dd><input type="text" name="name" id="ObjName" value="[[=qrGetDefault('name','')]]" class="textfield" /></dd>
+  <dt>Attached to object</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',qrGetDefault('obj_id',Session.UserID)]);<</dd>
+  <dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc',qrGetDefault('desc','')]);<</dd>
   <dt>Filter Graphs</dt><dd>
   <input type="checkbox" name="g" id="g1" value="1"[[if qr.GetInt('showgraph')<>0 then begin ]] checked="1"[[end;]]>
   <label for="g1">Available for filter graphs</label>

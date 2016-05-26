@@ -67,7 +67,7 @@ else
   end;
 
   ic:=TItemCache.Create;
-  qr:=TQueryResult.Create(Session.DbCon,fs);
+  qr:=TQueryResult.Create(Session.DbCon,fs,[]);
   try
     if qr.EOF then
      begin

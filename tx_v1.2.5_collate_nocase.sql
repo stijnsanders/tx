@@ -19,7 +19,7 @@ m_ts datetime null,
 m_uid int null,
 constraint FK_Obj_ObjType foreign key (objtype_id) references ObjType (id)
 );
-insert into ObjX select id,pid,objtype_id,name,desc,url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid from Obj;
+insert into ObjX select id,pid,objtype_id,name,"desc",url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid from Obj;
 drop table Obj;
 alter table ObjX rename to Obj;
 
@@ -55,7 +55,7 @@ m_ts datetime null,
 m_uid int null
 );
 
-insert into RlmX select id,name,desc,system,view_expression,edit_expression,limit_expression,c_ts,c_uid,m_ts,m_uid from Rlm;
+insert into RlmX select id,name,"desc",system,view_expression,edit_expression,limit_expression,c_ts,c_uid,m_ts,m_uid from Rlm;
 drop table Rlm;
 alter table RlmX rename to Rlm;
 
@@ -109,6 +109,6 @@ m_uid int null,
 constraint FK_Flt_Obj foreign key (obj_id) references Obj (id)
 );
 
-insert into FltX select id,obj_id,name,expression,desc,showgraph,c_ts,c_uid,m_ts,m_uid from Flt;
+insert into FltX select id,obj_id,name,expression,"desc",showgraph,c_ts,c_uid,m_ts,m_uid from Flt;
 drop table Flt;
 alter table FltX rename to Flt;

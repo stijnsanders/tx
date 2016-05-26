@@ -1,6 +1,10 @@
 [[@txDefs,txSession,DataLank,]][[!var
 id,pid,xid:integer;
 qr:TQueryResult;
+function qrGetDefault(const FieldName:string;DefaultValue:OleVariant):OleVariant;
+begin
+  if qr.IsNull(FieldName) then Result:=DefaultValue else Result:=qr[FieldName];
+end;
 ]][[
 
 Context.Include('dHead.xxmi',['Object Type']);
@@ -16,13 +20,13 @@ try
 [[#txForm('aObjType.xxm',['id',id,'pid',pid])]]
 [[#txFormProtect]]
 <dl>
-<dt>Name</dt><dd><input type="text" name="name" id="ObjTypeName" value="[[=qr.GetDefault('name','')]]" class="textfield" /></dd>>
+<dt>Name</dt><dd><input type="text" name="name" id="ObjTypeName" value="[[=qrGetDefault('name','')]]" class="textfield" /></dd>>
 if Session.IsAdmin('config') then
  begin
-  <<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetDefault('system','')]]" class="systemfield" /></dd>>
+  <<dt>System</dt><dd><input type="text" name="system" value="[[=qrGetDefault('system','')]]" class="systemfield" /></dd>>
  end;
-<<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetDefault('weight',0)]]" class="weightfield" /></dd>
-<dt>Icon</dt><dd>[[Context.Include('fIcons.xxmi',['icon',qr.GetDefault('icon',0)]);]]</dd>
+<<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qrGetDefault('weight',0)]]" class="weightfield" /></dd>
+<dt>Icon</dt><dd>[[Context.Include('fIcons.xxmi',['icon',qrGetDefault('icon',0)]);]]</dd>
 <dt>Default child type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itObjType,'default',qr.GetInt('dft')]);]]</dd>
 </dl>
 [[#txFormButton]]

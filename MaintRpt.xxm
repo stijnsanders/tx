@@ -33,73 +33,73 @@ else
   ObjTypeID:=0;//counter warning
   dweight:=0;//counter warning
 
-  Session.DbCon.Execute('BEGIN TRANSACTION');
+  Session.DbCon.BeginTrans;
   try
     Context.Flush;
-	Context.BufferSize:=0;
+    Context.BufferSize:=0;
     <<p>Loading reports...</p>>
 
-	if autoCreate then
-	 begin
-	  st:=TQueryResult.Create(Session.DbCon,'SELECT ObjType.dft, Obj.rlm_id FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[root]);
-	  try
-	    if st.EOF then raise Exception.Create('Object not found');
-		RlmID:=st.GetInt('rlm_id');
-		ObjTypeId:=st.GetInt('dft');
-	  finally
-	    st.Free;
-	  end;
+    if autoCreate then
+     begin
+      st:=TQueryResult.Create(Session.DbCon,'SELECT ObjType.dft, Obj.rlm_id FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[root]);
+      try
+        if st.EOF then raise Exception.Create('Object not found');
+        RlmID:=st.GetInt('rlm_id');
+        ObjTypeId:=st.GetInt('dft');
+      finally
+        st.Free;
+      end;
       if ObjTypeID=0 then ObjTypeID:=1;//?
-	  dweight:=DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[ObjTypeID],0);
-	 end;
+      dweight:=DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[ObjTypeID],0);
+     end;
 
     st:=TQueryResult.Create(Session.DbCon,'SELECT id,ts FROM Rpt WHERE obj_id=?',[root]);
-	try
-	  while st.Read do
-	   begin
-	    if not Context.Connected then raise Exception.Create('interrupted by user');
+    try
+      while st.Read do
+       begin
+        if not Context.Connected then raise Exception.Create('interrupted by user');
 
-		rid:=st.GetInt('id');
-		d:=st.GetDate('ts');
-		n1:='';
-		id:=root;
-		i:=1;
-		while (i<=l) do
-		 begin
-		  j:=i;
-		  while (j<=l) and (fmt[j]<>'\') do inc(j);
-		  n:=FormatDateTime(Copy(fmt,i,j-i),d);
-		  n1:=n1+'\'+n;
-		  i:=j+1;
-		  nid:=id;
-		  id:=DbSingleValue('SELECT id FROM Obj WHERE pid=? AND name=?',[id,n],0);
-		  if id=0 then
-			if autoCreate then
-			  Session.DbCon.Execute('INSERT INTO Obj (pid,objtype_id,name,[desc],url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-		        [nid,ObjTypeID,n,'','',dweight,RlmID,VNow,Session.UserID,VNow,Session.UserID],id)
-			else
-			 begin
-			  //skip!
-			  id:=root;
-			  i:=l+1;
-			 end;
-		 end;
+        rid:=st.GetInt('id');
+        d:=st.GetDate('ts');
+        n1:='';
+        id:=root;
+        i:=1;
+        while (i<=l) do
+         begin
+          j:=i;
+          while (j<=l) and (fmt[j]<>'\') do inc(j);
+          n:=FormatDateTime(Copy(fmt,i,j-i),d);
+          n1:=n1+'\'+n;
+          i:=j+1;
+          nid:=id;
+          id:=DbSingleValue('SELECT id FROM Obj WHERE pid=? AND name=?',[id,n],0);
+          if id=0 then
+            if autoCreate then
+              id:=DbSingleValue('INSERT INTO Obj (pid,objtype_id,name,'+sqlDesc+',url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+                [nid,ObjTypeID,n,'','',dweight,RlmID,VNow,Session.UserID,VNow,Session.UserID],id)
+            else
+             begin
+              //skip!
+              id:=root;
+              i:=l+1;
+             end;
+         end;
 
-		if id<>root then
-		 begin
-		  //move
-		  <<p>[[=rid]]: "[[=Copy(n1,2,Length(n1)-1)]]" ([[=NiceDateTime(d)]])</p>>
-		  Session.DbCon.Execute('UPDATE Rpt SET obj_id=? WHERE id=?',[id,rid]);
-		 end;
+        if id<>root then
+         begin
+          //move
+          <<p>[[=rid]]: "[[=Copy(n1,2,Length(n1)-1)]]" ([[=NiceDateTime(d)]])</p>>
+          Session.DbCon.Execute('UPDATE Rpt SET obj_id=? WHERE id=?',[id,rid]);
+         end;
 
-	   end;
-	finally
-	  st.Free;
-	end;
+       end;
+    finally
+      st.Free;
+    end;
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
   except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
   end;
 

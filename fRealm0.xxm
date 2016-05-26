@@ -26,7 +26,7 @@ try
 	<</select>
 	<br />
 	[[end;]]
-	<input type="text" name="view2" id="RlmViewEx" value="[[=qr.GetDefault('view_expression','')]]" class="textfield" />
+	<input type="text" name="view2" id="RlmViewEx" value="[[=qr.GetStr('view_expression')]]" class="textfield" />
 </dd>
 <dt>Editable by <span style="font-weight:normal;">(e.g.: <span class="litref">child"staff"*</span>)</span></dt><dd>
 	[[if Session.FilterCache.Count<>0 then begin]]
@@ -39,7 +39,7 @@ try
 	<</select>
 	<br />
 	[[end;]]
-	<input type="text" name="edit2" id="RlmEditEx" value="[[=qr.GetDefault('edit_expression','')]]" class="textfield" />
+	<input type="text" name="edit2" id="RlmEditEx" value="[[=qr.GetStr('edit_expression')]]" class="textfield" />
 </dd>
 <dt>Limit to <span style="font-weight:normal;">(e.g.: <span class="litref">reference$me[reftype"access"]</span>)</span></dt><dd>
 	[[if Session.FilterCache.Count<>0 then begin]]
@@ -52,7 +52,7 @@ try
 	<</select>
 	<br />
 	[[end;]]
-	<input type="text" name="limit2" id="RlmLimitEx" value="[[=qr.GetDefault('limit_expression','')]]" class="textfield" />
+	<input type="text" name="limit2" id="RlmLimitEx" value="[[=qr.GetStr('limit_expression')]]" class="textfield" />
 </dd>
 </dl>
 [[#txFormButton]]

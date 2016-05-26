@@ -21,11 +21,22 @@ Session.HasRealmPermission(pid,RlmID,rpEdit);
 
 desc:=Context['desc'].Value;
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 
-  Session.DbCon.Execute('INSERT INTO Obj (pid,objtype_id,name,desc,url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-    [pid,newObjTypeID,Context['name'].Value,desc,Context['url'].Value,newWeight,RlmID,VNow,Session.UserID,VNow,Session.UserID],id);
+  id:=Session.DbCon.Insert('Obj',
+    ['pid',pid
+    ,'objtype_id',newObjTypeID
+    ,'name',Context['name'].Value
+    ,sqlDesc,desc
+    ,'url',Context['url'].Value
+    ,'weight',newWeight
+    ,'rlm_id',RlmID
+    ,'c_ts',VNow
+    ,'c_uid',Session.UserID
+    ,'m_ts',VNow
+    ,'m_uid',Session.UserID
+    ],'id');
 
   if Context['delrpt'].AsInteger=1 then
    begin
@@ -38,24 +49,24 @@ try
   if Use_ObjPath then
    begin
     i:=0;
-    Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) VALUES (?,?,?)',[id,id,i]);
+    Session.DbCon.Insert('ObjPath',['pid',id,'oid',id,'lvl',i]);
     while pid<>0 do
      begin
       inc(i);
-      Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) VALUES (?,?,?)',[pid,id,i]);
+      Session.DbCon.Insert('ObjPath',['pid',pid,'oid',id,'lvl',i]);
       pid:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[pid],0);
      end;
    end;
 
   if Use_Unread and not Session.Stealth then
-    Session.DbCon.Execute('INSERT INTO Obx (obj_id) VALUES (?)',[id]);
+    Session.DbCon.Insert('Obx',['obj_id',id]);
 
   TermStore.StoreTerms(itObj,id,id,desc);
   Session.AddFilterRecent(itObjType,newObjTypeID);
 
-  Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.CommitTrans;
 except
-  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  Session.DbCon.RollbackTrans;
   raise;
 end;
 
@@ -63,6 +74,6 @@ x:=Context['relitem'].AsInteger;
 if x=0 then
   url:='Item.xxm?x=i'+IntToStr(id)
 else
-  url:='fRef.xxm?id='+IntToStr(id)+'&rid=0&target='+IntToStr(x);//rid=0 since post values get re-posted on redirect!
+  url:='fRef.xxm'+URLEncode(['id',id,'rid',0,'target',x]);//rid=0 since post values get re-posted on redirect!
 Context.Redirect(url,true);
 <<a href="[[=url]]">>=url<</a>

@@ -16,11 +16,11 @@ if not(IsAdmin) and (uid<>Session.UserID) then
 //TODO: if IsAdmin=nil then refuse change uid?
 
 Session.LogonAttemptCheck;
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
     if id=0 then
-      Session.DbCon.Execute('INSERT INTO Usr (uid,login,email,auth,salt,pwd,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?)',[
-        uid,Context['login'].Value,Context['email'].Value,Context['auth'].Value,'','',VNow,Session.UserID,VNow,Session.UserID],id)//pwd?
+      DBSingleValue('INSERT INTO Usr (uid,login,email,auth,salt,pwd,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?)',[
+        uid,Context['login'].Value,Context['email'].Value,Context['auth'].Value,'','',VNow,Session.UserID,VNow,Session.UserID],0)//pwd?
     else
 	 begin
       Session.DbCon.Execute('UPDATE Usr SET uid=?, login=?, email=?, m_ts=?, m_uid=? WHERE id=?',[
@@ -29,9 +29,9 @@ try
 	    Session.DbCon.Execute('UPDATE Usr SET auth=? WHERE id=?',[Context['auth'].Value,id]);
 	 end;
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
 except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
 end;
 

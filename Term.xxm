@@ -19,7 +19,7 @@ Context.Include('dHead.xxmi',['Term "'+n+'"']);
 <<h2>Term "[[=n]]" <a href="Item.xxm?x=i[[=d]]" class="domainlink">&lsaquo;</a></h2>>
 
 qr:=TQueryResult.Create(Session.DbCon,
-  'SELECT Trm.domain_id, Trm.term, Trm.id as term_id, Obj.id, Obj.pid, Obj.[name], Obj.[desc], Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+  'SELECT Trm.domain_id, Trm.term, Trm.id as term_id, Obj.id, Obj.pid, Obj.name, Obj.'+sqlDesc+', Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename, ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
   'FROM Trm '+
   'LEFT JOIN Obj ON Obj.id=Trm.obj_id '+
   'LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id '+

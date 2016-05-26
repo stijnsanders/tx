@@ -7,11 +7,11 @@ Context.Include('dHead.xxmi',['Promote report']);
 
 id:=Context['id'].AsInteger;
 qr:=TQueryResult.Create(Session.DbCon,
-  'SELECT Rpt.id, Rpt.obj_id, Rpt.[desc], Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id,'+
-  '  UsrObj.id AS [usrid], UsrObj.[name] AS [usrname], UsrObjType.[icon] AS [usricon], UsrObjType.[name] AS [usrtypename],'+
-  '  RelTokType.[icon] AS [tokicon], RelTokType.[name] AS [tokname], RelTokType.[system] AS [toksystem],'+
-  '  RelRefType.[icon] AS [reficon], RelRefType.[name] AS [refname],'+
-  '  RelObj.[name] AS [relname], RelObjType.[icon] AS [relicon], RelObjType.[name] AS [reltypename],'+
+  'SELECT Rpt.id, Rpt.obj_id, Rpt.'+sqlDesc+', Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id,'+
+  '  UsrObj.id AS usrid, UsrObj.name AS usrname, UsrObjType.icon AS usricon, UsrObjType.name AS usrtypename,'+
+  '  RelTokType.icon AS tokicon, RelTokType.name AS tokname, RelTokType.system AS toksystem,'+
+  '  RelRefType.icon AS reficon, RelRefType.name AS refname,'+
+  '  RelObj.name AS relname, RelObjType.icon AS relicon, RelObjType.name AS reltypename,'+
   '  ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
   'FROM Rpt '+
   '  INNER JOIN Obj AS UsrObj ON UsrObj.id=Rpt.uid'+
@@ -39,10 +39,10 @@ ObjTypeID:=DBSingleValue('SELECT ObjType.dft FROM ObjType INNER JOIN Obj ON Obj.
 <input type="checkbox" name="delrpt" id="delrpt1" value="1" checked="1" />
 <label for="delrpt1">Delete report</label>
 </dd>
-<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc','')]);]]</dd>
+<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetStr('desc')]);]]</dd>
 <dt>URL</dt><dd><input type="text" name="url" value="" class="textfield" /></dd>
 <dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=
-integer(0){ATTENTION: don't use "qr.GetDefault('weight',0)" here as Rpt.weight only serves as a 'snapshot' of the weight of the object at the time of reporting}]]" /></dd>
+integer(0){ATTENTION: don't use "qr.GetInt('weight')" here as Rpt.weight only serves as a 'snapshot' of the weight of the object at the time of reporting}]]" /></dd>
 [[/TODO: realm?]]
 </dl>
 [[#txFormButton]]

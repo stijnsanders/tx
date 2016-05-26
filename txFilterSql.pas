@@ -79,7 +79,7 @@ begin
   case FItemType of
     itObj:
      begin
-      Fields:='Obj.id, Obj.pid, Obj.[name], Obj.[desc], Obj.[weight], Obj.[c_uid], Obj.[c_ts], Obj.[m_uid], Obj.[m_ts], ObjType.[icon], ObjType.[name] AS [typename]';
+      Fields:='Obj.id, Obj.pid, Obj.name, Obj."desc", Obj.weight, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename';
       Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
       Where:='';
       GroupBy:='';
@@ -88,12 +88,12 @@ begin
      end;
     itReport:
      begin
-      Fields:='Rpt.id, Rpt.obj_id, Rpt.[desc], Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id,'+
-       ' Obj.[name], Obj.pid, ObjType.[icon], ObjType.[name] AS [typename],'+
-       ' UsrObj.id AS [usrid], UsrObj.[name] AS [usrname], UsrObjType.[icon] AS [usricon], UsrObjType.[name] AS [usrtypename],'+
-       ' RelTokType.[icon] AS [tokicon], RelTokType.[name] AS [tokname], RelTokType.[system] AS [toksystem],'+
-       ' RelRefType.[icon] AS [reficon], RelRefType.[name] AS [refname],'+
-       ' RelObj.[name] AS [relname], RelObjType.[icon] AS [relicon], RelObjType.[name] AS [reltypename]';
+      Fields:='Rpt.id, Rpt.obj_id, Rpt."desc", Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id,'+
+       ' Obj.name, Obj.pid, ObjType.icon, ObjType.name AS typename,'+
+       ' UsrObj.id AS usrid, UsrObj.name AS usrname, UsrObjType.icon AS usricon, UsrObjType.name AS usrtypename,'+
+       ' RelTokType.icon AS tokicon, RelTokType.name AS tokname, RelTokType.system AS toksystem,'+
+       ' RelRefType.icon AS reficon, RelRefType.name AS refname,'+
+       ' RelObj.name AS relname, RelObjType.icon AS relicon, RelObjType.name AS reltypename';
       Tables:='Rpt'#13#10+
        'INNER JOIN Obj ON Obj.id=Rpt.obj_id'#13#10+
        'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10+
@@ -159,7 +159,7 @@ var
   begin
     with TIdList.Create do
       try
-        qr:=TQueryResult.Create(Session.DbCon,s);
+        qr:=TQueryResult.Create(Session.DbCon,s,[]);
         try
           while qr.Read do Add(qr.GetInt(0));
         finally
@@ -316,7 +316,7 @@ begin
         fx:=TtxFilter.Create;
         try
           //TODO: detect loops?
-          qr:=TQueryResult.Create(Session.DbCon,'SELECT Flt.expression FROM Flt WHERE Flt.id'+Criterium(f[i],'','',false,false)+' LIMIT 1');
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT Flt.expression FROM Flt WHERE Flt.id'+Criterium(f[i],'','',false,false)+' LIMIT 1',[]);
           try
             if qr.EOF then raise EtxSqlQueryError.Create('Filter not found at position '+IntToStr(Idx1));
               fx.FilterExpression:=qr.GetStr(0);
@@ -352,7 +352,7 @@ begin
        end;
       faDesc:
        begin
-        AddWhere('Obj.[desc] LIKE '+SqlStr(ID));
+        AddWhere('Obj."desc" LIKE '+SqlStr(ID));
         OrderBy:='Obj.m_ts, Obj.weight, Obj.name';
        end;
       faSearchName:
@@ -372,7 +372,7 @@ begin
           if k-j<>0 then
            begin
             if s<>'' then s:=s+' AND ';
-            s:=s+'(Obj.name LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%')+' OR Obj.[desc] LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%')+')';
+            s:=s+'(Obj.name LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%')+' OR Obj."desc" LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%')+')';
            end;
           inc(k);
          end;
@@ -393,7 +393,7 @@ begin
           if k-j<>1 then
            begin
             if s<>'' then s:=s+' AND ';
-            s:=s+'Rpt.[desc] LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%');
+            s:=s+'Rpt."desc" LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%');
            end;
           inc(k);
          end;
@@ -752,7 +752,7 @@ begin
 
     if (El.Descending or El.Prefetch) and (idSQL<>'') then
      begin
-      qr:=TQueryResult.Create(Session.DbCon,idSQL);
+      qr:=TQueryResult.Create(Session.DbCon,idSQL,[]);
       try
         while qr.Read do ids.Add(qr.GetInt(0));
       finally
@@ -777,7 +777,7 @@ begin
           i:=0;
           while i<ids.Count do
            begin
-            qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
+            qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]),[]);
             try
               while qr.Read do ids.Add(qr.GetInt(0));
             finally
@@ -807,7 +807,7 @@ begin
               while i<ids1.Count do
                begin
                 //only add those with children
-                qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids1[i]));
+                qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids1[i]),[]);
                 try
                   if not qr.EOF then ids.Add(ids1[i]);
                   while qr.Read do ids1.AddClip(qr.GetInt(0),i);
@@ -837,7 +837,7 @@ begin
             i:=0;
             while i<ids.Count do
              begin
-              qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids[i]));
+              qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids[i]),[]);
               try
                 while qr.Read do ids.Add(qr.GetInt(0));
               finally
@@ -853,7 +853,7 @@ begin
       if Reverse then //one level up
         for i:=0 to ids.Count-1 do
          begin
-          qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]));
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]),[]);
           try
             ids[i]:=qr.GetInt(0);
           finally

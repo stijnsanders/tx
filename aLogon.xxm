@@ -28,21 +28,49 @@ if email<>Context['email2'].Value then raise Exception.Create('E-mail address mi
 if Length(login)<3 then raise Exception.Create('Invalid login');
 
 Session.LogonAttemptCheck;
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
   newWeight:=0;//DBSingleValue('SELECT weight FROM ObjType WHERE id=?',[newObjTypeID],0);
-  Session.DbCon.Execute('INSERT INTO Obj (pid,objtype_id,name,[desc],url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-    [pid,newObjTypeID,name,desc,Context['url'].Value,newWeight,RlmID,VNow,Session.UserID,VNow,Session.UserID],uid);
+  uid:=Session.DbCon.Insert('Obj',
+    ['pid',pid
+    ,'objtype_id',newObjTypeID
+    ,'name',name
+    ,sqlDesc,desc
+    ,'url',Context['url'].Value
+    ,'weight',newWeight
+    ,'rlm_id',RlmID
+    ,'c_ts',VNow
+    ,'c_uid',Session.UserID
+    ,'m_ts',VNow
+    ,'m_uid',Session.UserID
+    ],'id');
   salt:=NewPasswordSalt;
-  Session.DbCon.Execute('INSERT INTO Usr (uid,login,email,auth,salt,pwd,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?)',[
-    uid,login,email,'',salt,dflag[Use_NewUserEmailActivation]+PasswordToken(salt,pwd),VNow,Session.UserID,VNow,Session.UserID],id);//pwd?
+  id:=Session.DbCon.Insert('Usr',
+    ['uid',uid
+    ,'login',login
+    ,'email',email
+    ,'auth',''
+    ,'salt',salt
+    ,'pwd',dflag[Use_NewUserEmailActivation]+PasswordToken(salt,pwd)
+    ,'c_ts',VNow
+    ,'c_uid',Session.UserID
+    ,'m_ts',VNow
+    ,'m_uid',Session.UserID
+    ],'id');
   TermStore.StoreTerms(itObj,uid,pid,name+#13#10+desc);
   if Use_ObjHist then
-    Session.DbCon.Execute('INSERT INTO ObjHist (obj_id,rlm_id,ts,uid,name,[desc],weight) VALUES (?,?,?,?,?,?,?)',
-      [uid,RlmID,VNow,Session.UserID,name,desc,newWeight],pid);
-  Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.Insert('ObjHist',
+      ['obj_id',uid
+      ,'rlm_id',RlmID
+      ,'ts',VNow
+      ,'uid',Session.UserID
+      ,'name',name
+      ,sqlDesc,desc
+      ,'weight',newWeight
+      ]);
+  Session.DbCon.CommitTrans;
 except
-  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  Session.DbCon.RollbackTrans;
   raise;
 end;
 

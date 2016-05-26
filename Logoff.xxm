@@ -9,7 +9,7 @@ x:=Context.GetCookie(AutoLogonCookieName);
 if x<>'' then
  begin
   ClearAutoLogonToken(Context);
-  Session.DbCon.Execute('BEGIN TRANSACTION');
+  Session.DbCon.BeginTrans;
   try
     qr:=TQueryResult.Create(Session.DbCon,'SELECT usl_id FROM Ust WHERE token=?',[x]);
 	try
@@ -20,9 +20,9 @@ if x<>'' then
 	Session.DbCon.Execute('DELETE FROM Ust WHERE usl_id=?',[id]);
 	Session.DbCon.Execute('DELETE FROM Usl WHERE id=?',[id]);
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
   except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
   end;
 

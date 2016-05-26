@@ -450,7 +450,7 @@ const
   <<span class="weight">build: [[=tc3-tc1]]ms</span>>
   Context.Flush;
   fq1:=nil;
-  qr1:=TQueryResultX.Create(Session.DbCon,fs1);
+  qr1:=TQueryResultX.Create(Session.DbCon,fs1,[]);
   LocationCache:=TItemCache.Create;
   try
     qr1.Queue:=nil;
@@ -484,7 +484,7 @@ const
       fq1:=TtxSqlQueryFragments.Create(itObj);
       fs1:=fq1.Where;
       fq1.AddWhere('Obj.pid=0 AND Obj.id IN ('+nlist.List+')');
-      qr1:=TQueryResultX.Create(Session.DbCon,fq1.SQL);
+      qr1:=TQueryResultX.Create(Session.DbCon,fq1.SQL,[]);
       qr1.Queue:=nil;
 
       <<span class="weight">structure: [[=tc5-tc4]]ms</span>>
@@ -809,7 +809,7 @@ const
              begin
               fq1.Where:=fs1;
               fq1.AddWhere('Obj.pid='+IntToStr(id)+' AND Obj.id IN ('+nlist.List+')');
-              qrDsc:=TQueryResultX.Create(Session.DbCon,fq1.SQL);
+              qrDsc:=TQueryResultX.Create(Session.DbCon,fq1.SQL,[]);
               if qrDsc.EOF then
                begin
                 //no children

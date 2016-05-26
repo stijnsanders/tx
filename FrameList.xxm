@@ -64,7 +64,7 @@ filter:=Context['filter'].Value;
   <a class="linkbutton" href="FilterBuild.xxm?filter=[[=URLEncode(filter)]]" target="MainFrame">build</a>
   </p>>
 
-  qr:=TQueryResult.Create(Session.DbCon,fs);
+  qr:=TQueryResult.Create(Session.DbCon,fs,[]);
   try
     if qr.EOF then
 	 begin

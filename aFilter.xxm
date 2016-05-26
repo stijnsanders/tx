@@ -24,21 +24,38 @@ Session.HasRealmPermission(objid,
 
 desc:=Context['desc'].Value;
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
   if id=0 then
-    Session.DbCon.Execute('INSERT INTO Flt (obj_id,name,expression,[desc],showgraph,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?)',[
-      objid,Context['name'].Value,Context['filter'].Value,desc,Context['g'].AsInteger,VNow,Session.UserID,VNow,Session.UserID],id)
+    id:=Session.DbCon.Insert('Flt',
+      ['obj_id',objid
+      ,'name',Context['name'].Value
+      ,'expression',Context['filter'].Value
+      ,sqlDesc,desc
+      ,'showgraph',Context['g'].AsInteger
+      ,'c_ts',VNow
+      ,'c_uid',Session.UserID
+      ,'m_ts',VNow
+      ,'m_uid',Session.UserID
+      ],'id')
   else
-    Session.DbCon.Execute('UPDATE Flt SET obj_id=?, name=?, expression=?, [desc]=?, showgraph=?, m_ts=?, m_uid=? WHERE id=?',[
-      objid,Context['name'].Value,Context['filter'].Value,desc,Context['g'].AsInteger,VNow,Session.UserID,id]);
+    Session.DbCon.Update('Flt',
+      ['id',id
+      ,'obj_id',objid
+      ,'name',Context['name'].Value
+      ,'expression',Context['filter'].Value
+      ,sqlDesc,desc
+      ,'showgraph',Context['g'].AsInteger
+      ,'m_ts',VNow
+      ,'m_uid',Session.UserID
+      ]);
 
   TermStore.StoreTerms(itFilter,id,objid,desc);
   Session.AddFilterRecent(itObj,objid);
 
-  Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.CommitTrans;
 except
-  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  Session.DbCon.RollbackTrans;
   raise;
 end;
 

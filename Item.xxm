@@ -27,7 +27,7 @@ qr:=nil;//counter warning
       if ItemID<>0 then
        begin
         qr:=TQueryResult.Create(Session.DbCon,
-          'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+          'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', Obj.url, Obj.weight, Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename, ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
           'FROM Obj '+
           'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
           'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
@@ -129,11 +129,11 @@ qr:=nil;//counter warning
         //TODO: order by desc?
         IsAdminReports:=Session.IsAdmin('reports');
         qr:=TQueryResult.Create(Session.DbCon,
-          'SELECT Rpt.id, Rpt.obj_id, Rpt.[desc], Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id, Rpt.weight, '+
-          '  UsrObj.id AS [usrid], UsrObj.[name] AS [usrname], UsrObjType.[icon] AS [usricon], UsrObjType.[name] AS [usrtypename], '+
-          '  RelTokType.[icon] AS [tokicon], RelTokType.[name] AS [tokname], RelTokType.[system] AS [toksystem], '+
-          '  RelRefType.[icon] AS [reficon], RelRefType.[name] AS [refname], '+
-          '  RelObj.[name] AS [relname], RelObjType.[icon] AS [relicon], RelObjType.[name] AS [reltypename], '+
+          'SELECT Rpt.id, Rpt.obj_id, Rpt.'+sqlDesc+', Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id, Rpt.weight, '+
+          '  UsrObj.id AS usrid, UsrObj.name AS usrname, UsrObjType.icon AS usricon, UsrObjType.name AS usrtypename, '+
+          '  RelTokType.icon AS tokicon, RelTokType.name AS tokname, RelTokType.system AS toksystem, '+
+          '  RelRefType.icon AS reficon, RelRefType.name AS refname, '+
+          '  RelObj.name AS relname, RelObjType.icon AS relicon, RelObjType.name AS reltypename, '+
           '  ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
           'FROM Rpt '+
           '  INNER JOIN Obj AS UsrObj ON UsrObj.id=Rpt.uid '+
@@ -278,7 +278,7 @@ if (ItemType=itObj) and Use_Unread then
  begin
   Context.Flush;
   //mark read
-  Session.DbCon.Execute('BEGIN TRANSACTION');
+  Session.DbCon.BeginTrans;
   try
     qr:=TQueryResult.Create(Session.DbCon,'SELECT Obx.id, X2.id FROM Obx'+
       ' LEFT OUTER JOIN Urx X1 ON X1.uid=? AND X1.id1<=Obx.id AND X1.id2>=Obx.id'+
@@ -293,9 +293,9 @@ if (ItemType=itObj) and Use_Unread then
     finally
       qr.Free;
     end;
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
   except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
   end;
  end;

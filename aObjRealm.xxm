@@ -89,15 +89,15 @@ try
     for i:=0 to RlmIDs.Count-1 do
       Session.HasRealmPermission(ItemID,RlmIDs[i],rpEdit);//TODO: keep 'top' id per realm? (or first?)
 
-  Session.DbCon.Execute('BEGIN TRANSACTION');
+  Session.DbCon.BeginTrans;
   try
 
     Session.DbCon.Execute('UPDATE Obj SET rlm_id=? WHERE id IN ('+ids.List+')',[RlmID]);
     //TODO: Session.UpdateID:=ItemID; only when out of view realms?
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
   except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
   end;
 

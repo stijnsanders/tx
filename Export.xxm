@@ -137,7 +137,7 @@ else
   IdsOut.Sorted:=true;
   try
     //fill IdsIn with filter
-    qr:=TQueryResult.Create(Session.DbCon,fs);
+    qr:=TQueryResult.Create(Session.DbCon,fs,[]);
     try
 	  while qr.Read and Context.Connected do
 	    IdsIn.Add('i'+IntToStr(qr.GetInt('id')));

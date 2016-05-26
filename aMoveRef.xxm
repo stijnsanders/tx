@@ -40,26 +40,42 @@ Session.HasRealmPermission(newPid,RlmID,rpEdit);
 
 newWeight:=Context['weight'].AsInteger+DBSingleValue('SELECT weight FROM RefType WHERE id=?',[newRefTypeID],0);
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 	//perform doesn't set c_ts, c_uid
 	Session.DbCon.Execute(txItemSQL_Move[ItemType],[newPid,ItemID]);
 
 
-	Session.DbCon.Execute('INSERT INTO Ref (obj1_id,obj2_id,reftype_id,desc,weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?)',
-	  [ItemID,obj2id,newRefTypeID,desc,newWeight,VNow,Session.UserID,VNow,Session.UserID],rid);
+	rid:=Session.DbCon.Insert('Ref',
+    ['obj1_id',ItemID
+    ,'obj2_id',obj2id
+    ,'reftype_id',newRefTypeID
+    ,sqlDesc,desc
+    ,'weight',newWeight
+    ,'c_ts',VNow
+    ,'c_uid',Session.UserID
+    ,'m_ts',VNow
+    ,'m_uid',Session.UserID
+    ],'id');
 	if newWeight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id=?',[newWeight,ItemID]);
 
 	//report
-	Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,reftype_id,obj2_id) VALUES (?,?,?,?,?,?,?)',
-	  [ItemID,VNow,Session.UserID,desc,newWeight,newRefTypeID,obj2id]);
+	Session.DbCon.Insert('Rpt',
+    ['obj_id',ItemID
+    ,'ts',VNow
+    ,'uid',Session.UserID
+    ,sqlDesc,desc
+    ,'weight',newWeight
+    ,'reftype_id',newRefTypeID
+    ,'obj2_id',obj2id
+    ]);
 
 	TermStore.StoreTerms(itRef,rid,ItemID,desc);
 	if Use_ObjTokRefCache then Context.Include('aObjTokRefCache.xxmi',[ItemID]);
 
-	Session.DbCon.Execute('COMMIT TRANSACTION');
+	Session.DbCon.CommitTrans;
 except
-	Session.DbCon.Execute('ROLLBACK TRANSACTION');
+	Session.DbCon.RollbackTrans;
 	raise;
 end;
 

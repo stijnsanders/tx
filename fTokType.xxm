@@ -16,13 +16,13 @@ try
 [[#txForm('aTokType.xxm',['id',id,'pid',pid])]]
 [[#txFormProtect]]
 <dl>
-<dt>Name</dt><dd><input type="text" name="name" id="TokTypeName" value="[[=qr.GetDefault('name','')]]" class="textfield" /></dd>>
+<dt>Name</dt><dd><input type="text" name="name" id="TokTypeName" value="[[=qr.GetStr('name')]]" class="textfield" /></dd>>
 if Session.IsAdmin('config') then
  begin
-  <<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetDefault('system','')]]" class="systemfield" /></dd>>
+  <<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetStr('system')]]" class="systemfield" /></dd>>
  end;
-<<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetDefault('weight',0)]]" class="weightfield" /></dd>
-<dt>Icon</dt><dd>[[Context.Include('fIcons.xxmi',['icon',qr.GetDefault('icon',0)]);]]</dd>
+<<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetInt('weight')]]" class="weightfield" /></dd>
+<dt>Icon</dt><dd>[[Context.Include('fIcons.xxmi',['icon',qr.GetInt('icon')]);]]</dd>
 <dt>Limit one token per branch</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itTokType,'default',qr.GetInt('dft')]);]]</dd>
 </dl>
 [[#txFormButton]]

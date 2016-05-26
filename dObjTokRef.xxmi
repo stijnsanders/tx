@@ -56,7 +56,7 @@ if Use_ObjTokRefCache then
 if not(b) then
  begin
 	qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT Tok.id, Tok.obj_id, Tok.toktype_id, Tok.[desc], Tok.[weight], Tok.c_uid, Tok.c_ts, Tok.m_uid, Tok.m_ts, TokType.[icon], TokType.[name] '+
+	  'SELECT Tok.id, Tok.obj_id, Tok.toktype_id, Tok.'+sqlDesc+', Tok.weight, Tok.c_uid, Tok.c_ts, Tok.m_uid, Tok.m_ts, TokType.icon, TokType.name '+
 	  'FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
 	  'WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',
 	  [id]);
@@ -79,7 +79,7 @@ if not(b) then
 	  qr.Free;
 	end;
 	qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT Ref.id, Ref.obj1_id, Ref.reftype_id, Ref.obj2_id, Ref.[desc], Ref.[weight], Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts, RefType.[icon], RefType.[name] AS [typename], Obj.[name], ObjType.[icon] AS [objicon], ObjType.[name] AS [objtypename] '+
+	  'SELECT Ref.id, Ref.obj1_id, Ref.reftype_id, Ref.obj2_id, Ref.'+sqlDesc+', Ref.weight, Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts, RefType.icon, RefType.name AS typename, Obj.name, ObjType.icon AS objicon, ObjType.name AS objtypename '+
 	  'FROM Ref '+
 	  'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
 	  'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+

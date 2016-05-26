@@ -25,7 +25,7 @@ case ItemType of
   itObjType:
    begin
 	qr1:=TQueryResult.Create(Session.DbCon,
-	  'SELECT ObjType.id, ObjType.pid, ObjType.[name], ObjType.[icon], ObjType.[system], ObjType.[weight], ObjType.dft, ObjType.c_uid, ObjType.c_ts, ObjType.m_uid, ObjType.m_ts '+
+	  'SELECT ObjType.id, ObjType.pid, ObjType.name, ObjType.icon, ObjType.system, ObjType.weight, ObjType.dft, ObjType.c_uid, ObjType.c_ts, ObjType.m_uid, ObjType.m_ts '+
       'FROM ObjType WHERE ObjType.id=?',
 	  [qr.GetInt('dft')]);
 	try

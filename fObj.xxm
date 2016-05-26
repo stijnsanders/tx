@@ -1,6 +1,10 @@
 [[@txSession,txDefs,DataLank,]][[!var
 id,pid,bid,ObjTypeID:integer;
 qr:TQueryResult;
+function qrGetDefault(const FieldName:string;DefaultValue:OleVariant):OleVariant;
+begin
+  if qr.IsNull(FieldName) then Result:=DefaultValue else Result:=qr[FieldName];
+end;
 ]][[
 Context.Include('dHead.xxmi',['Object']);
 id:=Context['id'].AsInteger;
@@ -13,17 +17,17 @@ qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Obj WHERE id=?',[id]);
 try
 
 //if editing, get object's type
-ObjTypeID:=qr.GetDefault('objtype_id',ObjTypeID);
+ObjTypeID:=qrGetDefault('objtype_id',ObjTypeID);
 <<h2>Object</h2>
 [[#txForm('aObj.xxm',['id',id,'pid',pid],'selectnode_required("objtype","an object type")')]]
 [[#txFormProtect]]
 <dl>
-<dt>Name</dt><dd><input type="text" name="name" id="ObjName" value="[[=qr.GetDefault('name','')]]" class="textfield" /></dd>
+<dt>Name</dt><dd><input type="text" name="name" id="ObjName" value="[[=qrGetDefault('name','')]]" class="textfield" /></dd>
 <dt>Object type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itObjType,'objtype',ObjTypeID]);]]</dd>
-<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc','')]);]]</dd>>
+<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qrGetDefault('desc','')]);]]</dd>>
 if id=0 then Context.Include('fObjTokRef.xxmi');
-<<dt>URL</dt><dd><input type="text" name="url" value="[[=qr.GetDefault('url','')]]" class="textfield" /></dd>
-<dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetDefault('weight',0)]]" /></dd>
+<<dt>URL</dt><dd><input type="text" name="url" value="[[=qrGetDefault('url','')]]" class="textfield" /></dd>
+<dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=qrGetDefault('weight',0)]]" /></dd>
 [[/TODO: realm?]]
 </dl>
 [[#txFormButton]]

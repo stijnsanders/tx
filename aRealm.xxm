@@ -42,15 +42,32 @@ l2:=Context['limit1'].Value;
 if l2='' then l2:=Context['limit2'].Value;
 if (v1<>v2) or (e1<>e2) or (l1<>l2) then RefreshRealms:=true;
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 
     if id=0 then
-      Session.DbCon.Execute('INSERT INTO Rlm (name,desc,system,view_expression,edit_expression,limit_expression,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?)',
-        [Context['name'].Value,desc,Context['system'].Value,v2,e2,l2,VNow,Session.UserID,VNow,Session.UserID],id)
+      id:=Session.DbCon.Insert('Rlm',
+        ['name',Context['name'].Value
+        ,sqlDesc,desc
+        ,'system',Context['system'].Value
+        ,'view_expression',v2
+        ,'edit_expression',e2
+        ,'limit_expression',l2
+        ,'c_ts',VNow
+        ,'c_uid',Session.UserID
+        ,'m_ts',VNow
+        ,'m_uid',Session.UserID],'id')
     else
-      Session.DbCon.Execute('UPDATE Rlm SET name=?, desc=?, system=?, view_expression=?, edit_expression=?, limit_expression=?, m_ts=?, m_uid=? WHERE id=?',
-        [Context['name'].Value,desc,Context['system'].Value,v2,e2,l2,VNow,Session.UserID,id]);
+      Session.DbCon.Update('Rlm',
+        ['id',id
+        ,'name',Context['name'].Value
+        ,sqlDesc,desc
+        ,'system',Context['system'].Value
+        ,'view_expression',v2
+        ,'edit_expression',e2
+        ,'limit_expression',l2
+        ,'m_ts',VNow
+        ,'m_uid',Session.UserID]);
 
     TermStore.StoreTerms(itRealm,id,0,desc);
 
@@ -61,9 +78,9 @@ try
       Session.LoadRealmPermissions;
      end;
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
 except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
 end;
 

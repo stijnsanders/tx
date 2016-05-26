@@ -28,82 +28,82 @@ case ItemType of
    begin
 
     //get path to item to pre-expand
-	if ItemID<>RootID then
-	 begin
+    if ItemID<>RootID then
+     begin
       id:=ItemID;
-	  while (id<>0) and (id<>RootID) and Context.Connected do
-	   begin
+      while (id<>0) and (id<>RootID) and Context.Connected do
+       begin
         if id<>ItemID then
          begin
           inc(px);
           SetLength(idp,px);
           idp[px-1]:=id;
-         end;
+         end;         
         id:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[id],0);
        end;
-	 end;
+     end;
 
-	fsql:=sqlObjsByPid;
-	qr:=TQueryResult.Create(Session.DbCon,fsql,[RootID]);
-	try
-	  repeat
-		while Context.Connected and qr.Read do
-		 begin
-		  id:=qr.GetInt('id');
-		  if id=exclude then
-		   begin
-		    if id=ItemID then begin <<span id="[[=name]]_selectScrollTo"></span>> end;
-		   end
-		  else
-		   begin
-			hasChildren:=Session.DbCon.Exists('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id]);
-			preExpand:=hasChildren and not(px=0) and (id=idp[px-1]);
-			highlight:=id=ItemID;
-			]]
-			<span id="[[=name]]_node_[[=id]]" expandurl="iSelect.xxm?x=[[=txItemTypeKey[ItemType]]][[=RootID]]&amp;pid=[[=id]]&amp;name=[[=name]][[=exex]][[=txCallProtect]]"[[
-			//if preExpand then Context.SendHTML(' nodeexpanded="1"');
-			if highlight then Context.SendHTML(' class="highlight"');
-			]]>>Context.Include('iFrameObj.xxmi',[name,id,hasChildren,preExpand,highlight],[qr]);<</span>
-			[[
-			if preExpand then
-			 begin
-			  if px>0 then dec(px);
-			  //start child list, push
-			  <<div class="treelist" id="[[=name]]_node_[[=id]]_dsc">>
-			  SetLength(qrStack,qx+1);
-			  qrStack[qx]:=qr;
-			  inc(qx);
-			  qr:=TQueryResult.Create(Session.DbCon,fsql,[id]);
-			 end;//if preExpand
-		   end;//if not id=exclude
-		 end;//while qr.Read
-		if qx<>0 then
-		 begin
-		  //pop, close child list
-		  qr.Free;
-		  dec(qx);
-		  qr:=qrStack[qx];
-		  <</div>>
-		 end;
-	  until not(Context.Connected) or ((qx=0) and qr.EOF);
-	finally
-	  qr.Free;
-	  //clean-up in case if disconnect
-	  while qx<>0 do
-	   begin
-	    dec(qx);
-	    qrStack[qx].Free;
-	   end;
-	end;
+    fsql:=sqlObjsByPid;
+    qr:=TQueryResult.Create(Session.DbCon,fsql,[RootID]);
+    try
+      repeat
+        while Context.Connected and qr.Read do
+         begin
+          id:=qr.GetInt('id');
+          if id=exclude then
+           begin
+            if id=ItemID then begin <<span id="[[=name]]_selectScrollTo"></span>> end;
+           end
+          else
+           begin
+            hasChildren:=Session.DbCon.Execute('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id])<>0;
+            preExpand:=hasChildren and not(px=0) and (id=idp[px-1]);
+            highlight:=id=ItemID;
+            ]]
+            <span id="[[=name]]_node_[[=id]]" expandurl="iSelect.xxm?x=[[=txItemTypeKey[ItemType]]][[=RootID]]&amp;pid=[[=id]]&amp;name=[[=name]][[=exex]][[=txCallProtect]]"[[
+            //if preExpand then Context.SendHTML(' nodeexpanded="1"');
+            if highlight then Context.SendHTML(' class="highlight"');
+            ]]>>Context.Include('iFrameObj.xxmi',[name,id,hasChildren,preExpand,highlight],[qr]);<</span>
+            [[
+            if preExpand then
+             begin
+              if px>0 then dec(px);
+              //start child list, push
+              <<div class="treelist" id="[[=name]]_node_[[=id]]_dsc">>
+              SetLength(qrStack,qx+1);
+              qrStack[qx]:=qr;
+              inc(qx);
+              qr:=TQueryResult.Create(Session.DbCon,fsql,[id]);
+             end;//if preExpand
+           end;//if not id=exclude
+         end;//while qr.Read
+        if qx<>0 then
+         begin
+          //pop, close child list
+          qr.Free;
+          dec(qx);
+          qr:=qrStack[qx];
+          <</div>>
+         end;
+      until not(Context.Connected) or ((qx=0) and qr.EOF);
+    finally
+      qr.Free;
+      //clean-up in case if disconnect
+      while qx<>0 do
+       begin
+        dec(qx);
+        qrStack[qx].Free;
+       end;
+    end;
    end;
   itObjType,itTokType,itRefType:
    begin
 
     //get path to item to pre-expand
-	if ItemID<>RootID then
-	 begin
+    if ItemID<>RootID then
+     begin
       id:=ItemID;
-	  while (id<>0) and (id<>RootID) do
+      while (id<>0) and (id<>RootID) do
        begin
         if id<>ItemID then
          begin
@@ -113,64 +113,62 @@ case ItemType of
          end;
         id:=DBSingleValue('SELECT pid FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[id],0);
        end;
-	 end;
+     end;
 
     fsql:='SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE pid=? ORDER BY weight, name, c_ts';
-	qr:=TQueryResult.Create(Session.DbCon,fsql,[RootID]);
-	try
-	  repeat
-		while Context.Connected and qr.Read do
-		 begin
-		  id:=qr.GetInt('id');
-		  if id=exclude then
-		   begin
-		    if id=ItemID then begin <<span id="[[=name]]_selectScrollTo"></span>> end;
-		   end
-		  else
-		   begin
-			hasChildren:=Session.DbCon.Exists('SELECT id FROM '+txItemTypeTable[ItemType]+' WHERE pid=? LIMIT 1',[id]);
-			preExpand:=hasChildren and not(px=0) and (id=idp[px-1]);
-			highlight:=id=ItemID;
-			]]
-			<span id="[[=name]]_node_[[=id]]" expandurl="iSelect.xxm?x=[[=txItemTypeKey[ItemType]]][[=ItemID]]&amp;pid=[[=id]]&amp;name=[[=name]][[=exex]][[=txCallProtect]]"[[
-			//if preExpand then Context.SendHTML(' nodeexpanded="1"');
-			if highlight then Context.SendHTML(' class="highlight"');
-			]]>>Context.Include('iFrameType.xxmi',[name,ItemType,id,hasChildren,preExpand,highlight],[qr]);<</span>
-			[[
-			if preExpand then
-			 begin
-			  if px>0 then dec(px);
-			  //start child list, push
-			  <<div class="treelist" id="[[=name]]_node_[[=id]]_dsc">>
-			  SetLength(qrStack,qx+1);
-			  qrStack[qx]:=qr;
-			  inc(qx);
-			  qr:=TQueryResult.Create(Session.DbCon,fsql,[id]);
-			 end;//if preExpand
-		   end;//if not(id=exclude
-		 end;//while qr.Read
-		if qx<>0 then
-		 begin
-		  //pop, close child list
-		  qr.Free;
-		  dec(qx);
-		  qr:=qrStack[qx];
-		  <</div>>
-		 end;
-	  until not(Context.Connected) or ((qx=0) and qr.EOF);
-	finally
-	  qr.Free;
-	  //clean-up in case if disconnect
-	  while qx<>0 do
-	   begin
-	    dec(qx);
-	    qrStack[qx].Free;
-	   end;
-	end;
+    qr:=TQueryResult.Create(Session.DbCon,fsql,[RootID]);
+    try
+      repeat
+        while Context.Connected and qr.Read do
+         begin
+          id:=qr.GetInt('id');
+          if id=exclude then
+           begin
+            if id=ItemID then begin <<span id="[[=name]]_selectScrollTo"></span>> end;
+           end
+          else
+           begin
+            hasChildren:=Session.DbCon.Execute('SELECT id FROM '+txItemTypeTable[ItemType]+' WHERE pid=? LIMIT 1',[id])<>0;
+            preExpand:=hasChildren and not(px=0) and (id=idp[px-1]);
+            highlight:=id=ItemID;
+            ]]
+            <span id="[[=name]]_node_[[=id]]" expandurl="iSelect.xxm?x=[[=txItemTypeKey[ItemType]]][[=ItemID]]&amp;pid=[[=id]]&amp;name=[[=name]][[=exex]][[=txCallProtect]]"[[
+            //if preExpand then Context.SendHTML(' nodeexpanded="1"');
+            if highlight then Context.SendHTML(' class="highlight"');
+            ]]>>Context.Include('iFrameType.xxmi',[name,ItemType,id,hasChildren,preExpand,highlight],[qr]);<</span>
+            [[
+            if preExpand then
+             begin
+              if px>0 then dec(px);
+              //start child list, push
+              <<div class="treelist" id="[[=name]]_node_[[=id]]_dsc">>
+              SetLength(qrStack,qx+1);
+              qrStack[qx]:=qr;
+              inc(qx);
+              qr:=TQueryResult.Create(Session.DbCon,fsql,[id]);
+             end;//if preExpand
+           end;//if not(id=exclude
+         end;//while qr.Read
+        if qx<>0 then
+         begin
+          //pop, close child list
+          qr.Free;
+          dec(qx);
+          qr:=qrStack[qx];
+          <</div>>
+         end;
+      until not(Context.Connected) or ((qx=0) and qr.EOF);
+    finally
+      qr.Free;
+      //clean-up in case if disconnect
+      while qx<>0 do
+       begin
+        dec(qx);
+        qrStack[qx].Free;
+       end;
+    end;
 
    end;
   else
     <<p>Unknown item type: <b>>=txItemTypeName[ItemType] <</b></p>>
 end;
-
-]]

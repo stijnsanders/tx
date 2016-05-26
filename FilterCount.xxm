@@ -75,7 +75,7 @@ else
   tc3:=GetTickCount;
   <<span class="weight">build: [[=tc3-tc1]]ms</span>>
   Context.Flush;
-  qr:=TQueryResult.Create(Session.DbCon,fs);
+  qr:=TQueryResult.Create(Session.DbCon,fs,[]);
   try
     tc4:=GetTickCount;
     <<span class="weight">query: [[=tc4-tc3]]ms</span>

@@ -25,15 +25,15 @@ Context.Include('dHead.xxmi',['Account']);
   [[#txForm('aUser.xxm',['id',id],'selectnode_required("obj","a user object")')]]
   [[#txFormProtect]]
   <dl>
-  <dt>User object</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',qr.GetDefault('uid',0)]);<</dd>
-  <dt>Login</dt><dd><input type="text" name="login" id="login1" size="50" value="[[=qr.GetDefault('login','')]]" onblur="$('#loginCheck').html('[[=lblLoading]]	').load('iLogonCheck.xxm',{login:this.value,xxx:'[[#Session.SessionCrypt]]'});" />
+  <dt>User object</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',qr.GetInt('uid')]);<</dd>
+  <dt>Login</dt><dd><input type="text" name="login" id="login1" size="50" value="[[=qr.GetStr('login')]]" onblur="$('#loginCheck').html('[[=lblLoading]]	').load('iLogonCheck.xxm',{login:this.value,xxx:'[[#Session.SessionCrypt]]'});" />
 	  <span id="loginCheck"></span></dd>
-  <dt>E-mail address</dt><dd><input type="text" name="email" size="50" value="[[=qr.GetDefault('email','')]]" onkeyup="email1Check(this.value);" onchange="email1Check(this.value);" />
+  <dt>E-mail address</dt><dd><input type="text" name="email" size="50" value="[[=qr.GetStr('email')]]" onkeyup="email1Check(this.value);" onchange="email1Check(this.value);" />
 	  <span id="email1Check"></span></dd>>
   //TODO: confirm e-mail address?
   if IsAdmin then
    begin
-    <<dt>Auto logon</dt><dd><input type="text" name="auth" size="50" value="[[=qr.GetDefault('auth',Context.ContextString(csAuthUser))]]" /></dd>>
+    <<dt>Auto logon</dt><dd><input type="text" name="auth" size="50" value="[[if qr.IsNull('auth') then Context.Send(Context.ContextString(csAuthUser)) else Context.Send(qr['auth']);]]" /></dd>>
    end;
   <</dl>
   [[#txFormButton]]

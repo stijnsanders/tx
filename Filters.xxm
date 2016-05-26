@@ -10,7 +10,7 @@ Context.Include('dHead.xxmi',['Filters Overview']);
 
 aid:=-1;
 qr:=TQueryResult.Create(Session.DbCon,
-  'SELECT Flt.*, Obj.objtype_id, Obj.[name] AS objname, Obj.rlm_id, ObjType.[icon], ObjType.[name] AS [typename] '+
+  'SELECT Flt.*, Obj.objtype_id, Obj.name AS objname, Obj.rlm_id, ObjType.icon, ObjType.name AS typename '+
   'FROM Flt '+
   'LEFT OUTER JOIN Obj ON Obj.id=Flt.obj_id '+
   'LEFT OUTER JOIN ObjType ON ObjType.id=Obj.objtype_id '+

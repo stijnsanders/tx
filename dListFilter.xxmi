@@ -46,7 +46,7 @@ finally
 end;
 
 //TODO: getdomain? limit in statement!
-qr:=TQueryResult.Create(Session.DbCon,s);
+qr:=TQueryResult.Create(Session.DbCon,s,[]);
 try
   c:=0;
   while qr.Read and Context.Connected and ((limit=0) or (c<limit)) do
@@ -60,7 +60,7 @@ try
 	    j:=dspx[i].y+2;
 	    id:=qr['id'];
 		s:=Copy(dsp,dspx[i].x+2,dspx[i].y-dspx[i].x-2);
-	
+
 		if s='name' then
 		 begin
 		  <<a href="Item.xxm?x=i[[=id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>

@@ -16,14 +16,14 @@ try
 [[#txForm('aRefType.xxm',['id',id,'pid',pid])]]
 [[#txFormProtect]]
 <dl>
-<dt>Name</dt><dd><input type="text" name="name" id="RefTypeName" value="[[=qr.GetDefault('name','')]]" class="textfield" /></dd>>
+<dt>Name</dt><dd><input type="text" name="name" id="RefTypeName" value="[[=qr.GetStr('name')]]" class="textfield" /></dd>>
 if Session.IsAdmin('config') then
  begin
-  <<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetDefault('system','')]]" class="systemfield" /></dd>>
+  <<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetStr('system')]]" class="systemfield" /></dd>>
  end;
-<<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetDefault('weight',0)]]" class="weightfield" /></dd>
-<dt>Icon</dt><dd>[[Context.Include('fIcons.xxmi',['icon',qr.GetDefault('icon',0)]);]]</dd>
-<dt>Select object to refer to from branch</dt><dd>[[Context.Include('dObjSelect.xxmi',['default',qr.GetDefault('dft',0),0,0,'',true]);]]</dd>
+<<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetInt('weight')]]" class="weightfield" /></dd>
+<dt>Icon</dt><dd>[[Context.Include('fIcons.xxmi',['icon',qr.GetInt('icon')]);]]</dd>
+<dt>Select object to refer to from branch</dt><dd>[[Context.Include('dObjSelect.xxmi',['default',qr.GetInt('dft'),0,0,'',true]);]]</dd>
 </dl>
 [[#txFormButton]]
 <a href="Item.xxm?x=rt[[=xid]]">back</a>

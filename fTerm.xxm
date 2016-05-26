@@ -27,7 +27,7 @@ r:=Context['r'].Value;
 
 ic:=TItemCache.Create;
 qr:=TQueryResult.Create(Session.DbCon,
-  'SELECT Obj.id, Obj.pid, Obj.[name], Obj.[desc], ObjType.[icon], ObjType.[name] AS [typename] '+
+  'SELECT Obj.id, Obj.pid, Obj.name, Obj.'+sqlDesc+', ObjType.icon, ObjType.name AS typename '+
   'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
   'WHERE Obj.name LIKE ? AND Obj.rlm_id'+Session.Realms[rpView].SQL,[n]);
 try

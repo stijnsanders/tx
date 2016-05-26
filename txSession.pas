@@ -12,6 +12,7 @@ const
   ViewedLastCount=50;
   AutoLogonCookieName='txAutoLogon';
   AutoLogonCookieTimeoutDays=100;
+  sqlDesc='desc';//='[desc]';? ='"desc"';?
 
 var
   //see LoadProjectSettings
@@ -206,9 +207,9 @@ begin
        end;
     end;
     DbFilePath:=sl.Values['DB'];
-    MaintAuthKey:=sl.Values['AuthKey'];
     //relative?
     if (DbFilePath<>'') and not(DbFilePath[2] in [':','\']) then DbFilePath:=ModulePath+DbFilePath;
+    MaintAuthKey:=sl.Values['AuthKey'];
     AdministratorEmailAddress:=sl.Values['AdministratorEmailAddress'];
     UseNTAuth:=sl.Values['NTAuth']='1';
   finally
@@ -312,7 +313,7 @@ begin
   if ThreadDbCon=nil then
    begin
     ThreadDBCon:=TDataConnection.Create(DbFilePath);
-    ThreadDBCon.BusyTimeout:=30000;
+    //ThreadDBCon.BusyTimeout:=30000;
    end;
   Result:=ThreadDbCon;
 end;
@@ -391,7 +392,7 @@ begin
   fcl:=0;
   SetLength(fc,fcl);
   //rpView, rpEdit only, rpAny, rpBoth: see BuildRealmPermissionsSQL
-  qr:=TQueryResult.Create(DbCon,'SELECT id, view_expression, edit_expression, limit_expression FROM Rlm ORDER BY id');
+  qr:=TQueryResult.Create(DbCon,'SELECT id, view_expression, edit_expression, limit_expression FROM Rlm ORDER BY id',[]);
   try
     if qr.EOF or (qr.GetInt('id')<>0) then
       for rp:=rpView to rpEdit do Realms[rp].Ids[Grow(rp)]:=0;
@@ -422,7 +423,12 @@ begin
               fq.OrderBy:='';
               f.FilterExpression:=fx;
               fq.AddFilter(f);
-              b:=DbCon.Exists(fq.Sql);
+              qr1:=TQueryResult.Create(DbCon,fq.Sql,[]);
+              try
+                b:=not(qr1.EOF);
+              finally
+                qr1.Free;
+              end;
             finally
               f.Free;
               fq.Free;
@@ -682,9 +688,9 @@ end;
 
 function TtxSession.IsAdmin(const Key: string): boolean;
 begin
-  Result:=(UserID=-1) or DbCon.Execute(
+  Result:=(UserID=-1) or (DbCon.Execute(
     'SELECT Tok.id FROM Tok LEFT JOIN TokType ON TokType.id=Tok.toktype_id '+
-    'WHERE Tok.obj_id=? AND TokType.system=?',[UserID,'auth.'+Key]);
+    'WHERE Tok.obj_id=? AND TokType.system=?',[UserID,'auth.'+Key])<>0);
 end;
 
 procedure TtxSession.LogonAttemptCheck;
@@ -726,9 +732,9 @@ end;
 function sqlObjsByPid:string;
 begin
   Result:=
-    'SELECT Obj.id, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight],'+
+    'SELECT Obj.id, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', Obj.url, Obj.weight,'+
     ' Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts,'+
-    ' ObjType.[icon], ObjType.[name] AS [typename]';
+    ' ObjType.icon, ObjType.name AS typename';
   if Use_ObjTokRefCache then Result:=Result+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
   if Session.QryUnread then Result:=Result+', (SELECT MIN(Obx.id) FROM Obx LEFT OUTER JOIN Urx'+
     ' ON Urx.uid='+IntToStr(Session.UserID)+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
@@ -831,8 +837,14 @@ begin
   //assert caller does transaction
   x:=SHA1Hash(IntToHex(integer(Session),8)+'_'+Context.ContextString(csRemoteAddress)+'_'+IntToStr(GetTickCount)+'_'+FormatDateTime('yyyymmss_hhnnss_zzz',Now));
   //assert called did UPDATE Ust SET seq=seq+1 WHERE usl_id=?
-  Session.DbCon.Execute('INSERT INTO Ust (usl_id,seq,token,address,agent,c_ts) VALUES (?,0,?,?,?,?)',[
-    UslID,x,Context.ContextString(csRemoteAddress),Context.ContextString(csUserAgent),VNow]);
+  Session.DbCon.Insert('Ust',
+    ['usl_id',UslID
+    ,'seq',0
+    ,'token',x
+    ,'address',Context.ContextString(csRemoteAddress)
+    ,'agent',Context.ContextString(csUserAgent)
+    ,'c_ts',VNow
+    ]);
   Context.SetCookie(AutoLogonCookieName,x,AutoLogonCookieTimeoutDays*24*60*60,'','','',false,true);//domain?secure?
 end;
 

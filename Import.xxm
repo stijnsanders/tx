@@ -184,7 +184,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
 		else
 		 begin
 		  qr:=TQueryResult.Create(Session.DbCon,
-		    'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.[name], Obj.[desc], Obj.[url], Obj.[weight], Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.[icon], ObjType.[name] AS [typename], ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+		    'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', Obj.url, Obj.weight, Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename, ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
 			'FROM Obj '+
 			'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
 			'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
@@ -267,7 +267,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
 		else
 		 begin
 		  qr:=TQueryResult.Create(Session.DbCon,
-		    'SELECT Obj.id, Obj.[name], ObjType.[icon], ObjType.[name] AS [typename] '+
+		    'SELECT Obj.id, Obj.name, ObjType.icon, ObjType.name AS typename '+
 			'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id2]);
 		  try
 			Context.Include('dObjLink.xxmi',[],[qr]);

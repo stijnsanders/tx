@@ -58,7 +58,7 @@ begin
            end
           else
            begin
-            Session.DbCon.Execute('BEGIN TRANSACTION');
+            Session.DbCon.BeginTrans;
             try
               id:=qr.GetInt('usl_id');
               if qr.GetInt('seq')=0 then
@@ -76,9 +76,9 @@ begin
                 FreeAndNil(qr);
                 ClearAutoLogonToken(Context);
                end;
-              Session.DbCon.Execute('COMMIT TRANSACTION');
+              Session.DbCon.CommitTrans;
             except
-              Session.DbCon.Execute('ROLLBACK TRANSACTION');
+              Session.DbCon.RollbackTrans;
               raise;
             end;
            end;

@@ -13,7 +13,7 @@ doAddNew:=Length(Values)=0;//?boolean(Values[0])?
    begin
     id1:=Session.FilterRecent[itTokType,i];
     qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT TokType.[name], TokType.[icon] FROM TokType WHERE TokType.id=?',[id1]);
+	  'SELECT TokType.name, TokType.icon FROM TokType WHERE TokType.id=?',[id1]);
 	try
 	  if not(qr.EOF) then
 	   begin
@@ -39,7 +39,7 @@ doAddNew:=Length(Values)=0;//?boolean(Values[0])?
     id2:=Session.RecentReferences[i].obj2;
     //TODO: realms?
     qr:=TQueryResult.Create(Session.DbCon,
-      'SELECT Obj.[name] AS objname, ObjType.[icon] AS objicon, RefType.[name], RefType.[icon] '+
+      'SELECT Obj.name AS objname, ObjType.icon AS objicon, RefType.name, RefType.icon '+
       'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
       'INNER JOIN RefType ON RefType.id=? WHERE Obj.id=?',[id1,id2]);
     try

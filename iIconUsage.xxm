@@ -25,7 +25,7 @@ while (i<3) and Context.Connected do
      end;
   finally
     qr.Free;
-  end;   
+  end;
   inc(i);
  end;
 if j=0 then

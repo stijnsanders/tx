@@ -97,7 +97,7 @@ try
             fq.OrderBy:='';
             f.FilterExpression:=fx;
             fq.AddFilter(f);
-            b:=Session.DbCon.Exists(fq.Sql);
+            b:=Session.DbCon.Execute(fq.Sql,[])<>0;
           finally
             f.Free;
             fq.Free;

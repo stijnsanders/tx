@@ -28,7 +28,7 @@ while i<l do
  end;
 
 //TODO: getdomain?
-qr:=TQueryResult.Create(Session.DbCon,StringReplace(Values[0],'[[realms]]',Session.Realms[rpView].SQL,[]));
+qr:=TQueryResult.Create(Session.DbCon,StringReplace(Values[0],'[[realms]]',Session.Realms[rpView].SQL,[]),[]);
 try
   while qr.Read and Context.Connected do
    begin
@@ -41,7 +41,7 @@ try
 	    j:=dspx[i].y+2;
 	    id:=qr['id'];
 		s:=Copy(dsp,dspx[i].x+2,dspx[i].y-dspx[i].x-2);
-	
+
 		if s='name' then
 		 begin
 		  <<a href="Item.xxm?x=i[[=id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>

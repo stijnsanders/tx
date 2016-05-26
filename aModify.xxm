@@ -36,7 +36,7 @@ end;
 
   ids:=TIdList.Create;
   try
-    qr:=TQueryResult.Create(Session.DbCon,fs);
+    qr:=TQueryResult.Create(Session.DbCon,fs,[]);
     try
       while qr.Read and Context.Connected do ids.Add(qr.GetInt('id'));
     finally

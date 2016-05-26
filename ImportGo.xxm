@@ -2,7 +2,7 @@
 im:TtxImport;
 xl,xl2:IXMLDOMNodeList;
 x,y,x1:IXMLDOMElement;
-q,{id1,}id2,pid1,pid2,tid,rid,xid,retryCount,icon,i{,j}:integer;
+q,{id1,}id2,pid1,pid2,tid,rid,retryCount,icon,i{,j}:integer;
 pfound,dd:boolean;
 name:WideString;
 s:string;
@@ -27,7 +27,7 @@ if Session.Data=nil then raise Exception.Create('No import job to execute')
 //TODO: map uid's
 
 Context.BufferSize:=0;
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 
 //import types first
@@ -68,14 +68,13 @@ for q:=1 to 3 do
             //create new item
             icon:=DefAttr(x,'icon',-1);
             name:=x.selectSingleNode('name').text;
-            Session.DbCon.Execute('INSERT INTO '+QName[q]+' (pid,icon,name,system,weight) VALUES (?,?,?,?,?)',
-              [pid2,icon,name,x.selectSingleNode('system').text,DefAttr(x,'weight',0)],id2);
+            id2:=Session.DbCon.Insert(QName[q],['pid',pid2,'icon',icon,'name',name,'system',x.selectSingleNode('system').text,'weight',DefAttr(x,'weight',0)],'id');
             y:=x.selectSingleNode('cre') as IXMLDOMElement;
             if y<>nil then
-              Session.DbCon.Execute('UPDATE '+QName[q]+' SET c_uid=?,c_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),id2]);
+              Session.DbCon.Update(QName[q],['id',id2,'c_uid',DefAttr(y,'uid',Session.UserID),'c_ts',VarFromDateTime(XmlToDate(y.text))]);
             y:=x.selectSingleNode('mod') as IXMLDOMElement;
             if y<>nil then
-              Session.DbCon.Execute('UPDATE '+QName[q]+' SET m_uid=?,m_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),id2]);
+              Session.DbCon.Update(QName[q],['id',id2,'m_uid',DefAttr(y,'uid',Session.UserID),'m_ts',VarFromDateTime(XmlToDate(y.text))]);
             x.setAttribute('newid',id2);
             ]]
              <!--insert [[=id2]]--> [[#txImg(icon)]] [[=name]]
@@ -108,11 +107,12 @@ for q:=1 to 3 do
             {
             y:=x.selectSingleNode('cre') as IXMLDOMElement;
             if y<>nil then
-              Session.DbCon.Execute('UPDATE '+QName[q]+' SET c_uid=?,c_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),id2]);
+              Session.DbCon.Update(QName[q],['id',id2,'c_uid',DefAttr(y,'uid',Session.UserID),'c_ts',VarFromDateTime(XmlToDate(y.text))]);
             }
             y:=x.selectSingleNode('mod') as IXMLDOMElement;
             if y<>nil then
-              Session.DbCon.Execute('UPDATE '+QName[q]+' SET m_uid=?,m_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),id2]);
+              Session.DbCon.Update(QName[q],['id',id2,'m_uid',DefAttr(y,'uid',Session.UserID),'m_ts',VarFromDateTime(XmlToDate(y.text))]);
+
             x.setAttribute('newid',id2);
            end;
           ]]
@@ -165,14 +165,13 @@ for q:=1 to 3 do
             tid:=DefAttr(y,'newid',0);
             //assert tid<>0
             icon:=DefAttr(y,'icon',-1);
-            Session.DbCon.Execute('INSERT INTO '+QName[q]+' (pid,objtype_id,name,[desc],url,weight,rlm_id) VALUES (?,?,?,?,?,?,?)',
-              [pid2,tid,name,x.selectSingleNode('desc').text,x.selectSingleNode('url').text,DefAttr(x,'weight',0),DefaultRlmID],id2);//TODO: realm
+            id2:=Session.DbCon.Insert(QName[q],['pid',pid2,'objtype_id',tid,'name',name,sqlDesc,x.selectSingleNode('desc').text,'url',x.selectSingleNode('url').text,'weight',DefAttr(x,'weight',0),'rlm_id',DefaultRlmID],'id');//TODO: realm
             y:=x.selectSingleNode('cre') as IXMLDOMElement;
             if y<>nil then
-              Session.DbCon.Execute('UPDATE '+QName[q]+' SET c_uid=?,c_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),id2]);
+              Session.DbCon.Update(QName[q],['id',id2,'c_uid',DefAttr(y,'uid',Session.UserID),'c_ts',VarFromDateTime(XmlToDate(y.text))]);
             y:=x.selectSingleNode('mod') as IXMLDOMElement;
             if y<>nil then
-              Session.DbCon.Execute('UPDATE '+QName[q]+' SET m_uid=?,m_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),id2]);
+              Session.DbCon.Update(QName[q],['id',id2,'m_uid',DefAttr(y,'uid',Session.UserID),'m_ts',VarFromDateTime(XmlToDate(y.text))]);
             x.setAttribute('newid',id2);
             ]]
              <!--[[=id2]]--> [[#txImg(icon)]] [[=name]]
@@ -192,7 +191,7 @@ for q:=1 to 3 do
           icon:=DefAttr(y,'icon',-1);
           dd:=false;
           SetLength(xx,6);
-          qr:=TQueryResult.Create(Session.DbCon,'SELECT objtype_id,name,[desc],url,weight FROM Obj WHERE id=?',[id2]);
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT objtype_id,name,'+sqlDesc+',url,weight FROM Obj WHERE id=?',[id2]);
           try
             dset(0,qr['objtype_id'],tid);
             dset(1,qr['name'],name);
@@ -206,15 +205,15 @@ for q:=1 to 3 do
           end;
           if dd then
            begin
-            Session.DbCon.Execute('UPDATE Obj SET objtype_id=?,name=?,[desc]=?,url=?,weight=? WHERE id=?',xx);
+            Session.DbCon.Execute('UPDATE Obj SET objtype_id=?,name=?,'+sqlDesc+'=?,url=?,weight=? WHERE id=?',xx);
             {
             y:=x.selectSingleNode('cre') as IXMLDOMElement;
             if y<>nil then
-              Session.DbCon.Execute('UPDATE '+QName[q]+' SET c_uid=?,c_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),id2]);
+              Session.DbCon.Update(QName[q],['id',id2,'c_uid',DefAttr(y,'uid',Session.UserID),'c_ts',VarFromDateTime(XmlToDate(y.text))]);
             }
             y:=x.selectSingleNode('mod') as IXMLDOMElement;
             if y<>nil then
-              Session.DbCon.Execute('UPDATE '+QName[q]+' SET m_uid=?,m_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),id2]);
+              Session.DbCon.Update(QName[q],['id',id2,'m_uid',DefAttr(y,'uid',Session.UserID),'m_ts',VarFromDateTime(XmlToDate(y.text))]);
             x.setAttribute('newid',id2);
            end;
           ]]
@@ -243,14 +242,13 @@ for q:=1 to 3 do
       y:=im.Doc.documentElement.selectSingleNode('TokType[@id="'+x.getAttribute('type')+'"]') as IXMLDOMElement;
       //assert y<>nil since imported above
       tid:=DefAttr(y,'newid',0);
-      Session.DbCon.Execute('INSERT INTO Tok (obj_id,toktype_id,[desc],weight) VALUES (?,?,?,?)',
-        [id2,tid,x.selectSingleNode('desc').text,DefAttr(x,'weight',0)],xid);
+      Session.DbCon.Insert('Tok',['obj_id',id2,'toktype_id',tid,sqlDesc,x.selectSingleNode('desc').text,'weight',DefAttr(x,'weight',0)]);
       y:=x.selectSingleNode('cre') as IXMLDOMElement;
       if y<>nil then
-        Session.DbCon.Execute('UPDATE Tok SET c_uid=?,c_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),xid]);
+        Session.DbCon.Update(QName[q],['id',id2,'c_uid',DefAttr(y,'uid',Session.UserID),'c_ts',VarFromDateTime(XmlToDate(y.text))]);
       y:=x.selectSingleNode('mod') as IXMLDOMElement;
       if y<>nil then
-        Session.DbCon.Execute('UPDATE Tok SET m_uid=?,m_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),xid]);
+        Session.DbCon.Update(QName[q],['id',id2,'m_uid',DefAttr(y,'uid',Session.UserID),'m_ts',VarFromDateTime(XmlToDate(y.text))]);
       x:=xl2.nextNode as IXMLDOMElement;
      end;
     x1:=xl.nextNode as IXMLDOMElement;
@@ -274,14 +272,13 @@ for q:=1 to 3 do
       tid:=DefAttr(y,'newid',0);
       y:=im.Doc.documentElement.selectSingleNode('Obj[@id="'+x.getAttribute('rid')+'"]') as IXMLDOMElement;
       rid:=DefAttr(y,'newid',0);
-      Session.DbCon.Execute('INSERT INTO Ref (reftype_id,obj1_id,obj2_id,[desc],weight) values (?,?,?,?,?)',
-        [tid,id2,rid,x.selectSingleNode('desc').text,DefAttr(x,'weight',0)],xid);
+      Session.DbCon.Insert('Ref',['reftype_id',tid,'obj1_id',id2,'obj2_id',rid,sqlDesc,x.selectSingleNode('desc').text,'weight',DefAttr(x,'weight',0)]);
       y:=x.selectSingleNode('cre') as IXMLDOMElement;
       if y<>nil then
-        Session.DbCon.Execute('UPDATE Ref SET c_uid=?,c_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),xid]);
+        Session.DbCon.Update(QName[q],['id',id2,'c_uid',DefAttr(y,'uid',Session.UserID),'c_ts',VarFromDateTime(XmlToDate(y.text))]);
       y:=x.selectSingleNode('mod') as IXMLDOMElement;
       if y<>nil then
-        Session.DbCon.Execute('UPDATE Ref SET m_uid=?,m_ts=? WHERE id=?',[DefAttr(y,'uid',Session.UserID),VarFromDateTime(XmlToDate(y.text)),xid]);
+        Session.DbCon.Update(QName[q],['id',id2,'m_uid',DefAttr(y,'uid',Session.UserID),'m_ts',VarFromDateTime(XmlToDate(y.text))]);
       x:=xl2.nextNode as IXMLDOMElement;
      end;
 
@@ -314,7 +311,7 @@ for q:=1 to 3 do
       xx[5]:=DefAttr(x,'weight',0);
       xx[6]:=VarFromDateTime(XmlToDate(x.selectSingleNode('ts').text));
       xx[7]:=DefAttr(x,'uid',Session.UserID);;
-      Session.DbCon.Execute('INSERT INTO Rpt (obj_id,[desc],toktype_id,reftype_id,obj2_id,weight,ts,uid) VALUES (?,?,?,?,?,?,?,?)',xx);
+      Session.DbCon.Execute('INSERT INTO Rpt (obj_id,'+sqlDesc+',toktype_id,reftype_id,obj2_id,weight,ts,uid) VALUES (?,?,?,?,?,?,?,?)',xx);
       x:=xl2.nextNode as IXMLDOMElement;
      end;
     x1:=xl.nextNode as IXMLDOMElement;
@@ -325,17 +322,15 @@ for q:=1 to 3 do
    begin
     //TODO: re-do only for freshly imported...
     <<b>Rebuild ObjPath</b><br />>
-    Session.DbCon.Execute('DELETE FROM ObjPath');
+    Session.DbCon.Execute('DELETE FROM ObjPath',[]);
 
-    Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT id,id,0 FROM Obj');
-    Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT pid,id,1 FROM Obj WHERE pid<>0');
-    i:=Session.DbCon.Changes;
+    Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT id,id,0 FROM Obj',[]);
+    i:=Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT pid,id,1 FROM Obj WHERE pid<>0',[]);
     //j:=0;
     while i<>0 do
      begin
-      Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT ObjPath.pid,Obj.id,ObjPath.lvl+1 FROM ObjPath '+
-        'INNER JOIN Obj ON Obj.pid=ObjPath.oid WHERE ObjPath.lvl=(SELECT MAX(lvl) FROM ObjPath)');
-      i:=Session.DbCon.Changes;
+      i:=Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT ObjPath.pid,Obj.id,ObjPath.lvl+1 FROM ObjPath '+
+        'INNER JOIN Obj ON Obj.pid=ObjPath.oid WHERE ObjPath.lvl=(SELECT MAX(lvl) FROM ObjPath)',[]);
       //inc(j);
       //Context.SendHTML('level '+IntToStr(j)+': '+IntToStr(i)+#13#10);
      end;
@@ -343,10 +338,10 @@ for q:=1 to 3 do
 
   <</p>>
   <<p>Committing...</p>>
-  Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.CommitTrans;
   <<p>Done. (<a href="Import.xxm?x=101">Continue</a> closing import job, or <a href="Import.xxm">inspect</a> import job.)</p>>
 except
-  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  Session.DbCon.RollbackTrans;
   raise;
 end;
 

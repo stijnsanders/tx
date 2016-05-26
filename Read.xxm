@@ -15,7 +15,7 @@ if x<>1 then
 
 s:='Unknown action';
 //rpEdit?
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
   case x of
     0,1,2:
@@ -81,9 +81,9 @@ try
     //5:
     //else raise Exception.Create('Unknown action');
   end;
-  Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.CommitTrans;
 except
-  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  Session.DbCon.RollbackTrans;
   raise;
 end;
 

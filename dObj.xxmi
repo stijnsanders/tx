@@ -90,7 +90,7 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
   end;
 
   qr1:=TQueryResult.Create(Session.DbCon,
-    'SELECT Tok.id, Tok.obj_id, Tok.toktype_id, Tok.[desc], Tok.[weight], Tok.c_uid, Tok.c_ts, Tok.m_uid, Tok.m_ts, TokType.[icon], TokType.[name], TokType.[system] '+
+    'SELECT Tok.id, Tok.obj_id, Tok.toktype_id, Tok.'+sqlDesc+', Tok.weight, Tok.c_uid, Tok.c_ts, Tok.m_uid, Tok.m_ts, TokType.icon, TokType.name, TokType.system '+
     'FROM Tok  '+
     'INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
     'WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',
@@ -134,8 +134,8 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
     qr1.Free;
   end;
   qr1:=TQueryResult.Create(Session.DbCon,
-    'SELECT Ref.id, Ref.obj1_id, Ref.reftype_id, Ref.obj2_id, Ref.[desc], Ref.[weight], Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts,'+
-    ' RefType.[icon], RefType.[name] AS [typename], Obj.[name], ObjType.[icon] AS [objicon], ObjType.[name] AS [objtypename],'+
+    'SELECT Ref.id, Ref.obj1_id, Ref.reftype_id, Ref.obj2_id, Ref.'+sqlDesc+', Ref.weight, Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts,'+
+    ' RefType.icon, RefType.name AS typename, Obj.name, ObjType.icon AS objicon, ObjType.name AS objtypename,'+
     ' ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
     'FROM Ref '+
     'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
@@ -205,7 +205,7 @@ if i<>0 then
  end;
 
 qr:=TQueryResult.Create(Session.DbCon,
-  'SELECT Flt.id, Flt.[name], Flt.[desc], Flt.[expression], Flt.c_uid, Flt.c_ts, Flt.m_uid, Flt.m_ts '+
+  'SELECT Flt.id, Flt.name, Flt.'+sqlDesc+', Flt.expression, Flt.c_uid, Flt.c_ts, Flt.m_uid, Flt.m_ts '+
   'FROM Flt WHERE Flt.obj_id=? ORDER BY Flt.c_ts',[id]);
 try
   if not qr.EOF then Context.SendHTML('<p class="midnav">filters</p>');

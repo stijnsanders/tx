@@ -9,12 +9,12 @@ id:=Context['id'].AsInteger;
 
 //TODO: check realm? admin? formprotect?
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 	Session.DbCon.Execute('DELETE FROM Trm WHERE Trm.id=?',[id]);
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
 except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
 end;
 

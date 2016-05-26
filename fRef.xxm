@@ -1,6 +1,10 @@
 [[@txDefs,txSession,DataLank,]][[!var
 id,rid,tid:integer;
 qr:TQueryResult;
+function qrGetDefault(const FieldName:string;DefaultValue:OleVariant):OleVariant;
+begin
+  if qr.IsNull(FieldName) then Result:=DefaultValue else Result:=qr[FieldName];
+end;
 ]][[
 
 Context.Include('dHead.xxmi',['Reference']);
@@ -14,16 +18,16 @@ try
 //TODO: default?
 
 //get obj id for back link
-if rid<>0 then id:=qr.GetDefault('obj1_id',0);//reference move not supported
+if rid<>0 then id:=qrGetDefault('obj1_id',0);//reference move not supported
 
 <<h2>Reference</h2>
 [[#txForm('aRef.xxm',['id',id,'rid',rid],'selectnode_required("reftype","a reference type")&&selectnode_required("obj2","an object to refer to")')]]
 [[#txFormProtect]]
 <dl>[[//see also Modify.xxm]]
-<dt>Reference type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itRefType,'reftype',qr.GetDefault('reftype_id',0)]);]]</dd>
-<dt>Refer to object</dt><dd>[[Context.Include('dObjSelect.xxmi',['obj2',qr.GetDefault('obj2_id',tid),id,id,'',true]);]]</dd>
-<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetDefault('desc',''),true]);]]</dd>
-<dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetDefault('weight',0)]]" /></dd>
+<dt>Reference type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itRefType,'reftype',qrGetDefault('reftype_id',0)]);]]</dd>
+<dt>Refer to object</dt><dd>[[Context.Include('dObjSelect.xxmi',['obj2',qrGetDefault('obj2_id',tid),id,id,'',true]);]]</dd>
+<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qrGetDefault('desc',''),true]);]]</dd>
+<dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=qrGetDefault('weight',0)]]" /></dd>
 [[/TODO: realm?]]
 </dl>
 [[#txFormButton]]

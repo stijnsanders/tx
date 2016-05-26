@@ -42,7 +42,7 @@ if qtype in [0,1] then
 	else
 	 begin
 	  qr:=TQueryResult.Create(Session.DbCon,
-		'SELECT Obj.id, Obj.pid, Obj.[name], ObjType.[icon], ObjType.[name] AS [typename]'+
+		'SELECT Obj.id, Obj.pid, Obj.name, ObjType.icon, ObjType.name AS typename'+
         ' FROM Ref'+
         ' INNER JOIN Obj ON Obj.id=Ref.obj'+IntToStr(2-qtype)+'_id'+
         ' INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'+
@@ -59,7 +59,7 @@ if qtype in [0,1] then
 		<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
 		<a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name2]]',[[=id]])||(event||window.event||this).ctrlKey;" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
 		qrTok:=TQueryResult.Create(Session.DbCon,
-		  'SELECT TokType.[icon], TokType.[name]'+
+		  'SELECT TokType.icon, TokType.name'+
 		  ' FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id'+
 		  ' WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
 		if not(qrTok.EOF) then
@@ -84,7 +84,7 @@ else
  begin
   //references level
 
-   if Session.DbCon.Execute('SELECT id FROM Obj WHERE pid=? LIMIT 1',[pid]) then
+   if Session.DbCon.Execute('SELECT id FROM Obj WHERE pid=? LIMIT 1',[pid])<>0 then
     begin
 		name2:=name+'C'+level;
 		<<span id="[[=name2]]_children_[[=pid]]" expandurl="iTrace.xxm[[?'name',name,'id',pid,'q',0,'l',level]][[=txCallProtect]]">
@@ -110,7 +110,7 @@ else
 			<img src="img_loc.png" width="16" height="16" alt="parent" [[#globalIconAlign]]/>
 			<a id="[[=name2]]_parentlink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name2]]',[[=id]])||(event||window.event||this).ctrlKey;" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
 			qrTok:=TQueryResult.Create(Session.DbCon,
-			  'SELECT TokType.[icon], TokType.[name]'+
+			  'SELECT TokType.icon, TokType.name'+
 			  ' FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id'+
 			  ' WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
 			if not(qrTok.EOF) then
@@ -132,7 +132,7 @@ else
 	 end;
 
     qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT RefType.id, RefType.[name], RefType.[icon]'+
+	  'SELECT RefType.id, RefType.name, RefType.icon'+
       ' FROM RefType'+
       ' WHERE RefType.id IN (SELECT Ref.reftype_id FROM Ref'+
 	    ' INNER JOIN Obj ON Obj.id=Ref.obj2_id'+
@@ -154,7 +154,7 @@ else
 	  qr.Free;
 	end;
     qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT RefType.id, RefType.[name], RefType.[icon]'+
+	  'SELECT RefType.id, RefType.name, RefType.icon'+
 	  ' FROM RefType'+
 	  ' WHERE RefType.id IN (SELECT Ref.reftype_id FROM Ref'+
 	    ' INNER JOIN Obj ON Obj.id=Ref.obj1_id'+

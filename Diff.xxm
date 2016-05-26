@@ -72,7 +72,7 @@ else
 	 end;
 
     if h1=0 then
-	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC LIMIT 0,1',[id])
+	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC LIMIT 1',[id])
 	else
 	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h1]);
 	try
@@ -97,7 +97,7 @@ else
 	end;
 
 	if (h2=0) or (h1=h2) then
-	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? AND ObjHist.id<? ORDER BY ObjHist.id DESC LIMIT 0,1',[id,h1])
+	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? AND ObjHist.id<? ORDER BY ObjHist.id DESC LIMIT 1',[id,h1])
 	else
 	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h2]);
 	try

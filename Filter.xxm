@@ -105,7 +105,7 @@ else
   <<span class="weight">build: [[=tc3-tc1]]ms</span>>
   Context.Flush;
   c:=0;
-  qr:=TQueryResult.Create(Session.DbCon,fs);
+  qr:=TQueryResult.Create(Session.DbCon,fs,[]);
   ObjLocationCache:=TItemCache.Create;
   try
     tc4:=GetTickCount;
@@ -148,7 +148,7 @@ else
       f.Free;
       fq.Free;
     end;
-    if Session.DbCon.Exists(fs) then
+    if Session.DbCon.Execute(fs,[])<>0 then
      begin
       <<p class="information">
       No items found in your current viewable realms.

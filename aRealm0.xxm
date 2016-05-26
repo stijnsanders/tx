@@ -9,7 +9,7 @@ RefreshRealms:=false;
 CheckFormProtect(Context);
 
 if not(Session.IsAdmin('realms')) then
-	raise Exception.Create('Default realm permissions editable by realms administrator only');
+    raise Exception.Create('Default realm permissions editable by realms administrator only');
 
 //TODO test new filter expressions!
 
@@ -39,18 +39,34 @@ l2:=Context['limit1'].Value;
 if l2='' then l2:=Context['limit2'].Value;
 if (v1<>v2) or (e1<>e2) or (l1<>l2) then RefreshRealms:=true;
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 
-  	if (v2='') and (e2='') and (l2='') then
-			Session.DbCon.Execute('DELETE FROM Rlm WHERE id=0')
-		else
-    if id=0 then
-      Session.DbCon.Execute('INSERT INTO Rlm (id,name,desc,system,view_expression,edit_expression,limit_expression,c_ts,c_uid,m_ts,m_uid) VALUES (0,?,?,?,?,?,?,?,?,?,?)',
-        ['','','default',v2,e2,l2,VNow,Session.UserID,VNow,Session.UserID],id)
+    if (v2='') and (e2='') and (l2='') then
+      Session.DbCon.Execute('DELETE FROM Rlm WHERE id=0',[])
     else
-      Session.DbCon.Execute('UPDATE Rlm SET view_expression=?, edit_expression=?, limit_expression=?, m_ts=?, m_uid=? WHERE id=0',
-        [v2,e2,l2,VNow,Session.UserID]);
+    if id=0 then
+      Session.DbCon.Insert('Rlm',
+        ['id',0
+        ,'name',''
+        ,sqlDesc,''
+        ,'system','default'
+        ,'view_expression',v2
+        ,'edit_expression',e2
+        ,'limit_expression',l2
+        ,'c_ts',VNow
+        ,'c_uid',Session.UserID
+        ,'m_ts',VNow
+        ,'m_uid',Session.UserID
+        ])
+    else
+      Session.DbCon.Update('Rlm',
+        ['id',0
+        ,'view_expression',v2
+        ,'edit_expression',e2
+        ,'limit_expression',l2
+        ,'m_ts',VNow
+        ,'m_uid',Session.UserID]);
 
     //force realm perm refresh on all session
     if RefreshRealms then
@@ -59,9 +75,9 @@ try
       Session.LoadRealmPermissions;
      end;
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
 except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
 end;
 

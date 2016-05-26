@@ -9,7 +9,7 @@ url:string;
 
 CheckCallProtect(Context);
 id:=Context['id'].AsInteger;
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
   qr:=TQueryResult.Create(Session.DbCon,'SELECT pid FROM Obj WHERE id=?',[id]);
   try
@@ -53,14 +53,14 @@ try
       finally
         qr.Free;
       end;
-      if id1<>0 then Session.DbCon.Execute('INSERT INTO Urx (uid,id1,id2) VALUES (?,?,?)',[Session.UserID,id1,id2]);
+      if id1<>0 then Session.DbCon.Insert('Urx',['uid',Session.UserID,'id1',id1,'id2',id2]);
      end;
   finally
     qr1.Free;
   end;
-  Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.CommitTrans;
 except
-  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  Session.DbCon.RollbackTrans;
   raise;
 end;
 

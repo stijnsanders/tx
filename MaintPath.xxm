@@ -11,27 +11,25 @@ i,j:integer;
 Context.ContentType:='text/plain';
 Context.BufferSize:=0;
 CheckMaintProtect(Context);
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 	Context.SendHTML('Clearing...'#13#10);
-	Session.DbCon.Execute('DELETE FROM ObjPath');
+	Session.DbCon.Execute('DELETE FROM ObjPath',[]);
 
-	Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT id,id,0 FROM Obj');
-	Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT pid,id,1 FROM Obj WHERE pid<>0');
-	i:=Session.DbCon.Changes;
+	Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT id,id,0 FROM Obj',[]);
+	i:=Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT pid,id,1 FROM Obj WHERE pid<>0',[]);
 	j:=0;
 	while i<>0 do
 	 begin
 	  inc(j);
 	  Context.SendHTML('level '+IntToStr(j)+': '+IntToStr(i)+#13#10);
-	  Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT ObjPath.pid,Obj.id,ObjPath.lvl+1 FROM ObjPath '+
-	    'INNER JOIN Obj ON Obj.pid=ObjPath.oid WHERE ObjPath.lvl=(SELECT MAX(lvl) FROM ObjPath)');
-	  i:=Session.DbCon.Changes;
+	  i:=Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT ObjPath.pid,Obj.id,ObjPath.lvl+1 FROM ObjPath '+
+	    'INNER JOIN Obj ON Obj.pid=ObjPath.oid WHERE ObjPath.lvl=(SELECT MAX(lvl) FROM ObjPath)',[]);
 	 end;
 
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
 except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
 end;
 

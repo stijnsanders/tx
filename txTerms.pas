@@ -145,7 +145,7 @@ begin
     else
       while (x<>0) and (Result=0) do
        begin
-        if Session.DbCon.Execute('SELECT Tok.id FROM Tok LEFT JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? AND TokType.system=''wiki.prefix'' LIMIT 1',[x]) then
+        if Session.DbCon.Execute('SELECT Tok.id FROM Tok LEFT JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? AND TokType.system=''wiki.prefix'' LIMIT 1',[x])<>0 then
           Result:=x
         else
           x:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[x],0);
@@ -206,7 +206,7 @@ function TTermCheck.CheckPage(var Name: WideString;
 begin
   //TODO: domain?
   FStore.FList.Add(Name);
-  Result:=Session.DbCon.Execute('SELECT Trm.obj_id FROM Trm WHERE Trm.domain_id=? AND lower(Trm.term)=lower(?) LIMIT 1',[FStore.FCurrentDomain,Name]);
+  Result:=Session.DbCon.Execute('SELECT Trm.obj_id FROM Trm WHERE Trm.domain_id=? AND lower(Trm.term)=lower(?) LIMIT 1',[FStore.FCurrentDomain,Name])<>0;
   //TODO: update name from DB?
   if Result then
     Name:='Term.xxm?d='+IntToStr(FStore.FCurrentDomain)+'&r='+FStore.FCurrentSource+'&n='

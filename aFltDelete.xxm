@@ -7,7 +7,7 @@ qr:TQueryResult;
 id:=Context['id'].AsInteger;
 CheckFormProtect(Context);
 
-qr:=TQueryResult.Create(Session.DbCon,'SELECT Flt.id, Flt.obj_id, Flt.[name], Flt.[desc], Flt.[expression] FROM Flt WHERE Flt.id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Flt.id, Flt.obj_id, Flt.name, Flt.'+sqlDesc+', Flt.expression FROM Flt WHERE Flt.id=?',[id]);
 try
   objid:=qr.GetInt('obj_id');
   filter:=qr.GetStr('expression');
@@ -18,15 +18,15 @@ end;
 Session.HasRealmPermission(objid,
   DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],DefaultRlmID),rpEdit);
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 
   Session.DbCon.Execute('DELETE FROM Flg WHERE flt_id=?',[id]);
   Session.DbCon.Execute('DELETE FROM Flt WHERE id=?',[id]);
 
-  Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.CommitTrans;
 except
-  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  Session.DbCon.RollbackTrans;
   raise;
 end;
 

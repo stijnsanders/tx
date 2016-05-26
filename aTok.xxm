@@ -37,7 +37,7 @@ try
       fq.Free;
     end;
 
-    qr:=TQueryResult.Create(Session.DbCon,fs);
+    qr:=TQueryResult.Create(Session.DbCon,fs,[]);
     try
       while qr.Read and Context.Connected do ids.Add(qr.GetInt('id'));
     finally
@@ -88,32 +88,52 @@ try
     if (tid=0) or (newTokTypeID<>oldTokTypeID) then
       newWeight:=newWeight+DBSingleValue('SELECT weight FROM TokType WHERE id=?',[newTokTypeID],0);
 
-    Session.DbCon.Execute('BEGIN TRANSACTION');
+    Session.DbCon.BeginTrans;
     try
 
         if tid=0 then
-          Session.DbCon.Execute('INSERT INTO Tok (obj_id,toktype_id,[desc],weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?)',
-            [id,newTokTypeID,desc,newWeight,VNow,Session.UserID,VNow,Session.UserID],tid)
+          tid:=Session.DbCon.Insert('Tok',
+            ['obj_id',id
+            ,'toktype_id',newTokTypeID
+            ,sqlDesc,desc
+            ,'weight',newWeight
+            ,'c_ts',VNow
+            ,'c_uid',Session.UserID
+            ,'m_ts',VNow
+            ,'m_uid',Session.UserID
+            ],'id')
         else
           //move tokens not supported
-          Session.DbCon.Execute('UPDATE Tok SET toktype_id=?, desc=?, weight=?, m_ts=?, m_uid=? WHERE id=?',
-            [newTokTypeID,desc,newWeight,VNow,Session.UserID,tid]);
+          Session.DbCon.Update('Tok',
+            ['id',tid
+            ,'toktype_id',newTokTypeID
+            ,sqlDesc,desc
+            ,'weight',newWeight
+            ,'m_ts',VNow
+            ,'m_uid',Session.UserID
+            ]);
 
         if newWeight<>oldWeight then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id=?',[newWeight-oldWeight,id]);
 
         //report
-        Session.DbCon.Execute('INSERT INTO Rpt (obj_id,ts,uid,desc,weight,toktype_id) VALUES (?,?,?,?,?,?)',
-          [id,VNow,Session.UserID,desc,newWeight,newTokTypeId]);
+        Session.DbCon.Insert('Rpt',
+          ['obj_id',id
+          ,'ts',VNow
+          ,'uid',Session.UserID
+          ,sqlDesc,desc
+          ,'weight',newWeight
+          ,'toktype_id',newTokTypeId
+          ]);
 
         TermStore.StoreTerms(itTok,tid,id,desc);
         if Use_ObjTokRefCache then Context.Include('aObjTokRefCache.xxmi',[id]);
 
         if Use_Unread and not Session.Stealth then
-          Session.DbCon.Execute('INSERT INTO Obx (obj_id) VALUES (?)',[id]);
+          Session.DbCon.Insert('Obx',['obj_id',id]);
 
-        Session.DbCon.Execute('COMMIT TRANSACTION');
+        Session.DbCon.CommitTrans;
     except
-        Session.DbCon.Execute('ROLLBACK TRANSACTION');
+        Session.DbCon.RollbackTrans;
         raise;
     end;
 

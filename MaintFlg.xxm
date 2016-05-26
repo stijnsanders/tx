@@ -19,7 +19,7 @@ CheckMaintProtect(Context);
 dry:=Context['dry'].AsInteger<>0;
 
 i:=0;
-qr:=TQueryResult.Create(Session.DbCon,'SELECT [id], [name], [expression] FROM Flt');
+qr:=TQueryResult.Create(Session.DbCon,'SELECT [id], "name", expression FROM Flt',[]);
 try
   while qr.Read do
    begin
@@ -59,7 +59,7 @@ for i:=0 to Length(fl)-1 do
       fq.Free;
     end;
 
-    qr:=TQueryResult.Create(Session.DbCon,fs);
+    qr:=TQueryResult.Create(Session.DbCon,fs,[]);
     try
       ItemCount:=qr.GetInt('ItemCount');
       TotalWeight:=qr.GetInt('TotalWeight');
@@ -69,7 +69,7 @@ for i:=0 to Length(fl)-1 do
 
     Context.SendHTML(' '+IntToStr(ItemCount)+' ('+IntToStr(TotalWeight)+')');
     if not dry then
-      Session.DbCon.Execute('INSERT INTO Flg (flt_id,count,weight,ts) VALUES (?,?,?,?)',[fl[i].id,ItemCount,TotalWeight,VNow]);
+      Session.DbCon.Insert('Flg',['flt_id',fl[i].id,'count',ItemCount,'weight',TotalWeight,'ts',VNow]);
     Context.SendHTML(' !'#13#10#13#10);
   except
     on e:Exception do

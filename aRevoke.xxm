@@ -11,12 +11,12 @@ if not(Session.IsAdmin('reports')) then
 
 //TODO: only if last report? own report?
 //TODO: replace with something?
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 	Session.DbCon.Execute('DELETE FROM Rpt WHERE id=?',[id]);
-    Session.DbCon.Execute('COMMIT TRANSACTION');
+    Session.DbCon.CommitTrans;
 except
-    Session.DbCon.Execute('ROLLBACK TRANSACTION');
+    Session.DbCon.RollbackTrans;
     raise;
 end;
 

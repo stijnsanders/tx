@@ -52,7 +52,7 @@ try
 
   fq.Fields:='Obj.id, Obj.pid';
   fq.Where:=fw;
-  qr:=TQueryResult.Create(Session.DbCon,fq.SQL);
+  qr:=TQueryResult.Create(Session.DbCon,fq.SQL,[]);
   try
     while qr.Read and Context.Connected do
      begin
@@ -115,9 +115,9 @@ try
             repeat
               idx:=idc[idc_i];
               fq.Where:='Obj.id='+IntToStr(idx)+' AND '+fw;
-              if idf.Contains(idx) or Session.DbCon.Exists(fq.SQL) then doNode:=true else
+              if idf.Contains(idx) or (Session.DbCon.Execute(fq.SQL,[])<>0) then doNode:=true else
                begin
-                qr1:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(idx));
+                qr1:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(idx),[]);
                 try
                   while qr1.Read and Context.Connected do idc.Add(qr1.GetInt(0));
                 finally
@@ -131,7 +131,7 @@ try
 
           if doNode and Context.Connected then
            begin
-            hasChildren:=Session.DbCon.Exists('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id]);
+            hasChildren:=Session.DbCon.Execute('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id])<>0;
             preExpand:=hasChildren and (px<>0) and (id=idp[px-1]);
 			highlight:=id=ItemID;
 			<<span id="[[=name]]_node_[[=id]]" expandurl="iFilter.xxm[[?'id',RootID,'pid',id,'name',name,'filter']][[#fv.filterU]][[=txCallProtect]]"[[

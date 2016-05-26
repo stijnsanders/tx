@@ -127,8 +127,8 @@ finally
   fq1.Free;
   fq2.Free;
 end;
-  qr1:=TQueryResult.Create(Session.DbCon,fs1);
-  qr2:=TQueryResult.Create(Session.DbCon,fs2);
+  qr1:=TQueryResult.Create(Session.DbCon,fs1,[]);
+  qr2:=TQueryResult.Create(Session.DbCon,fs2,[]);
   ObjLocationCache:=TItemCache.Create;
   try
 	qs1:=qr1.Read;

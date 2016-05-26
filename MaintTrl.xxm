@@ -19,7 +19,7 @@ begin
     Context.Send(#13#10+tbl+'('+txItemTypeName[itype]+')'#13#10);
     ids:=TIdList.Create;
     try
-      qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM '+tbl+qry);
+      qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM '+tbl+qry,[]);
       try
         while qr.Read and Context.Connected do ids.Add(qr.GetInt('id'));
       finally
@@ -27,7 +27,7 @@ begin
       end;
       for i:=0 to ids.Count-1 do
        begin
-        qr:=TQueryResult.Create(Session.DbCon,'SELECT [desc], '+objid+' AS oid FROM '+tbl+' WHERE id='+IntToStr(ids[i]));
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT '+sqlDesc+', '+objid+' AS oid FROM '+tbl+' WHERE id='+IntToStr(ids[i]),[]);
         try
           desc:=qr.GetStr('desc');
           id:=qr.GetInt('oid');
@@ -57,11 +57,11 @@ end;
 CheckMaintProtect(Context);
 if not Use_Terms then raise Exception.Create('Use_Terms not enabled');
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
   Context.BufferSize:=0;
   Context.Send('Clearing...');
-  Session.DbCon.Execute('DELETE FROM Trl');
+  Session.DbCon.Execute('DELETE FROM Trl',[]);
 
   FillTrl('Obj','','id',itObj);
   FillTrl('Tok','','obj_id',itTok);
@@ -70,9 +70,9 @@ try
   FillTrl('Rpt',' WHERE toktype_id is null and reftype_id is null','obj_id',itReport);
   FillTrl('Rlm','','0',itRealm);
 
-  Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.CommitTrans;
 except
-  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  Session.DbCon.RollbackTrans;
   raise;
 end;
 

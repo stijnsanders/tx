@@ -1,44 +1,4 @@
-[[@txSession,Classes,DataLank,SQLite]][[!var
-sl:TStringList;
-d,fn:string;
-b:HSQLiteDB;
-b1:HSQLiteBackup;
-p:integer;
-function log(const x:string):string;
-begin
-  Context.SendHTML(FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz ',Now)+x+#13#10);
-end;
-]][[
+[[
 Context.ContentType:='text/plain';
-Context.BufferSize:=0;
-CheckMaintProtect(Context);
-
-sl:=TStringList.Create;
-try
-  sl.LoadFromFile(ModulePath+'tx.ini');
-  d:=IncludeTrailingPathDelimiter(sl.Values['DB_BackupPath']);
-  if not((Length(d)>=2) and (d[2] in ['\',':'])) then d:=ModulePath+d;
-finally
-  sl.Free;
-end;
-
-p:=Context['p'].AsInteger;
-if p=0 then p:=$1000;//p:=-1;?
-
-//TODO: mutex?
-fn:=FormatDateTime('yyyymmddhhnnss',Now)+'.db';
-log('backup:'+fn);
-
-sqlite3_check(sqlite3_open(PAnsiChar(d+fn),b));
-try
-  log('init');
-  b1:=sqlite3_backup_init(b,'main',Session.DbCon.Handle,'main');
-  log('steps('+IntToStr(p)+' pages each)');
-  while sqlite3_backup_step(b1,p)<>SQLITE_DONE do log(':'+IntToStr((sqlite3_backup_remaining(b1) div p)+1));
-  log('finish');
-  sqlite3_check(sqlite3_backup_finish(b1));
-finally
-  {sqlite3_check}(sqlite3_close(b));
-end;
-
-log('done');
+]]
+Unavailable for this database setup, see server configuration.

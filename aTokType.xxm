@@ -15,39 +15,40 @@ id:=Context['id'].AsInteger;
 defChild:=Context['default'].AsInteger;
 oldWeight:=DBSingleValue('SELECT weight FROM TokType WHERE id=?',[id],0);
 
-Session.DbCon.Execute('BEGIN TRANSACTION');
+Session.DbCon.BeginTrans;
 try
 
   if id=0 then
-    Session.DbCon.Execute('INSERT INTO TokType (pid,icon,name,dft,weight,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?)',[
-      Context['pid'].AsInteger,
-      Context['icon'].AsInteger,
-      Context['name'].Value,
-      defChild,
-      newWeight,
-      VNow,Session.UserID,VNow,Session.UserID
-    ],id)
+    id:=Session.DbCon.Insert('TokType',
+      ['pid',Context['pid'].AsInteger
+      ,'icon',Context['icon'].AsInteger
+      ,'name',Context['name'].Value
+      ,'dft',defChild
+      ,'weight',newWeight
+      ,'c_ts',VNow
+      ,'c_uid',Session.UserID
+      ,'m_ts',VNow
+      ,'m_uid',Session.UserID
+      ],'id')
   else
    begin
     Session.UpdateID:=id;
     //use move to move existing items
-    Session.DbCon.Execute('UPDATE TokType SET icon=?, name=?, dft=?, weight=?, m_ts=?, m_uid=? WHERE id=?',[
-      Context['icon'].AsInteger,
-      Context['name'].Value,
-      defChild,
-      newWeight,
-      VNow,
-      Session.UserID,
-      id
-    ]);
+    Session.DbCon.Update('TokType',
+      ['id',id
+      ,'icon',Context['icon'].AsInteger
+      ,'name',Context['name'].Value
+      ,'dft',defChild
+      ,'weight',newWeight
+      ,'m_ts',VNow
+      ,'m_uid',Session.UserID
+      ]);
    end;
 
   Session.AddFilterRecent(itTokType,defChild);
 
   if Session.IsAdmin('config') then
-    Session.DbCon.Execute('UPDATE TokType SET system=? WHERE id=?',[
-      Context['system'].Value,
-      id]);
+    Session.DbCon.Update('TokType',['id',id,'system',Context['system'].Value]);
 
   if not(newWeight=oldWeight) then
    begin
@@ -57,9 +58,9 @@ try
   if Use_ObjTokRefCache then //TODO: re-create entries? see MaintObjTokRefCache.xxm
     Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj_id] FROM Tok WHERE toktype_id=?)',[id]);
 
-  Session.DbCon.Execute('COMMIT TRANSACTION');
+  Session.DbCon.CommitTrans;
 except
-  Session.DbCon.Execute('ROLLBACK TRANSACTION');
+  Session.DbCon.RollbackTrans;
   raise;
 end;
 
