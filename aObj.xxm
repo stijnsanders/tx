@@ -203,7 +203,7 @@ try
      begin
       Context.Include('aObjTokRefCache.xxmi',[id]);
       if namechanged then //TODO: re-create entries? see MaintObjTokRefCache.xxm
-        Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj1_id] FROM Ref WHERE obj2_id=?)',[id]);
+        Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE id IN (SELECT obj1_id FROM Ref WHERE obj2_id=?)',[id]);
      end;
 
     if Use_Unread and not Session.Stealth then

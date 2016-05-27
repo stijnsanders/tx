@@ -59,7 +59,7 @@ try
     Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id IN (SELECT obj1_id FROM Ref WHERE reftype_id=?)',[newWeight-oldWeight,id]);
    end;
   if Use_ObjTokRefCache then //TODO: re-create entries? see MaintObjTokRefCache.xxm
-    Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj1_id] FROM Ref WHERE reftype_id=?)',[id]);
+    Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE id IN (SELECT obj1_id FROM Ref WHERE reftype_id=?)',[id]);
 
     Session.DbCon.CommitTrans;
 except

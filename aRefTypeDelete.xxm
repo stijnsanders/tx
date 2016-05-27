@@ -70,7 +70,7 @@ try
         w:=-weight+DBSingleValue('SELECT weight FROM RefType WHERE id=?',[nid],0);
         if w<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id IN (SELECT obj1_id FROM Ref WHERE reftype_id=?)',[w,id]);
         if Use_ObjTokRefCache then //TODO: re-create entries? see MaintObjTokRefCache.xxm
-          Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj1_id] FROM Ref WHERE reftype_id=?)',[id]);
+          Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE id IN (SELECT obj1_id FROM Ref WHERE reftype_id=?)',[id]);
         Session.DbCon.Execute('UPDATE Ref SET reftype_id=? WHERE reftype_id=?',[nid,id]);
         Session.DbCon.Execute('UPDATE Rpt SET reftype_id=? WHERE reftype_id=?',[nid,id]);
        end;
@@ -81,7 +81,7 @@ try
         id:=ids[i];
         if weight<>0 then Session.DbCon.Execute('Update_RefTypeWeight2',[-weight,id]);
         if Use_ObjTokRefCache then //TODO: re-create entries? see MaintObjTokRefCache.xxm
-          Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj1_id] FROM Ref WHERE reftype_id=?)',[id]);
+          Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE id IN (SELECT obj1_id FROM Ref WHERE reftype_id=?)',[id]);
         Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['r'+IntToStr(id)]);
         Session.DbCon.Execute('DELETE FROM Ref WHERE reftype_id=?',[id]);
         Session.DbCon.Execute('DELETE FROM Trl WHERE source IN (SELECT ''rp''||id FROM Rpt WHERE reftype_id=?)',[id]);

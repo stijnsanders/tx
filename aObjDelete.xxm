@@ -77,7 +77,7 @@ if Context['full'].AsInteger=1 then
       Session.DbCon.Execute('UPDATE Obj SET pid=? WHERE pid=?',[nid,id]);
       Session.DbCon.Execute('UPDATE Flt SET obj_id=? WHERE obj_id=?',[nid,id]);
       Session.DbCon.Execute('UPDATE Rpt SET obj_id=? WHERE obj_id=?',[nid,id]);
-      if Use_ObjTokRefCache then Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id]=?',[id]);
+      if Use_ObjTokRefCache then Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE id=?',[id]);
       if Use_ObjPath then
        begin
         Session.DbCon.Execute('DELETE FROM ObjPath WHERE pid=? AND oid IN (SELECT Y.oid FROM ObjPath X INNER JOIN ObjPath Y on Y.oid=X.oid AND Y.pid=? WHERE X.pid=?)',[nid,nid,id]);
@@ -118,7 +118,7 @@ if Context['full'].AsInteger=1 then
           Session.DbCon.Execute('DELETE FROM Rpt WHERE obj_id=?',[id]);
           Session.DbCon.Execute('DELETE FROM Trm WHERE Trm.obj_id=?',[id]);
           Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['i'+IntToStr(id)]);
-          if Use_ObjTokRefCache then Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id]=?',[id]);
+          if Use_ObjTokRefCache then Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE id=?',[id]);
           if Use_ObjPath then Session.DbCon.Execute('DELETE FROM ObjPath WHERE pid=? OR oid=?',[id,id]);
           Session.DbCon.Execute('DELETE FROM Obj WHERE id=?',[id]);
          end;

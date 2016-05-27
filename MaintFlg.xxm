@@ -19,7 +19,7 @@ CheckMaintProtect(Context);
 dry:=Context['dry'].AsInteger<>0;
 
 i:=0;
-qr:=TQueryResult.Create(Session.DbCon,'SELECT [id], "name", expression FROM Flt',[]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT id, name, expression FROM Flt',[]);
 try
   while qr.Read do
    begin

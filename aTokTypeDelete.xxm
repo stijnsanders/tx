@@ -70,7 +70,7 @@ try
         w:=-weight+DBSingleValue('SELECT weight FROM TokType WHERE id=?',[nid],0);
         if not(w=0) then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id IN (SELECT obj_id FROM Tok WHERE toktype_id=?)',[w,id]);
         if Use_ObjTokRefCache then //TODO: re-create entries? see MaintObjTokRefCache.xxm
-          Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj_id] FROM Tok WHERE toktype_id=?)',[id]);
+          Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE id IN (SELECT obj_id FROM Tok WHERE toktype_id=?)',[id]);
         Session.DbCon.Execute('UPDATE Tok SET toktype_id=? WHERE toktype_id=?',[nid,id]);
         Session.DbCon.Execute('UPDATE Rpt SET toktype_id=? WHERE toktype_id=?',[nid,id]);
        end;
@@ -81,7 +81,7 @@ try
         id:=ids[i];
         if weight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id IN (SELECT obj_id FROM Tok WHERE toktype_id=?)',[-weight,id]);
         if Use_ObjTokRefCache then //TODO: re-create entries? see MaintObjTokRefCache.xxm
-          Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE [id] IN (SELECT [obj_id] FROM Tok WHERE toktype_id=?)',[id]);
+          Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE id IN (SELECT obj_id FROM Tok WHERE toktype_id=?)',[id]);
         Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['t'+IntToStr(id)]);
         Session.DbCon.Execute('DELETE FROM Tok WHERE toktype_id=?',[id]);
         Session.DbCon.Execute('DELETE FROM Trl WHERE source IN (SELECT ''rp''||id FROM Rpt WHERE toktype_id=?)',[id]);

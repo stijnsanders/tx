@@ -11,8 +11,8 @@ type
   public
     constructor Create(Doc:DOMDocument);
     destructor Destroy; override;
-    procedure VerifyTree(QName:string);
-    procedure BuildMapping(QName:string;DefOnly:boolean);
+    procedure VerifyTree(const QName:string);
+    procedure BuildMapping(const QName:string;DefOnly:boolean);
     property Doc:DOMDocument read FDoc;
   end;
 
@@ -21,29 +21,29 @@ const
   QName:array[0..3] of string=('Obj','ObjType','TokType','RefType');
   QDesc:array[0..3] of string=('Objects','Object types','Token types','Reference types');
 
-function DefAttr(x:IXMLDOMElement;aname:string;dval:integer):integer;
-function XmlToDate(d:string):TDateTime;
-  
+function DefAttr(x:IXMLDOMElement;const aname:string;dval:integer):integer;
+function XmlToDate(const d:string):TDateTime;
+
 implementation
 
 uses SysUtils, txSession, DataLank, Variants;
 
-function DefAttr(x:IXMLDOMElement;aname:string;dval:integer):integer;
+function DefAttr(x:IXMLDOMElement;const aname:string;dval:integer):integer;
 var
   v:OleVariant;
 begin
   if x=nil then v:=Null else v:=x.getAttribute(aname);
   if VarIsNull(v) then Result:=dval else Result:=StrToIntDef(VarToStr(v),dval);
-end;  
+end;
 
-function XmlToDate(d:string):TDateTime;
+function XmlToDate(const d:string):TDateTime;
 var
-  i:integer;
+  i,l:integer;
   dy,dm,dd,th,tm,ts,tz:word;
   function GetNext:word;
    begin
     Result:=0;
-    while (i<=Length(d)) and (d[i] in ['0'..'9']) do
+    while (i<=l) and (d[i] in ['0'..'9']) do
      begin
       Result:=Result*10+byte(d[i])-$30;
       inc(i);
@@ -51,6 +51,7 @@ var
    end;
 begin
   i:=1;
+  l:=Length(d);
   dy:=GetNext;
   inc(i);//-
   dm:=GetNext;
@@ -69,7 +70,7 @@ end;
 
 { TtxImport }
 
-procedure TtxImport.VerifyTree(QName:string);
+procedure TtxImport.VerifyTree(const QName:string);
 var
   xl:IXMLDOMNodeList;
   x:IXMLDOMElement;
@@ -86,7 +87,7 @@ begin
   xl:=nil;
 end;
 
-procedure TtxImport.BuildMapping(QName:string;DefOnly:boolean);
+procedure TtxImport.BuildMapping(const QName:string;DefOnly:boolean);
 var
   xl:IXMLDOMNodeList;
   x:IXMLDOMElement;
