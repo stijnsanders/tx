@@ -20,7 +20,7 @@ if ItemType=itObj then
  begin
 	qr:=TQueryResult.Create(Session.DbCon,StringReplace(sqlObjsByPid,'Obj.pid=?','Obj.id=?',[]),[ItemID]);
 	try
-	  hasChildren:=Session.DbCon.Execute('SELECT id FROM Obj WHERE pid=? LIMIT 1',[ItemID])<>0;
+	  hasChildren:=DBExists('SELECT id FROM Obj WHERE pid=? LIMIT 1',[ItemID]);
 	  preExpand:=false;//TODO: get from caller?
 	  highlight:=false;
 	  Context.Include('iFrameObj.xxmi',[name,ItemID,hasChildren,preExpand,highlight],[qr]);
@@ -32,7 +32,7 @@ else
  begin
 	qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[ItemID]);
 	try
-	  hasChildren:=Session.DbCon.Execute('SELECT id FROM '+txItemTypeTable[ItemType]+' WHERE pid=? LIMIT 1',[ItemID])<>0;
+	  hasChildren:=DBExists('SELECT id FROM '+txItemTypeTable[ItemType]+' WHERE pid=? LIMIT 1',[ItemID]);
 	  preExpand:=false;//TODO: get from caller?
 	  highlight:=false;
 	  Context.Include('iFrameType.xxmi',[name,ItemType,ItemID,hasChildren,preExpand,highlight],[qr]);

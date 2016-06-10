@@ -92,7 +92,8 @@ function SetSession(Context: IXxmContext): boolean;
 function PageRenderTimeMS:cardinal;
 function TermStore:TTermStore;
 
-function DBSingleValue(SQL:UTF8String;Parameters:array of OleVariant;Default:OleVariant):OleVariant;
+function DBSingleValue(const SQL:UTF8String;Parameters:array of OleVariant;Default:OleVariant):OleVariant;
+function DBExists(const SQL:UTF8String;Parameters:array of OleVariant):boolean;
 function sqlObjsByPid:string;
 function txCallProtect:string;
 function txFormProtect:string;
@@ -717,13 +718,25 @@ begin
   FreeAndNil(SessionStoreLock);
 end;
 
-function DBSingleValue(SQL:UTF8String;Parameters:array of OleVariant;Default:OleVariant):OleVariant;
+function DBSingleValue(const SQL:UTF8String;Parameters:array of OleVariant;Default:OleVariant):OleVariant;
 var
   qr:TQueryResult;
 begin
   qr:=TQueryResult.Create(Session.DbCon,SQL,Parameters);
   try
     if qr.Read and not(qr.IsNull(0)) then Result:=qr[0] else Result:=Default;
+  finally
+    qr.Free;
+  end;
+end;
+
+function DBExists(const SQL:UTF8String;Parameters:array of OleVariant):boolean;
+var
+  qr:TQueryResult;
+begin
+  qr:=TQueryResult.Create(Session.DbCon,SQL,Parameters);
+  try
+    Result:=not qr.EOF;
   finally
     qr.Free;
   end;

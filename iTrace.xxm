@@ -84,7 +84,7 @@ else
  begin
   //references level
 
-   if Session.DbCon.Execute('SELECT id FROM Obj WHERE pid=? LIMIT 1',[pid])<>0 then
+   if DBExists('SELECT id FROM Obj WHERE pid=? LIMIT 1',[pid]) then
     begin
 		name2:=name+'C'+level;
 		<<span id="[[=name2]]_children_[[=pid]]" expandurl="iTrace.xxm[[?'name',name,'id',pid,'q',0,'l',level]][[=txCallProtect]]">

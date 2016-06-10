@@ -131,7 +131,7 @@ try
 
           if doNode and Context.Connected then
            begin
-            hasChildren:=Session.DbCon.Execute('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id])<>0;
+            hasChildren:=DBExists('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id]);
             preExpand:=hasChildren and (px<>0) and (id=idp[px-1]);
 			highlight:=id=ItemID;
 			<<span id="[[=name]]_node_[[=id]]" expandurl="iFilter.xxm[[?'id',RootID,'pid',id,'name',name,'filter']][[#fv.filterU]][[=txCallProtect]]"[[

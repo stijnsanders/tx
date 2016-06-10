@@ -38,7 +38,7 @@ case ItemType of
           inc(px);
           SetLength(idp,px);
           idp[px-1]:=id;
-         end;         
+         end;
         id:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[id],0);
        end;
      end;
@@ -56,7 +56,7 @@ case ItemType of
            end
           else
            begin
-            hasChildren:=Session.DbCon.Execute('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id])<>0;
+            hasChildren:=DBExists('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id]);
             preExpand:=hasChildren and not(px=0) and (id=idp[px-1]);
             highlight:=id=ItemID;
             ]]
@@ -128,7 +128,7 @@ case ItemType of
            end
           else
            begin
-            hasChildren:=Session.DbCon.Execute('SELECT id FROM '+txItemTypeTable[ItemType]+' WHERE pid=? LIMIT 1',[id])<>0;
+            hasChildren:=DBExists('SELECT id FROM '+txItemTypeTable[ItemType]+' WHERE pid=? LIMIT 1',[id]);
             preExpand:=hasChildren and not(px=0) and (id=idp[px-1]);
             highlight:=id=ItemID;
             ]]
