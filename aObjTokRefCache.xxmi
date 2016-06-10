@@ -46,7 +46,7 @@ finally
 end;
 
 if (Length(toks)<=MaxCacheFieldLength) and (Length(refs)<=MaxCacheFieldLength) then
-  Session.DbCon.Execute('INSERT OR REPLACE INTO ObjTokRefCache (id,tokHTML,refHTML) VALUES (?,?,?)',[id,toks,refs])//SQLite
-  //postgres:Session.DbCon.Execute('INSERT INTO ObjTokRefCache (id,tokHTML,refHTML) VALUES ($1,$2,$3) ON CONFLICT (id) DO UPDATE SET tokHTML=$2,refHTML=$3',[id,toks,refs])
+  //Session.DbCon.Execute('INSERT OR REPLACE INTO ObjTokRefCache (id,tokHTML,refHTML) VALUES (?,?,?)',[id,toks,refs])//SQLite
+  Session.DbCon.Execute('INSERT INTO ObjTokRefCache (id,tokHTML,refHTML) VALUES ($1,$2,$3) ON CONFLICT (id) DO UPDATE SET tokHTML=$2,refHTML=$3',[id,toks,refs])//PostgreSQL
 else
   Session.DbCon.Execute('DELETE FROM ObjTokRefCache WHERE id=?',[id]);

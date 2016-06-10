@@ -12,7 +12,7 @@ const
   ViewedLastCount=50;
   AutoLogonCookieName='txAutoLogon';
   AutoLogonCookieTimeoutDays=100;
-  sqlDesc='desc';//='[desc]';? ='"desc"';?
+  sqlDesc='"desc"';
 
 var
   //see LoadProjectSettings
@@ -137,7 +137,7 @@ var
   SessionStoreLock:TRTLCriticalSection;
 
   //see LoadProjectSettings
-  DbFilePath:string;
+  DbConPars:string;
   MaintAuthKey:string;
 
 function SetSession(Context: IXxmContext): boolean;
@@ -217,9 +217,7 @@ begin
         sl.Add('DB=[tx.ini not found]\tx.db');
        end;
     end;
-    DbFilePath:=sl.Values['DB'];
-    //relative?
-    if (DbFilePath<>'') and not(DbFilePath[2] in [':','\']) then DbFilePath:=ModulePath+DbFilePath;
+    DbConPars:=sl.Values['DB'];
     MaintAuthKey:=sl.Values['AuthKey'];
     AdministratorEmailAddress:=sl.Values['AdministratorEmailAddress'];
     UseNTAuth:=sl.Values['NTAuth']='1';
@@ -323,7 +321,7 @@ function TtxSession.GetDbCon: TDataConnection;
 begin
   if ThreadDbCon=nil then
    begin
-    ThreadDBCon:=TDataConnection.Create(DbFilePath);
+    ThreadDBCon:=TDataConnection.Create(DbConPars);
     //ThreadDBCon.BusyTimeout:=30000;
    end;
   Result:=ThreadDbCon;
