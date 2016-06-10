@@ -11,8 +11,12 @@
 	</ParserValues>
 	<Files>
 		<Unit UnitName="DataLank"/>
+		<Unit UnitName="LibPQ"/>
+		<Unit UnitName="LibPQData"/>
+		<!--
 		<Unit UnitName="SQLite"/>
 		<Unit UnitName="SQLiteData"/>
+		-->
 		<Unit UnitName="txCache"/>
 		<Unit UnitName="txDefs"/>
 		<Unit UnitName="txFCount"/>
