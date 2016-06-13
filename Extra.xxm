@@ -1,0 +1,15 @@
+[[@txDefs]][[!var
+x:string;
+]][[
+x:=Context['x'].Value;
+Context.Include('dHead.xxmi',[StringReplace(x,'/',' ',[rfReplaceAll])]);
+if Use_Extra then
+ begin
+  //TODO: checks on x
+  Context.Include('xxm:'+x);
+ end
+else
+ begin
+  <<p>Feature disabled by configuration.</p>>
+ end;
+Context.Include('dFoot.xxmi');

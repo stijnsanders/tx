@@ -59,6 +59,6 @@ where Toktype.system='on homepage' and Obj.rlm_id[[realms]]
 order by Tok.c_ts desc
 limit 25
 
-<div style="border:1px solid #CCCCCC;"><p>["name"]</p>["desc"]</div>
+<div style="border:1px solid #CCCCCC;"><p>[[name]]</p>[[desc]]</div>
 --content
 </div>

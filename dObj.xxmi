@@ -62,6 +62,14 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
     </p>>
    end;
 
+  //extra
+  if Use_Extra then
+   begin
+    s:=qr.GetStr('typesystem');
+    if (Length(s)>3) and (s[1]=':') and (s[2]=':') then
+      Context.Include('xxm:'+Copy(s,3,Length(s)-2),[id]);
+   end;
+
   //children
   qr:=TQueryResult.Create(Session.DbCon,sqlObjsByPid,[id]);
   try
@@ -213,5 +221,3 @@ try
 finally
   qr.Free;
 end;
-
-]]

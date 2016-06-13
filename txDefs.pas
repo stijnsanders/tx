@@ -27,6 +27,7 @@ const
   Use_ObjPath=true;//requires table ObjPath
   Use_NewUserEmailActivation=true;
   Use_Unread=true;//requires table Obx,Urx
+  Use_Extra=false;//
 
   txItemTypeKey:array[TtxItemType] of string=(
     'i','ot','t','tt','r','rt','f','rm','u','rp',
