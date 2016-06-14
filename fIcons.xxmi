@@ -17,6 +17,7 @@ function seticon[[=fname]](x)
 <div style="border: 2px inset; margin-left:24px; margin-bottom: 0.2em; margin-top:0em; margin-right: 0em; padding: 4px;" id="[[=fname]]_usage">
 <i style="color:#999999;">select an icon below, here is shown if it's in use.</i>
 </div>>
+if i<>-1 then begin <<script>seticon[[=fname]]([[=i]]);</script>> end;
 i:=0;
 d:=ModulePath+'img\';
 fn:=d+'ic'+IntToStr(i)+'.png';
