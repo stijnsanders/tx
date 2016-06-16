@@ -1,0 +1,14 @@
+[[@txSession]][[!var
+x:string;
+]][[
+x:=Values[0];
+if x='IsAdmin' then
+ begin
+  if Session.IsAdmin(Values[1]) then Context.SendHTML('1') else Context.SendHTML(0);
+ end
+else
+if x='FooterDisplay' then
+  Context.SendHTML(Session.FooterDisplay)
+//more? add above here  
+else
+  raise Exception.Create('Unknown action "'+x+'"');

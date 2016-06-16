@@ -1,0 +1,11 @@
+[[@DataLank,txSession,txDefs]][[!var
+qr:TQueryResult;
+]][[
+//TODO: check realm?
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[Values[0]]);
+try
+  //TODO: absolute URL?
+  <<a href="Item.xxm?x=i[[.id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
+finally
+  qr.Free;
+end;

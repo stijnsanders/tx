@@ -1,0 +1,11 @@
+[[@Variants,txSession,DataLank]][[!var
+qr:TQueryResult;
+s:string;
+]][[
+if Length(Values)>2 then s:=VarToStr(Values[2]) else s:='';
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Tok.'+sqlDesc+' FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id WHERE Tok.obj_id=? and TokType.system=?',[Values[0],Values[1]]);
+try
+  while qr.Read do Context.SendHTML(qr.GetStr('desc')+s);
+finally
+  qr.Free;
+end;

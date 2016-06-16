@@ -115,7 +115,7 @@ try
             repeat
               idx:=idc[idc_i];
               fq.Where:='Obj.id='+IntToStr(idx)+' AND '+fw;
-              if idf.Contains(idx) or (Session.DbCon.Execute(fq.SQL,[])<>0) then doNode:=true else
+              if idf.Contains(idx) or DBExists(fq.SQL,[]) then doNode:=true else
                begin
                 qr1:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(idx),[]);
                 try

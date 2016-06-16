@@ -148,7 +148,7 @@ else
       f.Free;
       fq.Free;
     end;
-    if Session.DbCon.Execute(fs,[])<>0 then
+    if DBExists(fs,[]) then
      begin
       <<p class="information">
       No items found in your current viewable realms.

@@ -109,6 +109,16 @@ procedure GetFilterViewInfo(ctx:IXxmContext;var fv:TtxFilterViewInfo);
 
 function RFC822DateGMT(dd: TDateTime): string;
 
+function TryGetUserName(const Logon:WideString):WideString;
+
+type
+  LPCWSTR=PWideChar;
+  DWORD=cardinal;
+function NetUserGetInfo (servername: LPCWSTR; username: LPCWSTR;
+  level: DWORD; var bufptr: Pointer): DWORD; stdcall;
+function NetApiBufferFree(buffer: Pointer): DWORD ; stdcall;
+
+
 threadvar
   Session: TtxSession;
   PageStartTQ,PageStartTF:int64;
@@ -689,9 +699,9 @@ end;
 
 function TtxSession.IsAdmin(const Key: string): boolean;
 begin
-  Result:=(UserID=-1) or (DbCon.Execute(
+  Result:=(UserID=-1) or (DbCon.Exists(
     'SELECT Tok.id FROM Tok LEFT JOIN TokType ON TokType.id=Tok.toktype_id '+
-    'WHERE Tok.obj_id=? AND TokType.system=?',[UserID,'auth.'+Key])<>0);
+    'WHERE Tok.obj_id=? AND TokType.system=?',[UserID,'auth.'+Key]));
 end;
 
 procedure TtxSession.LogonAttemptCheck;
@@ -885,6 +895,52 @@ begin
   FmtStr(Result, '%s, %d %s %d %.2d:%.2d:%.2d GMT',
     [Days[wd],d,Months[m],y,th,tm,ts]);
 end;
+
+function TryGetUserName(const Logon:WideString):WideString;
+type
+  TUserInfo2=record
+    usri2_name: LPWSTR;
+    usri2_password: LPWSTR;
+    usri2_password_age: DWORD;
+    usri2_priv: DWORD ;
+    usri2_home_dir: LPWSTR;
+    usri2_comment: LPWSTR;
+    usri2_flags: DWORD;
+    usri2_script_path: LPWSTR;
+    usri2_auth_flags: DWORD ;
+    usri2_full_name: LPWSTR;
+    usri2_usr_comment: LPWSTR;
+    usri2_parms: LPWSTR;
+    usri2_workstations: LPWSTR;
+    usri2_last_logon: DWORD;
+    usri2_last_logoff: DWORD;
+    usri2_acct_expires: DWORD;
+    usri2_max_storage: DWORD;
+    usri2_units_per_week: DWORD;
+    usri2_logon_hours: PBYTE;
+    usri2_bad_pw_count: DWORD;
+    usri2_num_logons: DWORD;
+    usri2_logon_server: LPWSTR;
+    usri2_country_code: DWORD;
+    usri2_code_page: DWORD;
+  end;
+  PUserInfo2=^TUserInfo2;
+var
+  s:WideString;
+  p:pointer;
+begin
+  Result:='';//default
+  s:=GetEnvironmentVariable('LOGONSERVER');
+  if s<>'' then
+    if NetUserGetInfo(PWideChar(s),PWideChar(WideString(Logon)),2,p)=0 then
+     begin
+      Result:=PUserInfo2(p).usri2_full_name;
+      NetApiBufferFree(p);
+     end;
+end;
+
+function NetUserGetInfo; external 'netapi32.dll' name 'NetUserGetInfo';
+function NetApiBufferFree; external 'netapi32.dll' name 'NetApiBufferFree';
 
 initialization
   Randomize;

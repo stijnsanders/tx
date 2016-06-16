@@ -1,4 +1,4 @@
-[[@Windows,txDefs,txSession,DataLank,xxmString,]][[!var
+[[@Windows,txDefs,txSession,DataLank,xxmString]][[!var
 url,uname,sid,x,umsg:string;
 ntauth:boolean;
 qr:TQueryResult;
@@ -99,7 +99,7 @@ if ntauth then
     <p>If you would like to send a mail to the system's administrator(s) to request your NT-account information be added, please fill out this form:</p>
     [[#txForm('Logon.xxm',['sendmail',1,'url',url])]]
     <dl>
-    <dt>Your name</dt><dd><input type="text" name="name" id="username" size="30" /></dd>
+    <dt>Your name</dt><dd><input type="text" name="name" id="username" value="[[=TryGetUserName(uname)]]" size="30" /></dd>
     <dt>Request comment (optional)</dt><dd><textarea name="comment" cols="30" rows="5" style="width:100%;" wrap="soft"></textarea></dd>
     </dl>
     [[#txFormButton]]
