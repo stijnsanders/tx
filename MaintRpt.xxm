@@ -76,7 +76,7 @@ else
           if id=0 then
             if autoCreate then
               id:=DbSingleValue('INSERT INTO Obj (pid,objtype_id,name,'+sqlDesc+',url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-                [nid,ObjTypeID,n,'','',dweight,RlmID,VNow,Session.UserID,VNow,Session.UserID],id)
+                [nid,ObjTypeID,n,'','',dweight,RlmID,VNow,Session.UserID,VNow,Session.UserID],nid)
             else
              begin
               //skip!
