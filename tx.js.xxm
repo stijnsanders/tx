@@ -101,14 +101,14 @@ function search_textSubmit(name,ex)
 	if(x.length==1)
 	{
 		$("#search_"+name+"_loading").show();
-		x[0].value="Searching...";
+		x.text("Searching...");
 		x[0].disabled=true;
 		search_textLeave(x[0]);
 		$("#"+name+"_selbox").load("iSearch.xxm",{
 			name:name,
 			ex:ex,
 			keywords:$("#searchText_"+name)[0].value,
-			wholename:$("#searchTextName_"+name)[0].checked?1:0,
+			action:x[0].form["action"].value,
 			xxx:"[[=Session.SessionCrypt]]"
 		});
 	}
@@ -117,7 +117,6 @@ function search_textSubmit(name,ex)
 function search_textFilter(name,ex,x)
 {
 	$("#"+name+"_selbox").load("iSearch.xxm",{name:name,ex:ex,filter:x.innerText,xxx:"[[=Session.SessionCrypt]]"});
-	var x=$("#searchButton_"+name);
 	x[0].value="Filter...";
 	x[0].disabled=true;
 	return false;
@@ -156,7 +155,7 @@ function search_typeSubmit(name,idx,ex)
 	if(x.length==1)
 	{
 		$("#search_"+name+"_loading").show();
-		x[0].value="Searching...";
+		x.text("Searching...");
 		x[0].disabled=true;
 		search_typeLeave(x[0]);
 		$("#"+name+"_selbox").load("iSearchType.xxm",{

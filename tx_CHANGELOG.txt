@@ -1,3 +1,16 @@
+v1.3.3
+- object selector search: options reports, terms
+- revised display of created/modified/diff
+- MaintRpt.xxm: fixed bug with parent of auto-created items
+
+v1.3.2
+- try to get full user name using NetUserGetInfo
+- Use_Extra: objecttype system '::' prefix
+- MaintDbb.xxm: SQLite3 backup support
+
+v1.3.1
+- stricter application of the DataLank protocol
+
 v1.3.0
 - switch to DataLank (https://github.com/stijnsanders/DataLank)
 - PostgreSQL branch (using DataLank and LibPQ)
