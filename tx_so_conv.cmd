@@ -1,3 +1,4 @@
+@echo off
 cls
 attrib -h rel_1
 rmdir rel_1 /s /q
