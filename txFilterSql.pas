@@ -137,15 +137,73 @@ end;
 
 function CritDate(fx:TtxFilterElement):string;
 begin
-  with fx do
-    case IDType of
-      dtNumber:
-        //Result:='{d '''+FormatDate('yyyy-mm-dd',Date-StrToInt(ID))+'''}';
-        Result:=FloatToStr(Date-StrToInt(ID));//SQLite allows storing Delphi date-as-float
-      //TODO
-      else
-        raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(Idx1));
-    end;
+  case fx.IDType of
+    dtNumber:
+      //Result:='{d '''+FormatDate('yyyy-mm-dd',Date-StrToInt(fx.ID))+'''}';
+      Result:=FloatToStr(Date-StrToInt(fx.ID));//SQLite allows storing Delphi date-as-float
+    //TODO
+    else
+      raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(fx.Idx1));
+  end;
+end;
+
+function CritTime(fx:TtxFilterElement):string;
+var
+  dy,dm,dd,th,tm,ts,tz:word;
+  d:TDateTime;
+  i,l:integer;
+  procedure Next(var vv:word;max:integer);
+  var
+    j:integer;
+  begin
+    vv:=0;
+    j:=i+max;
+    while (i<=l) and (i<j) and (AnsiChar(fx.ID[i]) in ['0'..'9']) do
+     begin
+      vv:=vv*10+(byte(fx.ID[i]) and $0F);
+      inc(i);
+     end;
+    while (i<=l) and not(AnsiChar(fx.ID[i]) in ['0'..'9']) do inc(i);
+  end;
+begin
+  case fx.IDType of
+    dtNumber,dtSystem:
+     begin
+      //defaults
+      dy:=1900;
+      dm:=1;
+      dd:=1;
+      th:=0;
+      tm:=0;
+      ts:=0;
+      tz:=0;
+      l:=Length(fx.ID);
+      i:=1;
+      while (i<=l) and not(AnsiChar(fx.ID[i]) in ['0'..'9']) do inc(i);
+      if i<=l then
+       begin
+        Next(dy,4);//year
+        if i<=l then
+         begin
+          Next(dm,2);//month
+          if i<=l then
+           begin
+            Next(dd,2);//day
+            Next(th,2);//hours
+            Next(tm,2);//minutes
+            Next(ts,2);//seconds
+            Next(tz,3);//milliseconds
+           end;
+         end;
+       end;
+      d:=EncodeDate(dy,dm,dd)+EncodeTime(th,tm,ts,tz);
+      //Result:='{ts '''+FormatDate('yyyy-mm-dd hh:nn:ss.zzz',d)+'''}';
+      Result:=FloatToStr(d);//SQLite allows storing Delphi date-as-float
+     end;
+    //TODO
+    else
+      raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(fx.Idx1));
+  end;
 end;
 
 procedure TtxSqlQueryFragments.AddFilter(f: TtxFilter);
@@ -215,12 +273,16 @@ begin
             fx:=TtxFilter.Create;
             try
               fx.FilterExpression:=Parameters;
-              for j:=0 to fx.Count-1 do with fx[j] do
-                case Action of
+              for j:=0 to fx.Count-1 do
+                case fx[j].Action of
                   faModified:
                     s:=s+' AND Tok.m_ts<'+CritDate(fx[j]);
+                  faFrom:
+                    s:=s+' AND Tok.m_ts>='+CritTime(fx[j]);
+                  faTill:
+                    s:=s+' AND Tok.m_ts<='+CritTime(fx[j])
                   else
-                    raise EtxSqlQueryError.Create('Unexpected tt parameter at position '+IntToStr(Idx1));
+                    raise EtxSqlQueryError.Create('Unexpected tt parameter at position '+IntToStr(fx[j].Idx1));
                 end;
               //TODO: fx[j].Operator
             finally
@@ -245,12 +307,16 @@ begin
             fx:=TtxFilter.Create;
             try
               fx.FilterExpression:=Parameters;
-              for j:=0 to fx.Count-1 do with fx[j] do
-                case Action of
+              for j:=0 to fx.Count-1 do
+                case fx[j].Action of
                   faModified:
                     s:=s+' AND Ref.m_ts<'+CritDate(fx[j]);
+                  faFrom:
+                    s:=s+' AND Ref.m_ts>='+CritTime(fx[j]);
+                  faTill:
+                    s:=s+' AND Ref.m_ts<='+CritTime(fx[j]);
                   else
-                    raise EtxSqlQueryError.Create('Unexpected rt parameter at position '+IntToStr(Idx1));
+                    raise EtxSqlQueryError.Create('Unexpected rt parameter at position '+IntToStr(fx[j].Idx1));
                 end;
               //TODO: fx[j].Operator
             finally
@@ -268,8 +334,8 @@ begin
           fx:=TtxFilter.Create;
           try
             fx.FilterExpression:=Parameters;
-            for j:=0 to fx.Count-1 do with fx[j] do
-              case Action of
+            for j:=0 to fx.Count-1 do
+              case fx[j].Action of
                 faRefType:
                  begin
                   inc(AliasCount);
@@ -279,6 +345,10 @@ begin
                  end;
                 faModified:
                   s:=s+' AND Ref.m_ts<'+CritDate(fx[j]);
+                faFrom:
+                  s:=s+' AND Ref.m_ts>='+CritTime(fx[j]);
+                faTill:
+                  s:=s+' AND Ref.m_ts<='+CritTime(fx[j]);
                 else
                   raise EtxSqlQueryError.Create('Unexpected rx parameter at position '+IntToStr(Idx1));
               end;
@@ -303,12 +373,11 @@ begin
         end;
 
       faModified:
-        case IDType of
-          dtNumber:AddWhere('Obj.m_ts<'+CritDate(f[i]));
-          //TODO
-          else
-            raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(Idx1));
-        end;
+        AddWhere('Obj.m_ts<'+CritDate(f[i]));
+      faFrom:
+        AddWhere('Obj.m_ts>='+CritTime(f[i]));
+      faTill:
+        AddWhere('Obj.m_ts<='+CritTime(f[i]));
 
       faFilter:
        begin
@@ -368,7 +437,7 @@ begin
         while k<=Length(ID) do
          begin
           j:=k;
-          while (k<=Length(ID)) and not(ID[k] in [#0..#32]) do inc(k);
+          while (k<=Length(ID)) and not(AnsiChar(ID[k]) in [#0..#32]) do inc(k);
           if k-j<>0 then
            begin
             if s<>'' then s:=s+' AND ';
@@ -389,7 +458,7 @@ begin
         while k<=Length(ID) do
          begin
           j:=k;
-          while (k<=Length(ID)) and not(ID[k] in [#0..#32]) do inc(k);
+          while (k<=Length(ID)) and not(AnsiChar(ID[k]) in [#0..#32]) do inc(k);
           if k-j<>1 then
            begin
             if s<>'' then s:=s+' AND ';
@@ -410,7 +479,7 @@ begin
         while k<=Length(ID) do
          begin
           j:=k;
-          while (k<=Length(ID)) and not(ID[k] in [#0..#32]) do inc(k);
+          while (k<=Length(ID)) and not(AnsiChar(ID[k]) in [#0..#32]) do inc(k);
           if k-j<>1 then
            begin
             if s<>'' then s:=s+' OR ';//AND?
@@ -480,12 +549,16 @@ begin
           fx:=TtxFilter.Create;
           try
             fx.FilterExpression:=Parameters;
-            for j:=0 to fx.Count-1 do with fx[j] do
-              case Action of
+            for j:=0 to fx.Count-1 do
+              case fx[j].Action of
                 faModified:
                   s:=s+' AND Tok.m_ts<'+CritDate(fx[j]);
+                faFrom:
+                  s:=s+' AND Tok.m_ts>='+CritTime(fx[j]);
+                faTill:
+                  s:=s+' AND Tok.m_ts<='+CritTime(fx[j]);
                 else
-                  raise EtxSqlQueryError.Create('Unexpected ttr parameter at position '+IntToStr(Idx1));
+                  raise EtxSqlQueryError.Create('Unexpected ttr parameter at position '+IntToStr(fx[j].Idx1));
               end;
             //TODO: fx[j].Operator
           finally
@@ -503,19 +576,23 @@ begin
           fx:=TtxFilter.Create;
           try
             fx.FilterExpression:=Parameters;
-            for j:=0 to fx.Count-1 do with fx[j] do
-              case Action of
+            for j:=0 to fx.Count-1 do
+              case fx[j].Action of
                 faRefType:
                  begin
                   inc(AliasCount);
                   t:='urSQ'+IntToStr(AliasCount);
                   s:=s+' AND Ref.reftype_id'+Criterium(fx[j],'DISTINCT '+t+'.id','RIGHT JOIN Ref AS '+t+' ON '+t+
-                    '.ref_obj'+RefBSel[Action=faBackRefCreated]+'_id=Obj.id',false,false);
+                    '.ref_obj'+RefBSel[fx[j].Action=faBackRefCreated]+'_id=Obj.id',false,false);
                  end;
                 faModified:
                   s:=s+' AND Ref.m_ts<'+CritDate(fx[j]);
+                faFrom:
+                  s:=s+' AND Ref.m_ts>='+CritTime(fx[j]);
+                faTill:
+                  s:=s+' AND Ref.m_ts<='+CritTime(fx[j]);
                 else
-                  raise EtxSqlQueryError.Create('Unexpected rtr parameter at position '+IntToStr(Idx1));
+                  raise EtxSqlQueryError.Create('Unexpected rtr parameter at position '+IntToStr(fx[j].Idx1));
               end;
             //TODO: fx[j].Operator
           finally

@@ -80,92 +80,98 @@ if (action='') and (filter<>'') then
       inc(gPara,ParaOpen);
       for j:=1 to ParaOpen do Context.SendHTML('<ul>'#13#10);
       Context.SendHTML('<li>');
-	  ]][[!
-		const
-		  FilterActionDescription:array[TtxFilterAction] of string=(
-		    'is child of',//faChild
-		    'is',//faObj
-		    'is of object type',//faObjType
-			'has a token of type',//faTokType
-			'has a reference of type',//faRefType
+      ]][[!
+        const
+          FilterActionDescription:array[TtxFilterAction] of string=(
+            'is child of',//faChild
+            'is',//faObj
+            'is of object type',//faObjType
+            'has a token of type',//faTokType
+            'has a reference of type',//faRefType
             'referred to by',//faRef
-			'refers to',//faBackRef
-		    'is created by',//faCreated
-			'has a token created by',//faTokCreated
-			'has a reference created by',//faRefCreated
-			'is referenced to by a reference created by',//faBackRefCreated
-		    '<i>(order by recent)</i>',//faRecentObj
-			'has a token of type <i>(order by recent)</i>',//faRecentTok
-			'has a reference of type <i>(order by recent)</i>',//faRecentRef
-			'is referenced to by <i>(order by recent)</i>',//faRecentBackRef
-		    '<i>filter from repository</i>',//faFilter
-			'<i>start tree from</i>',//faParent
-			'is parent to',//faPath
-			'is of the parent object type to',//faPathObjType
-			'has a token of the parent type to',//faPathTokType
-			'has a reference of the parent type to',//faPathRefType
-		    'contains',//faSearch
-			'has a report that contains',//faSearchReports
-			'is called',//faSearchName
-			'is named as',//faName
-			'is described as',//faDesc
-			'has term',//faTerm
+            'refers to',//faBackRef
+            'is created by',//faCreated
+            'has a token created by',//faTokCreated
+            'has a reference created by',//faRefCreated
+            'is referenced to by a reference created by',//faBackRefCreated
+            '<i>(order by recent)</i>',//faRecentObj
+            'has a token of type <i>(order by recent)</i>',//faRecentTok
+            'has a reference of type <i>(order by recent)</i>',//faRecentRef
+            'is referenced to by <i>(order by recent)</i>',//faRecentBackRef
+            '<i>filter from repository</i>',//faFilter
+            '<i>start tree from</i>',//faParent
+            'is parent to',//faPath
+            'is of the parent object type to',//faPathObjType
+            'has a token of the parent type to',//faPathTokType
+            'has a reference of the parent type to',//faPathRefType
+            'contains',//faSearch
+            'has a report that contains',//faSearchReports
+            'is called',//faSearchName
+            'is named as',//faName
+            'is described as',//faDesc
+            'has term',//faTerm
             'was modified before <i>x</i> days, <i>x</i>=',//faModified
-			'<i>always true</i>',//faAlwaysTrue
-			'<i>always false</i>',//faAlwaysFalse
-			'<i>publish parameter</i>',//faExtra
-			'<i>publish SQL</i>',//faSQL
+            'was modified from',//faFrom
+            'was modified till',//faTill
+            '<i>always true</i>',//faAlwaysTrue
+            '<i>always false</i>',//faAlwaysFalse
+            '<i>publish parameter</i>',//faExtra
+            '<i>publish SQL</i>',//faSQL
             'is user',//faUser
-			'is in realm',//faRealm
+            'is in realm',//faRealm
             'is unread',//faUnread
-		    '<i style="color:red;">unknown action</i>'//fa_Unknown
-		  );
-	  ]][[
-	  Context.SendHTML(FilterActionDescription[Action]);
+            '<i style="color:red;">unknown action</i>'//fa_Unknown
+          );
+      ]][[
+      Context.SendHTML(FilterActionDescription[Action]);
       Context.Include('dFilterID.xxmi',[txFilterActionItemType[Action],IDType,ID]);
       if Descending then
-	    if Action in [faPath,faPathObjType,faPathTokType,faPathRefType] then
-		  Context.SendHTML(' or member of its path')
-		else
-		  Context.SendHTML(' or one of its descendants');
+        if Action in [faPath,faPathObjType,faPathTokType,faPathRefType] then
+          Context.SendHTML(' or member of its path')
+        else
+          Context.SendHTML(' or one of its descendants');
       if Prefetch then Context.SendHTML('<sub title="prefetched"><i>p</i></sub>');
 
       //parameters
-	  case Action of
-	    faTokType, faTokCreated, faRefType, faRefCreated, faRef, faBackRef, faBackRefCreated:
-		 begin
-		  txFilterP:=TtxFilter.Create;
-		  try
-		    txFilterP.FilterExpression:=Parameters;
-			for j:=0 to txFilterP.Count-1 do with txFilterP[j] do
-			  case Action of
-			    faRefType:
-				 begin
-				  Context.SendHTML(' with a reference of type');
-				  Context.Include('dFilterID.xxmi',[txFilterActionItemType[Action],IDType,ID]);
-			      if Descending then Context.SendHTML(' or one of its descendants');
-			      if Prefetch then Context.SendHTML('<sub title="prefetched"><i>p</i></sub>');
-				 end;
+      case Action of
+        faTokType, faTokCreated, faRefType, faRefCreated, faRef, faBackRef, faBackRefCreated:
+         begin
+          txFilterP:=TtxFilter.Create;
+          try
+            txFilterP.FilterExpression:=Parameters;
+            for j:=0 to txFilterP.Count-1 do with txFilterP[j] do
+              case Action of
+                faRefType:
+                 begin
+                  Context.SendHTML(' with a reference of type');
+                  Context.Include('dFilterID.xxmi',[txFilterActionItemType[Action],IDType,ID]);
+                  if Descending then Context.SendHTML(' or one of its descendants');
+                  if Prefetch then Context.SendHTML('<sub title="prefetched"><i>p</i></sub>');
+                 end;
                 faModified:
                  begin
-				  Context.SendHTML(', modified before <i>x</i> days, x=');
-				  Context.Include('dFilterID.xxmi',[txFilterActionItemType[Action],IDType,ID]);
+                  Context.SendHTML(', modified before <i>x</i> days, x=');
+                  Context.Include('dFilterID.xxmi',[txFilterActionItemType[Action],IDType,ID]);
                  end;
-				else
-				  raise Exception.Create('Unexpected rx parameter at position '+IntToStr(Idx1));
-			  end;
-		  except
-		    on e:Exception do
-			 begin
-			  <<span style="color:red;">Error in rx parameter:[[=e.Message]]</span> [[
-			 end;
-		  end;
-		  txFilterP.Free;
-		 end;
-		//else silent, no parameters required
-	  end;
+                faFrom:
+                  Context.Send(', modified from '+ID);
+                faTill:
+                  Context.Send(', modified till '+ID)
+                else
+                  raise Exception.Create('Unexpected rx parameter at position '+IntToStr(Idx1));
+              end;
+          except
+            on e:Exception do
+             begin
+              <<span style="color:red;">Error in rx parameter:[[=e.Message]]</span> [[
+             end;
+          end;
+          txFilterP.Free;
+         end;
+        //else silent, no parameters required
+      end;
 
-	  //if (i<txFilter.Count-1) then
+      //if (i<txFilter.Count-1) then
        begin
         ]] <a href="[[=Address2(Inject(txFilter.FilterExpression,'(',Idx1))]]" class="linkbutton">(+</a>>
        end;
@@ -181,16 +187,16 @@ if (action='') and (filter<>'') then
        begin
         ]] <a href="[[=Address2(Contract(txFilter.FilterExpression,Idx2,Idx2+1))]]" class="linkbutton">)-</a>>
        end;
-	  if (txFilter.Count>1) then
-	   begin
+      if (txFilter.Count>1) then
+       begin
         ]] <a href="[[
-	    if i=txFilter.Count-1 then
-		  Context.Send(Address2(Copy(txFilter.FilterExpression,1,Idx1-2)))
-		else
-		  Context.Send(Address2(Contract(txFilter.FilterExpression,Idx1,Idx3)));
-	    ]]" class="linkbutton">delete</a>>
-	   end;
-	  Context.SendHTML('</li>'#13#10);
+        if i=txFilter.Count-1 then
+          Context.Send(Address2(Copy(txFilter.FilterExpression,1,Idx1-2)))
+        else
+          Context.Send(Address2(Contract(txFilter.FilterExpression,Idx1,Idx3)));
+        ]]" class="linkbutton">delete</a>>
+       end;
+      Context.SendHTML('</li>'#13#10);
 
       //TODO: parenthesis: check past base level?
       dec(gPara,ParaClose);
@@ -198,14 +204,14 @@ if (action='') and (filter<>'') then
       if i<>txFilter.Count-1 then
        begin
         if ParaClose=0 then Context.SendHTML('<br />');
-		Context.SendHTML('<b>'+txFilterOperatorSQL[Operator]+'</b>'#13#10);
-		for op:=Low(TtxFilterOperator) to High(TtxFilterOperator) do
-		  if (op<>Operator) and (op<>fo_Unknown) then
-		   begin
-		    ]]
-			<a href="[[=Address2(Replace1(txFilter.FilterExpression,Idx3-1,txFilterOperatorChar[op]))]]" class="linkbutton">>=txFilterOperatorSQL[op]<</a>
-			[[
-		   end;
+        Context.SendHTML('<b>'+txFilterOperatorSQL[Operator]+'</b>'#13#10);
+        for op:=Low(TtxFilterOperator) to High(TtxFilterOperator) do
+          if (op<>Operator) and (op<>fo_Unknown) then
+           begin
+            ]]
+            <a href="[[=Address2(Replace1(txFilter.FilterExpression,Idx3-1,txFilterOperatorChar[op]))]]" class="linkbutton">>=txFilterOperatorSQL[op]<</a>
+            [[
+           end;
        end;
 
       if not(Context.Connected) then raise Exception.Create('disconnected');
@@ -283,8 +289,8 @@ if action='c' then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Child of object</dt><dd>>Context.Include('dObjSelect.xxmi',['item'+action,0,0,0,'',true]);<</dd>
   <dt>Descendance</dt><dd>
-	<input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only direct descendants of this object</label><br />
-	<input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">All descendants of this object</label><br />
+    <input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only direct descendants of this object</label><br />
+    <input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">All descendants of this object</label><br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -299,8 +305,8 @@ if action='ot' then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Object type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itObjType,'item'+action]);<</dd>
   <dt>Descendance</dt><dd>
-	<input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only objects of this object type</label> <br />
-	<input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">Objects of this and descendant object types</label> <br />
+    <input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only objects of this object type</label> <br />
+    <input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">Objects of this and descendant object types</label> <br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -315,8 +321,8 @@ if (action='tt') or (action='ttr') then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Token type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itTokType,'item'+action]);<</dd>
   <dt>Descendance</dt><dd>
-	<input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only tokens of this token type</label> <br />
-	<input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">Tokens of this and descendant token types</label> <br />
+    <input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only tokens of this token type</label> <br />
+    <input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">Tokens of this and descendant token types</label> <br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -331,8 +337,8 @@ if (action='rt') or (action='rtr') then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Reference type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'item'+action]);<</dd>
   <dt>Descendance</dt><dd>
-	<input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only references of this reference type</label> <br />
-	<input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">References of this and descendant reference types</label> <br />
+    <input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only references of this reference type</label> <br />
+    <input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">References of this and descendant reference types</label> <br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -347,13 +353,13 @@ if (action='rx') or (action='rxr') then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Object referred to</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',Context['id'].AsInteger,0,0,'',true]);<</dd>
   <dt>Descendance</dt><dd>
-	<input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object	</label> <br />
-	<input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label> <br />
+    <input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object    </label> <br />
+    <input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label> <br />
   </dd>
   <dt>With reference of type (optional)</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'reftype']);<</dd>
   <dt>Descendance</dt><dd>
-	<input type="radio" name="tflags" value="" id="tdesc0" /> <label for="tdesc0">Only references of this reference type</label> <br />
-	<input type="radio" name="tflags" value="*" id="tdesc1" checked="1" /> <label for="tdesc1">References of this and descendant reference types</label> <br />
+    <input type="radio" name="tflags" value="" id="tdesc0" /> <label for="tdesc0">Only references of this reference type</label> <br />
+    <input type="radio" name="tflags" value="*" id="tdesc1" checked="1" /> <label for="tdesc1">References of this and descendant reference types</label> <br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -369,8 +375,8 @@ if (action='uc') or (action='ut') or (action='ur') or (action='urx') then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>User object</dt><dd>>Context.Include('dObjSelect.xxmi',['item'+action]);<</dd>
   <dt>Descendance</dt><dd>
-	<input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object</label><br />
-	<input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label><br />
+    <input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object</label><br />
+    <input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label><br />
   </dd>
   </dl>
   [[#txFormButton]]
