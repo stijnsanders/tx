@@ -2,6 +2,7 @@ v1.3.3
 - object selector search: options reports, terms
 - revised display of created/modified/diff
 - MaintRpt.xxm: fixed bug with parent of auto-created items
+- filter: 'from','till': modified from/till timestamp (yyyymmddhhmmsszzz)
 
 v1.3.2
 - try to get full user name using NetUserGetInfo

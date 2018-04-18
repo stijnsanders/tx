@@ -34,7 +34,7 @@ if IsAdmin then
  end;
 
 sqlListUsr:=
-  'SELECT Usr.id, Usr.[login], Usr.[pwd], Usr.[auth], Usr.[email], Usr.[uid], Obj.name, ObjType.icon, ObjType.name AS typename';
+  'SELECT Usr.*, Obj.name, ObjType.icon, ObjType.name AS typename';
 if Use_ObjTokRefCache then sqlListUsr:=sqlListUsr+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
 sqlListUsr:=sqlListUsr+
   ' FROM Usr '+
@@ -51,7 +51,7 @@ else
 //TODO: fUser.xxm fUserPwd.xxm fDelete.xxm?x=u?
 try
    <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
-   <tr><th>&nbsp;</th><th>user</th><th>login</th><th>pwd</th><th>auth</th><th>e-mail</th></tr>>
+   <tr><th>&nbsp;</th><th>user</th><th>login</th><th>pwd</th><th>auth</th><th>e-mail</th><th>&nbsp;</th></tr>>
    while qr.Read do
     begin
 	 id:=qr.GetInt('id');
@@ -88,6 +88,7 @@ try
 	 <</td>
 	 <td>>.auth<</td>
 	 <td><a href="mailto:[[.email]]">>.email<</a></td>
+   <td>>Context.Include('d_cmw.xxmi',[],[qr,nil]);<</td>
 	 </tr>>
     end;
    <</table>>

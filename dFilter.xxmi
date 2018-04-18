@@ -34,12 +34,16 @@ if (qr<>nil) and (Length(Values)>1) then
 <a class="linkbutton" href="Summary.xxm?filter=[[#filterU]]">summary</a>
 [[
 if (qr<>nil) and (Length(Values)>0) and Values[0] then
-  begin ]] | <a href="fFilter.xxm?id=[[=id]]" class="linkbutton">edit</a>> end;
+  begin
+    ]]
+    <span class="date"><a href="Filter.xxm?filter=f[[=id]]">f</a></span>
+    | <a href="fFilter.xxm?id=[[=id]]" class="linkbutton">edit</a>>
+    Context.Include('d_cmw.xxmi',[],[qr,nil]);
+  end;
 if qr=nil then
-  begin ]] | <a href="aFilterRecent.xxm?drf=[[=id]]" class="linkbutton">remove</a>> end;]]
-[[/
-<span class="date">created on [[=NiceDateTime(qr['c_ts'])]] <a href="Item.xxm?x=i[[.c_uid]]">by&#x2026;</a></span>
-<span class="date">modified on [[=NiceDateTime(qr['m_ts'])]] <a href="Item.xxm?x=i[[.m_uid]]">by&#x2026;</a></span>
+  begin
+    ]] | <a href="aFilterRecent.xxm?drf=[[=id]]" class="linkbutton">remove</a>>
+  end;
 ]]
 </div>
 <p class="objecttitle">&nbsp;</p>>
@@ -47,4 +51,3 @@ if qr<>nil then
  begin
   <<div>>#TermStore.TermLinks(itFilter,id,0,qr.GetStr('desc'))<</div>>
  end;
- ]]

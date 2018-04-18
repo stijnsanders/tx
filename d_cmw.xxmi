@@ -10,8 +10,11 @@ v1:=qr[prefix+'c_ts'];
 v2:=qr[prefix+'m_ts'];
 if VarIsNull(v1) then d1:=0.0 else d1:=VarToDateTime(v1);
 if VarIsNull(v2) then d2:=0.0 else d2:=VarToDateTime(v2);
+if Length(Objects)<2 then
+  begin
+   ]] <span style="white-space: nowrap;"><span class="weight">weight: [[=qr[prefix+'weight']]]</span>>
+  end;
 ]]
-<span style="white-space: nowrap;"><span class="weight">weight: [[=qr[prefix+'weight']]]</span>
 <span class="date">>
 if d1<>0 then
  begin
