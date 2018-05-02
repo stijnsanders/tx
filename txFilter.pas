@@ -18,7 +18,7 @@ type
     faRecentObj,faRecentTok,faRecentRef,faRecentBackRef,
     faFilter,faParent,faPath,faPathObjType,faPathTokType,faPathRefType,
 
-    faSearch,faSearchReports,faSearchName,faName,faDesc,faTerm,faModified,
+    faSearch,faSearchReports,faSearchName,faName,faDesc,faTerm,faModified,faFrom,faTill,
     faAlwaysTrue,faAlwaysFalse,faExtra,faSQL,faUser,faRealm,faUnread,
 
     //add new here above
@@ -33,7 +33,7 @@ const
     itObj,itTokType,itRefType,itObj,
     itFilter,itObj,itObj,itObjType,itTokType,itRefType,
 
-    itObj,itObj,itObj,itObj,itObj,itObj,it_Unknown,
+    itObj,itObj,itObj,itObj,itObj,itObj,it_Unknown,it_Unknown,it_Unknown,
     it_Unknown,it_Unknown,it_Unknown,it_Unknown,itUser,itRealm,itUser,
 
     //add new here above
@@ -43,7 +43,7 @@ const
   txFilterOperatorChar:array[TtxFilterOperator] of char=('+','.','/',',',#0);
   txFilterOperatorSQL:array[TtxFilterOperator] of string=('AND','OR','AND NOT','OR NOT','');
 
-  txFilterActionNameCount=98;
+  txFilterActionNameCount=100;
   txFilterActionName:array[0..txFilterActionNameCount-1] of record
     a:TtxFilterAction;
     n:string;
@@ -101,6 +101,8 @@ const
     (a:faSQL                 ;n:'sql'),
     (a:faExtra               ;n:'extra'),
     (a:faExtra               ;n:'param'),
+    (a:faFrom                ;n:'from'),
+    (a:faTill                ;n:'till'),
 
     (a:faChild               ;n:'child'),
     (a:faChild               ;n:'children'),

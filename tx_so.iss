@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "tx"
-#define MyAppVersion "1.2.5"
+#define MyAppVersion "1.3.3"
 #define MyAppPublisher "yoy.be"
 #define MyAppURL "http://yoy.be/tx/"
 #define MyAppExeName "tx.exe"

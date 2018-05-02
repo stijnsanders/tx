@@ -27,7 +27,7 @@ const
   Use_ObjPath=true;//requires table ObjPath
   Use_NewUserEmailActivation=true;
   Use_Unread=true;//requires table Obx,Urx
-  Use_Extra=false;//
+  Use_Extra=false;//use prefix "::" on ObjType.system
 
   txItemTypeKey:array[TtxItemType] of string=(
     'i','ot','t','tt','r','rt','f','rm','u','rp',
@@ -91,7 +91,8 @@ function txImg(IconNr:integer; const Desc:string=''):string;
 function txForm(const Action:string; const HVals:array of OleVariant;const OnSubmitEval:string=''):string; overload;
 
 function DateToXML(d:TDateTime):string;
-function NiceDateTime(x:OleVariant):string;
+function NiceDateTime(const x:OleVariant):string;
+function ShortDateTime(d:TDateTime):string;
 
 implementation
 
@@ -182,9 +183,33 @@ begin
   Result:=EngDayNames[dw]+', '+IntToStr(dd)+' '+EngMonthNames[dm]+' '+IntToStr(dy)+' '+Format('%.2d:%.2d:%.2d',[th,tm,ts])+' +01:00';
 end;
 
-function NiceDateTime(x:OleVariant):string;
+function NiceDateTime(const x:OleVariant):string;
 begin
   if VarIsNull(x) then Result:='?' else Result:=FormatDateTime('ddd c',VarFromDateTime(x));
+end;
+
+function ShortDateTime(d:TDateTime):string;
+var
+  d1:TDateTime;
+  dy1,dy2,dm,dd:word;
+begin
+  if d=0.0 then
+    Result:='?'
+  else
+   begin
+    d1:=Date;
+    if Trunc(d)=d1 then
+      Result:=FormatDateTime('hh:nn',d)
+    else
+     begin
+      DecodeDate(d,dy1,dm,dd);
+      DecodeDate(d1,dy2,dm,dd);
+      if dy1=dy2 then
+        Result:=FormatDateTime('ddd d/mm',d)
+      else
+        Result:=FormatDateTime('ddd d/mm/yyyy',d)
+     end;
+   end;
 end;
 
 end.

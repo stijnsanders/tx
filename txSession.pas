@@ -322,7 +322,7 @@ begin
   if ThreadDbCon=nil then
    begin
     ThreadDBCon:=TDataConnection.Create(DbConPars);
-    //ThreadDBCon.BusyTimeout:=30000;
+    //ThreadDBCon.BusyTimeout:=5000;
    end;
   Result:=ThreadDbCon;
 end;

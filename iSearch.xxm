@@ -18,8 +18,11 @@ if (keywords='') and (filter='') then
   <<div style="margin:0em;">
   <input type="text" id="searchText_[[=name]]" name="keywords" value="[[=Context['dss'].Value]]" size="50"
   onfocus="search_textEnter('[[=name]]','[[=exclude]]',this);" onblur="search_textLeave(this);" />
-  <input type="checkbox" id="searchTextName_[[=name]]" name="wholename" value="1" />
-  <label for="searchTextName_[[=name]]">match whole name</label>
+  <br />
+  <label><input type="radio" name="action" id="" value="search" checked="1" /> objects</label>
+  <label><input type="radio" name="action" id="" value="name" /> match whole name</label>
+  <label><input type="radio" name="action" id="" value="rsearch" /> reports</label>
+  <label><input type="radio" name="action" id="" value="term" /> terms</label>
   <br />
   <button id="searchButton_[[=name]]" onclick="return search_textSubmit('[[=name]]',[[=exclude]]);">Search</button>
   |
@@ -40,10 +43,7 @@ if (keywords='') and (filter='') then
 else
  begin
   if filter='' then
-   begin
-    if Context['wholename'].AsInteger=1 then filter:='name' else filter:='search';
-    filter:=filter+'"'+StringReplace(keywords,'"','""',[rfReplaceAll])+'"'
-   end;
+    filter:=Context['action'].Value+'"'+StringReplace(keywords,'"','""',[rfReplaceAll])+'"';
   if exclude<>0 then filter:=filter+'/i'+IntToStr(exclude);
 
   <<span class="litref">>=filter<</span><br />>

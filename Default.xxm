@@ -15,89 +15,89 @@ try
   while (si<sl.Count) and Context.Connected do
    begin
     //assert(Copy(sl[si],1,2)='--')
-	s:=sl[si];
-	inc(si);
-	if s='--content' then
-	 begin
-	  while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') do
-	   begin
-	    Context.SendHTML(sl[si]+#13#10);
-	    inc(si);
-	   end;
-	 end
-	else
-	if s='--log' then
-	 begin
-	  p:=TStringList.Create;
-	  try
-	    while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') do
-		 begin
-		  p.Add(sl[si]);
-		  inc(si);
-		 end;
-	    Context.Include('dLog.xxmi',[
-	      p.Values['filter'],
-		  p.Values['anyrealm']='1',//view 'view realms' and 'control realms'? (or only 'views realms')
-		  p.Values['limit'],
-		  Null,//startdate
-		  Null,//enddate
-		  p.Values['asc']='1'//sort ascending
-	    ]);
-	  finally
-	    p.Free;
-	  end;
-	 end
-	else
-	if s='--list' then
-	 begin
-	  p:=TStringList.Create;
-	  try
-	    while (si<sl.Count) and (sl[si]<>'') and (Copy(sl[si],1,2)<>'--') do
-		 begin
-		  p.Add(sl[si]);
-		  inc(si);
-		 end;
-		while (si<sl.Count) and (sl[si]='') do inc(si);
-		s:='';
-		while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') do
-		 begin
-		  s:=s+sl[si]+#13#10;
-		  inc(si);
-		 end;
-	    Context.Include('dListFilter.xxmi',[
-	      p.Values['filter'],
-		  s,
-		  p.Values['anyrealm']='1',//view 'view realms' and 'control realms'? (or only 'views realms')
-		  p.Values['limit'],
-		  p.Values['asc']='1'//sort ascending
-	    ]);
-	  finally
-	    p.Free;
-	  end;
-	 end
-	else
-	if s='--query' then
-	 begin
-	  s:='';
-	  while (si<sl.Count) and (sl[si]<>'') and (Copy(sl[si],1,2)<>'--') do
-	   begin
-		s:=s+sl[si]+#13#10;
-		inc(si);
-	   end;
-	  while (si<sl.Count) and (sl[si]='') do inc(si);
-	  t:='';
-	  while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') do
-	   begin
-		t:=t+sl[si]+#13#10;
-		inc(si);
-	   end;
-	  Context.Include('dListQuery.xxmi',[s,t]);
-	 end
-	else
-	 begin
-	  //raise? ignore:
-	  while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') and Context.Connected do inc(si);
-	 end;
+    s:=sl[si];
+    inc(si);
+    if s='--content' then
+     begin
+      while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') do
+       begin
+        Context.SendHTML(sl[si]+#13#10);
+        inc(si);
+       end;
+     end
+    else
+    if s='--log' then
+     begin
+      p:=TStringList.Create;
+      try
+        while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') do
+         begin
+          p.Add(sl[si]);
+          inc(si);
+         end;
+        Context.Include('dLog.xxmi',[
+          p.Values['filter'],
+          p.Values['anyrealm']='1',//view 'view realms' and 'control realms'? (or only 'views realms')
+          p.Values['limit'],
+          Null,//startdate
+          Null,//enddate
+          p.Values['asc']='1'//sort ascending
+        ]);
+      finally
+        p.Free;
+      end;
+     end
+    else
+    if s='--list' then
+     begin
+      p:=TStringList.Create;
+      try
+        while (si<sl.Count) and (sl[si]<>'') and (Copy(sl[si],1,2)<>'--') do
+         begin
+          p.Add(sl[si]);
+          inc(si);
+         end;
+        while (si<sl.Count) and (sl[si]='') do inc(si);
+        s:='';
+        while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') do
+         begin
+          s:=s+sl[si]+#13#10;
+          inc(si);
+         end;
+        Context.Include('dListFilter.xxmi',[
+          p.Values['filter'],
+          s,
+          p.Values['anyrealm']='1',//view 'view realms' and 'control realms'? (or only 'views realms')
+          p.Values['limit'],
+          p.Values['asc']='1'//sort ascending
+        ]);
+      finally
+        p.Free;
+      end;
+     end
+    else
+    if s='--query' then
+     begin
+      s:='';
+      while (si<sl.Count) and (sl[si]<>'') and (Copy(sl[si],1,2)<>'--') do
+       begin
+        s:=s+sl[si]+#13#10;
+        inc(si);
+       end;
+      while (si<sl.Count) and (sl[si]='') do inc(si);
+      t:='';
+      while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') do
+       begin
+        t:=t+sl[si]+#13#10;
+        inc(si);
+       end;
+      Context.Include('dListQuery.xxmi',[s,t]);
+     end
+    else
+     begin
+      //raise? ignore:
+      while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') and Context.Connected do inc(si);
+     end;
    end;
 finally
   sl.Free;

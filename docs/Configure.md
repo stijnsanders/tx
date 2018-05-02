@@ -21,9 +21,9 @@ If you will be hosting on Microsoft Windows with IIS and enable integrated secur
 
 ## Realms
 
-Realms determine which items are visible and editable to which users. Items are created in the _default_ realm (id 0) by default. All users get view and edit permissions to the default realm. Permissions on additional realms are determined by wether the user's object is selected by the specified filter. The default `tx.sql` script adds two realms:
+Realms determine which items are visible and editable to which users. New items are created in the same realm as their parent, or the _default_ realm (id 0) on the root level. Users get view and edit permissions determined by wether the user's object is selected by the specified filter. The default `tx.sql` script adds two realms:
 
-* _deleted_ (id 1): used by the item delete page. It offers by default to move the selected item(s) to the delete realm; use the _advanced delete_ link to the far right to actually fully drop items from the database. By default no-one gets view permissions and only the administrator (a user whose user object is of an object type with the _system_-field set to `administrator`) has edit permissions in case a 'deleted' objects needs to be restored.
+* _deleted_ (id 1): used by the item delete page: it offers to move the selected item(s) to the delete realm; use the _advanced delete_ link to the far right to actually fully drop items from the database. By default no-one gets view permissions and only the administrator (a user whose user object is of an object type with the _system_-field set to `administrator`) has edit permissions in case a 'deleted' objects needs to be restored.
 * _user data_ (id 2): used to protect the user objects from anonymous and unauthorised users, by giving view permissions to all, but edit permissions only to those with an administrative token (a token of token type with the _system_-field set to `auth.logins`).
 
 Complex filters to determine permissions on realms can potentially slow down performance, especially when opening the website and signing in. See the section _realm permissions_ on the `/Test.xxm` page for an overview of how long it takes to calculate your realm permissions.

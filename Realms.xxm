@@ -59,7 +59,8 @@ try
   <th>viewable by</th>
   <th>editable by</th>>
   if Use_ObjPath then begin <<th>limit to</th>> end;
-  <</tr>>
+  <<th>&nbsp;</th>
+  </tr>>
   while qr.Read do
    begin
     id:=qr.GetInt('id');
@@ -134,8 +135,8 @@ try
        end;
       <</td>>
      end;
-    //TODO: created, modified
-    <</tr>>
+    <<td>>Context.Include('d_cmw.xxmi',[],[qr,nil]);<</td>
+    </tr>>
    end;
 
   id:=0;
@@ -207,7 +208,7 @@ try
    end
   else
    begin
-    <<th colspan="[[if Use_ObjPath then Context.SendHTML('3') else Context.SendHTML('2');]]">&nbsp;</th>>
+    <<th colspan="[[if Use_ObjPath then Context.SendHTML('4') else Context.SendHTML('3');]]">&nbsp;</th>>
    end;
   <</tr>
   </table>>

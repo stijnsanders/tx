@@ -123,7 +123,7 @@ if not(imgonly) then
 <br />
 <input type="text" name="sizex" value="[[=x]]" size="8" />
 x <input type="text" name="sizey" value="[[=y]]" size="8" />,
-� <input type="text" name="origin" value="[[=orig]]" size="8" />,
+&deg; <input type="text" name="origin" value="[[=orig]]" size="8" />,
 = <input type="text" name="increments" value="[[=incs]]" size="8" />,
 / <input type="text" name="scale" value="[[=scale]]" size="8" />
 <br />

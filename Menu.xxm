@@ -1,34 +1,49 @@
 [[
 Context.Include('dHead.xxmi',['Welcome']);
 <<meta name="robots" content="nofollow" />
+
 <h1>Welcome to <i>tx</i></h1>
-<p class="information">information...</p>
-<dl>
-<dt>View items</dt><dd><a href="Item.xxm">browse...</a>,
-  <a href="ViewedLast.xxm" rel="nofollow">viewed recently...</a>,
-  <a href="SelectedLast.xxm" rel="nofollow">selected recently...</a>,
-  <a href="ReferedLast.xxm" rel="nofollow">referred to recently...</a>
-</dd>
-<dt>Select items</dt><dd><a href="Filter.xxm" rel="nofollow">filter...</a>,
-  <a href="FCount.xxm" rel="nofollow">filter statistics...</a>
-</dd>
-<dt>Search for items</dt><dd><a href="Search.xxm" rel="nofollow">search...</a></dd>
-<dt>View changes to items</dt><dd><a href="Log.xxm" rel="nofollow">log...</a>,
-  <a href="fLog.xxm" rel="nofollow">advanced...</a>,
-  <a href="Rss.xxm" rel="nofollow">rss...</a>
-</dd>
-<dt>View by structure</dt><dd><a href="Tree.xxm" rel="nofollow">tree...</a>,
-  <a href="Trace.xxm" rel="nofollow">trace...</a>,
-  <a href="TermTrace.xxm" rel="nofollow">terms..</a>
-</dd>
-<dt>Transport items</dt><dd><a href="Export.xxm" rel="nofollow">export...</a>,
-  <a href="Import.xxm" rel="nofollow">import...</a>,
-  <a href="fObjs.xxm" rel="nofollow">add multiple...</a>
-</dd>
-<dt>Configure</dt><dd><a href="Users.xxm" rel="nofollow">users...</a>,
-  <a href="Realms.xxm" rel="nofollow">realms...</a>,
-  <a href="Filters.xxm" rel="nofollow">stored filters...</a>,
-  <a href="Test.xxm" rel="nofollow">test...</a>
-</dd>
-</dl>>
+<p class="information">Thank you for trying out <i>tx</i>.
+Read more about how to get started here:
+<a href="https://github.com/stijnsanders/tx/blob/master/docs/Overview.md">github.com/stijnsanders/tx/Overview.md</a>
+</p>
+
+<style><!--
+.lbox{display:inline-block;margin:2px;border:1px solid #CCCC99;padding:4px;vertical-align:top;}
+//--></style>
+<div style="margin:0;">
+<div class="lbox"><b>View items</b>
+<br /><a href="Item.xxm">browse...</a>
+<br /><a href="ViewedLast.xxm" rel="nofollow">viewed recently...</a>
+<br /><a href="SelectedLast.xxm" rel="nofollow">selected recently...</a>
+<br /><a href="ReferedLast.xxm" rel="nofollow">referred to recently...</a>
+</div>
+<div class="lbox"><b>Select items</b>
+<br /><a href="Filter.xxm" rel="nofollow">filter...</a>
+<br /><a href="Search.xxm" rel="nofollow">search...</a>
+<br /><a href="FCount.xxm" rel="nofollow">statistics...</a>
+</div>
+<div class="lbox"><b>View changes</b>
+<br /><a href="Log.xxm" rel="nofollow">log...</a>
+<br /><a href="fLog.xxm" rel="nofollow">advanced...</a>
+<br /><a href="Rss.xxm" rel="nofollow">rss...</a>
+</div>
+<div class="lbox"><b>View by structure</b>
+<br /><a href="Tree.xxm" rel="nofollow">tree...</a>
+<br /><a href="Trace.xxm" rel="nofollow">trace...</a>
+<br /><a href="TermTrace.xxm" rel="nofollow">terms..</a>
+</div>
+<div class="lbox"><b>Transport items</b>
+<br /><a href="Export.xxm" rel="nofollow">export...</a>
+<br /><a href="Import.xxm" rel="nofollow">import...</a>
+<br /><a href="fObjs.xxm" rel="nofollow">add multiple...</a>
+</div>
+<div class="lbox"><b>Configure</b>
+<br /><a href="Users.xxm" rel="nofollow">users...</a>
+<br /><a href="Realms.xxm" rel="nofollow">realms...</a>
+<br /><a href="Filters.xxm" rel="nofollow">stored filters...</a>
+<br /><a href="Test.xxm" rel="nofollow">test...</a>
+</div>
+
+[[
 Context.Include('dFoot.xxmi');

@@ -27,7 +27,7 @@ ObjTypeID:=qrGetDefault('objtype_id',ObjTypeID);
 <dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qrGetDefault('desc','')]);]]</dd>>
 if id=0 then Context.Include('fObjTokRef.xxmi');
 <<dt>URL</dt><dd><input type="text" name="url" value="[[=qrGetDefault('url','')]]" class="textfield" /></dd>
-<dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=qrGetDefault('weight',0)]]" /></dd>
+<dt>[[if id=0 then Context.SendHTML('&Delta; ');]]Weight</dt><dd><input type="text" name="weight" value="[[=qrGetDefault('weight',0)]]" /></dd>
 [[/TODO: realm?]]
 </dl>
 [[#txFormButton]]
