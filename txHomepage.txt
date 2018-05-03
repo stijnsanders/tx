@@ -26,6 +26,7 @@ Read more about how to get started here:
 <div class="lbox"><b>Select items</b>
 <br /><a href="Filter.xxm" rel="nofollow">filter...</a>
 <br /><a href="Search.xxm" rel="nofollow">search...</a>
+<br /><a href="Filter.xxm?filter=unread" rel="nofollow">unread...</a>
 <br /><a href="FCount.xxm" rel="nofollow">statistics...</a>
 </div>
 <div class="lbox"><b>View changes</b>
