@@ -17,27 +17,27 @@ const
   SelectBool:array[boolean] of string=('','selected="1"');
   FlgQuery:array[boolean] of string=(
 
-	//FlgWeight
-	'SELECT F1.flt_id, F2.weight AS [Open], F1.MinWeight AS [Low], F1.MaxWeight AS [High], F3.weight AS [Close] '+
-	'FROM ( '+
-	'	SELECT Flg.flt_id, MIN(Flg.weight) AS MinWeight, MAX(Flg.weight) AS MaxWeight, MIN(Flg.id) AS FirstID, MAX(Flg.id) AS LastID '+
-	'	FROM Flg '+
-	'	WHERE Flg.flt_id=? AND Flg.ts >= ? AND Flg.ts < ? '+
-	'	GROUP BY Flg.flt_id '+
-	') AS F1 '+
-	'LEFT OUTER JOIN Flg AS F2 ON F2.id=F1.FirstID '+
-	'LEFT OUTER JOIN Flg AS F3 ON F3.id=F1.LastID',
+    //FlgWeight
+    'SELECT F1.flt_id, F2.weight AS [Open], F1.MinWeight AS [Low], F1.MaxWeight AS [High], F3.weight AS [Close] '+
+    'FROM ( '+
+    '    SELECT Flg.flt_id, MIN(Flg.weight) AS MinWeight, MAX(Flg.weight) AS MaxWeight, MIN(Flg.id) AS FirstID, MAX(Flg.id) AS LastID '+
+    '    FROM Flg '+
+    '    WHERE Flg.flt_id=? AND Flg.ts >= ? AND Flg.ts < ? '+
+    '    GROUP BY Flg.flt_id '+
+    ') AS F1 '+
+    'LEFT OUTER JOIN Flg AS F2 ON F2.id=F1.FirstID '+
+    'LEFT OUTER JOIN Flg AS F3 ON F3.id=F1.LastID',
 
-	//FlgCount
-	'SELECT F1.flt_id, F2.[count] AS [Open], F1.MinCount AS [Low], F1.MaxCount AS [High], F3.[count] AS [Close] '+
-	'FROM ( '+
-	'	SELECT Flg.flt_id, MIN(Flg.[count]) AS MinCount, MAX(Flg.[count]) AS MaxCount, MIN(Flg.id) AS FirstID, MAX(Flg.id) AS LastID '+
-	'	FROM Flg '+
-	'	WHERE Flg.flt_id=? AND Flg.ts >= ? AND Flg.ts < ? '+
-	'	GROUP BY Flg.flt_id '+
-	') AS F1 '+
-	'LEFT OUTER JOIN Flg AS F2 ON F2.id=F1.FirstID '+
-	'LEFT OUTER JOIN Flg AS F3 ON F3.id=F1.LastID'
+    //FlgCount
+    'SELECT F1.flt_id, F2.[count] AS [Open], F1.MinCount AS [Low], F1.MaxCount AS [High], F3.[count] AS [Close] '+
+    'FROM ( '+
+    '    SELECT Flg.flt_id, MIN(Flg.[count]) AS MinCount, MAX(Flg.[count]) AS MaxCount, MIN(Flg.id) AS FirstID, MAX(Flg.id) AS LastID '+
+    '    FROM Flg '+
+    '    WHERE Flg.flt_id=? AND Flg.ts >= ? AND Flg.ts < ? '+
+    '    GROUP BY Flg.flt_id '+
+    ') AS F1 '+
+    'LEFT OUTER JOIN Flg AS F2 ON F2.id=F1.FirstID '+
+    'LEFT OUTER JOIN Flg AS F3 ON F3.id=F1.LastID'
   );
   ClrC:array[0..5] of byte=($0,$3,$6,$9,$C,$F);
   Hex:array[0..15] of char='0123456789ABCDEF';
@@ -108,6 +108,15 @@ while (k<=Length(s)) do
 
 if not(imgonly) then
  begin
+  q:=TQueryResult.Create(Session.DbCon,'SELECT id, name FROM Flt WHERE showgraph=1 ORDER BY name',[]);
+  try
+    if q.EOF then
+     begin
+      <<p class="information">No stored filters made available for filter graphs.</p>>
+     end
+    else
+     begin
+
 <<p>
 <input type="radio" id="timedelta0" name="timedelta" value="0" [[=RadioBool[timedelta=0]]] />
 <label for="timedelta0">daily</label>
@@ -136,9 +145,9 @@ x <input type="text" name="sizey" value="[[=y]]" size="8" />,
 <script><!--
 function doClr()
 {
-	var sr=$("#addr")[0];
-	var sg=$("#addg")[0];
-	var sb=$("#addb")[0];
+    var sr=$("#addr")[0];
+    var sg=$("#addg")[0];
+    var sb=$("#addb")[0];
     $("#previewrgb")[0].style.backgroundColor="#"+sr.value+sg.value+sb.value;
     var i;
     var y;
@@ -151,18 +160,14 @@ function doClr()
 <select name="addf">
 <option value="" style="color:#00F;">[select a filter to add]</option>>
 
-q:=TQueryResult.Create(Session.DbCon,'SELECT id, name FROM Flt WHERE showgraph=1 ORDER BY name',[]);
-try
-  while q.Read and Context.Connected do
-   begin
-    id:=q.GetInt('id');
-    <<option value="[[=id]]">>=q['name']<</option>>
-    //br?
-   end;
-finally
-  q.Free;
-end;
-j:=DefaultClrs[Length(filters) mod DefaultClrCount];
+        while q.Read and Context.Connected do
+         begin
+          id:=q.GetInt('id');
+          <<option value="[[=id]]">>=q['name']<</option>>
+          //br?
+         end;
+        j:=DefaultClrs[Length(filters) mod DefaultClrCount];
+
 <</select>
 R <select name="addr" id="addr" onchange="doClr()">[[for i:=0 to 5 do begin]]<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[((j shr 8) and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>[[end;]]</select>
 G <select name="addg" id="addg" onchange="doClr()">[[for i:=0 to 5 do begin]]<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[((j shr 4) and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>[[end;]]</select>
@@ -178,8 +183,10 @@ doClr();
 </p>
 </form>>
 
-  //TODO: remove?
-
+     end;
+  finally
+    q.Free;
+  end;
  end;//if not(imgonly)
 
 for i:=0 to Length(filters)-1 do
@@ -220,9 +227,9 @@ try
     2://monthly
      begin
       d1:=EncodeDate(dy,dm,1);
-	  if dm=12 then
-	    d2:=EncodeDate(dy+1,1,1)
-	  else
+      if dm=12 then
+        d2:=EncodeDate(dy+1,1,1)
+      else
         d2:=EncodeDate(dy,dm+1,1);
      end;
   end;
@@ -291,9 +298,9 @@ try
     i:=Length(ModulePath)+1;
     <<p style="overflow-x:auto;"><img src="[[=StringReplace(Copy(s,i+1,Length(s)-i),'\','/',[rfReplaceAll])]]?ts=[[=fg.Unique]]"/></p>
     <p class="small">Min:[[=fg.MinVal]], Max:[[=fg.MaxVal]]</p>
-	<script><!--
-	$("#waitdisplay").hide();
-	//--></script>>
+    <script><!--
+    $("#waitdisplay").hide();
+    //--></script>>
    end;
 finally
   fg.Free;

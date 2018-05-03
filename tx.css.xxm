@@ -110,7 +110,7 @@ UL, IL {
 }
 CODE, XMP, PRE {
 	font-family: Lucida Console, monospace;
-	font-size: 1em;
+	font-size: 0.8em;
 }
 TD P {
 	margin: 0 0 0.4em 0;

@@ -655,13 +655,13 @@ begin
         AddWhere('Obj.rlm_id'+Criterium(f[i],'Rlm.id','',false,false));
       faUnread:
        begin
-        if Session.IsAdmin('logins') and not((f[i].IDType=dtNumber) and (f[i].ID='0')) then
+        if Session.IsAdmin('logins') and not((f[i].IDType=dtNumber) and ((f[i].ID='0') or (f[i].ID=''))) then
           s:=Criterium(f[i],'Obj.id','',false,false)
         else
           s:='='+IntToStr(Session.UserID);
-        AddWhere('EXISTS (SELECT Urx.id FROM Obx'+
-          ' LEFT OUTER JOIN Urx ON Obx.id BETWEEN Urx.id1 AND Urx.id2'+
-          ' AND Urx.uid'+s+
+        AddWhere('EXISTS (SELECT Obx.id FROM Obx'+
+          ' LEFT OUTER JOIN Urx ON Urx.uid'+s+
+		  ' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
           ' WHERE Obx.obj_id=Obj.id AND Urx.id IS NULL)');
        end;
 

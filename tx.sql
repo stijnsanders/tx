@@ -250,6 +250,7 @@ obj_id int not null
 --edit type? ts? tok/ref/rpt id?
 --constraint FK_Obx_Obj?
 );
+create index IX_Obx on Obx (obj_id,id);
 
 insert into Obx (obj_id) select id from Obj;
 
