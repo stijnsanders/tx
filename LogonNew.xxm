@@ -1,11 +1,10 @@
 [[@txDefs,txSession,DataLank,sha1,]][[!var
-s,t,u:string;
+s,t,u,salt,pwd:string;
 id:integer;
 qr:TQueryResult;
 const
 hex:array[0..15] of char='0123456789abcdef';
 ]][[
-
 Context.Include('dHead.xxmi',['New user account activation']);
 
 s:=Context['x'].Value;
@@ -18,58 +17,71 @@ id:=
   ((((byte(s[23]) shr 6) and 1)*9+(byte(s[23]) and $F)) shl 8) or
   ((((byte(s[31]) shr 6) and 1)*9+(byte(s[31]) and $F)) shl 12);
 u:=' ';
-qr:=TQueryResult.Create(Session.DbCon,'SELECT Usr.uid,Usr.login,Obj.name,Usr.email,Usr.pwd,0 as isanon FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Usr.uid,Usr.login,Obj.name,Usr.email,Usr.pwd,0 as isanon,pwd FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.id=?',[id]);
 try
-  if qr.EOF then t:='' else
+  t:='';//default
+  if not(qr.EOF) and (Copy(qr.GetStr('pwd'),1,1)='?') then
    begin
     t:=PasswordToken('||||','|||'+qr.GetStr('login')+'|||'+qr.GetStr('name')+'|||'+qr.GetStr('email')+'|||');
-	t[13]:=hex[id and $F];
-	t[17]:=hex[(id shr 4) and $F];
-	t[23]:=hex[(id shr 8) and $F];
-	t[31]:=hex[(id shr 12) and $F];
-	u:=qr.GetStr('pwd')+' ';
+    t[13]:=hex[id and $F];
+    t[17]:=hex[(id shr 4) and $F];
+    t[23]:=hex[(id shr 8) and $F];
+    t[31]:=hex[(id shr 12) and $F];
+    u:=qr.GetStr('pwd')+' ';
    end;
-  if s<>t then
-   begin
-    <<h3>New user account activation</h3>
-	<p>Unknown account activation code.</p>>
-	u:=' ';
-   end;
+  if s<>t then u:=' ';
   case u[1] of
     '?':
-	 begin
-      <<h3>Password reset</h3>
-	  <script><!--
-	  [[Context.Include('iLogonJS.xxmi');]]
-	  //--></script>
-      [[#txForm('aUserPwd.xxm',['id',id,'uid',qr['uid']])]]
-      [[#txFormProtect]]
-      <dl>
-      <dt>Login</dt><dd>>.login<</dd>
-      <dt>New password</dt><dd><input type="password" name="pwd1" id="pwd1" value="" onkeyup="pwd1Check(this.value);" onchange="pwd1Check(this.value);" />
-	    <span id="pwd1Check"></span></dd>
-      <dt>Confirm</dt><dd><input type="password" name="pwd2" id="pwd2" value="" onkeyup="pwd2Check(this.value);" onchange="pwd2Check(this.value);" />
-	    <span id="pwd2Check"></span></dd>
-      </dl>
-      [[#txFormButton]]
-      <a href="Users.xxm">back</a>
-      </form>
-	  <script><!--
-	  $("#pwd1")[0].focus();
-	  //--></script>>
-	  Session.LoadUser(qr);//?
-	 end;
-	'-':
-	 begin
+      if Context['id'].Value='' then //if Context.ContextString(csVerb)<>'Post' then
+       begin
+        <<h3>Password reset {[[.pwd]]}</h3>
+        <script><!--
+        [[Context.Include('iLogonJS.xxmi');]]
+        //--></script>
+        [[#txForm('LogonNew.xxm',['id',id,'uid',qr['uid'],'x',s])]]
+        [[#txFormProtect]]
+        <dl>
+        <dt>Login</dt><dd>>.login<</dd>
+        <dt>New password</dt><dd><input type="password" name="pwd1" id="pwd1" value="" onkeyup="pwd1Check(this.value);" onchange="pwd1Check(this.value);" />
+          <span id="pwd1Check"></span></dd>
+        <dt>Confirm</dt><dd><input type="password" name="pwd2" id="pwd2" value="" onkeyup="pwd2Check(this.value);" onchange="pwd2Check(this.value);" />
+          <span id="pwd2Check"></span></dd>
+        </dl>
+        [[#txFormButton]]
+        <a href="Users.xxm">back</a>
+        </form>
+        <script><!--
+        $("#pwd1")[0].focus();
+        //--></script>>
+       end
+      else
+       begin
+        CheckFormProtect(Context);
+        pwd:=Context['pwd1'].Value;
+        if (pwd<>Context['pwd2'].Value) then
+          raise Exception.Create('Password mismatch');
+        if Context['uid'].AsInteger<>qr.GetInt('uid') then
+          raise Exception.Create('Account mismatch');
+        salt:=NewPasswordSalt;
+        Session.DbCon.Execute('UPDATE Usr SET salt=?, pwd=? WHERE id=?',[salt,PasswordToken(salt,pwd),id]);
+        <<h3>Password reset</h3>
+        <p>Proceed to logon.</p>
+        <p><a href="Default.xxm">continue...</a></p>>
+       end;
+    '-':
+     begin
       //Session.LoadUser(qr);?
-	  Session.DbCon.Execute('UPDATE Usr SET pwd=SUBSTR(pwd,2) WHERE id=?',[id]);
-	  <<h3>New user account activation</h3>
-	  <p>Your account has been activated. <a href="Logon.xxm">Click here</a> to log on.	</p>>
-	 end;
+      Session.DbCon.Execute('UPDATE Usr SET pwd=SUBSTR(pwd,2) WHERE id=?',[id]);
+      <<h3>New user account activation</h3>
+      <p>Your account has been activated. <a href="Logon.xxm">Click here</a> to log on.</p>>
+     end;
+    else
+     begin
+      <<h3>New user account activation</h3>
+      <p>Unknown account activation code.</p>>
+     end;
    end;
 finally
   qr.Free;
 end;
-
 Context.Include('dFoot.xxmi');
-]]
