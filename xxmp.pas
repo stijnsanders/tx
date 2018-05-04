@@ -7,19 +7,19 @@ uses SysUtils, xxm;
 type
   TXxmtx=class(TXxmProject, IXxmProjectEvents)
   public
-    function LoadPage(Context:IXxmContext;Address:WideString):IXxmFragment; override;
-    function LoadFragment(Context:IXxmContext;Address,RelativeTo:WideString):IXxmFragment; override;
+    function LoadPage(Context:IXxmContext;const Address:WideString):IXxmFragment; override;
+    function LoadFragment(Context:IXxmContext;const Address,RelativeTo:WideString):IXxmFragment; override;
     procedure UnloadFragment(Fragment: IXxmFragment); override;
-    function HandleException(Context:IxxmContext;PageClass:WideString;Ex:Exception):boolean;
+    function HandleException(Context:IxxmContext;const PageClass:WideString;Ex:Exception):boolean;
   end;
 
-function XxmProjectLoad(AProjectName:WideString): IXxmProject; stdcall;
+function XxmProjectLoad(const AProjectName:WideString): IXxmProject; stdcall;
 
 implementation
 
 uses txSession, DataLank, xxmFReg, Windows, Classes, xxmHeaders;
 
-function XxmProjectLoad(AProjectName:WideString): IXxmProject;
+function XxmProjectLoad(const AProjectName:WideString): IXxmProject;
 begin
   LoadProjectSettings;
   Result:=TXxmtx.Create(AProjectName);
@@ -27,7 +27,7 @@ end;
 
 { TXxmtx }
 
-function TXxmtx.LoadPage(Context:IXxmContext;Address:WideString): IXxmFragment;
+function TXxmtx.LoadPage(Context:IXxmContext;const Address:WideString): IXxmFragment;
 var
   uname,s,x:string;
   qr:TQueryResult;
@@ -113,7 +113,7 @@ begin
    end;
 end;
 
-function TXxmtx.LoadFragment(Context:IXxmContext;Address,RelativeTo:WideString): IXxmFragment;
+function TXxmtx.LoadFragment(Context:IXxmContext;const Address,RelativeTo:WideString): IXxmFragment;
 begin
   //TODO: support relative paths
   Result:=XxmFragmentRegistry.GetFragment(Self,Address,RelativeTo);
@@ -128,7 +128,7 @@ begin
   //XxmFragmentRegistry.CacheRelease(Result);//Fragment.Free?
 end;
 
-function TXxmtx.HandleException(Context:IxxmContext;PageClass:WideString;Ex:Exception):boolean;
+function TXxmtx.HandleException(Context:IxxmContext;const PageClass:WideString;Ex:Exception):boolean;
 begin
   //TODO: admin e-mail
   Result:=false;
