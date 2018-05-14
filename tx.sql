@@ -267,6 +267,28 @@ insert into Urx (uid,id1,id2)
 select uid,1,(select max(id) as id from Obx) from Usr;
 
 
+-- MaintMail.xxm
+
+create table Umi (
+id integer primary key autoincrement,
+usr_id int not null,
+obj_id int not null,
+constraint FK_Umi_Usr foreign key (usr_id) references Usr (id),
+constraint FK_Umi_Obj foreign key (obj_id) references Obj (id)
+);
+
+create table Umr (
+id integer primary key autoincrement,
+usr_id int not null,
+rpt_id int not null,
+constraint FK_Umr_Usr foreign key (usr_id) references Usr (id),
+constraint FK_Umr_Rpt foreign key (rpt_id) references Rpt (id)
+);
+
+--??? create index IX_Umi on Umi (usr_id,obj_id);
+--??? create index IX_Uri on Uri (usr_id,rpt_id);
+
+
 -- default data
 
 --insert into Rlm (id,name,[desc],system) values (0,'default','default realm','default');

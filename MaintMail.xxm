@@ -1,0 +1,288 @@
+[[@txDefs,txSession,Windows,Classes,DataLank,txFilter,txFilterSql,Variants,txCache,txTerms,txNodes,xxmString]][[!var
+sl:TStringList;
+qr,qr1,qr2:TQueryResult;
+sl_i,users_i,users_l,limit,id,pid,i,j,l,d,c1,c2:integer;
+f:TtxFilter;
+fq,fq1,fq2:TtxSqlQueryFragments;
+fs,s,sql1,sql2,msgURL,msgFrom,msgSubject:string;
+users:array of record
+  id,uid:integer;
+  email,name:string;
+end;
+tc1,tc2,tc3,tc4:cardinal;
+qs1,qs2:boolean;
+d1,d2:TDateTime;
+rpFilter:TtxRealmPermission;
+LocationCache:TItemCache;
+TermDomains:TIndexCache;
+msg:TStringContext;
+ln:TLocationNode;
+]][[
+Context.ContentType:='text/plain';
+Context.BufferSize:=0;
+CheckMaintProtect(Context);
+
+//defaults
+msgFrom:=AdministratorEmailAddress;
+msgSubject:='tx Updates';
+
+msgURL:=Context.URL;
+i:=Length(msgURL)-13;
+if Copy(msgURL,i+1,13)='MaintMail.xxm' then SetLength(msgURL,i);
+
+sl:=TStringList.Create;
+try
+  fs:=Context['f'].Value;
+  if fs='' then sl.LoadFromFile(ModulePath+'MaintMail.txt');
+  sl_i:=0;
+  while sl_i<sl.Count do
+   begin
+    if (sl[sl_i]<>'') and not(AnsiChar(sl[sl_i][1]) in [';','#']) then
+     begin
+      s:=sl[sl_i];
+      if Copy(s,1,5)='From=' then msgFrom:=Copy(s,6,Length(s)-5)
+      else
+      if Copy(s,1,8)='Subject=' then msgSubject:=Copy(s,9,Length(s)-8)
+      else
+      if Copy(s,1,4)='URL=' then msgURL:=Copy(s,5,Length(s)-4)
+      else
+       begin
+        f:=TtxFilter.Create;
+        fq:=TtxSqlQueryFragments.Create(itObj);//(itUser);
+        try
+          Context.SendHTML('Users...'#13#10);
+          f.FilterExpression:=sl[sl_i];
+          if f.ParseError<>'' then raise Exception.Create('User filter: '+f.ParseError);
+          fq.AddFrom('INNER JOIN Usr ON Usr.uid=Obj.id AND Usr.email<>''''');
+          fq.AddFilter(f);
+          fq.Fields:='Usr.id, Usr.uid, Usr.email, Obj.name';
+          fq.OrderBy:='';
+          //fq.GroupBy
+          s:=fq.SQL;
+        finally
+          f.Free;
+          fq.Free;
+        end;
+        qr:=TQueryResult.Create(Session.DbCon,s,[]);
+        try
+          i:=0;
+          l:=0;
+          while qr.Read do
+           begin
+            if i=l then
+             begin
+              inc(l,$100);//growstep
+              SetLength(users,l);
+             end;
+            users[i].id:=qr.GetInt('id');
+            users[i].uid:=qr.GetInt('uid');
+            users[i].email:=qr.GetStr('email');
+            users[i].name:=qr.GetStr('name');
+            inc(i);
+           end;
+          users_l:=i;
+        finally
+          qr.Free;
+        end;
+        Context.SendHTML(IntToStr(users_l)+' users'#13#10);
+        inc(sl_i);
+        while (sl_i<sl.Count) and not((sl[sl_i]<>'') and not(AnsiChar(sl[sl_i][1]) in [';','#'])) do inc(sl_i);
+        if sl_i=sl.Count then
+          raise Exception.Create('Update items filter expression missing');
+        fs:=sl[sl_i];
+        for users_i:=0 to users_l-1 do
+          try
+            Context.SendHTML(users[users_i].name+' <'+users[users_i].email+'>...'#13#10);
+            tc1:=GetTickCount;
+            qr:=TQueryResult.Create(Session.DbCon,'SELECT ? AS uid, ? AS email, 0 AS isanon',[users[users_i].uid,users[users_i].email]);
+            try
+              Session.LoadUser(qr);
+            finally
+              qr.Free;
+            end;
+
+            tc2:=GetTickCount;
+            rpFilter:=rpView;//?
+            s:='ASC';//?
+            limit:=100;//?
+
+            f:=TtxFilter.Create;
+            fq1:=TtxSqlQueryFragments.Create(itObj);
+            fq1.OrderBy:='Obj.c_ts '+s+', Obj.weight, Obj.name';//m_ts?
+            if limit<>0 then fq1.Limit:=limit;
+            fq2:=TtxSqlQueryFragments.Create(itReport);
+            fq2.OrderBy:='Rpt.ts '+s;
+            if limit<>0 then fq2.Limit:=limit;
+            try
+              f.FilterExpression:=fs;
+              if f.ParseError<>'' then raise Exception.Create('User filter: '+f.ParseError);
+
+              fq1.AddFrom('LEFT OUTER JOIN Umi ON Umi.usr_id='+IntToStr(users[users_i].id)+' AND Umi.obj_id=Obj.id');
+              fq1.AddFilter(f);
+              fq1.Where:='Umi.id IS NULL AND Obj.c_uid<>'+IntToStr(Session.UserID)+
+                ' AND Obj.m_uid<>'+IntToStr(Session.UserID)+
+                ' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq1.Where+')';
+
+              fq2.AddFrom('LEFT OUTER JOIN Umr ON Umr.usr_id='+IntToStr(users[users_i].id)+' AND Umr.rpt_id=Rpt.id');
+              fq2.AddFilter(f);
+              fq2.Where:='Umr.id IS NULL AND Rpt.uid<>'+IntToStr(Session.UserID)+
+                ' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq2.Where+')';
+
+              sql1:=fq1.SQL;
+              sql2:=fq2.SQL;
+            finally
+              f.Free;
+              fq1.Free;
+              fq2.Free;
+            end;
+
+            //Context.SendHTML(#13#10#13#10+sql1+#13#10#13#10+sql2+#13#10#13#10);
+
+            Session.DbCon.BeginTrans;
+            try
+              tc3:=GetTickCount;
+              qr1:=TQueryResult.Create(Session.DbCon,sql1,[]);
+              qr2:=TQueryResult.Create(Session.DbCon,sql2,[]);
+              c1:=0;
+              c2:=0;
+              LocationCache:=TItemCache.Create;
+              TermDomains:=TIndexCache.Create;
+              msg:=TStringContext.Create(Context,Self);
+              try
+                msg.SendHTML('Subject: '+msgSubject+
+                  #13#10'To: "'+users[users_i].name+'" <'+users[users_i].email+'>'+
+                  #13#10'From: '+msgFrom+
+                  #13#10'Content-type: text/html'+
+                  #13#10#13#10);
+                msg.Include('dMailHead.xxmi',[msgURL]);
+
+                tc4:=GetTickCount;
+
+                qs1:=qr1.Read;
+                qs2:=qr2.Read;
+
+                while (qs1 or qs2) and (c1<limit) and (c2<limit) do
+                 begin
+                  if qs1 then d1:=qr1.GetDate('c_ts') else d1:=0;//m_ts?
+                  if qs2 then d2:=qr2.GetDate('ts') else d2:=0;
+
+                  if qs1 and (d1<=d2) then
+                   begin
+                    //object
+                    id:=qr1.GetInt('id');
+                    d:=TermDomains[id];
+                    if d=-1 then
+                     begin
+                      d:=TermStore.GetDomainID(id);
+                      TermDomains[id]:=d;
+                     end;
+                    msg.SendHTML('<div style="border-right: 3px dotted #8080FF;">');
+                    msg.Include('dObjLocation.xxmi',[],[qr1,LocationCache]);
+                    msg.SendHTML(['<p class="objecttitle"><a href="Item.xxm?x=i',qr1['id'],'" title="',HTMLEncode(qr1.GetStr('typename')),'">',txImg(qr1.GetInt('icon')),'&nbsp;',HTMLEncode(qr1.GetStr('name')),'</a></p>']);
+                    msg.SendHTML(TermStore.TermLinks(itObj,id,d,qr1.GetStr('desc')));
+                    msg.SendHTML('<p><span class="date"');
+                    //msg.Include('d_cmw.xxmi',[],[qr1]);
+                    if not qr1.IsNull('c_ts') then
+                      msg.SendHTML([' c:&nbsp;<a href="Item.xxm?x=i',qr1['c_uid'],'">',NiceDateTime(qr1['c_ts']),'</a>']);
+                    if not qr1.IsNull('m_ts') then
+                      msg.SendHTML([' m:&nbsp;<a href="Item.xxm?x=i',qr1['m_uid'],'">',NiceDateTime(qr1['m_ts']),'</a>']);
+                    msg.SendHTML('</span></p>');
+                    msg.Include('dObjTokRef.xxmi',[id,'','','<p class="objectinfo">','</p>'],[qr1]);
+                    msg.SendHTML('</div>');
+
+                    Session.DbCon.Insert('Umi',['usr_id',users[users_i].id,'obj_id',id]);
+                    inc(c1);
+                    qs1:=qr1.Read;
+                   end
+                  else
+                   begin
+                    //report
+                    id:=qr2.GetInt('obj_id');
+                    d:=TermDomains[id];
+                    if d=-1 then
+                     begin
+                      d:=TermStore.GetDomainID(id);
+                      TermDomains[id]:=d;
+                     end;
+                    msg.SendHTML(['<div style="margin-left: 4em; border-right: 3px dotted #8080FF;">',
+                      '<p class="reportheader"><a href="Item.xxm?x=i',qr2['uid'],'" title="',HTMLEncode(qr2.GetStr('usrtypename')),'">',txImg(qr2.GetInt('usricon')),' ',HTMLEncode(qr2.GetStr('usrname')),'</a>',
+                      '&nbsp;<span class="date">reported on ',NiceDateTime(qr2['ts']),'</span>&nbsp;']);
+                    pid:=qr2.GetInt('pid');
+                    s:='';
+                    while pid<>0 do
+                     begin
+                      ln:=LocationCache[pid] as TLocationNode;
+                      if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+                      s:=ln.GetHTML([ghLink,ghIcon,ghTitle],pid)+s;
+                     end;
+                    msg.SendHTML(s);
+                    msg.SendHTML([#13#10'<a href="Item.xxm?x=i',id,'" title="',HTMLEncode(qr2.GetStr('typename')),'">',txImg(qr2.GetInt('icon')),' ',HTMLEncode(qr2.GetStr('name')),'</a>']);
+                    msg.SendHTML('</p>');
+
+                    //TODO: path of obj_id?
+                    if not(qr2.IsNull('tokicon')) then
+                     begin
+                      s:=qr2.GetStr('toksystem');
+                      if (s<>'') and (s[1]=':') then
+                        msg.SendHTML(['<p>',lblTokens,
+                        '<a href="Log.xxm?filter=tt',qr2['toktype_id'],'*" title="',HTMLEncode(qr2.GetStr('tokname')),'"><img src="img/cat_',Copy(s,2,Length(s)-1),'.png" width="54" height="16" alt="',HTMLEncode(qr2.GetStr('tokname')),'" ',globalIconAlign,'/></a>',
+                        '</p>'])
+                      else
+                        msg.SendHTML(['<p>',lblTokens,
+                        txImg(qr2['tokicon']),
+                        HTMLEncode(qr2.GetStr('tokname')),
+                        '</p>']);
+                     end;
+                    if not(qr2.IsNull('reficon')) then
+                      msg.SendHTML(['<p>',lblReferences,
+                      txImg(qr2['reficon']),
+                      HTMLEncode(qr2.GetStr('refname')),
+                      '</p>']);
+                    msg.SendHTML(TermStore.TermLinks(itObj,id,d,qr2.GetStr('desc')));
+                    if not(qr2.IsNull('relicon')) then
+                      msg.SendHTML(['<p><a href="Item.xxm?x=i',qr2['obj2_id'],'" title="',HTMLEncode(qr2.GetStr('reltypename')),'">',txImg(qr2['relicon']),' ',HTMLEncode(qr2.GetStr('relname')),'</a></p>']);
+                    msg.SendHTML('</div>');
+
+                    Session.DbCon.Insert('Umr',['usr_id',users[users_i].id,'rpt_id',qr2['id']]);
+                    inc(c2);
+                    qs2:=qr2.Read;
+                   end;
+                 end;
+
+                Context.SendHTML(['  i#',c1,' r#',c2,' [ms] user:',cardinal(tc2-tc1),' filter:',cardinal(tc3-tc2),' query:',cardinal(tc4-tc3),' build:',cardinal(GetTickCount-tc4),#13#10]);
+                if not((c1=0) and (c2=0)) then
+                 begin
+                  msg.SendHTML([#13#10'<p class="date" style="text-align:right;">user:',cardinal(tc2-tc1),'ms, filter:',cardinal(tc3-tc2),'ms, query:',cardinal(tc4-tc3),'ms build:',cardinal(GetTickCount-tc4),'ms</p>',
+                    #13#10'</body></html>'#13#10]);
+                  msg.AutoEncoding:=aeIso8859;
+                  msg.SaveToFile('C:\InetPub\mailroot\PickUp\txUpdate'+IntToStr(users[users_i].id)+'_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
+                 end;
+
+              finally
+                qr1.Free;
+                qr2.Free;
+                LocationCache.Free;
+                TermDomains.Free;
+                msg.Free;
+              end;
+              Session.DbCon.CommitTrans;
+            except
+              Session.DbCon.RollbackTrans;
+              raise;
+            end;
+
+          except
+            on e:Exception do
+              Context.SendHTML('EXCEPTION!!!'#13#10+e.Message+#13#10#13#10);
+          end;
+       end;
+     end;
+
+    Session.Expires:=Now-1.0;//kill session, just to be safe
+
+    inc(sl_i);
+   end;
+finally
+  sl.Free;
+end;
+Context.SendHTML('---'#13#10);

@@ -1,0 +1,4 @@
+;first a filter for which users to generate mail, users must have an account with an e-mail
+true
+;then a filter which items to mail about
+rx$me

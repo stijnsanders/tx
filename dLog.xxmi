@@ -1,23 +1,23 @@
 [[@Windows,Variants,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,txTerms,txNodes,]][[!var
-  filter,filterU,fs1,fs2,s:string;
-  f:TtxFilter;
-  fq1,fq2:TtxSqlQueryFragments;
-  id,pid,limit,d,c1,c2:integer;
-  qr1,qr2:TQueryResult;
-  qs1,qs2:boolean;
-  tc1,tc2,tc3,tc4:cardinal;
-  d1,d2:TDateTime;
-  rpFilter:TtxRealmPermission;
-  LocationCache:TItemCache;
-  TermDomains:TIndexCache;
-  ln:TLocationNode;
-  procedure SwapDates;
-  var d:TDateTime;
-  begin
-    d:=d1;
-    d1:=d2;
-    d2:=d;
-  end;
+filter,filterU,fs1,fs2,s:string;
+f:TtxFilter;
+fq1,fq2:TtxSqlQueryFragments;
+id,pid,limit,d,c1,c2:integer;
+qr1,qr2:TQueryResult;
+qs1,qs2,showAsc:boolean;
+tc1,tc2,tc3,tc4:cardinal;
+d1,d2:TDateTime;
+rpFilter:TtxRealmPermission;
+LocationCache:TItemCache;
+TermDomains:TIndexCache;
+ln:TLocationNode;
+procedure SwapDates;
+var d:TDateTime;
+begin
+  d:=d1;
+  d1:=d2;
+  d2:=d;
+end;
 
 ]][[
 
@@ -27,7 +27,8 @@ if Values[1] then rpFilter:=rpAny else rpFilter:=rpView;
 if Values[2]='' then limit:=100 else limit:=StrToInt(Values[2]);
 if VarIsNull(Values[3]) then d1:=0 else d1:=Trunc(VarToDateTime(Values[3]));
 if VarIsNull(Values[4]) then d2:=0 else d2:=Trunc(VarToDateTime(Values[4]))+1;//end date +1 to be smaller than 'opening' midnight of next day
-if Values[5] then s:='ASC' else s:='DESC';
+showAsc:=Values[5];
+if showAsc then s:='ASC' else s:='DESC';
 
 filterU:=URLEncode(filter);
 //IsAdminReports:=Session.IsAdmin('reports');
@@ -86,136 +87,137 @@ finally
   fq2.Free;
 end;
 
-  tc3:=GetTickCount;
+tc3:=GetTickCount;
+if filter<>'' then
+ begin
+  ]]
+  <span class="weight">build: [[=tc3-tc1]]ms</span>
+  [[
+ end;
+
+qr1:=TQueryResult.Create(Session.DbCon,fs1,[]);
+qr2:=TQueryResult.Create(Session.DbCon,fs2,[]);
+c1:=0;
+c2:=0;
+LocationCache:=TItemCache.Create;
+TermDomains:=TIndexCache.Create;
+try
+  tc4:=GetTickCount;
+
+  //recordcount is -1 on adOpenForwardOnly
   if filter<>'' then
    begin
     ]]
-    <span class="weight">build: [[=tc3-tc1]]ms</span>
-    [[
+    <span class="weight">query: [[=tc4-tc3]]ms</span>
+    </p>>
    end;
 
-  qr1:=TQueryResult.Create(Session.DbCon,fs1,[]);
-  qr2:=TQueryResult.Create(Session.DbCon,fs2,[]);
-  c1:=0;
-  c2:=0;
-  LocationCache:=TItemCache.Create;
-  TermDomains:=TIndexCache.Create;
-  try
-    tc4:=GetTickCount;
+  qs1:=qr1.Read;
+  qs2:=qr2.Read;
 
-    //recordcount is -1 on adOpenForwardOnly
-    if filter<>'' then
+  while (qs1 or qs2) and (c1<limit) and (c2<limit) and Context.Connected do
+   begin
+    if qs1 then d1:=qr1.GetDate('c_ts') else d1:=0;//m_ts?
+    if qs2 then d2:=qr2.GetDate('ts') else d2:=0;
+
+    if qs1 and ((d1>=d2) xor showAsc) then
      begin
-      ]]
-      <span class="weight">query: [[=tc4-tc3]]ms</span>
+      //object
+
+      id:=qr1.GetInt('id');
+      d:=TermDomains[id];
+      if d=-1 then
+       begin
+        d:=TermStore.GetDomainID(id);
+        TermDomains[id]:=d;
+       end;
+      <<div style="[[
+      if qr1.GetInt('c_uid')<>Session.UserID then begin]]border-right: 3px dotted #8080FF;[[end;
+      //m_uid?
+      ]]">>
+      Context.Include('dObjLocation.xxmi',[],[qr1,LocationCache]);
+      <<p class="objecttitle"><a href="Item.xxm?x=i[[,id]]" title="[[,typename]]">>#txImg(qr1.GetInt('icon'))]]&nbsp;[[,name<</a></p>>
+      Context.SendHTML(TermStore.TermLinks(itObj,id,d,qr1.GetStr('desc')));
+      Context.SendHTML('<p>');
+      Context.Include('d_cmw.xxmi',[],[qr1]);
+      Context.SendHTML('</p>');
+      Context.Include('dObjTokRef.xxmi',[id,'','','<p class="objectinfo">','</p>'],[qr1]);
+      <</div>>
+
+      inc(c1);
+      qs1:=qr1.Read;
+     end
+    else
+     begin
+      //report
+
+      id:=qr2.GetInt('obj_id');
+      d:=TermDomains[id];
+      if d=-1 then
+       begin
+        d:=TermStore.GetDomainID(id);
+        TermDomains[id]:=d;
+       end;
+      <<div style="margin-left: 4em;[[
+      if qr2.GetInt('uid')<>Session.UserID then begin]]border-right: 3px dotted #8080FF;[[end;
+      ]]">
+      <p class="reportheader"><a name="rpt[[=qr2['id']]]"></a><a href="Item.xxm?x=i[[=qr2['uid']]]" title="[[=qr2['usrtypename']]]">>#txImg(qr2.GetInt('usricon'))]] [[=qr2['usrname']<</a>
+      <span class="date">reported on [[=NiceDateTime(qr2['ts'])]]</span>
+      [[
+      pid:=qr2.GetInt('pid');
+      s:='';
+      while (pid<>0) and Context.Connected do
+       begin
+        ln:=LocationCache[pid] as TLocationNode;
+        if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+        s:=ln.GetHTML([ghLink,ghIcon,ghTitle],pid)+s;
+       end;
+      ]][[#s]]
+      <a href="Item.xxm?x=i[[=id]]" title="[[=qr2['typename']]]">>#txImg(qr2.GetInt('icon'))]] [[=qr2['name']<</a>
       </p>>
-     end;
-
-    qs1:=qr1.Read;
-    qs2:=qr2.Read;
-
-      while (qs1 or qs2) and (c1<limit) and (c2<limit) and Context.Connected do
+      //TODO: path of obj_id?
+      if not(qr2.IsNull('tokicon')) then
+       begin
+        s:=qr2.GetStr('toksystem');
+        if (s<>'') and (s[1]=':') then
          begin
-        if qs1 then d1:=qr1.GetDate('c_ts') else d1:=0;//m_ts?
-        if qs2 then d2:=qr2.GetDate('ts') else d2:=0;
-
-        if qs1 and (d1>=d2) then
-         begin
-          //object
-
-            id:=qr1.GetInt('id');
-            d:=TermDomains[id];
-            if d=-1 then
-             begin
-              d:=TermStore.GetDomainID(id);
-              TermDomains[id]:=d;
-             end;
-            <<div style="[[
-            if qr1.GetInt('c_uid')<>Session.UserID then begin]]border-right: 3px dotted #8080FF;[[end;
-            //m_uid?
-            ]]">>
-            Context.Include('dObjLocation.xxmi',[],[qr1,LocationCache]);
-            <<p class="objecttitle"><a href="Item.xxm?x=i[[,id]]" title="[[,typename]]">>#txImg(qr1.GetInt('icon'))]]&nbsp;[[,name<</a></p>>
-            Context.SendHTML(TermStore.TermLinks(itObj,id,d,qr1.GetStr('desc')));
-            Context.SendHTML('<p>');
-            Context.Include('d_cmw.xxmi',[],[qr1]);
-            Context.SendHTML('</p>');
-            Context.Include('dObjTokRef.xxmi',[id,'','','<p class="objectinfo">','</p>'],[qr1]);
-            <</div>>
-
-          inc(c1);
-          qs1:=qr1.Read;
+          <<p>
+          [[#lblTokens]]
+          <a href="Log.xxm?filter=tt[[=qr2['toktype_id']]]*" title="[[=qr2['tokname']]]"><img src="img/cat_[[=Copy(s,2,Length(s)-1)]].png" width="54" height="16" alt="[[=qr2['tokname']]]" [[#globalIconAlign]]/></a>
+          </p>>
          end
         else
          begin
-          //report
-
-            id:=qr2.GetInt('obj_id');
-            d:=TermDomains[id];
-            if d=-1 then
-             begin
-              d:=TermStore.GetDomainID(id);
-              TermDomains[id]:=d;
-             end;
-            <<div style="margin-left: 4em;[[
-            if qr2.GetInt('uid')<>Session.UserID then begin]]border-right: 3px dotted #8080FF;[[end;
-            ]]">
-            <p class="reportheader"><a name="rpt[[=qr2['id']]]"></a><a href="Item.xxm?x=i[[=qr2['uid']]]" title="[[=qr2['usrtypename']]]">>#txImg(qr2.GetInt('usricon'))]] [[=qr2['usrname']<</a>
-            <span class="date">reported on [[=NiceDateTime(qr2['ts'])]]</span>
-            [[
-            pid:=qr2.GetInt('pid');
-            s:='';
-            while (pid<>0) and Context.Connected do
-             begin
-              ln:=LocationCache[pid] as TLocationNode;
-              if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
-              s:=ln.GetHTML([ghLink,ghIcon,ghTitle],pid)+s;
-             end;
-            ]][[#s]]
-            <a href="Item.xxm?x=i[[=id]]" title="[[=qr2['typename']]]">>#txImg(qr2.GetInt('icon'))]] [[=qr2['name']<</a>
-            </p>>
-            //TODO: path of obj_id?
-            if not(qr2.IsNull('tokicon')) then
-             begin
-              s:=qr2.GetStr('toksystem');
-              if (s<>'') and (s[1]=':') then
-               begin
-                <<p>
-                [[#lblTokens]]
-                <a href="Log.xxm?filter=tt[[=qr2['toktype_id']]]*" title="[[=qr2['tokname']]]"><img src="img/cat_[[=Copy(s,2,Length(s)-1)]].png" width="54" height="16" alt="[[=qr2['tokname']]]" [[#globalIconAlign]]/></a>
-                </p>>
-               end
-              else
-               begin
-                <<p>
-                [[#lblTokens]]
-                [[#txImg(qr2['tokicon'])]]
-                [[=qr2['tokname']]]
-                </p>>
-               end;
-             end;
-            if not(qr2.IsNull('reficon')) then
-             begin
-              <<p>
-              [[#lblReferences]]
-              [[#txImg(qr2['reficon'])]]
-              [[=qr2['refname']]]
-              </p>>
-             end;
-            Context.SendHTML(TermStore.TermLinks(itObj,id,d,qr2.GetStr('desc')));
-            if not(qr2.IsNull('relicon')) then
-             begin
-              <<p><a href="Item.xxm?x=i[[=qr2['obj2_id']]]" title="[[=qr2['reltypename']]]">>#txImg(qr2['relicon'])]] [[=qr2['relname']<</a></p>>
-             end;
-            <</div>>
-          inc(c2);
-          qs2:=qr2.Read;
+          <<p>
+          [[#lblTokens]]
+          [[#txImg(qr2['tokicon'])]]
+          [[=qr2['tokname']]]
+          </p>>
          end;
        end;
-  finally
-    qr1.Free;
-    qr2.Free;
-    LocationCache.Free;
-    TermDomains.Free;
-  end;
+      if not(qr2.IsNull('reficon')) then
+       begin
+        <<p>
+        [[#lblReferences]]
+        [[#txImg(qr2['reficon'])]]
+        [[=qr2['refname']]]
+        </p>>
+       end;
+      Context.SendHTML(TermStore.TermLinks(itObj,id,d,qr2.GetStr('desc')));
+      if not(qr2.IsNull('relicon')) then
+       begin
+        <<p><a href="Item.xxm?x=i[[=qr2['obj2_id']]]" title="[[=qr2['reltypename']]]">>#txImg(qr2['relicon'])]] [[=qr2['relname']<</a></p>>
+       end;
+      <</div>>
+
+      inc(c2);
+      qs2:=qr2.Read;
+     end;
+   end;
+finally
+  qr1.Free;
+  qr2.Free;
+  LocationCache.Free;
+  TermDomains.Free;
+end;
 ]]

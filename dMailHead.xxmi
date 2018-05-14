@@ -1,0 +1,63 @@
+[[!const
+ImgSafePadding='0.1em 0.4em 0.1em 0.4em';
+<<!doctype html>
+<html>
+<head>
+<style type="text/css">
+P {
+	margin: 0.4em;
+}
+DIV {
+	margin: 0.4em;
+}
+P.objecttitle {
+	margin-top: 0em;
+	margin-bottom: 0.2em;
+	padding: [[#ImgSafePadding]];
+	background-color: #DDDDDD;
+	font-weight: bold;
+	border-bottom: 0.1em solid #999999;
+	border-right: 0.2em solid #999999;
+}
+P.objectlocation {
+	margin-top: 0em;
+	margin-bottom: 0.0em;
+	padding: [[#ImgSafePadding]];
+	background-color: #EEEEEE;
+	border-right: 0.2em solid #999999;
+}
+P.reportheader {
+	margin-bottom: 0em;
+	margin-top: 1em;
+	border-bottom: 0.1em solid #999999;
+	border-right: 0.2em solid #999999;
+}
+P.objectinfo {
+	margin-top: 0em;
+	margin-bottom: 0em;
+}
+.weight {
+	background-color: #E0E0E0;
+	color: #6060C0;
+	font-family: Tahoma, sans-serif;
+	font-size: 8pt;
+	padding-left: 0.2em;
+	padding-right: 0.2em;
+	white-space: nowrap;
+}
+.date {
+	background-color: #E0E0E0;
+	color: #606060;
+	font-family: Tahoma, sans-serif;
+	font-size: 8pt;
+	padding-left: 0.2em;
+	padding-right: 0.2em;
+	white-space: nowrap;
+}
+.date A {
+	color: #404040;
+}
+</style>
+<base href="[[=Values[0]]]" />
+</head>
+<body style="font-family: Calibri, Verdana, sans-serif;">

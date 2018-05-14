@@ -1,3 +1,6 @@
+v1.3.4
+- MaintMail: send update mails
+
 v1.3.3
 - object selector search: options reports, terms
 - revised display of created/modified/diff
