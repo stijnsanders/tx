@@ -661,7 +661,7 @@ begin
           s:='='+IntToStr(Session.UserID);
         AddWhere('EXISTS (SELECT Obx.id FROM Obx'+
           ' LEFT OUTER JOIN Urx ON Urx.uid'+s+
-		  ' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
+          ' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
           ' WHERE Obx.obj_id=Obj.id AND Urx.id IS NULL)');
        end;
 

@@ -15,7 +15,7 @@ url:=Context['url'].Value;
 umsg:='';
 
 if ntauth then
-  qr:=TQueryResult.Create(Session.DbCon,'SELECT id, uid, email, 0 as isanon FROM Usr WHERE auth=?',[uname])
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT id, uid, email, 0 AS isanon FROM Usr WHERE auth=?',[uname])
 else
  begin
   qr:=nil;//default
@@ -25,7 +25,7 @@ else
     x:=Context[sid].Value;
     if x<>'' then //if IsValidPassword(x) then
      begin
-      qr:=TQueryResult.Create(Session.DbCon,'SELECT id, uid, email, pwd, salt, 0 as isanon FROM Usr WHERE login=?',[uname]);
+      qr:=TQueryResult.Create(Session.DbCon,'SELECT id, uid, email, pwd, salt, 0 AS isanon FROM Usr WHERE login=?',[uname]);
       while qr.Read and (qr.GetStr('pwd')<>PasswordToken(qr.GetStr('salt'),x)) do ;
      end;
    end;

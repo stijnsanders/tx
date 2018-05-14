@@ -17,7 +17,7 @@ id:=
   ((((byte(s[23]) shr 6) and 1)*9+(byte(s[23]) and $F)) shl 8) or
   ((((byte(s[31]) shr 6) and 1)*9+(byte(s[31]) and $F)) shl 12);
 u:=' ';
-qr:=TQueryResult.Create(Session.DbCon,'SELECT Usr.uid,Usr.login,Obj.name,Usr.email,Usr.pwd,0 as isanon,pwd FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT Usr.uid,Usr.login,Obj.name,Usr.email,Usr.pwd,0 AS isanon,pwd FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.id=?',[id]);
 try
   t:='';//default
   if not(qr.EOF) and (Copy(qr.GetStr('pwd'),1,1)='?') then

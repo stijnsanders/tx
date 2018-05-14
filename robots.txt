@@ -7,6 +7,7 @@ Disallow: /Import.xxm
 Disallow: /Modify.xxm
 Disallow: /Read.xxm
 Disallow: /Search.xxm
+Disallow: /Summary.xxm
 Disallow: /TermTrace.xxm
 Disallow: /Trace.xxm
-Disallow: /Summary.xxm
+Disallow: /Users.xxm
