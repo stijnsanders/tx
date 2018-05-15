@@ -15,52 +15,52 @@ try
     uid:=0;
     id:=0;
     id2:=0;
-	b:=false;
-	qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Urx ORDER BY uid, id2, id1',[]);
-	try
-	  while qr.Read do
-	   begin
-	    i:=qr.GetInt('uid');
-	    if uid<>i then
-	     begin
-	      if b then Session.DbCon.Execute('UPDATE Urx SET id2=? WHERE id=?',[id2,id]);
-	      uid:=i;
-	      Context.SendHTML([uid,' ']);
-	      id:=qr.GetInt('id');
-	      //id1:=qr.GetInt('id1');
-	      id2:=qr.GetInt('id2');
-	      b:=false;
-	     end
-	    else
-	     begin
-	      i:=qr.GetInt('id1');
-	      if i>id2+1 then
-	       begin
-	        if b then Session.DbCon.Execute('UPDATE Urx SET id2=? WHERE id=?',[id2,id]);
+    b:=false;
+    qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Urx ORDER BY uid, id2, id1',[]);
+    try
+      while qr.Read do
+       begin
+        i:=qr.GetInt('uid');
+        if uid<>i then
+         begin
+          if b then Session.DbCon.Execute('UPDATE Urx SET id2=? WHERE id=?',[id2,id]);
+          uid:=i;
+          Context.SendHTML([uid,' ']);
+          id:=qr.GetInt('id');
+          //id1:=qr.GetInt('id1');
+          id2:=qr.GetInt('id2');
+          b:=false;
+         end
+        else
+         begin
+          i:=qr.GetInt('id1');
+          if i>id2+1 then
+           begin
+            if b then Session.DbCon.Execute('UPDATE Urx SET id2=? WHERE id=?',[id2,id]);
             id:=qr.GetInt('id');
-	        //id1:=i;
-	        id2:=qr.GetInt('id2');
-			b:=false;
-	       end
-	      else
-	       begin
-	        i:=qr.GetInt('id2');
-	        if i>id2 then
-	         begin
-	          id2:=i;
-	          b:=true;
-	         end;
-	       end;
-	     end;
-	   end;
-	finally
-	  qr.Free;
-	end;
-	if b then Session.DbCon.Execute('UPDATE Urx SET id2=? WHERE id=?',[id2,id]);
+            //id1:=i;
+            id2:=qr.GetInt('id2');
+            b:=false;
+           end
+          else
+           begin
+            i:=qr.GetInt('id2');
+            if i>id2 then
+             begin
+              id2:=i;
+              b:=true;
+             end;
+           end;
+         end;
+       end;
+    finally
+      qr.Free;
+    end;
+    if b then Session.DbCon.Execute('UPDATE Urx SET id2=? WHERE id=?',[id2,id]);
 
-	Context.SendHTML(#13#10#13#10'Clean-up...');
+    Context.SendHTML(#13#10#13#10'Clean-up...');
 
-	Session.DbCon.Execute('DELETE FROM Urx WHERE id IN'+
+    Session.DbCon.Execute('DELETE FROM Urx WHERE id IN'+
       ' (SELECT A.id FROM Urx A INNER JOIN Urx B ON B.uid=A.uid'+
       ' AND A.id<>B.id AND B.id1<=A.id1 AND B.id2>=A.id2)',[]);
 

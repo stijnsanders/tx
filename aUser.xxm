@@ -19,15 +19,18 @@ Session.LogonAttemptCheck;
 Session.DbCon.BeginTrans;
 try
     if id=0 then
+     begin
       DBSingleValue('INSERT INTO Usr (uid,login,email,auth,salt,pwd,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?)',[
-        uid,Context['login'].Value,Context['email'].Value,Context['auth'].Value,'','',VNow,Session.UserID,VNow,Session.UserID],0)//pwd?
+        uid,Context['login'].Value,Context['email'].Value,Context['auth'].Value,'','',VNow,Session.UserID,VNow,Session.UserID],0);//pwd?
+      //TODO: insert into Umi, Umr?
+     end
     else
-	 begin
+     begin
       Session.DbCon.Execute('UPDATE Usr SET uid=?, login=?, email=?, m_ts=?, m_uid=? WHERE id=?',[
         uid,Context['login'].Value,Context['email'].Value,VNow,Session.UserID,id]);//pwd?
-	  if IsAdmin then
-	    Session.DbCon.Execute('UPDATE Usr SET auth=? WHERE id=?',[Context['auth'].Value,id]);
-	 end;
+      if IsAdmin then
+        Session.DbCon.Execute('UPDATE Usr SET auth=? WHERE id=?',[Context['auth'].Value,id]);
+     end;
 
     Session.DbCon.CommitTrans;
 except

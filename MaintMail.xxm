@@ -1,22 +1,158 @@
-[[@txDefs,txSession,Windows,Classes,DataLank,txFilter,txFilterSql,Variants,txCache,txTerms,txNodes,xxmString]][[!var
+[[@txDefs,txSession,Windows,Classes,DataLank,
+txFilter,txFilterSql,Variants,txCache,txTerms,txNodes,xxmString]][[!var
 sl:TStringList;
 qr,qr1,qr2:TQueryResult;
 sl_i,users_i,users_l,limit,id,pid,i,j,l,d,c1,c2:integer;
 f:TtxFilter;
 fq,fq1,fq2:TtxSqlQueryFragments;
-fs,s,sql1,sql2,msgURL,msgFrom,msgSubject:string;
+fs,fsu,s,sql1,sql2,msgURL,msgFrom,msgSubject:string;
 users:array of record
   id,uid:integer;
   email,name:string;
 end;
 tc1,tc2,tc3,tc4:cardinal;
-qs1,qs2:boolean;
+qs1,qs2,dryrun:boolean;
 d1,d2:TDateTime;
 rpFilter:TtxRealmPermission;
 LocationCache:TItemCache;
 TermDomains:TIndexCache;
 msg:TStringContext;
 ln:TLocationNode;
+mm:AnsiString;
+ff:TFileStream;
+
+const
+  Base64Codes:array[0..63] of char=
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+function base64encode(var Data;DataSize:cardinal):string;
+type
+  PByte=^byte;
+var
+  i:integer;
+  d1,d2,d3:byte;
+  p,pl:PByte;
+begin
+  i:=(DataSize div 3);
+  if (DataSize mod 3)<>0 then inc(i);
+  SetLength(Result,i*4);//+(DataSize div 57)*2);
+  p:=@Data;
+  pl:=p;inc(pl,DataSize);
+  i:=0;
+  while cardinal(p)<cardinal(pl) do
+   begin
+    d1:=p^;inc(p);
+    if p=pl then
+     begin
+      inc(i);Result[i]:=Base64Codes[  d1 shr  2];
+      inc(i);Result[i]:=Base64Codes[((d1 and $3) shl 4)];
+      inc(i);Result[i]:='=';
+      inc(i);Result[i]:='=';
+     end
+    else
+     begin
+      d2:=p^;inc(p);
+      if p=pl then
+       begin
+        inc(i);Result[i]:=Base64Codes[  d1 shr  2];
+        inc(i);Result[i]:=Base64Codes[((d1 and $3) shl 4) or (d2 shr 4)];
+        inc(i);Result[i]:=Base64Codes[((d2 and $F) shl 2)];
+        inc(i);Result[i]:='=';
+       end
+      else
+       begin
+        d3:=p^;inc(p);
+        inc(i);Result[i]:=Base64Codes[  d1 shr  2];
+        inc(i);Result[i]:=Base64Codes[((d1 and $3) shl 4) or (d2 shr 4)];
+        inc(i);Result[i]:=Base64Codes[((d2 and $F) shl 2) or (d3 shr 6)];
+        inc(i);Result[i]:=Base64Codes[  d3 and $3F];
+       end;
+      //if ((cardinal(p)-cardinal(@Data)) mod 57)=0 then Result:=Result+#13#10;
+     end;
+   end;
+end;
+
+function ProcessImages(const FallbackURL,Body:AnsiString):AnsiString;
+var
+  bi,bj,bl,i:integer;
+  newBody:AnsiString;
+  bn1,bn2,fn,fd,fx:string;
+  sl:TStringList;
+  m:TMemoryStream;
+begin
+  bn1:='txUpdate'+FormatDateTime('yyyymmddhhnnsszzz',Now)+Format('%.4x%.4x%.8x',[GetCurrentProcessID,GetCurrentThreadID,integer(Self)]);
+  bn2:='txBody'+FormatDateTime('yyyymmddhhnnsszzz',Now)+Format('%.4x%.4x%.8x',[GetCurrentProcessID,GetCurrentThreadID,integer(Self)]);
+  sl:=TStringList.Create;
+  m:=TMemoryStream.Create;
+  try
+    Result:='';
+    newBody:='';
+    //TODO: quoted-printable?
+    sl.Sorted:=true;
+    bl:=Length(Body);
+    bi:=1;
+    while bi<=bl do
+     begin
+      bj:=bi;
+      while (bi<=bl) and (Copy(Body,bi,13)<>'<img src="img') do inc(bi);
+      newBody:=newBody+Copy(Body,bj,bi-bj);
+      if (bi<=bl) then
+       begin
+        inc(bi,13);
+        bj:=bi;
+        while (bi<=bl) and (Body[bi]<>'"') do inc(bi);
+
+        if Body[bj]='/' then
+         begin
+          inc(bj);
+          fd:='img\';
+          fn:=Copy(Body,bj,bi-bj);
+         end
+        else
+         begin
+          fd:='';
+          fn:='img'+Copy(Body,bj,bi-bj);
+         end;
+        fx:=fn;
+        for i:=1 to Length(fx)-1 do if AnsiChar(fx[i]) in ['.','_','/','\'] then fx[i]:='X';
+        newBody:=newBody+'<img src="cid:'+fx;
+        if sl.IndexOf(fn)=-1 then
+         begin
+          m.LoadFromFile(ModulePath+fd+fn);
+          sl.Add(fn);
+          //
+          Result:=Result+'--'+bn1+
+            #13#10'Content-Type: image/png; name="'+fn+'"'+
+            #13#10'Content-Disposition: inline; filename="'+fn+'"'+
+            #13#10'Content-Transfer-Encoding: base64'+
+            #13#10'Content-ID: <'+fx+'>'+
+            #13#10'X-Attachment-Id: '+fx+
+            #13#10#13#10+
+            base64Encode(m.Memory^,m.Size)+
+            #13#10#13#10;
+         end;
+       end;
+     end;
+    Result:=
+      #13#10'MIME-version: 1.0'+
+      #13#10'Content-Type: multipart/related; boundary="'+bn1+'"'+
+      #13#10#13#10'--'+bn1+
+      #13#10'Content-Type: multipart/alternative; boundary="'+bn2+'"'+
+      #13#10#13#10'--'+bn2+
+      #13#10'Content-Type: text/plain'+
+      #13#10#13#10'[This e-mail as the body text in HTML format only]'+
+      #13#10#13#10+FallbackURL+
+      #13#10#13#10'--'+bn2+
+      #13#10'Content-Type: text/html; charset="UTF-8"'+
+      #13#10#13#10+newBody+
+      #13#10#13#10'--'+bn2+'--'#13#10+
+      newBody+#13#10#13#10+Result+'--'+bn1+'--'#13#10;
+  finally
+    sl.Free;
+    m.Free;
+  end;
+end;
+
 ]][[
 Context.ContentType:='text/plain';
 Context.BufferSize:=0;
@@ -29,6 +165,8 @@ msgSubject:='tx Updates';
 msgURL:=Context.URL;
 i:=Length(msgURL)-13;
 if Copy(msgURL,i+1,13)='MaintMail.xxm' then SetLength(msgURL,i);
+
+dryrun:=Context['dry'].AsInteger=1;
 
 sl:=TStringList.Create;
 try
@@ -90,6 +228,7 @@ try
         if sl_i=sl.Count then
           raise Exception.Create('Update items filter expression missing');
         fs:=sl[sl_i];
+        fsu:=URLEncode(fs);
         for users_i:=0 to users_l-1 do
           try
             Context.SendHTML(users[users_i].name+' <'+users[users_i].email+'>...'#13#10);
@@ -149,11 +288,6 @@ try
               TermDomains:=TIndexCache.Create;
               msg:=TStringContext.Create(Context,Self);
               try
-                msg.SendHTML('Subject: '+msgSubject+
-                  #13#10'To: "'+users[users_i].name+'" <'+users[users_i].email+'>'+
-                  #13#10'From: '+msgFrom+
-                  #13#10'Content-type: text/html'+
-                  #13#10#13#10);
                 msg.Include('dMailHead.xxmi',[msgURL]);
 
                 tc4:=GetTickCount;
@@ -249,14 +383,36 @@ try
                    end;
                  end;
 
-                Context.SendHTML(['  i#',c1,' r#',c2,' [ms] user:',cardinal(tc2-tc1),' filter:',cardinal(tc3-tc2),' query:',cardinal(tc4-tc3),' build:',cardinal(GetTickCount-tc4),#13#10]);
+                Context.SendHTML(['  i#',c1,' r#',c2,' [ms] user:',cardinal(tc2-tc1),' filter:',cardinal(tc3-tc2),' query:',cardinal(tc4-tc3),' build:',cardinal(GetTickCount-tc4)]);
                 if not((c1=0) and (c2=0)) then
                  begin
-                  msg.SendHTML([#13#10'<p class="date" style="text-align:right;">user:',cardinal(tc2-tc1),'ms, filter:',cardinal(tc3-tc2),'ms, query:',cardinal(tc4-tc3),'ms build:',cardinal(GetTickCount-tc4),'ms</p>',
+                  msg.SendHTML([#13#10'<p class="midnav"><span class="date">',
+                    '<a href="Item.xxm?x=i'+IntToStr(users[users_i].id)+'">user</a>:',cardinal(tc2-tc1),'ms, ',
+                    '<a href="FilterBuild.xxm?filter='+fsu+'">filter</a>:',cardinal(tc3-tc2),'ms, ',
+                    '<a href="Filter.xxm?filter='+fsu+'">query</a>:',cardinal(tc4-tc3),'ms, ',
+                    '<a href="Log.xxm?filter='+fsu+'">build</a>:',cardinal(GetTickCount-tc4),'ms',
+                    '</span></p>',
                     #13#10'</body></html>'#13#10]);
-                  msg.AutoEncoding:=aeIso8859;
-                  msg.SaveToFile('C:\InetPub\mailroot\PickUp\txUpdate'+IntToStr(users[users_i].id)+'_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
+
+                  tc1:=GetTickCount;
+                  mm:='Subject: '+msgSubject+
+                    #13#10'To: "'+users[users_i].name+'" <'+users[users_i].email+'>'+
+                    #13#10'From: '+msgFrom+
+                    ProcessImages(msgURL+'Log.xxm?filter='+fsu,UTF8Encode(msg.Result));
+                  if dryrun then
+                    Context.SendHTML([' dry-run:',cardinal(GetTickCount-tc1),' [bytes] ',Length(mm)])
+                  else
+                   begin
+                    ff:=TFileStream.Create('C:\InetPub\mailroot\PickUp\txUpdate'+IntToStr(users[users_i].id)+'_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml',fmCreate);
+                    try
+                      ff.Write(mm[1],Length(mm));
+                    finally
+                      ff.Free;
+                    end;
+                    Context.SendHTML([' output:',cardinal(GetTickCount-tc1),' [bytes] ',Length(mm)]);
+                   end;
                  end;
+                Context.SendHTML(#13#10);
 
               finally
                 qr1.Free;

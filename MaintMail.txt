@@ -1,4 +1,21 @@
-;first a filter for which users to generate mail, users must have an account with an e-mail
+;; optionally override default values
+;; e-mail originator address (default "AdministratorEmailAddress" value from tx.ini)
+;From=
+;; e-mail subject text (default "tx Updates")
+;Subject=tx Updates
+;; e-mail html body base URL (default taken from MaintMail.xxm context)
+;URL=
+
+;; first a filter for which users to generate mail, users must have an account with an e-mail
 true
-;then a filter which items to mail about
+;; then a filter which items to mail about
 rx$me
+
+;; optionally repeat
+
+;; another example: if a reference type with system "updates" exists, instruct people to reference
+;; *from their user object* to project branches of their choice
+;; first a filter for all users;
+;true
+;; then a filter of objects referred to by references of this type
+;i{r$me[rt"updates"]}*

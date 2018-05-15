@@ -1,9 +1,16 @@
-[[!const
+[[@txSession]][[!const
 ImgSafePadding='0.1em 0.4em 0.1em 0.4em';
 <<!doctype html>
 <html>
 <head>
 <style type="text/css">
+BODY {
+	border: none;
+	font-family: [[#Session.CssPrefs.FontName]];
+	font-size: [[#Session.CssPrefs.BaseSizePt]]pt;
+	color: #000000;
+	margin: 0.4em;
+}
 P {
 	margin: 0.4em;
 }
@@ -35,6 +42,13 @@ P.reportheader {
 P.objectinfo {
 	margin-top: 0em;
 	margin-bottom: 0em;
+}
+P.midnav {
+	background-color: #EEEEEE;
+	padding: [[#ImgSafePadding]];
+	border-bottom: 0.1em solid #999999;
+	border-right: 0.2em solid #999999;
+	margin-top: 1.2em;
 }
 .weight {
 	background-color: #E0E0E0;
