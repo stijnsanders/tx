@@ -153,6 +153,17 @@ begin
   end;
 end;
 
+function CheckEmail(const emailaddress:string):boolean;
+var
+  i:integer;
+begin
+  i:=Length(emailaddress);
+  while (i<>0) and (emailaddress[i]<>'.') do dec(i);
+  while (i<>0) and (emailaddress[i]<>'@') do dec(i);
+  //TODO: more? regex?
+  Result:=i<>0;
+end;
+
 ]][[
 Context.ContentType:='text/plain';
 Context.BufferSize:=0;
@@ -232,6 +243,8 @@ try
         for users_i:=0 to users_l-1 do
           try
             Context.SendHTML(users[users_i].name+' <'+users[users_i].email+'>...'#13#10);
+            if not CheckEmail(users[users_i].email) then
+              raise Exception.Create('Invalid e-mail address "'+users[users_i].email+'"');
             tc1:=GetTickCount;
             qr:=TQueryResult.Create(Session.DbCon,'SELECT ? AS uid, ? AS email, 0 AS isanon',[users[users_i].uid,users[users_i].email]);
             try
