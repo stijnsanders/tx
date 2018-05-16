@@ -345,6 +345,27 @@ if (action='rt') or (action='rtr') then
   <a href="[[#Address]]">back</a>
   </form>>
  end;
+if (action='r') or (action='rr') then
+ begin
+  <<h2>References</h2>
+  [[#txForm(ActionAddress,['filter',filter],'selectnode_required("obj","an object referring")')]]
+  <dl>
+  [[Context.Include('fOperators.xxmi',[filter]);]]
+  <dt>Object referring</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',Context['id'].AsInteger,0,0,'',true]);<</dd>
+  <dt>Descendance</dt><dd>
+    <input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object</label> <br />
+    <input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label> <br />
+  </dd>
+  <dt>With reference of type (optional)</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'reftype']);<</dd>
+  <dt>Descendance</dt><dd>
+    <input type="radio" name="tflags" value="" id="tdesc0" /> <label for="tdesc0">Only references of this reference type</label> <br />
+    <input type="radio" name="tflags" value="*" id="tdesc1" checked="1" /> <label for="tdesc1">References of this and descendant reference types</label> <br />
+  </dd>
+  </dl>
+  [[#txFormButton]]
+  <a href="[[#Address]]">back</a>
+  </form>>
+ end;
 if (action='rx') or (action='rxr') then
  begin
   <<h2>Backreferences</h2>
@@ -353,7 +374,7 @@ if (action='rx') or (action='rxr') then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Object referred to</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',Context['id'].AsInteger,0,0,'',true]);<</dd>
   <dt>Descendance</dt><dd>
-    <input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object    </label> <br />
+    <input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object</label> <br />
     <input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label> <br />
   </dd>
   <dt>With reference of type (optional)</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'reftype']);<</dd>
@@ -385,4 +406,3 @@ if (action='uc') or (action='ut') or (action='ur') or (action='urx') then
  end;
 
 Context.Include('dFoot.xxmi');
-]]

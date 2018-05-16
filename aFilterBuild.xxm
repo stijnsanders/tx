@@ -25,7 +25,7 @@ else
   </dl>
   [[
  end}
-if (x='rx') or (x='rxr') then
+if (x='r') or (x='rr') or (x='rx') or (x='rxr') then
  begin
   filter:=filter+
     Context['oper'].Value+
@@ -49,4 +49,3 @@ else
  end;
 
 Context.Redirect('FilterBuild.xxm?filter='+URLEncode(filter),true);
-]]

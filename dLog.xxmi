@@ -117,10 +117,10 @@ try
 
   while (qs1 or qs2) and (c1<limit) and (c2<limit) and Context.Connected do
    begin
-    if qs1 then d1:=qr1.GetDate('c_ts') else d1:=0;//m_ts?
-    if qs2 then d2:=qr2.GetDate('ts') else d2:=0;
+    if qs1 then d1:=qr1.GetDate('c_ts') else d1:=0.0;//m_ts?
+    if qs2 then d2:=qr2.GetDate('ts') else d2:=0.0;
 
-    if qs1 and ((d1>=d2) xor showAsc) then
+    if qs1 and (not(qs2) or ((d1>=d2) xor showAsc)) then
      begin
       //object
 

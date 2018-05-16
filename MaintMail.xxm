@@ -275,8 +275,6 @@ try
               fq2.Free;
             end;
 
-            //Context.SendHTML(#13#10#13#10+sql1+#13#10#13#10+sql2+#13#10#13#10);
-
             Session.DbCon.BeginTrans;
             try
               tc3:=GetTickCount;
@@ -297,10 +295,10 @@ try
 
                 while (qs1 or qs2) and (c1<limit) and (c2<limit) do
                  begin
-                  if qs1 then d1:=qr1.GetDate('c_ts') else d1:=0;//m_ts?
-                  if qs2 then d2:=qr2.GetDate('ts') else d2:=0;
+                  if qs1 then d1:=qr1.GetDate('c_ts') else d1:=0.0;//m_ts?
+                  if qs2 then d2:=qr2.GetDate('ts') else d2:=0.0;
 
-                  if qs1 and (d1<=d2) then
+                  if qs1 and not(qs2 and (d1>d2)) then
                    begin
                     //object
                     id:=qr1.GetInt('id');
@@ -314,7 +312,7 @@ try
                     msg.Include('dObjLocation.xxmi',[],[qr1,LocationCache]);
                     msg.SendHTML(['<p class="objecttitle"><a href="Item.xxm?x=i',qr1['id'],'" title="',HTMLEncode(qr1.GetStr('typename')),'">',txImg(qr1.GetInt('icon')),'&nbsp;',HTMLEncode(qr1.GetStr('name')),'</a></p>']);
                     msg.SendHTML(TermStore.TermLinks(itObj,id,d,qr1.GetStr('desc')));
-                    msg.SendHTML('<p><span class="date"');
+                    msg.SendHTML('<p><span class="date">');
                     //msg.Include('d_cmw.xxmi',[],[qr1]);
                     if not qr1.IsNull('c_ts') then
                       msg.SendHTML([' c:&nbsp;<a href="Item.xxm?x=i',qr1['c_uid'],'">',NiceDateTime(qr1['c_ts']),'</a>']);
@@ -421,7 +419,10 @@ try
                 TermDomains.Free;
                 msg.Free;
               end;
-              Session.DbCon.CommitTrans;
+              if dryrun then
+                Session.DbCon.RollbackTrans
+              else
+                Session.DbCon.CommitTrans;
             except
               Session.DbCon.RollbackTrans;
               raise;
@@ -434,11 +435,10 @@ try
        end;
      end;
 
-    Session.Expires:=Now-1.0;//kill session, just to be safe
-
     inc(sl_i);
    end;
 finally
   sl.Free;
+  Session.Abandon;//kill session, was used for several LoadUser calls, don't use for other requests
 end;
 Context.SendHTML('---'#13#10);
