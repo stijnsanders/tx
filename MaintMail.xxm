@@ -145,8 +145,8 @@ begin
       #13#10#13#10'--'+bn2+
       #13#10'Content-Type: text/html; charset="UTF-8"'+
       #13#10#13#10+newBody+
-      #13#10#13#10'--'+bn2+'--'#13#10+
-      newBody+#13#10#13#10+Result+'--'+bn1+'--'#13#10;
+      #13#10#13#10'--'+bn2+'--'+
+      #13#10#13#10+Result+'--'+bn1+'--'#13#10;
   finally
     sl.Free;
     m.Free;
