@@ -13,24 +13,24 @@ Context.BufferSize:=0;
 CheckMaintProtect(Context);
 Session.DbCon.BeginTrans;
 try
-	Context.SendHTML('Clearing...'#13#10);
-	Session.DbCon.Execute('DELETE FROM ObjPath',[]);
+  Context.SendHTML('Clearing...'#13#10);
+  Session.DbCon.Execute('DELETE FROM ObjPath',[]);
 
-	Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT id,id,0 FROM Obj',[]);
-	i:=Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT pid,id,1 FROM Obj WHERE pid<>0',[]);
-	j:=0;
-	while i<>0 do
-	 begin
-	  inc(j);
-	  Context.SendHTML('level '+IntToStr(j)+': '+IntToStr(i)+#13#10);
-	  i:=Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT ObjPath.pid,Obj.id,ObjPath.lvl+1 FROM ObjPath '+
-	    'INNER JOIN Obj ON Obj.pid=ObjPath.oid WHERE ObjPath.lvl=(SELECT MAX(lvl) FROM ObjPath)',[]);
-	 end;
+  Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT id,id,0 FROM Obj',[]);
+  i:=Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT pid,id,1 FROM Obj WHERE pid<>0',[]);
+  j:=0;
+  while i<>0 do
+   begin
+    inc(j);
+    Context.SendHTML('level '+IntToStr(j)+': '+IntToStr(i)+#13#10);
+    i:=Session.DbCon.Execute('INSERT INTO ObjPath (pid,oid,lvl) SELECT ObjPath.pid,Obj.id,ObjPath.lvl+1 FROM ObjPath '+
+      'INNER JOIN Obj ON Obj.pid=ObjPath.oid WHERE ObjPath.lvl=(SELECT MAX(lvl) FROM ObjPath)',[]);
+   end;
 
-    Session.DbCon.CommitTrans;
+  Session.DbCon.CommitTrans;
 except
-    Session.DbCon.RollbackTrans;
-    raise;
+  Session.DbCon.RollbackTrans;
+  raise;
 end;
 
 Context.SendHTML('-- done'#13#10);

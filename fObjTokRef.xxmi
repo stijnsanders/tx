@@ -13,16 +13,16 @@ doAddNew:=Length(Values)=0;//?boolean(Values[0])?
    begin
     id1:=Session.FilterRecent[itTokType,i];
     qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT TokType.name, TokType.icon FROM TokType WHERE TokType.id=?',[id1]);
-	try
-	  if not(qr.EOF) then
-	   begin
+      'SELECT TokType.name, TokType.icon FROM TokType WHERE TokType.id=?',[id1]);
+    try
+      if not(qr.EOF) then
+       begin
         <<input type="hidden" id="addtok[[=i]]" name="addtok" value="" />
-		<a class="quickaddoption" id="quickaddtok[[=i]]" href="Item.xxm?x=ot[[=id1]]" onclick="quickadd_select('tok[[=i]]',[[=id1]]);return(event||window.event||this).ctrlKey;">>#txImg(qr.GetInt('icon'))<<span class="quickaddtitle"> [[.name]]</span></a>>
-	   end;
-	finally
-	  qr.Free;
-	end;
+        <a class="quickaddoption" id="quickaddtok[[=i]]" href="Item.xxm?x=ot[[=id1]]" onclick="quickadd_select('tok[[=i]]',[[=id1]]);return(event||window.event||this).ctrlKey;">>#txImg(qr.GetInt('icon'))<<span class="quickaddtitle"> [[.name]]</span></a>>
+       end;
+    finally
+      qr.Free;
+    end;
     inc(i);
    end;
   if doAddNew then

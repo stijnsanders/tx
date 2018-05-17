@@ -35,8 +35,8 @@ try
    begin
     //Context.Include('dObjList.xxmi',[],[qr]);
     <<p class="objecttitle">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name]]
-	<a href="aTerm.xxm[[?'d',d,'n',n,'term',qr['id'],'r',r]]" class="linkbutton">add</a></p>
-	<p class="objectlocation">>Context.Include('dObjLocMini.xxmi',[],[qr,ic]);<</p>>
+    <a href="aTerm.xxm[[?'d',d,'n',n,'term',qr['id'],'r',r]]" class="linkbutton">add</a></p>
+    <p class="objectlocation">>Context.Include('dObjLocMini.xxmi',[],[qr,ic]);<</p>>
    end;
 finally
   qr.Free;

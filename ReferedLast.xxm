@@ -41,7 +41,7 @@ while not(i=FilterRecentCount) and not(Session.RecentReferences[i].obj2=0) and C
     Context.Include('d_cmw.xxmi',[],[qr]);
     <<br />>
   finally
-	qr.Free;
+    qr.Free;
   end;
   inc(i);
  end;

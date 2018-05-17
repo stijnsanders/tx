@@ -38,7 +38,7 @@ while (i<>FilterRecentCount) and (Session.FilterRecent[ItemType,i]<>0) and Conte
       Context.Include('d_cmw.xxmi',[],[qr]);
       <<br />>
     finally
-	  qr.Free;
+      qr.Free;
     end;
    end
   else

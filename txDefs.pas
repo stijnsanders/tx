@@ -166,8 +166,8 @@ begin
     '" method="post" onsubmit="return default_form_submit('+s+');">'#13#10;
   for i:=0 to (Length(HVals) div 2)-1 do
     if not VarIsNull(HVals[i*2+1]) then
-	  Result:=Result+'<input type="hidden" name="'+HTMLEncode(VarToStr(HVals[i*2]))+'" value="'+
-	    HTMLEncode(VarToStr(HVals[i*2+1]))+'" />'#13#10;
+      Result:=Result+'<input type="hidden" name="'+HTMLEncode(VarToStr(HVals[i*2]))+'" value="'+
+        HTMLEncode(VarToStr(HVals[i*2+1]))+'" />'#13#10;
 end;
 
 function DateToXML(d:TDateTime):string;

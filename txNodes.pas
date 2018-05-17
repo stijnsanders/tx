@@ -11,14 +11,14 @@ type
   private
     it:TtxItemType;
     pid,id,icon:integer;
-	typename,name:string;
+    typename,name:string;
   public
     constructor Create(ItemType:TtxItemType; QueryID:integer);
-	function GetHTML(Display:TLocationNodeDisplayItems; var ParentID:integer):WideString;
-	function GetListItemSelectHTML(var ParentID:integer):WideString;
+    function GetHTML(Display:TLocationNodeDisplayItems; var ParentID:integer):WideString;
+    function GetListItemSelectHTML(var ParentID:integer):WideString;
   end;
-  
-const  
+
+const
   ghFull:TLocationNodeDisplayItems=[ghLink,ghIcon,ghTypeName,ghName];
 
 implementation
@@ -41,10 +41,10 @@ begin
   qr:=TQueryResult.Create(Session.DbCon,sql,[QueryID]);
   try
     id:=qr.GetInt('id');
-	pid:=qr.GetInt('pid');
-	icon:=qr.GetInt('icon');
-	if it=itObj then typename:=qr.GetStr('typename');
-	name:=qr.GetStr('name');
+    pid:=qr.GetInt('pid');
+    icon:=qr.GetInt('icon');
+    if it=itObj then typename:=qr.GetStr('typename');
+    name:=qr.GetStr('name');
   finally
     qr.Free;
   end;

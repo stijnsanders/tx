@@ -45,11 +45,11 @@ filter:=Context['filter'].Value;
   fq:=TtxSqlQueryFragments.Create(itObj);
   try
     f.FilterExpression:=filter;
-	if f.ParseError<>'' then
-	 begin
-	  <<p style="color:red;">>=f.ParseError<</p>>
-	 end;
-	fq.AddFilter(f);
+    if f.ParseError<>'' then
+     begin
+      <<p style="color:red;">>=f.ParseError<</p>>
+     end;
+    fq.AddFilter(f);
     fq.Where:='Obj.rlm_id'+Session.Realms[rpView].SQL+' AND ('+fq.Where+')';
     fs:=fq.SQL;
   finally
@@ -67,20 +67,20 @@ filter:=Context['filter'].Value;
   qr:=TQueryResult.Create(Session.DbCon,fs,[]);
   try
     if qr.EOF then
-	 begin
-	  <<p><i>No items found.</i></p>>
-	 end
-	else
-	 begin
+     begin
+      <<p><i>No items found.</i></p>>
+     end
+    else
+     begin
       ic:=TItemCache.Create;
-	  try
+      try
         while qr.Read and Context.Connected do Context.Include('FrameListItem.xxmi',[],[qr,ic]);
-	  finally
-	    ic.Free;
-	  end;
-	 end;
+      finally
+        ic.Free;
+      end;
+     end;
   finally
-	qr.Free;
+    qr.Free;
   end;
 
 <</span>

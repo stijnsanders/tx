@@ -54,42 +54,42 @@ try
    <tr><th>&nbsp;</th><th>user</th><th>login</th><th>pwd</th><th>auth</th><th>e-mail</th><th>&nbsp;</th></tr>>
    while qr.Read do
     begin
-	 id:=qr.GetInt('id');
+     id:=qr.GetInt('id');
      uid:=qr.GetInt('uid');
-	 <<tr>
-	 <td style="white-space:nowrap;">
-	 <a href="fUser.xxm?id=[[=id]]" class="linkbutton">edit</a>>
-	 if IsAdmin then begin ]] <a href="fDelete.xxm?x=u[[=id]]" class="linkbutton">delete</a>> end;
+     <<tr>
+     <td style="white-space:nowrap;">
+     <a href="fUser.xxm?id=[[=id]]" class="linkbutton">edit</a>>
+     if IsAdmin then begin ]] <a href="fDelete.xxm?x=u[[=id]]" class="linkbutton">delete</a>> end;
      if IsAdmin and (uid<>Session.UserID) then
       begin ]] <a href="aUserImp.xxm?u=[[=id]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Attention this will switch your current web session (all windows) to the selected user.');">impersonate</a>> end;
-	 <</td>
-	 <td style="white-space: nowrap;"><a href="Item.xxm?x=i[[=uid]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
+     <</td>
+     <td style="white-space: nowrap;"><a href="Item.xxm?x=i[[=uid]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
      Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);<</td>
-	 <td>>.login<</td>
-	 <td style="text-align: center;">>
-	 pwd:=VarToStr(qr['pwd']);
-	 if pwd='' then
-	  begin
-	   <<a href="fUserPwd.xxm?id=[[=id]]" class="linkbutton">set</a>>
-	  end
-	 else
-	  begin
+     <td>>.login<</td>
+     <td style="text-align: center;">>
+     pwd:=VarToStr(qr['pwd']);
+     if pwd='' then
+      begin
+       <<a href="fUserPwd.xxm?id=[[=id]]" class="linkbutton">set</a>>
+      end
+     else
+      begin
        if IsAdmin then
         begin
-	     <<a href="aUserPwd.xxm[[?'reset',id,'uid',uid]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to reset the password for [[.login]]?');">clear</a>>
-		 if pwd[1] in ['-','?'] then
-		  begin
-		   //assert Use_NewUserEmailActivation
-		   ]] <a href="aLogonPwd.xxm?id=[[=id]]" class="linkbutton" title="re-send activation e-mail">mail</a>>
-		  end;
+         <<a href="aUserPwd.xxm[[?'reset',id,'uid',uid]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to reset the password for [[.login]]?');">clear</a>>
+         if pwd[1] in ['-','?'] then
+          begin
+           //assert Use_NewUserEmailActivation
+           ]] <a href="aLogonPwd.xxm?id=[[=id]]" class="linkbutton" title="re-send activation e-mail">mail</a>>
+          end;
         end;
        ]] <a href="fUserPwd.xxm?id=[[=id]]" class="linkbutton">change</a>>
-	  end;
-	 <</td>
-	 <td>>.auth<</td>
-	 <td><a href="mailto:[[.email]]">>.email<</a></td>
+      end;
+     <</td>
+     <td>>.auth<</td>
+     <td><a href="mailto:[[.email]]">>.email<</a></td>
    <td>>Context.Include('d_cmw.xxmi',[],[qr,nil]);<</td>
-	 </tr>>
+     </tr>>
     end;
    <</table>>
 finally
@@ -133,11 +133,11 @@ try
   while qr.Read and Context.Connected do
    begin
     <<tr>
-	<td>>.seq<</td>
-	<td>>=NiceDateTime(qr['c_ts'])<</td>
-	<td>>.address<</td>
-	<td>>.agent<</td>
-	</tr>>
+    <td>>.seq<</td>
+    <td>>=NiceDateTime(qr['c_ts'])<</td>
+    <td>>.address<</td>
+    <td>>.agent<</td>
+    </tr>>
    end;
   <</table>>
 finally

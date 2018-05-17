@@ -6,15 +6,15 @@ Context.Include('dFrameHead.xxmi',['Trace']);
 id:=Context['id'].AsInteger;
 if id=0 then qtype:=0 else
  begin
-	qtype:=9;
-	qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id]);
-	try
-	  <<p class="objecttitle">
-	  <a href="Item.xxm?x=i[[.id]]" title="[[.typename]]" target="MainFrame">>#txImg(qr.GetInt('icon'))]] [[.name<</a>
-	  </p>>
-	finally
-	  qr.Free;
-	end;
+    qtype:=9;
+    qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id]);
+    try
+      <<p class="objecttitle">
+      <a href="Item.xxm?x=i[[.id]]" title="[[.typename]]" target="MainFrame">>#txImg(qr.GetInt('icon'))]] [[.name<</a>
+      </p>>
+    finally
+      qr.Free;
+    end;
  end;
 
 <<div id="selbox" style="white-space: nowrap; margin: 0em;">>#lblLoading<</div>

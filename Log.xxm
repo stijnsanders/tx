@@ -22,13 +22,12 @@ fx:=Context['filter1'].Value;
 if fx='' then fx:=Context['filter'].Value;
 
 Context.Include('dLog.xxmi',[
-	fx,//filter
-	(v='any') or (v='all') or (v='both'),//view 'view realms' and 'control realms'? (or only 'views realms')
-	Context['limit'].Value,//limit
-	d1,//startdate
-	d2,//enddate
-	Context['sort'].AsInteger=1//sort ascending
+    fx,//filter
+    (v='any') or (v='all') or (v='both'),//view 'view realms' and 'control realms'? (or only 'views realms')
+    Context['limit'].Value,//limit
+    d1,//startdate
+    d2,//enddate
+    Context['sort'].AsInteger=1//sort ascending
 ]);
 
 Context.Include('dFoot.xxmi');
-]]

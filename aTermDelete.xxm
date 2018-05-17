@@ -11,11 +11,11 @@ id:=Context['id'].AsInteger;
 
 Session.DbCon.BeginTrans;
 try
-	Session.DbCon.Execute('DELETE FROM Trm WHERE Trm.id=?',[id]);
-    Session.DbCon.CommitTrans;
+  Session.DbCon.Execute('DELETE FROM Trm WHERE Trm.id=?',[id]);
+  Session.DbCon.CommitTrans;
 except
-    Session.DbCon.RollbackTrans;
-    raise;
+  Session.DbCon.RollbackTrans;
+  raise;
 end;
 
 url:='TermLinks.xxm?d='+IntTostr(d)+'&n='+URLEncode(n);

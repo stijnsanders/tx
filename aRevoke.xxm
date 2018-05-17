@@ -13,11 +13,11 @@ if not(Session.IsAdmin('reports')) then
 //TODO: replace with something?
 Session.DbCon.BeginTrans;
 try
-	Session.DbCon.Execute('DELETE FROM Rpt WHERE id=?',[id]);
-    Session.DbCon.CommitTrans;
+  Session.DbCon.Execute('DELETE FROM Rpt WHERE id=?',[id]);
+  Session.DbCon.CommitTrans;
 except
-    Session.DbCon.RollbackTrans;
-    raise;
+  Session.DbCon.RollbackTrans;
+  raise;
 end;
 
 //TODO: check object realm?

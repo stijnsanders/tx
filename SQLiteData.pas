@@ -82,7 +82,7 @@ type
     function GetInt64(const Idx:OleVariant):int64;
     function GetStr(const Idx:OleVariant):WideString;
     function GetDate(const Idx:OleVariant):TDateTime;
-	  function GetDefault(const Idx,Default:OleVariant):OleVariant;
+      function GetDefault(const Idx,Default:OleVariant):OleVariant;
     function IsNull(const Idx:OleVariant):boolean;
   end;
 
@@ -560,7 +560,7 @@ begin
         //varUnknown IPersist? IStream?
         else raise ESQLiteDataException.Create('Unsupported variant type');
       end;
-	end;
+    end;
 end;
 
 function TSQLiteStatement.GetParameterCount: integer;

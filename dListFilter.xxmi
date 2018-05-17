@@ -25,9 +25,9 @@ while i<l do
   if (j<l) then
    begin
     SetLength(dspx,c+1);
-	dspx[c].x:=i;
-	dspx[c].y:=j;
-	inc(c);
+    dspx[c].x:=i;
+    dspx[c].y:=j;
+    inc(c);
    end;
   i:=j+2;
  end;
@@ -52,45 +52,45 @@ try
   while qr.Read and Context.Connected and ((limit=0) or (c<limit)) do
    begin
     if dsp='' then Context.Include('dObjList.xxmi',[],[qr]) else
-	 begin
+     begin
       j:=1;
       for i:=0 to Length(dspx)-1 do
-	   begin
-		Context.SendHTML(Copy(dsp,j,dspx[i].x-j));
-	    j:=dspx[i].y+2;
-	    id:=qr['id'];
-		s:=Copy(dsp,dspx[i].x+2,dspx[i].y-dspx[i].x-2);
+       begin
+        Context.SendHTML(Copy(dsp,j,dspx[i].x-j));
+        j:=dspx[i].y+2;
+        id:=qr['id'];
+        s:=Copy(dsp,dspx[i].x+2,dspx[i].y-dspx[i].x-2);
 
-		if s='name' then
-		 begin
-		  <<a href="Item.xxm?x=i[[=id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
-		 end
-		else
-		if s='desc' then Context.SendHTML(TermStore.TermLinks(itObj,id,0,qr.GetStr('desc'))) else
-		if s='url' then
-		 begin
-		  s:=qr.GetStr('url');
-		  if s<>'' then
-		   begin
-		    <<a href="[[=s]]">>=s<</a>>
-		   end;
-		 end
-		else
-		if s='link' then
-		 begin
-		  s:=qr.GetStr('url');
-		  if s='' then s:='Item.xxm?x=i'+IntToStr(id);
-		  <<a href="[[=s]]">>#txImg(qr.GetInt('icon'))]]&nbsp; [[.name]<</a>>
-		 end
-		else
-		//
-		 begin
-		  <<p style="color:red">Unkonwn list item: "[[=s]]"</p>>
-		 end;
-	   end;
-	  Context.SendHTML(Copy(dsp,j,l-j+1));
-	 end;
-	inc(c);
+        if s='name' then
+         begin
+          <<a href="Item.xxm?x=i[[=id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
+         end
+        else
+        if s='desc' then Context.SendHTML(TermStore.TermLinks(itObj,id,0,qr.GetStr('desc'))) else
+        if s='url' then
+         begin
+          s:=qr.GetStr('url');
+          if s<>'' then
+           begin
+            <<a href="[[=s]]">>=s<</a>>
+           end;
+         end
+        else
+        if s='link' then
+         begin
+          s:=qr.GetStr('url');
+          if s='' then s:='Item.xxm?x=i'+IntToStr(id);
+          <<a href="[[=s]]">>#txImg(qr.GetInt('icon'))]]&nbsp; [[.name]<</a>>
+         end
+        else
+        //
+         begin
+          <<p style="color:red">Unkonwn list item: "[[=s]]"</p>>
+         end;
+       end;
+      Context.SendHTML(Copy(dsp,j,l-j+1));
+     end;
+    inc(c);
    end;
 finally
   qr.Free;

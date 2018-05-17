@@ -26,10 +26,10 @@ Context.Include('dHead.xxmi',['Account']);
   [[#txFormProtect]]
   <dl>
   <dt>User object</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',qr.GetInt('uid')]);<</dd>
-  <dt>Login</dt><dd><input type="text" name="login" id="login1" size="50" value="[[=qr.GetStr('login')]]" onblur="$('#loginCheck').html('[[=lblLoading]]	').load('iLogonCheck.xxm',{login:this.value,xxx:'[[#Session.SessionCrypt]]'});" />
-	  <span id="loginCheck"></span></dd>
+  <dt>Login</dt><dd><input type="text" name="login" id="login1" size="50" value="[[=qr.GetStr('login')]]" onblur="$('#loginCheck').html('[[=lblLoading]]').load('iLogonCheck.xxm',{login:this.value,xxx:'[[#Session.SessionCrypt]]'});" />
+    <span id="loginCheck"></span></dd>
   <dt>E-mail address</dt><dd><input type="text" name="email" size="50" value="[[=qr.GetStr('email')]]" onkeyup="email1Check(this.value);" onchange="email1Check(this.value);" />
-	  <span id="email1Check"></span></dd>>
+    <span id="email1Check"></span></dd>>
   //TODO: confirm e-mail address?
   if IsAdmin then
    begin

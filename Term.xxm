@@ -33,7 +33,7 @@ try
     d1:=qr.GetInt('domain_id');
     <<div[[if d1<>d then begin odl:=true;]] class="otherdomain"[[end;]]>>
     Context.Include('dObjList.xxmi',[],[qr,ObjLocationCache]);
-	if d1<>d then begin ]] <a href="Item.xxm?x=i[[=d1]]" class="domainlink">&lsaquo;</a>> end;
+    if d1<>d then begin ]] <a href="Item.xxm?x=i[[=d1]]" class="domainlink">&lsaquo;</a>> end;
     <</div>>
    end;
 finally

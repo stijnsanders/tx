@@ -20,10 +20,10 @@ try
   if not qr.EOF then
    begin
     s:=qr.GetStr('url');
-	if s='' then
-	  Context.Redirect('/Item.xxm?x=i'+IntToStr(qr.GetInt('id')),true)
-	else
-	  Context.Redirect(s,LowerCase(Copy(s,1,4))='http');
+    if s='' then
+      Context.Redirect('/Item.xxm?x=i'+IntToStr(qr.GetInt('id')),true)
+    else
+      Context.Redirect(s,LowerCase(Copy(s,1,4))='http');
    end;
 finally
   qr.Free;
@@ -41,7 +41,7 @@ if DirectoryExists('C:\InetPub\mailroot\PickUp') then
   sc:=TStringContext.Create(Context,Self);
   try
     sc.AutoEncoding:=aeIso8859;
-	sc.Include('404mail.xxmi',Values,Objects);
+    sc.Include('404mail.xxmi',Values,Objects);
     sc.SaveToFile('C:\InetPub\mailroot\PickUp\tx404_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
   finally
     sc.Free;

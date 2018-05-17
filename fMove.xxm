@@ -20,12 +20,12 @@ try
   if ItemType=itObj then
    begin
     Context.Include('dObjLink.xxmi',[],[qr]);
-	pid:=qr.GetInt('pid');
+    pid:=qr.GetInt('pid');
    end
   else
    begin
     Context.Include('dTypeLink.xxmi',[ItemType],[qr]);
-	pid:=qr.GetInt('pid');
+    pid:=qr.GetInt('pid');
    end;
   <</p>>
 finally

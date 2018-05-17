@@ -17,7 +17,7 @@ if Context['redo'].AsInteger=1 then
   Context.SendHTML(LogPr+'Redo all...'#13#10);
   Session.DbCon.BeginTrans;
   try
-	Session.DbCon.Execute('DELETE FROM ObjTokRefCache',[]);//'TRUNCATE TABLE ObjTokRefCache'
+    Session.DbCon.Execute('DELETE FROM ObjTokRefCache',[]);//'TRUNCATE TABLE ObjTokRefCache'
     Session.DbCon.CommitTrans;
   except
     Session.DbCon.RollbackTrans;
@@ -29,51 +29,50 @@ if Context['redo'].AsInteger=1 then
 Context.SendHTML(LogPr+'Items without tokens/references...'#13#10);
 Session.DbCon.BeginTrans;
 try
-	Session.DbCon.Execute(
-	  'INSERT INTO ObjTokRefCache (id,tokHTML,refHTML) SELECT id,'''','''' FROM Obj'+
-	  ' WHERE NOT EXISTS (SELECT id FROM ObjTokRefCache WHERE ObjTokRefCache.id=Obj.id)'+
-	  ' AND NOT EXISTS (SELECT id FROM Tok WHERE Tok.obj_id=Obj.id)'+
-	  ' AND NOT EXISTS (SELECT id FROM Ref WHERE Ref.obj1_id=Obj.id)',[]);
-    Session.DbCon.CommitTrans;
+  Session.DbCon.Execute(
+    'INSERT INTO ObjTokRefCache (id,tokHTML,refHTML) SELECT id,'''','''' FROM Obj'+
+    ' WHERE NOT EXISTS (SELECT id FROM ObjTokRefCache WHERE ObjTokRefCache.id=Obj.id)'+
+    ' AND NOT EXISTS (SELECT id FROM Tok WHERE Tok.obj_id=Obj.id)'+
+    ' AND NOT EXISTS (SELECT id FROM Ref WHERE Ref.obj1_id=Obj.id)',[]);
+  Session.DbCon.CommitTrans;
 except
-    Session.DbCon.RollbackTrans;
-    raise;
+  Session.DbCon.RollbackTrans;
+  raise;
 end;
 Context.SendHTML([LogPr,'Items added'#13#10#13#10]);
 
 Session.DbCon.BeginTrans;
 try
-	if DBSingleValue('SELECT COUNT(*) FROM ObjTokRefCache',[],0)=0 then
-	  qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM Obj ORDER BY id',[])
-	else
-	  qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM Obj WHERE NOT EXISTS (SELECT id FROM ObjTokRefCache WHERE ObjTokRefCache.id=Obj.id) ORDER BY id',[]); //TODO: skip deleted realm?
-	try
-	  x:=0;
-	  Context.SendHTML(LogPr);
-	  while qr.Read do //and Context.Connected do
-	   begin
-		id:=qr.GetInt('id');
-		Context.SendHTML(id);
-		Context.Include('aObjTokRefCache.xxmi',[id]);
+  if DBSingleValue('SELECT COUNT(*) FROM ObjTokRefCache',[],0)=0 then
+    qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM Obj ORDER BY id',[])
+  else
+    qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM Obj WHERE NOT EXISTS (SELECT id FROM ObjTokRefCache WHERE ObjTokRefCache.id=Obj.id) ORDER BY id',[]); //TODO: skip deleted realm?
+  try
+    x:=0;
+    Context.SendHTML(LogPr);
+    while qr.Read do //and Context.Connected do
+     begin
+      id:=qr.GetInt('id');
+      Context.SendHTML(id);
+      Context.Include('aObjTokRefCache.xxmi',[id]);
 
-		inc(x);
-		if x=20 then
-		 begin
-		  x:=0;
-		  Context.SendHTML(#13#10+LogPr);
-		 end
-		else
-		  Context.SendHTML(' ');
-	   end;
-	finally
-	  qr.Free;
-	end;
+      inc(x);
+      if x=20 then
+       begin
+        x:=0;
+        Context.SendHTML(#13#10+LogPr);
+       end
+      else
+        Context.SendHTML(' ');
+     end;
+  finally
+    qr.Free;
+  end;
 
-	Session.DbCon.CommitTrans;
+  Session.DbCon.CommitTrans;
 except
-    Session.DbCon.RollbackTrans;
-    raise;
+  Session.DbCon.RollbackTrans;
+  raise;
 end;
-
 
 Context.SendHTML('---'#13#10);

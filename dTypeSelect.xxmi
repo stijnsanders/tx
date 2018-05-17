@@ -43,15 +43,15 @@ if Session.FilterRecent[ItemType,i]<>0 then
    begin
     id1:=Session.FilterRecent[ItemType,i];
     qr:=TQueryResult.Create(Session.DbCon,'SELECT "icon","name" FROM '+txItemTypeTable[ItemType]+' WHERE id=?',[id1]);
-	try
-	  if qr.Read then
-	   begin
+    try
+      if qr.Read then
+       begin
         <<a class="recentselect" href="Item.xxm?x=[[=txItemTypeKey[ItemType]]][[=id1]]" onclick="recent_select('[[=name]]',this,[[=id1]]);return(event||window.event||this).ctrlKey;" title="[[.name]]">>#txImg(qr.GetInt('icon'))<<span class="recenttitle"> [[.name]]</span></a>
-		[[
-	   end;
-	finally
-	  qr.Free;
-	end;
+        [[
+       end;
+    finally
+      qr.Free;
+    end;
     inc(i);
    end;
  end;

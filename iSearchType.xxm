@@ -39,31 +39,31 @@ else
   ic:=TItemCache.Create;
   if ItemType=itObj then
     qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT Obj.id, Obj.pid, Obj.name, Obj.'+sqlDesc+', ObjType.icon, ObjType.name AS typename '+
-	  'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
-    'WHERE Obj.name LIKE ? AND Obj.id <> ? AND Obl.rlm_id'+Session.Realms[rpView].SQL,[keywords,exclude])
+      'SELECT Obj.id, Obj.pid, Obj.name, Obj.'+sqlDesc+', ObjType.icon, ObjType.name AS typename '+
+      'FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+      'WHERE Obj.name LIKE ? AND Obj.id <> ? AND Obl.rlm_id'+Session.Realms[rpView].SQL,[keywords,exclude])
   else
     qr:=TQueryResult.Create(Session.DbCon,'SELECT id,pid,"name","icon" FROM '+txItemTypeTable[ItemType]+' WHERE name LIKE ? AND id<>? ORDER BY weight, name, c_ts',[keywords,exclude]);
   try
     if qr.EOF then
-	 begin
-	  <<i>none found</i>>
-	 end;
+     begin
+      <<i>none found</i>>
+     end;
     c:=0;
     while qr.Read and Context.Connected and (c<limit) do
-	 begin
+     begin
       inc(c);
-	  id:=qr.GetInt('id');
-	  <<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=[[=txItemTypeKey[ItemType]]][[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a>>
-	  Context.Include('dTypeLocMini.xxmi',[ItemType],[qr,ic]);
-	  <<br />>
-	 end;
+      id:=qr.GetInt('id');
+      <<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=[[=txItemTypeKey[ItemType]]][[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a>>
+      Context.Include('dTypeLocMini.xxmi',[ItemType],[qr,ic]);
+      <<br />>
+     end;
     if c=limit then
      begin
       <<i>&nbsp;(results limited to [[=limit]])</i>>
      end;
   finally
-	qr.Free;
-	ic.Free;
+    qr.Free;
+    ic.Free;
   end;
  end;

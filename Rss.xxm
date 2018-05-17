@@ -10,13 +10,13 @@ qr1,qr2:TQueryResult;
 qs1,qs2,filterme:boolean;
 d1,d2:TDateTime;
 ObjLocationCache:TItemCache;
-	procedure SwapDates;
-	var d:TDateTime;
-	begin
-	 d:=d1;
-	 d1:=d2;
-	 d2:=d;
-	end;
+  procedure SwapDates;
+  var d:TDateTime;
+  begin
+   d:=d1;
+   d1:=d2;
+   d2:=d;
+  end;
 ]][[
 
 Context.ContentType:='application/rss+xml';
@@ -94,19 +94,19 @@ try
   if fv.filter<>'' then
    begin
     f.FilterExpression:=fv.filter;
-	if f.ParseError<>'' then
-	 begin
-	  ]]
-		<item><guid isPermaLink="false">tag:txRssQueryError</guid>
-		<title>RssQueryError</title>
-		<link>>=urlprefix]]/Log.xxm?[[=Context.ContextString(csQueryString)<</link>
-		<description>>=f.ParseError<</description>
-		<pubDate>>=DateToXml(Now)<</pubDate>
-		</item>
-	  [[
-	 end;
-	fq1.AddFilter(f);
-	fq2.AddFilter(f);
+    if f.ParseError<>'' then
+     begin
+      ]]
+        <item><guid isPermaLink="false">tag:txRssQueryError</guid>
+        <title>RssQueryError</title>
+        <link>>=urlprefix]]/Log.xxm?[[=Context.ContextString(csQueryString)<</link>
+        <description>>=f.ParseError<</description>
+        <pubDate>>=DateToXml(Now)<</pubDate>
+        </item>
+      [[
+     end;
+    fq1.AddFilter(f);
+    fq2.AddFilter(f);
    end;
 
   s:='Obj.rlm_id'+Session.Realms[fv.rp].SQL;
@@ -131,99 +131,99 @@ end;
   qr2:=TQueryResult.Create(Session.DbCon,fs2,[]);
   ObjLocationCache:=TItemCache.Create;
   try
-	qs1:=qr1.Read;
-	qs2:=qr2.Read;
- 	  while qs1 and qs2 and Context.Connected do
-  	   begin
-	    if qs1 then d1:=qr1.GetDate('c_ts') else d1:=0;//m_ts?
-		if qs2 then d2:=qr2.GetDate('ts') else d2:=0;
+    qs1:=qr1.Read;
+    qs2:=qr2.Read;
+       while qs1 and qs2 and Context.Connected do
+         begin
+        if qs1 then d1:=qr1.GetDate('c_ts') else d1:=0;//m_ts?
+        if qs2 then d2:=qr2.GetDate('ts') else d2:=0;
 
-		if qs1 and (d1>d2) then
-		 begin
-		  //object
-		  if not(filterme) or (qr1.GetInt('c_uid')<>Session.UserID) or (qr1.GetInt('m_uid')<>Session.UserID) then
-		   begin
-			id:=qr1.GetInt('id');
-			title:=qr1.GetStr('name');
-			]]
-			<item><guid isPermaLink="true">>=urlprefix]]Item.xxm?x=i[[=id<</guid>
-			<title>>=title<</title>
-			<link>>=urlprefix]]Item.xxm?x=i[[,id<</link>
-			<description><![CDATA[<p><a href="[[=urlprefix]]Item.xxm?x=i[[,id]]" title="[[,typename]]">>#txImg(qr1.GetInt('icon'))]]&nbsp;[[=title<</a></p>
-			[[
-			Context.SendHTML(qr1.GetStr('desc'));//TODO: SafeHTML
-			Context.SendHTML('<p>'+lblLocation+' ');
-			Context.Include('dObjLocMini.xxmi',[],[qr1,ObjLocationCache]);
-			Context.SendHTML('</p><p>');
-			Context.Include('d_cmw.xxmi',[],[qr1]);
-			Context.SendHTML('</p>');
-			Context.Include('dObjTokRef.xxmi',[id,'','','<p>','</p>'],[qr1]);
-			]]]]></description>
-			<pubDate>>=DateToXml(qr1.GetDate('m_ts'))<</pubDate>
-			</item>
-			[[
-		   end;
+        if qs1 and (d1>d2) then
+         begin
+          //object
+          if not(filterme) or (qr1.GetInt('c_uid')<>Session.UserID) or (qr1.GetInt('m_uid')<>Session.UserID) then
+           begin
+            id:=qr1.GetInt('id');
+            title:=qr1.GetStr('name');
+            ]]
+            <item><guid isPermaLink="true">>=urlprefix]]Item.xxm?x=i[[=id<</guid>
+            <title>>=title<</title>
+            <link>>=urlprefix]]Item.xxm?x=i[[,id<</link>
+            <description><![CDATA[<p><a href="[[=urlprefix]]Item.xxm?x=i[[,id]]" title="[[,typename]]">>#txImg(qr1.GetInt('icon'))]]&nbsp;[[=title<</a></p>
+            [[
+            Context.SendHTML(qr1.GetStr('desc'));//TODO: SafeHTML
+            Context.SendHTML('<p>'+lblLocation+' ');
+            Context.Include('dObjLocMini.xxmi',[],[qr1,ObjLocationCache]);
+            Context.SendHTML('</p><p>');
+            Context.Include('d_cmw.xxmi',[],[qr1]);
+            Context.SendHTML('</p>');
+            Context.Include('dObjTokRef.xxmi',[id,'','','<p>','</p>'],[qr1]);
+            ]]]]></description>
+            <pubDate>>=DateToXml(qr1.GetDate('m_ts'))<</pubDate>
+            </item>
+            [[
+           end;
           qs1:=qr1.Read;
-		 end
-		else
-		 begin
-		  //report
-		  if not(filterme) or (qr2.GetInt('uid')<>Session.UserID) then
-		   begin
-			id:=qr2.GetInt('obj_id');
-			if not(qr2.IsNull('reficon')) then title:='reference' else
-			  if not(qr2.IsNull('tokicon')) then title:='token' else
-			    title:='report';
-		    ]]
-			<item><guid isPermaLink="true">>=urlprefix]]Item.xxm?x=i[[=id]]#rpt[[=qr2['id']<</guid>
-			<title>[[=title]] by [[=qr2['usrname']]] "[[=qr2['name']]]" ([[=Length(qr2.GetStr('desc'))]])</title>
-			<link>>=urlprefix]]Item.xxm?x=i[[=id]]#rpt[[=qr2['id']<</link>
-			<description><![CDATA[<p><a href="Item.xxm?x=i[[=qr2['uid']]]" title="[[=qr2['usrtypename']]]">>#txImg(qr2.GetInt('usricon'))]] [[=qr2['usrname']<</a>
-			reported on [[=NiceDateTime(qr2['ts'])]]
-			<a href="Item.xxm?x=i[[=id]]" title="[[=qr2['typename']]]">>#txImg(qr2.GetInt('icon'))]] [[=qr2['name']<</a>
-			</p>
-			[[
+         end
+        else
+         begin
+          //report
+          if not(filterme) or (qr2.GetInt('uid')<>Session.UserID) then
+           begin
+            id:=qr2.GetInt('obj_id');
+            if not(qr2.IsNull('reficon')) then title:='reference' else
+              if not(qr2.IsNull('tokicon')) then title:='token' else
+                title:='report';
+            ]]
+            <item><guid isPermaLink="true">>=urlprefix]]Item.xxm?x=i[[=id]]#rpt[[=qr2['id']<</guid>
+            <title>[[=title]] by [[=qr2['usrname']]] "[[=qr2['name']]]" ([[=Length(qr2.GetStr('desc'))]])</title>
+            <link>>=urlprefix]]Item.xxm?x=i[[=id]]#rpt[[=qr2['id']<</link>
+            <description><![CDATA[<p><a href="Item.xxm?x=i[[=qr2['uid']]]" title="[[=qr2['usrtypename']]]">>#txImg(qr2.GetInt('usricon'))]] [[=qr2['usrname']<</a>
+            reported on [[=NiceDateTime(qr2['ts'])]]
+            <a href="Item.xxm?x=i[[=id]]" title="[[=qr2['typename']]]">>#txImg(qr2.GetInt('icon'))]] [[=qr2['name']<</a>
+            </p>
+            [[
             //TODO: path of obj_id?
-			if not(qr2.IsNull('tokicon')) then
-			 begin
-			  ]]
-			  <p>
-			  [[#lblTokens]]
-			  [[#txImg(qr2['tokicon'])]]
-			  [[=qr2['tokname']]]
-			  </p>
-			  [[
-			 end;
-			if not(qr2.IsNull('reficon')) then
-			 begin
-			  ]]
-			  <p>
-			  [[#lblReferences]]
-			  [[#txImg(qr2['reficon'])]]
-			  [[=qr2['refname']]]
-			  </p>
-			  [[
-			 end;
-			Context.SendHTML(qr2.GetStr('desc'));//TODO: SafeHTML
-			if not(qr2.IsNull('relicon')) then
-			 begin
-			  ]]
-			  <p>
-			  <a href="Item.xxm?x=i[[=qr2['obj2_id']]]" title="[[=qr2['reltypename']]]">>#txImg(qr2['relicon'])]] [[=qr2['relname']<</a>
-			  </p>
-			  [[
-			 end;
-			]]]]></description>
-			<pubDate>>=DateToXml(qr2.GetDate('ts'))<</pubDate>
-			</item>
-			[[
-		   end;
-		  qs2:=qr2.Read;
-		 end;
-	   end;
+            if not(qr2.IsNull('tokicon')) then
+             begin
+              ]]
+              <p>
+              [[#lblTokens]]
+              [[#txImg(qr2['tokicon'])]]
+              [[=qr2['tokname']]]
+              </p>
+              [[
+             end;
+            if not(qr2.IsNull('reficon')) then
+             begin
+              ]]
+              <p>
+              [[#lblReferences]]
+              [[#txImg(qr2['reficon'])]]
+              [[=qr2['refname']]]
+              </p>
+              [[
+             end;
+            Context.SendHTML(qr2.GetStr('desc'));//TODO: SafeHTML
+            if not(qr2.IsNull('relicon')) then
+             begin
+              ]]
+              <p>
+              <a href="Item.xxm?x=i[[=qr2['obj2_id']]]" title="[[=qr2['reltypename']]]">>#txImg(qr2['relicon'])]] [[=qr2['relname']<</a>
+              </p>
+              [[
+             end;
+            ]]]]></description>
+            <pubDate>>=DateToXml(qr2.GetDate('ts'))<</pubDate>
+            </item>
+            [[
+           end;
+          qs2:=qr2.Read;
+         end;
+       end;
   finally
-	qr1.Free;
-	qr2.Free;
+    qr1.Free;
+    qr2.Free;
     ObjLocationCache.Free;
   end;
 ]]

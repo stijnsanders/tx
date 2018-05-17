@@ -97,8 +97,8 @@ try
       px:=idp.Count;
      end;
 
-	fsql:=sqlObjsByPid;
-	qr:=TQueryResult.Create(Session.DbCon,fsql,[RootID]);
+    fsql:=sqlObjsByPid;
+    qr:=TQueryResult.Create(Session.DbCon,fsql,[RootID]);
     try
       repeat
         while Context.Connected and qr.Read do
@@ -133,20 +133,20 @@ try
            begin
             hasChildren:=DBExists('SELECT Obj.id FROM Obj WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' LIMIT 1',[id]);
             preExpand:=hasChildren and (px<>0) and (id=idp[px-1]);
-			highlight:=id=ItemID;
-			<<span id="[[=name]]_node_[[=id]]" expandurl="iFilter.xxm[[?'id',RootID,'pid',id,'name',name,'filter']][[#fv.filterU]][[=txCallProtect]]"[[
-			//if preExpand then Context.SendHTML(' nodeexpanded="1"');
-			if highlight then Context.SendHTML(' class="highlight"');
-			]]>>Context.Include('iFrameObj.xxmi',[name,id,hasChildren,preExpand,highlight],[qr]);<</span>>
+            highlight:=id=ItemID;
+            <<span id="[[=name]]_node_[[=id]]" expandurl="iFilter.xxm[[?'id',RootID,'pid',id,'name',name,'filter']][[#fv.filterU]][[=txCallProtect]]"[[
+            //if preExpand then Context.SendHTML(' nodeexpanded="1"');
+            if highlight then Context.SendHTML(' class="highlight"');
+            ]]>>Context.Include('iFrameObj.xxmi',[name,id,hasChildren,preExpand,highlight],[qr]);<</span>>
             if preExpand then
              begin
               if px>0 then dec(px);
               //start child list, push
               <<div class="treelist" id="[[=name]]_node_[[=id]]_dsc">>
-			  SetLength(qrStack,qx+1);
-			  qrStack[qx]:=qr;
-			  inc(qx);
-			  qr:=TQueryResult.Create(Session.DbCon,fsql,[id]);
+              SetLength(qrStack,qx+1);
+              qrStack[qx]:=qr;
+              inc(qx);
+              qr:=TQueryResult.Create(Session.DbCon,fsql,[id]);
              end;//if preExpand
            end;//if doNode
          end;//while ids
@@ -156,9 +156,9 @@ try
           //pop, close child list
           qr.Free;
           dec(qx);
-		  qr:=qrStack[qx];
+          qr:=qrStack[qx];
           <</div>>
-		  Context.Flush;
+          Context.Flush;
          end;
       until not(Context.Connected) or ((qx=0) and qr.EOF);
     finally

@@ -19,9 +19,9 @@ while (i<3) and Context.Connected do
   try
     while qr.Read and Context.Connected do
      begin
-	  ]][[#lbl[i]]]&nbsp;<a href="Item.xxm?x=[[=pfx[i]]][[.id]]">>.name<</a>&nbsp;
-	  [[
-	  inc(j);
+      ]][[#lbl[i]]]&nbsp;<a href="Item.xxm?x=[[=pfx[i]]][[.id]]">>.name<</a>&nbsp;
+      [[
+      inc(j);
      end;
   finally
     qr.Free;

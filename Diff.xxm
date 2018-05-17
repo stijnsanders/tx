@@ -40,88 +40,88 @@ s2:='';
 if Context['all'].AsInteger=1 then
  begin
     <<form method="get">
-	<input type="hidden" name="id" value="[[=id]]" />>
+    <input type="hidden" name="id" value="[[=id]]" />>
     qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC',[id]);
-	try
-	  while Context.Connected and qr.Read do
-	   begin
-	    <<p>
-		<input type="radio" name="h1" value="[[.id]]" />
-		<input type="radio" name="h2" value="[[.id]]" />
-		<b>>.name<</b>
-		on [[=NiceDateTime(qr['ts'])]]
-		by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
-		<span class="weight">weight: [[.weight]]</span>
-		</p>>
-	   end;
-	finally
-	  qr.Free;
-	end;
-	<<p><input type="submit" value="Diff" /></p>
-	<p><a href="Item.xxm?x=i[[=id]]">back</a></p>
-	</form>>
+    try
+      while Context.Connected and qr.Read do
+       begin
+        <<p>
+        <input type="radio" name="h1" value="[[.id]]" />
+        <input type="radio" name="h2" value="[[.id]]" />
+        <b>>.name<</b>
+        on [[=NiceDateTime(qr['ts'])]]
+        by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
+        <span class="weight">weight: [[.weight]]</span>
+        </p>>
+       end;
+    finally
+      qr.Free;
+    end;
+    <<p><input type="submit" value="Diff" /></p>
+    <p><a href="Item.xxm?x=i[[=id]]">back</a></p>
+    </form>>
  end
 else
  begin
 
-	if h2>h1 then
-	 begin
-	  r:=h1;
-	  h1:=h2;
-	  h2:=r;
-	 end;
+    if h2>h1 then
+     begin
+      r:=h1;
+      h1:=h2;
+      h2:=r;
+     end;
 
     if h1=0 then
-	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC LIMIT 1',[id])
-	else
-	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h1]);
-	try
-	  if qr.EOF then
-	   begin
-		<<p><i>no entries found</i></p>
-		<p><a href="Item.xxm?x=i[[=id]]">back</a></p>>
-	   end
-	  else
-	   begin
-		id:=qr.GetInt('obj_id');
-		h1:=qr.GetInt('id');
-		did:=TermStore.GetDomainID(id);
-		s1:=BuildDiff;
-		<<span class="diffDeleted"><p class="objecttitle"><b>>.name<</b><br />
-		on [[=NiceDateTime(qr['ts'])]]
-	    by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
-		<span class="weight">weight: [[.weight]]</span></p></span>>
-	   end;
-	finally
-	  qr.Free;
-	end;
+      qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? ORDER BY ObjHist.id DESC LIMIT 1',[id])
+    else
+      qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h1]);
+    try
+      if qr.EOF then
+       begin
+        <<p><i>no entries found</i></p>
+        <p><a href="Item.xxm?x=i[[=id]]">back</a></p>>
+       end
+      else
+       begin
+        id:=qr.GetInt('obj_id');
+        h1:=qr.GetInt('id');
+        did:=TermStore.GetDomainID(id);
+        s1:=BuildDiff;
+        <<span class="diffDeleted"><p class="objecttitle"><b>>.name<</b><br />
+        on [[=NiceDateTime(qr['ts'])]]
+        by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
+        <span class="weight">weight: [[.weight]]</span></p></span>>
+       end;
+    finally
+      qr.Free;
+    end;
 
-	if (h2=0) or (h1=h2) then
-	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? AND ObjHist.id<? ORDER BY ObjHist.id DESC LIMIT 1',[id,h1])
-	else
-	  qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h2]);
-	try
-	  if qr.EOF then h2:=0 else
-	   begin
-	    h2:=qr.GetInt('id');
-	    s2:=BuildDiff;
-	    <<span class="diffInserted"><p class="objecttitle"><b>>.name<</b><br />
-	    on [[=NiceDateTime(qr['ts'])]]
-	      by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
-	    <span class="weight">weight: [[.weight]]</span></p></span>>
-	   end;
-	finally
-	  qr.Free;
-	end;
+    if (h2=0) or (h1=h2) then
+      qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.obj_id=? AND ObjHist.id<? ORDER BY ObjHist.id DESC LIMIT 1',[id,h1])
+    else
+      qr:=TQueryResult.Create(Session.DbCon,HistQry+' ObjHist.id=?',[h2]);
+    try
+      if qr.EOF then h2:=0 else
+       begin
+        h2:=qr.GetInt('id');
+        s2:=BuildDiff;
+        <<span class="diffInserted"><p class="objecttitle"><b>>.name<</b><br />
+        on [[=NiceDateTime(qr['ts'])]]
+          by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
+        <span class="weight">weight: [[.weight]]</span></p></span>>
+       end;
+    finally
+      qr.Free;
+    end;
 
-	if h1<>0 then
-	 begin
+    if h1<>0 then
+     begin
       <<p class="midnav">
-	  [[if h2<>0 then begin <<a class="linkbutton" href="?h1=[[=h2]]" rel="nofollow">previous</a>> end;]]
-	  <a class="linkbutton" href="[[?'id',id,'h1',h1,'h2',h2,'full',1]]" rel="nofollow">full</a>
-	  <a class="linkbutton" href="[[?'id',id,'all',1]]" rel="nofollow">all</a>
-	  <a class="linkbutton" href="Item.xxm?x=i[[=id]]">back</a>
-	  </p>
+      [[if h2<>0 then begin <<a class="linkbutton" href="?h1=[[=h2]]" rel="nofollow">previous</a>> end;]]
+      <a class="linkbutton" href="[[?'id',id,'h1',h1,'h2',h2,'full',1]]" rel="nofollow">full</a>
+      <a class="linkbutton" href="[[?'id',id,'all',1]]" rel="nofollow">all</a>
+      <a class="linkbutton" href="Item.xxm?x=i[[=id]]">back</a>
+      </p>
 <style type="text/css"><!--
 SPAN.diffInserted, SPAN.diffInserted DIV, SPAN.diffInserted P {background-color:#99FF99;}
 SPAN.diffDeleted, SPAN.diffDeleted DIV, SPAN.diffDeleted P {background-color:#FF9999;}
@@ -158,43 +158,43 @@ repeat
   if f1=f2 then
    begin
     if showAll then
-	 begin
-	  if inDel then begin <</span>> InDel:=false; end;
-	  if inIns then begin <</span>> InIns:=false; end;
-	  Context.SendHTML(f1);
-	 end;
-	//fwd right
-	inc(x1);
+     begin
+      if inDel then begin <</span>> InDel:=false; end;
+      if inIns then begin <</span>> InIns:=false; end;
+      Context.SendHTML(f1);
+     end;
+    //fwd right
+    inc(x1);
    end
   else
    begin
     //down left
-	r:=x1-1;
-	repeat
-	  inc(r);
-	  f1:=GetSection(s1,mc1,r);
-	until (r>=mc1.Count) or (f1=f2) or not Context.Connected;
-	if f1=f2 then
-	 begin
-	  //found
-	  if inDel then begin inDel:=false; <</span>> end;
-	  if not inIns then begin inIns:=true; <<span class="diffInserted">> end;
-	  while (x1<r) and (x1<mc1.Count) and Context.Connected do
-	   begin
-	    Context.SendHTML(GetSection(s1,mc1,x1));
-	    inc(x1);
-	   end;
-	  inc(cc);
-	  inc(x1);
-	 end
-	else
-	 begin
-	  //not found
-	  if inIns then begin inIns:=false; <</span>> end;
-	  if not inDel then begin inDel:=true; <<span class="diffDeleted">> end;
-	  Context.SendHTML(f2);
-	  inc(cc);
-	 end;
+    r:=x1-1;
+    repeat
+      inc(r);
+      f1:=GetSection(s1,mc1,r);
+    until (r>=mc1.Count) or (f1=f2) or not Context.Connected;
+    if f1=f2 then
+     begin
+      //found
+      if inDel then begin inDel:=false; <</span>> end;
+      if not inIns then begin inIns:=true; <<span class="diffInserted">> end;
+      while (x1<r) and (x1<mc1.Count) and Context.Connected do
+       begin
+        Context.SendHTML(GetSection(s1,mc1,x1));
+        inc(x1);
+       end;
+      inc(cc);
+      inc(x1);
+     end
+    else
+     begin
+      //not found
+      if inIns then begin inIns:=false; <</span>> end;
+      if not inDel then begin inDel:=true; <<span class="diffDeleted">> end;
+      Context.SendHTML(f2);
+      inc(cc);
+     end;
    end;
 
    inc(x2);
@@ -208,7 +208,7 @@ if x1<mc1.Count then
   while (x1<mc1.Count) and Context.Connected do
    begin
     Context.SendHTML(GetSection(s1,mc1,x1));
-	inc(x1);
+    inc(x1);
    end;
   inc(cc);
  end;
@@ -218,7 +218,7 @@ if inIns then begin <</span>> end;
 
 if cc=0 then begin <<p><i>no changes found</i></p>> end;
 
-	 end;
+     end;
  end;
 
 Context.Include('dFoot.xxmi');

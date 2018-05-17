@@ -26,86 +26,86 @@ if Use_ObjTokRefCache then
   qr:=(Objects[0] as TQueryResult);
   if not qr.IsNull('tokHTML') then //and not qr.IsNull('refHTML') then
    begin
-	  s:=qr.GetStr('tokHTML');
-	  if s<>'' then
-	   begin
-		if not(b) and (Length(Values)>4) then
-		 begin
-		  b:=true;
-		  Context.SendHTML(Values[3]);
-		 end;
-		if l2='' then
-		  Context.SendHTML(prefix+lblTokens+suffix+s)
-		else
-		  Context.SendHTML(prefix+lblTokens+suffix+StringReplace(s,' href="',' target="MainFrame" href="',[rfReplaceAll]));
-	   end;
-	  s:=qr.GetStr('refHTML');
-	  if s<>'' then
-	   begin
-		if not(b) and (Length(Values)>3) then
-		 begin
-		  //b:=true;
-		  Context.SendHTML(Values[3]);
-		 end;
-		Context.SendHTML(prefix+lblReferences+suffix+StringReplace(StringReplace(s,'&1',l1,[rfReplaceAll]),'&2',l2,[rfReplaceAll]));
-	   end;
-	  b:=true;
+    s:=qr.GetStr('tokHTML');
+    if s<>'' then
+     begin
+      if not(b) and (Length(Values)>4) then
+       begin
+        b:=true;
+        Context.SendHTML(Values[3]);
+       end;
+      if l2='' then
+        Context.SendHTML(prefix+lblTokens+suffix+s)
+      else
+        Context.SendHTML(prefix+lblTokens+suffix+StringReplace(s,' href="',' target="MainFrame" href="',[rfReplaceAll]));
+     end;
+    s:=qr.GetStr('refHTML');
+    if s<>'' then
+     begin
+      if not(b) and (Length(Values)>3) then
+       begin
+        //b:=true;
+        Context.SendHTML(Values[3]);
+       end;
+      Context.SendHTML(prefix+lblReferences+suffix+StringReplace(StringReplace(s,'&1',l1,[rfReplaceAll]),'&2',l2,[rfReplaceAll]));
+     end;
+    b:=true;
    end;
  end;
 
 if not(b) then
  begin
-	qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT Tok.id, Tok.obj_id, Tok.toktype_id, Tok.'+sqlDesc+', Tok.weight, Tok.c_uid, Tok.c_ts, Tok.m_uid, Tok.m_ts, TokType.icon, TokType.name '+
-	  'FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
-	  'WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',
-	  [id]);
-	try
-	  if not qr.EOF then
-	   begin
-		if not(b) and (Length(Values)>4) then
-		 begin
-		  b:=true;
-		  Context.SendHTML(Values[3]);
-		 end;
-		Context.SendHTML(prefix+lblTokens+suffix);
-		while qr.Read and Context.Connected do
-		 begin
-		  ]][[#txImg(qr.GetInt('icon'),qr.GetStr('name'))]]
-		  [[
-		 end;
-	   end;
-	finally
-	  qr.Free;
-	end;
-	qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT Ref.id, Ref.obj1_id, Ref.reftype_id, Ref.obj2_id, Ref.'+sqlDesc+', Ref.weight, Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts, RefType.icon, RefType.name AS typename, Obj.name, ObjType.icon AS objicon, ObjType.name AS objtypename '+
-	  'FROM Ref '+
-	  'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
-	  'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+
-	  'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
-	  'WHERE Ref.obj1_id=? AND Obj.rlm_id'+Session.Realms[rpAny].SQL+
-	  ' ORDER BY Ref.weight, Obj.weight',
-	  [id]);
-	try
-	  if not(qr.EOF) then
-	   begin
-		if not(b) and (Length(Values)>3) then
-		 begin
-		  b:=true;
-		  Context.SendHTML(Values[3]);
-		 end;
-		Context.SendHTML(prefix+lblReferences+suffix);
-		while qr.Read and Context.Connected do
-		 begin
-		  ]]<a href="[[#l1]][[.obj2_id]][[#l2]]" title="[[.typename]] [[.name]]">>#txImg(qr.GetInt('icon'))+txImg(qr.GetInt('objicon'))<</a>
-		  [[
-		 end;
-	   end;
-	finally
-	  qr.Free;
-	end;
-	if b then //and (Length(Values)>4) then
-	  Context.SendHTML(Values[4]);
+  qr:=TQueryResult.Create(Session.DbCon,
+    'SELECT Tok.id, Tok.obj_id, Tok.toktype_id, Tok.'+sqlDesc+', Tok.weight, Tok.c_uid, Tok.c_ts, Tok.m_uid, Tok.m_ts, TokType.icon, TokType.name '+
+    'FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id '+
+    'WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',
+    [id]);
+  try
+    if not qr.EOF then
+     begin
+      if not(b) and (Length(Values)>4) then
+       begin
+        b:=true;
+        Context.SendHTML(Values[3]);
+       end;
+      Context.SendHTML(prefix+lblTokens+suffix);
+      while qr.Read and Context.Connected do
+       begin
+        ]][[#txImg(qr.GetInt('icon'),qr.GetStr('name'))]]
+        [[
+       end;
+     end;
+  finally
+    qr.Free;
+  end;
+  qr:=TQueryResult.Create(Session.DbCon,
+    'SELECT Ref.id, Ref.obj1_id, Ref.reftype_id, Ref.obj2_id, Ref.'+sqlDesc+', Ref.weight, Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts, RefType.icon, RefType.name AS typename, Obj.name, ObjType.icon AS objicon, ObjType.name AS objtypename '+
+    'FROM Ref '+
+    'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
+    'INNER JOIN Obj ON Obj.id=Ref.obj2_id '+
+    'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+    'WHERE Ref.obj1_id=? AND Obj.rlm_id'+Session.Realms[rpAny].SQL+
+    ' ORDER BY Ref.weight, Obj.weight',
+    [id]);
+  try
+    if not(qr.EOF) then
+     begin
+      if not(b) and (Length(Values)>3) then
+       begin
+        b:=true;
+        Context.SendHTML(Values[3]);
+       end;
+      Context.SendHTML(prefix+lblReferences+suffix);
+      while qr.Read and Context.Connected do
+       begin
+        ]]<a href="[[#l1]][[.obj2_id]][[#l2]]" title="[[.typename]] [[.name]]">>#txImg(qr.GetInt('icon'))+txImg(qr.GetInt('objicon'))<</a>
+        [[
+       end;
+     end;
+  finally
+    qr.Free;
+  end;
+  if b then //and (Length(Values)>4) then
+    Context.SendHTML(Values[4]);
  end;
 ]]

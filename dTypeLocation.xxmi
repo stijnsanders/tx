@@ -21,17 +21,17 @@ if pid<>0 then
   while (pid<>0) and Context.Connected do
    begin
     if ic=nil then ln:=nil else ln:=ic[pid] as TLocationNode;
-	if s<>'' then 
-	  //s:=' &gt; '+s;
-	  s:='<br />'+s;
-	if ln=nil then
-	 begin
-	  ln:=TLocationNode.Create(ItemType,pid);
-	  if ic<>nil then ic.Add(pid,ln);
-	 end;
-	if DoTreeScript then t:=IntToStr(pid)+','+t;
-	s:=ln.GetHTML([ghLink,ghName,ghIcon],pid)+s;
-	if ic=nil then ln.Free;
+    if s<>'' then 
+      //s:=' &gt; '+s;
+      s:='<br />'+s;
+    if ln=nil then
+     begin
+      ln:=TLocationNode.Create(ItemType,pid);
+      if ic<>nil then ic.Add(pid,ln);
+     end;
+    if DoTreeScript then t:=IntToStr(pid)+','+t;
+    s:=ln.GetHTML([ghLink,ghName,ghIcon],pid)+s;
+    if ic=nil then ln.Free;
    end;
   Context.SendHTML(s);
   ]]</p>

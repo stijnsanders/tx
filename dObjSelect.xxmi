@@ -47,15 +47,15 @@ if not(Session.FilterRecent[itObj,i]=0) then
    begin
     id1:=Session.FilterRecent[itObj,i];
     qr:=TQueryResult.Create(Session.DbCon,'SELECT ObjType.icon, Obj.name FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id WHERE Obj.id=?',[id1]);
-	try
-	  if qr.Read then
-	   begin
+    try
+      if qr.Read then
+       begin
         <<a class="recentselect" href="Item.xxm?x=i[[=id1]]" onclick="recent_select('[[=name]]',this,[[=id1]]);return(event||window.event||this).ctrlKey;" title="[[.name]]">>#txImg(qr.GetInt('icon'))<<span class="recenttitle"> [[.name]]</span></a>
-		[[
-	   end;
-	finally
-	  qr.Free;
-	end;
+        [[
+       end;
+    finally
+      qr.Free;
+    end;
     inc(i);
    end;
  end;
@@ -67,12 +67,12 @@ if catchesFromFrame then
  begin
 <<script><!--
 var catchTreeClick=function(id,x){
-	if(id!=[[=exclude]]){
-		$("#[[=name]]_id")[0].value=id;
-		var y=$("#[[=name]]_dsp");
-		y[0].style.backgroundColor="#FFCC00";
-		y.html((x&&x.innerHTML)?x.innerHTML:"::i"+id);
-	}
+    if(id!=[[=exclude]]){
+        $("#[[=name]]_id")[0].value=id;
+        var y=$("#[[=name]]_dsp");
+        y[0].style.backgroundColor="#FFCC00";
+        y.html((x&&x.innerHTML)?x.innerHTML:"::i"+id);
+    }
 };
 //--></script>>
  end;

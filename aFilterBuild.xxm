@@ -29,9 +29,9 @@ if (x='r') or (x='rr') or (x='rx') or (x='rxr') then
  begin
   filter:=filter+
     Context['oper'].Value+
-	x+
-	Context['obj'].Value+
-	Context['flags'].Value;
+    x+
+    Context['obj'].Value+
+    Context['flags'].Value;
   id:=Context['reftype'].AsInteger;
   Session.AddFilterRecent(itRefType,id);
   if (id>0) then
@@ -43,9 +43,9 @@ else
   Session.AddFilterRecent(TtxFilter.GetActionItemType(x),id);
   filter:=filter+
     Context['oper'].Value+
-	x+
-	IntToStr(id)+
-	Context['flags'].Value;
+    x+
+    IntToStr(id)+
+    Context['flags'].Value;
  end;
 
 Context.Redirect('FilterBuild.xxm?filter='+URLEncode(filter),true);

@@ -14,7 +14,7 @@ id:=Values[0];
     <input type="radio" name="children" value="1" id="children1" />
     <label for="children1">Move children to:</b></label>
     <br />
-	[[Context.Include('dTypeSelect.xxmi',[itObjType,'movechto',0]);]]</dd>
+    [[Context.Include('dTypeSelect.xxmi',[itObjType,'movechto',0]);]]</dd>
 </dd>
 <dt>Objects</dt>
 <dd>
@@ -24,7 +24,7 @@ id:=Values[0];
     <input type="radio" name="objects" value="1" id="objects1" />
     <label for="objects1">Change object type to:</b></label>
     <br />
-	[[Context.Include('dTypeSelect.xxmi',[itObjType,'moveobjto',0]);]]</dd>
+    [[Context.Include('dTypeSelect.xxmi',[itObjType,'moveobjto',0]);]]</dd>
 </dd>
 </dl>
 [[#txFormButton]] <a href="Item.xxm?x=ot[[=id]]">back</a>

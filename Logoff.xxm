@@ -12,13 +12,13 @@ if x<>'' then
   Session.DbCon.BeginTrans;
   try
     qr:=TQueryResult.Create(Session.DbCon,'SELECT usl_id FROM Ust WHERE token=?',[x]);
-	try
-	  id:=qr.GetInt('usl_id');
-	finally
-	  qr.Free;
-	end;
-	Session.DbCon.Execute('DELETE FROM Ust WHERE usl_id=?',[id]);
-	Session.DbCon.Execute('DELETE FROM Usl WHERE id=?',[id]);
+    try
+      id:=qr.GetInt('usl_id');
+    finally
+      qr.Free;
+    end;
+    Session.DbCon.Execute('DELETE FROM Ust WHERE usl_id=?',[id]);
+    Session.DbCon.Execute('DELETE FROM Usl WHERE id=?',[id]);
 
     Session.DbCon.CommitTrans;
   except
@@ -30,4 +30,4 @@ if x<>'' then
 
 Session.Abandon;
 Context.Redirect('Default.xxm',true);
-]]
+<<p><a href="Default.xxm">continue...</a></p>

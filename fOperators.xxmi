@@ -5,7 +5,7 @@ begin
 
 <dt>Operator</dt><dd>
 	<input type="radio" name="oper" value="+" id="oper0" checked="1" /> <label for="oper0">AND</label> <br />
-	<input type="radio" name="oper" value="." id="oper1" /> <label for="oper1">OR</label> <br />	
+	<input type="radio" name="oper" value="." id="oper1" /> <label for="oper1">OR</label> <br />
 	<input type="radio" name="oper" value="/" id="oper2" /> <label for="oper2">AND NOT</label> <br />
 </dd>
 

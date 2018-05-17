@@ -20,14 +20,14 @@ if xf<>'' then
 <dd><input type="text" id="searchText" name="keywords" value="" class="textfield" /></dd>
 <dt>Items</dt>
 <dd>
-	<input type="radio" id="searchItems0" name="action" value="search" checked="1" />
-	<label for="searchItems0">Objects (name, description)</label><br />
-	<input type="radio" id="searchItems1" name="action" value="name" />
-	<label for="searchItems1">Objects (match whole name)</label><br />
-	<input type="radio" id="searchItems2" name="action" value="rsearch" />
-	<label for="searchItems2">Reports (text)</label><br />
-	<input type="radio" id="searchItems3" name="action" value="term" />
-	<label for="searchItems3">Terms</label><br />
+  <input type="radio" id="searchItems0" name="action" value="search" checked="1" />
+  <label for="searchItems0">Objects (name, description)</label><br />
+  <input type="radio" id="searchItems1" name="action" value="name" />
+  <label for="searchItems1">Objects (match whole name)</label><br />
+  <input type="radio" id="searchItems2" name="action" value="rsearch" />
+  <label for="searchItems2">Reports (text)</label><br />
+  <input type="radio" id="searchItems3" name="action" value="term" />
+  <label for="searchItems3">Terms</label><br />
 </dd>>
 if pid=0 then
  begin

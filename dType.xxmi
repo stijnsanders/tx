@@ -7,40 +7,40 @@ ItemType:TtxItemType;
 ItemType:=TtxItemType(Values[0]);
 qr:=TQueryResult(Objects[0]);
 Context.Include('dTypeLocation.xxmi',[ItemType,true],[qr]);
-]]<p class="objecttitle">[[Context.Include('dTypeLink.xxmi',Values,Objects);]]</p>
+<<p class="objecttitle">[[Context.Include('dTypeLink.xxmi',Values,Objects);]]</p>
 [[
 s:=qr.GetStr('system');
 id:=qr.GetInt('id');
 pid:=qr.GetInt('pid');
 if s<>'' then
  begin
-  ]]<p><span class="label">label:</span> <span class="sysref">>=s<</span></p>
+  <<p><span class="label">label:</span> <span class="sysref">>=s<</span></p>
   [[
  end;
 //TODO: count items of type?
 
-		
+
 //default
 case ItemType of
   itObjType:
    begin
-	qr1:=TQueryResult.Create(Session.DbCon,
-	  'SELECT ObjType.id, ObjType.pid, ObjType.name, ObjType.icon, ObjType.system, ObjType.weight, ObjType.dft, ObjType.c_uid, ObjType.c_ts, ObjType.m_uid, ObjType.m_ts '+
+    qr1:=TQueryResult.Create(Session.DbCon,
+      'SELECT ObjType.id, ObjType.pid, ObjType.name, ObjType.icon, ObjType.system, ObjType.weight, ObjType.dft, ObjType.c_uid, ObjType.c_ts, ObjType.m_uid, ObjType.m_ts '+
       'FROM ObjType WHERE ObjType.id=?',
-	  [qr.GetInt('dft')]);
-	try
-	  if qr1.Read then
-	   begin
-		]]
-		<p><span class="label">default child type:</span>
-		[[
-	    Context.Include('dTypeLink.xxmi',[itObjType],[qr1]);
-	   end;
-	finally
-	  qr1.Free;
-	end;
-	]]</p>
-	[[
+      [qr.GetInt('dft')]);
+    try
+      if qr1.Read then
+       begin
+        ]]
+        <p><span class="label">default child type:</span>
+        [[
+        Context.Include('dTypeLink.xxmi',[itObjType],[qr1]);
+       end;
+    finally
+      qr1.Free;
+    end;
+    <</p>
+    [[
    end;
   itTokType:
    begin
@@ -52,8 +52,7 @@ case ItemType of
    end;
 end;
 
-]]
-<p>[[Context.Include('d_cmw.xxmi',[],Objects);]]</p>
+<<p>>Context.Include('d_cmw.xxmi',[],Objects);<</p>
 <p class="buttons">
 <a href="f[[=txItemTypeTable[ItemType]]].xxm?pid=[[=pid]]" class="linkbutton">add another</a>
 <a href="f[[=txItemTypeTable[ItemType]]].xxm?pid=[[=id]]" class="linkbutton">add child</a>

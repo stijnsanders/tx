@@ -30,151 +30,151 @@ level:=Context['l'].Value+ShortID(pid*3+qtype);
 if qtype in [0,1] then
  begin
   //object level
-	if rid=0 then
-	 begin
-	  qr:=TQueryResult.Create(Session.DbCon,
-	    'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name'+
-		' FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'+
-		' WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+
-		' ORDER BY Obj.Weight, Obj.name, Obj.c_ts',[pid]);
-	  qtype:=8;
-	 end
-	else
-	 begin
-	  qr:=TQueryResult.Create(Session.DbCon,
-		'SELECT Obj.id, Obj.pid, Obj.name, ObjType.icon, ObjType.name AS typename'+
-        ' FROM Ref'+
-        ' INNER JOIN Obj ON Obj.id=Ref.obj'+IntToStr(2-qtype)+'_id'+
-        ' INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'+
-        ' WHERE Ref.obj'+IntToStr(1+qtype)+'_id=? and Ref.reftype_id=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+
-        ' ORDER BY Obj.weight, Obj.name, Obj.c_ts',[pid,rid]);
-	  qtype:=9;
+  if rid=0 then
+   begin
+    qr:=TQueryResult.Create(Session.DbCon,
+      'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name'+
+      ' FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'+
+      ' WHERE Obj.pid=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+
+      ' ORDER BY Obj.Weight, Obj.name, Obj.c_ts',[pid]);
+    qtype:=8;
+   end
+  else
+   begin
+    qr:=TQueryResult.Create(Session.DbCon,
+      'SELECT Obj.id, Obj.pid, Obj.name, ObjType.icon, ObjType.name AS typename'+
+      ' FROM Ref'+
+      ' INNER JOIN Obj ON Obj.id=Ref.obj'+IntToStr(2-qtype)+'_id'+
+      ' INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'+
+      ' WHERE Ref.obj'+IntToStr(1+qtype)+'_id=? and Ref.reftype_id=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+
+      ' ORDER BY Obj.weight, Obj.name, Obj.c_ts',[pid,rid]);
+    qtype:=9;
+   end;
+  try
+    name2:=name+'I'+level;
+    while Context.Connected and qr.Read do
+     begin
+      id:=qr.GetInt('id');
+      <<span id="[[=name2]]_node_[[=id]]" expandurl="iTrace.xxm[[?'name',name,'id',id,'q',qtype,'l',level]][[=txCallProtect]]">
+      <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+      <a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name2]]',[[=id]])||(event||window.event||this).ctrlKey;" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
+      qrTok:=TQueryResult.Create(Session.DbCon,
+        'SELECT TokType.icon, TokType.name'+
+        ' FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id'+
+        ' WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
+      if not(qrTok.EOF) then
+       begin
+        Context.SendHTML(#13#10' '+lblTokens+' ');
+        while qrTok.Read and Context.Connected do
+         begin
+          ]] [[#txImg(qrTok.GetInt('icon'),qrTok.GetStr('name'))]]
+          [[
+         end;
+       end;
+      qrTok.Free;
+      <<br />
+      </span>>
      end;
-	try
-	  name2:=name+'I'+level;
-	  while Context.Connected and qr.Read do
-	   begin
-		id:=qr.GetInt('id');
-		<<span id="[[=name2]]_node_[[=id]]" expandurl="iTrace.xxm[[?'name',name,'id',id,'q',qtype,'l',level]][[=txCallProtect]]">
-		<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
-		<a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name2]]',[[=id]])||(event||window.event||this).ctrlKey;" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
-		qrTok:=TQueryResult.Create(Session.DbCon,
-		  'SELECT TokType.icon, TokType.name'+
-		  ' FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id'+
-		  ' WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
-		if not(qrTok.EOF) then
-		 begin
-		  Context.SendHTML(#13#10' '+lblTokens+' ');
-		  while qrTok.Read and Context.Connected do
-		   begin
-			]] [[#txImg(qrTok.GetInt('icon'),qrTok.GetStr('name'))]]
-			[[
-		   end;
-		 end;
-		qrTok.Free;
-		<<br />
-		</span>>
-	   end;
-	finally
-	  qr.Free;
-	end;
+  finally
+    qr.Free;
+  end;
 
  end
 else
  begin
   //references level
 
-   if DBExists('SELECT id FROM Obj WHERE pid=? LIMIT 1',[pid]) then
-    begin
-		name2:=name+'C'+level;
-		<<span id="[[=name2]]_children_[[=pid]]" expandurl="iTrace.xxm[[?'name',name,'id',pid,'q',0,'l',level]][[=txCallProtect]]">
-		<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_children_[[=pid]]');" />
-		<img src="img_dsc.png" width="16" height="16" alt="children" [[#globalIconAlign]]/>
-		<br />
-		</span>>
-	end;
+  if DBExists('SELECT id FROM Obj WHERE pid=? LIMIT 1',[pid]) then
+   begin
+    name2:=name+'C'+level;
+    <<span id="[[=name2]]_children_[[=pid]]" expandurl="iTrace.xxm[[?'name',name,'id',pid,'q',0,'l',level]][[=txCallProtect]]">
+    <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_children_[[=pid]]');" />
+    <img src="img_dsc.png" width="16" height="16" alt="children" [[#globalIconAlign]]/>
+    <br />
+    </span>>
+   end;
 
-	id:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[pid],0);
-	if qtype<>8 then
-	 begin
-		qr:=TQueryResult.Create(Session.DbCon,
-		  'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name'+
-		  ' FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'+
-		  ' WHERE Obj.id=?',[id]);
-		try
-		  if qr.Read then
-		   begin
-			name2:=name+'P'+level;
-			<<span id="[[=name2]]_parent_[[=id]]" expandurl="iTrace.xxm?name=[[=name]]&amp;id=[[=id]]&amp;q=9&amp;l=[[=level]][[=txCallProtect]]" class="backwards">
-			<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_parent_[[=id]]');" />
-			<img src="img_loc.png" width="16" height="16" alt="parent" [[#globalIconAlign]]/>
-			<a id="[[=name2]]_parentlink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name2]]',[[=id]])||(event||window.event||this).ctrlKey;" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
-			qrTok:=TQueryResult.Create(Session.DbCon,
-			  'SELECT TokType.icon, TokType.name'+
-			  ' FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id'+
-			  ' WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
-			if not(qrTok.EOF) then
-			 begin
-			  Context.SendHTML(#13#10' '+lblTokens+' ');
-			  while qrTok.Read and Context.Connected do
-			   begin
-				]] [[#txImg(qrTok.GetInt('icon'),qrTok.GetStr('name'))]]
-				[[
-			   end;
-			 end;
-			qrTok.Free;
-			<<br />
-			</span>>
-		   end;
-		finally
-		  qr.Free;
-		end;
-	 end;
+  id:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[pid],0);
+  if qtype<>8 then
+   begin
+    qr:=TQueryResult.Create(Session.DbCon,
+      'SELECT Obj.id, ObjType.icon, ObjType.name AS typename, Obj.name'+
+      ' FROM Obj INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'+
+      ' WHERE Obj.id=?',[id]);
+    try
+      if qr.Read then
+       begin
+        name2:=name+'P'+level;
+        <<span id="[[=name2]]_parent_[[=id]]" expandurl="iTrace.xxm?name=[[=name]]&amp;id=[[=id]]&amp;q=9&amp;l=[[=level]][[=txCallProtect]]" class="backwards">
+        <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_parent_[[=id]]');" />
+        <img src="img_loc.png" width="16" height="16" alt="parent" [[#globalIconAlign]]/>
+        <a id="[[=name2]]_parentlink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name2]]',[[=id]])||(event||window.event||this).ctrlKey;" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
+        qrTok:=TQueryResult.Create(Session.DbCon,
+          'SELECT TokType.icon, TokType.name'+
+          ' FROM Tok INNER JOIN TokType ON TokType.id=Tok.toktype_id'+
+          ' WHERE Tok.obj_id=? ORDER BY Tok.weight, Tok.c_ts',[id]);
+        if not(qrTok.EOF) then
+         begin
+          Context.SendHTML(#13#10' '+lblTokens+' ');
+          while qrTok.Read and Context.Connected do
+           begin
+            ]] [[#txImg(qrTok.GetInt('icon'),qrTok.GetStr('name'))]]
+            [[
+           end;
+         end;
+        qrTok.Free;
+        <<br />
+        </span>>
+       end;
+    finally
+      qr.Free;
+    end;
+   end;
 
-    qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT RefType.id, RefType.name, RefType.icon'+
-      ' FROM RefType'+
-      ' WHERE RefType.id IN (SELECT Ref.reftype_id FROM Ref'+
-	    ' INNER JOIN Obj ON Obj.id=Ref.obj2_id'+
-	    ' WHERE Ref.obj1_id=?'+
-	    ' AND Obj.rlm_id'+Session.Realms[rpView].SQL+
-      ') ORDER BY RefType.weight, RefType.name, RefType.c_ts',[pid]);
-	try
-	  name2:=name+'R'+level;
-	  while Context.Connected and qr.Read do
-	   begin
-		id:=qr.GetInt('id');
-		<<span id="[[=name2]]_node_[[=id]]" expandurl="iTrace.xxm[[?'name',name,'id',pid,'rt',id,'q',0,'l',level]][[=txCallProtect]]">
-		<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
-		[[#txImg(qr.GetInt('icon'))]] [[.name]]
-		<br />
-		</span>>
-	   end;
-	finally
-	  qr.Free;
-	end;
-    qr:=TQueryResult.Create(Session.DbCon,
-	  'SELECT RefType.id, RefType.name, RefType.icon'+
-	  ' FROM RefType'+
-	  ' WHERE RefType.id IN (SELECT Ref.reftype_id FROM Ref'+
-	    ' INNER JOIN Obj ON Obj.id=Ref.obj1_id'+
-	    ' WHERE Ref.obj2_id=?'+
-	    ' AND Obj.rlm_id'+Session.Realms[rpView].SQL+
-	  ') ORDER BY RefType.weight, RefType.name, RefType.c_ts',[pid]);
-	try
-	  name2:=name+'B'+level;
-	  while Context.Connected and qr.Read do
-	   begin
-		id:=qr.GetInt('id');
-		<<span id="[[=name2]]_node_[[=id]]" expandurl="iTrace.xxm?name=[[=name]]&amp;id=[[=pid]]&amp;rt=[[=id]]&amp;q=1&amp;l=[[=level]][[=txCallProtect]]" class="backwards">
-		<img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
-		[[#txImg(qr.GetInt('icon'))]] [[.name]]
-		<br />
-		</span>>
-	   end;
-	finally
-	  qr.Free;
-	end;
+  qr:=TQueryResult.Create(Session.DbCon,
+    'SELECT RefType.id, RefType.name, RefType.icon'+
+    ' FROM RefType'+
+    ' WHERE RefType.id IN (SELECT Ref.reftype_id FROM Ref'+
+      ' INNER JOIN Obj ON Obj.id=Ref.obj2_id'+
+      ' WHERE Ref.obj1_id=?'+
+      ' AND Obj.rlm_id'+Session.Realms[rpView].SQL+
+    ') ORDER BY RefType.weight, RefType.name, RefType.c_ts',[pid]);
+  try
+    name2:=name+'R'+level;
+    while Context.Connected and qr.Read do
+     begin
+      id:=qr.GetInt('id');
+      <<span id="[[=name2]]_node_[[=id]]" expandurl="iTrace.xxm[[?'name',name,'id',pid,'rt',id,'q',0,'l',level]][[=txCallProtect]]">
+      <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+      [[#txImg(qr.GetInt('icon'))]] [[.name]]
+      <br />
+      </span>>
+     end;
+  finally
+    qr.Free;
+  end;
+  qr:=TQueryResult.Create(Session.DbCon,
+    'SELECT RefType.id, RefType.name, RefType.icon'+
+    ' FROM RefType'+
+    ' WHERE RefType.id IN (SELECT Ref.reftype_id FROM Ref'+
+      ' INNER JOIN Obj ON Obj.id=Ref.obj1_id'+
+      ' WHERE Ref.obj2_id=?'+
+      ' AND Obj.rlm_id'+Session.Realms[rpView].SQL+
+    ') ORDER BY RefType.weight, RefType.name, RefType.c_ts',[pid]);
+  try
+    name2:=name+'B'+level;
+    while Context.Connected and qr.Read do
+     begin
+      id:=qr.GetInt('id');
+      <<span id="[[=name2]]_node_[[=id]]" expandurl="iTrace.xxm?name=[[=name]]&amp;id=[[=pid]]&amp;rt=[[=id]]&amp;q=1&amp;l=[[=level]][[=txCallProtect]]" class="backwards">
+      <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+      [[#txImg(qr.GetInt('icon'))]] [[.name]]
+      <br />
+      </span>>
+     end;
+  finally
+    qr.Free;
+  end;
 
  end;
 

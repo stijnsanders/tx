@@ -103,12 +103,12 @@ begin
     id:=x.getAttribute('id');
 
     //TODO: fix QName into query!
-	qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM '+QName+' WHERE id=?',[id]);
+    qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM '+QName+' WHERE id=?',[id]);
     if qr.EOF then
      begin
       qr.Free;
-	  sql:='SELECT id FROM '+QName+' WHERE name LIKE ?';
-	  if QName='Obj' then sql:=sql+' AND rlm_id'+Session.Realms[rpView].SQL;
+      sql:='SELECT id FROM '+QName+' WHERE name LIKE ?';
+      if QName='Obj' then sql:=sql+' AND rlm_id'+Session.Realms[rpView].SQL;
       qr:=TQueryResult.Create(Session.DbCon,sql,[x.selectSingleNode('name').text]);
      end;
     if not(qr.EOF) then

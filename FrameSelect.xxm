@@ -19,16 +19,15 @@ filterU:string;
   else
    begin
     <<p class="midnav">recent filters</p>>
-	for i:=0 to Session.FilterCache.Count-1 do
-	 begin
-	  filterU:=URLEncode(Session.FilterCache[i]);
-	  <<p style="white-space: nowrap;">&nbsp;
-	  <a href="FrameTree.xxm?filter=[[=filterU]]" class="linkbutton">tree</a>
-	  <a href="FrameList.xxm?filter=[[=filterU]]" class="linkbutton">list</a>
+    for i:=0 to Session.FilterCache.Count-1 do
+     begin
+      filterU:=URLEncode(Session.FilterCache[i]);
+      <<p style="white-space: nowrap;">&nbsp;
+      <a href="FrameTree.xxm?filter=[[=filterU]]" class="linkbutton">tree</a>
+      <a href="FrameList.xxm?filter=[[=filterU]]" class="linkbutton">list</a>
       <span class="litref">>=Session.FilterCache[i]<</span>
-	  </p>>
-	 end;
+      </p>>
+     end;
    end;
 
 Context.Include('dFrameFoot.xxmi');
-]]

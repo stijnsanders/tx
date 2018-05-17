@@ -42,11 +42,11 @@ newWeight:=Context['weight'].AsInteger+DBSingleValue('SELECT weight FROM RefType
 
 Session.DbCon.BeginTrans;
 try
-	//perform doesn't set c_ts, c_uid
-	Session.DbCon.Execute(txItemSQL_Move[ItemType],[newPid,ItemID]);
+  //perform doesn't set c_ts, c_uid
+  Session.DbCon.Execute(txItemSQL_Move[ItemType],[newPid,ItemID]);
 
 
-	rid:=Session.DbCon.Insert('Ref',
+  rid:=Session.DbCon.Insert('Ref',
     ['obj1_id',ItemID
     ,'obj2_id',obj2id
     ,'reftype_id',newRefTypeID
@@ -57,10 +57,10 @@ try
     ,'m_ts',VNow
     ,'m_uid',Session.UserID
     ],'id');
-	if newWeight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id=?',[newWeight,ItemID]);
+  if newWeight<>0 then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id=?',[newWeight,ItemID]);
 
-	//report
-	Session.DbCon.Insert('Rpt',
+  //report
+  Session.DbCon.Insert('Rpt',
     ['obj_id',ItemID
     ,'ts',VNow
     ,'uid',Session.UserID
@@ -70,13 +70,13 @@ try
     ,'obj2_id',obj2id
     ]);
 
-	TermStore.StoreTerms(itRef,rid,ItemID,desc);
-	if Use_ObjTokRefCache then Context.Include('aObjTokRefCache.xxmi',[ItemID]);
+  TermStore.StoreTerms(itRef,rid,ItemID,desc);
+  if Use_ObjTokRefCache then Context.Include('aObjTokRefCache.xxmi',[ItemID]);
 
-	Session.DbCon.CommitTrans;
+  Session.DbCon.CommitTrans;
 except
-	Session.DbCon.RollbackTrans;
-	raise;
+  Session.DbCon.RollbackTrans;
+  raise;
 end;
 
 Session.AddFilterRecent(itObj,newPid);
