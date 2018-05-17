@@ -1,5 +1,6 @@
 v1.3.4
 - MaintMail: send update mails
+- use QueryPerformanceCounter instead of GetTickCount when available
 
 v1.3.3
 - object selector search: options reports, terms

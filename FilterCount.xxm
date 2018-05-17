@@ -5,7 +5,7 @@ f:TtxFilter;
 fq:TtxSqlQueryFragments;
 i,j:integer;
 qr:TQueryResult;
-tc1,tc2,tc3,tc4:cardinal;
+tc1,tc2,tc3,tc4:TTimerIndex;
 realms:boolean;
 ]][[
 GetFilterViewInfo(Context,fv);
@@ -20,7 +20,7 @@ else
   f:=TtxFilter.Create;
   fq:=TtxSqlQueryFragments.Create(itObj);
   try
-    tc1:=GetTickCount;
+    tc1:=GetTimerIndex;
     f.FilterExpression:=fv.filter;
     if f.ParseError='' then
      begin
@@ -33,7 +33,7 @@ else
       <<p style="color:red;">>=f.ParseError<</p>>
      end;
 
-    tc2:=GetTickCount;
+    tc2:=GetTimerIndex;
     <<p class="buttons">
     <a href="Filter.xxm?filter=[[#fv.filterU]]" class="linkbutton">filter...</a>
     |
@@ -47,7 +47,7 @@ else
     </p>
     <p>
     <span id="filterCount">>#lblLoading<</span>
-    <span class="weight">parse: [[=tc2-tc1]]ms</span>>
+    <span class="weight">parse: [[=GetTimerDeltaMS(tc1,tc2)]]ms</span>>
     Context.Flush;
     if realms then
      begin
@@ -72,13 +72,13 @@ else
     fq.Free;
   end;
 
-  tc3:=GetTickCount;
-  <<span class="weight">build: [[=tc3-tc1]]ms</span>>
+  tc3:=GetTimerIndex;
+  <<span class="weight">build: [[=GetTimerDeltaMS(tc2,tc3)]]ms</span>>
   Context.Flush;
   qr:=TQueryResult.Create(Session.DbCon,fs,[]);
   try
-    tc4:=GetTickCount;
-    <<span class="weight">query: [[=tc4-tc3]]ms</span>
+    tc4:=GetTimerIndex;
+    <<span class="weight">query: [[=GetTimerDeltaMS(tc3,tc4)]]ms</span>
     </p>>
     if realms then
      begin

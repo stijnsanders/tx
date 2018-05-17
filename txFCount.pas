@@ -277,7 +277,7 @@ end;
 
 function TFilterGraph.Unique:cardinal;
 begin
-  Result:=GetTickCount;//Random?
+  Result:=GetTickCount xor GetCurrentThreadID;//Random?
 end;
 
 initialization

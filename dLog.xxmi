@@ -1,11 +1,11 @@
-[[@Windows,Variants,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,txTerms,txNodes,]][[!var
+[[@Variants,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,txTerms,txNodes,]][[!var
 filter,filterU,fs1,fs2,s:string;
 f:TtxFilter;
 fq1,fq2:TtxSqlQueryFragments;
 id,pid,limit,d,c1,c2:integer;
 qr1,qr2:TQueryResult;
 qs1,qs2,showAsc:boolean;
-tc1,tc2,tc3,tc4:cardinal;
+tc1,tc2,tc3,tc4:TTimerIndex;
 d1,d2:TDateTime;
 rpFilter:TtxRealmPermission;
 LocationCache:TItemCache;
@@ -43,7 +43,7 @@ fq2:=TtxSqlQueryFragments.Create(itReport);
 fq2.OrderBy:='Rpt.ts '+s;
 if limit<>0 then fq2.Limit:=limit;
 try
-  tc1:=GetTickCount;
+  tc1:=GetTimerIndex;
   if filter<>'' then
    begin
     f.FilterExpression:=filter;
@@ -52,7 +52,7 @@ try
       <<p style="color:red;">>=f.ParseError<</p>>
      end;
 
-    tc2:=GetTickCount;
+    tc2:=GetTimerIndex;
 
     fq1.AddFilter(f);
     fq2.AddFilter(f);
@@ -64,7 +64,7 @@ try
     <a class="linkbutton" href="Rss.xxm?[[=Context.ContextString(csQueryString)]]">rss...</a>
     </p>
     <p>
-    <span class="weight">parse: [[=tc2-tc1]]ms</span>
+    <span class="weight">parse: [[=GetTimerDeltaMS(tc1,tc2)]]ms</span>
     [[
    end;
 
@@ -87,11 +87,11 @@ finally
   fq2.Free;
 end;
 
-tc3:=GetTickCount;
+tc3:=GetTimerIndex;
 if filter<>'' then
  begin
   ]]
-  <span class="weight">build: [[=tc3-tc1]]ms</span>
+  <span class="weight">build: [[=GetTimerDeltaMS(tc2,tc3)]]ms</span>
   [[
  end;
 
@@ -102,13 +102,13 @@ c2:=0;
 LocationCache:=TItemCache.Create;
 TermDomains:=TIndexCache.Create;
 try
-  tc4:=GetTickCount;
+  tc4:=GetTimerIndex;
 
   //recordcount is -1 on adOpenForwardOnly
   if filter<>'' then
    begin
     ]]
-    <span class="weight">query: [[=tc4-tc3]]ms</span>
+    <span class="weight">query: [[=GetTimerDeltaMS(tc3,tc4)]]ms</span>
     </p>>
    end;
 

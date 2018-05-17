@@ -12,7 +12,7 @@ fq1,fq2:TtxSqlQueryFragments;
 id:integer;
 qr1,qrDsc:TQueryResultX;
 qr2,qrRef,qrTok:TQueryResult;
-tc1,tc2,tc3,tc4,tc5:cardinal;
+tc1,tc2,tc3,tc4,tc5:TTimerIndex;
 d1,d2:TDateTime;
 ]][[
 Context.Include('dHead.xxmi',['Summary']);
@@ -420,7 +420,7 @@ const
   f:=TtxFilter.Create;
   fq1:=TtxSqlQueryFragments.Create(itObj);
   try
-    tc1:=GetTickCount;
+    tc1:=GetTimerIndex;
     f.FilterExpression:=fv.filter;
     if f.ParseError='' then
      begin
@@ -432,8 +432,8 @@ const
      begin
       <<p style="color:red;">>=f.ParseError<</p>>
      end;
-    tc2:=GetTickCount;
-    <<span class="weight">parse: [[=tc2-tc1]]ms</span>>
+    tc2:=GetTimerIndex;
+    <<span class="weight">parse: [[=GetTimerDeltaMS(tc1,tc2)]]ms</span>>
     Context.Flush;
     fq1.AddFilter(f);
     if fq1.Where='' then
@@ -446,21 +446,21 @@ const
     fq1.Free;
   end;
 
-  tc3:=GetTickCount;
-  <<span class="weight">build: [[=tc3-tc1]]ms</span>>
+  tc3:=GetTimerIndex;
+  <<span class="weight">build: [[=GetTimerDeltaMS(tc2,tc3)]]ms</span>>
   Context.Flush;
   fq1:=nil;
   qr1:=TQueryResultX.Create(Session.DbCon,fs1,[]);
   LocationCache:=TItemCache.Create;
   try
     qr1.Queue:=nil;
-    tc4:=GetTickCount;
-    <<span class="weight">query: [[=tc4-tc3]]ms</span>>
+    tc4:=GetTimerIndex;
+    <<span class="weight">query: [[=GetTimerDeltaMS(tc3,tc4)]]ms</span>>
     Context.Flush;
 
     if bytree then
      begin
-      tc5:=GetTickCount;
+      tc5:=GetTimerIndex;
 
       //re-work id-list for structure
       nlist:=TIdList.Create;
@@ -487,7 +487,7 @@ const
       qr1:=TQueryResultX.Create(Session.DbCon,fq1.SQL,[]);
       qr1.Queue:=nil;
 
-      <<span class="weight">structure: [[=tc5-tc4]]ms</span>>
+      <<span class="weight">structure: [[=GetTimerDeltaMS(tc4,tc5)]]ms</span>>
       Context.Flush;
      end;
 

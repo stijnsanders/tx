@@ -10,7 +10,7 @@ users:array of record
   id,uid:integer;
   email,name:string;
 end;
-tc1,tc2,tc3,tc4:cardinal;
+tc1,tc2,tc3,tc4:TTimerIndex;
 qs1,qs2,dryrun:boolean;
 d1,d2:TDateTime;
 rpFilter:TtxRealmPermission;
@@ -245,7 +245,7 @@ try
             Context.SendHTML(users[users_i].name+' <'+users[users_i].email+'>...'#13#10);
             if not CheckEmail(users[users_i].email) then
               raise Exception.Create('Invalid e-mail address "'+users[users_i].email+'"');
-            tc1:=GetTickCount;
+            tc1:=GetTimerIndex;
             qr:=TQueryResult.Create(Session.DbCon,'SELECT ? AS uid, ? AS email, 0 AS isanon',[users[users_i].uid,users[users_i].email]);
             try
               Session.LoadUser(qr);
@@ -253,7 +253,7 @@ try
               qr.Free;
             end;
 
-            tc2:=GetTickCount;
+            tc2:=GetTimerIndex;
             rpFilter:=rpView;//?
             s:='ASC';//?
             limit:=100;//?
@@ -290,7 +290,7 @@ try
 
             Session.DbCon.BeginTrans;
             try
-              tc3:=GetTickCount;
+              tc3:=GetTimerIndex;
               qr1:=TQueryResult.Create(Session.DbCon,sql1,[]);
               qr2:=TQueryResult.Create(Session.DbCon,sql2,[]);
               c1:=0;
@@ -301,7 +301,7 @@ try
               try
                 msg.Include('dMailHead.xxmi',[msgURL]);
 
-                tc4:=GetTickCount;
+                tc4:=GetTimerIndex;
 
                 qs1:=qr1.Read;
                 qs2:=qr2.Read;
@@ -394,24 +394,24 @@ try
                    end;
                  end;
 
-                Context.SendHTML(['  i#',c1,' r#',c2,' [ms] user:',cardinal(tc2-tc1),' filter:',cardinal(tc3-tc2),' query:',cardinal(tc4-tc3),' build:',cardinal(GetTickCount-tc4)]);
+                Context.SendHTML(['  i#',c1,' r#',c2,' [ms] user:',GetTimerDeltaMS(tc1,tc2),' filter:',GetTimerDeltaMS(tc2,tc3),' query:',GetTimerDeltaMS(tc3,tc4),' build:',GetTimerIndexMS(tc4)]);
                 if not((c1=0) and (c2=0)) then
                  begin
                   msg.SendHTML([#13#10'<p class="midnav"><span class="date">',
-                    '<a href="Item.xxm?x=i'+IntToStr(users[users_i].id)+'">user</a>:',cardinal(tc2-tc1),'ms, ',
-                    '<a href="FilterBuild.xxm?filter='+fsu+'">filter</a>:',cardinal(tc3-tc2),'ms, ',
-                    '<a href="Filter.xxm?filter='+fsu+'">query</a>:',cardinal(tc4-tc3),'ms, ',
-                    '<a href="Log.xxm?filter='+fsu+'">build</a>:',cardinal(GetTickCount-tc4),'ms',
+                    '<a href="Item.xxm?x=i'+IntToStr(users[users_i].id)+'">user</a>:',GetTimerDeltaMS(tc1,tc2),'ms, ',
+                    '<a href="FilterBuild.xxm?filter='+fsu+'">filter</a>:',GetTimerDeltaMS(tc2,tc3),'ms, ',
+                    '<a href="Filter.xxm?filter='+fsu+'">query</a>:',GetTimerDeltaMS(tc3,tc4),'ms, ',
+                    '<a href="Log.xxm?filter='+fsu+'">build</a>:',GetTimerIndexMS(tc4),'ms',
                     '</span></p>',
                     #13#10'</body></html>'#13#10]);
 
-                  tc1:=GetTickCount;
+                  tc1:=GetTimerIndex;
                   mm:='Subject: '+msgSubject+
                     #13#10'To: "'+users[users_i].name+'" <'+users[users_i].email+'>'+
                     #13#10'From: '+msgFrom+
                     ProcessImages(msgURL+'Log.xxm?filter='+fsu,UTF8Encode(msg.Result));
                   if dryrun then
-                    Context.SendHTML([' dry-run:',cardinal(GetTickCount-tc1),' [bytes] ',Length(mm)])
+                    Context.SendHTML([' dry-run:',GetTimerIndexMS(tc1),' [bytes] ',Length(mm)])
                   else
                    begin
                     ff:=TFileStream.Create('C:\InetPub\mailroot\PickUp\txUpdate'+IntToStr(users[users_i].id)+'_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml',fmCreate);
@@ -420,7 +420,7 @@ try
                     finally
                       ff.Free;
                     end;
-                    Context.SendHTML([' output:',cardinal(GetTickCount-tc1),' [bytes] ',Length(mm)]);
+                    Context.SendHTML([' output:',GetTimerIndexMS(tc1),' [bytes] ',Length(mm)]);
                    end;
                  end;
                 Context.SendHTML(#13#10);

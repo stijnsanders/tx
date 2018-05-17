@@ -109,19 +109,26 @@ procedure GetFilterViewInfo(ctx:IXxmContext;var fv:TtxFilterViewInfo);
 
 function RFC822DateGMT(dd: TDateTime): string;
 
+type
+  TTimerIndex = type int64;
+
+function GetTimerIndex:TTimerIndex;
+function GetTimerIndexMS(TimerIndex:TTimerIndex):integer;
+function GetTimerDeltaMS(TimerIndex1,TimerIndex2:TTimerIndex):integer;
+
 function TryGetUserName(const Logon:WideString):WideString;
 
 type
   LPCWSTR=PWideChar;
   DWORD=cardinal;
+
 function NetUserGetInfo (servername: LPCWSTR; username: LPCWSTR;
   level: DWORD; var bufptr: Pointer): DWORD; stdcall;
 function NetApiBufferFree(buffer: Pointer): DWORD ; stdcall;
 
-
 threadvar
   Session: TtxSession;
-  PageStartTQ,PageStartTF:int64;
+  PageStartTC: TTimerIndex;
   ThreadDbCon: TDataConnection;
 var
   RealmsCounter: integer;
@@ -145,12 +152,7 @@ var
   i:integer;
   sid:string;
 begin
-  if not(QueryPerformanceCounter(PageStartTQ) and
-    QueryPerformanceFrequency(PageStartTF)) then
-   begin
-    PageStartTQ:=GetTickCount;
-    PageStartTF:=0;
-   end;
+  PageStartTC:=GetTimerIndex;
   sid:=Context.SessionID+'|'+Context.ContextString(csUserAgent);//hash?
   EnterCriticalSection(SessionStoreLock);
   try
@@ -229,16 +231,8 @@ begin
 end;
 
 function PageRenderTimeMS:cardinal;
-var
-  x:int64;
 begin
-  if PageStartTF=0 then
-    Result:=GetTickCount-PageStartTQ
-  else
-    if QueryPerformanceCounter(x) then
-      Result:=(x-PageStartTQ)*1000 div PageStartTF
-    else
-      Result:=9009009;//error?raise?
+  Result:=GetTimerIndexMS(PageStartTC);
 end;
 
 function TermStore:TTermStore;
@@ -896,6 +890,32 @@ begin
     [Days[wd],d,Months[m],y,th,tm,ts]);
 end;
 
+var
+  qptf:int64;
+
+function GetTimerIndex:TTimerIndex;
+begin
+  if qptf=0 then Result:=GetTickCount else
+    if not QueryPerformanceCounter(Int64(Result)) then Result:=-1;//raise?
+end;
+
+function GetTimerIndexMS(TimerIndex:TTimerIndex):integer;
+var
+  x:int64;
+begin
+  if qptf=0 then Result:=cardinal(GetTickCount-TimerIndex) else
+    if (TimerIndex=-1) or not(QueryPerformanceCounter(x)) then Result:=-1 else
+      Result:=(x-TimerIndex)*1000 div qptf;
+end;
+
+function GetTimerDeltaMS(TimerIndex1,TimerIndex2:TTimerIndex):integer;
+var
+  x:int64;
+begin
+  if qptf=0 then Result:=cardinal(TimerIndex2-TimerIndex1) else
+    Result:=(TimerIndex2-TimerIndex1)*1000 div qptf;
+end;
+
 function TryGetUserName(const Logon:WideString):WideString;
 type
   TUserInfo2=record
@@ -944,6 +964,7 @@ function NetApiBufferFree; external 'netapi32.dll' name 'NetApiBufferFree';
 
 initialization
   Randomize;
+  if not(QueryPerformanceFrequency(qptf)) then qptf:=0;//see GetTimerIndexMS
   SessionStore:=TStringList.Create;
   SessionStore.Sorted:=true;
   InitializeCriticalSection(SessionStoreLock);

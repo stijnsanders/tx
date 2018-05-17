@@ -50,11 +50,11 @@ constructor TTermStore.Create(const DllPath: string);
 type
   T_DGCO=function(const CLSID, IID: TGUID; var Obj): HResult; stdcall;//DllGetClassObject
 var
-  tc:integer;
+  tc:TTimerIndex;
   p:T_DGCO;
   f:IClassFactory;
 begin
-  tc:=integer(GetTickCount);
+  tc:=GetTimerIndex;
   inherited Create;
   FInitError:='';
   FInitTimeMS:=-1;
@@ -81,7 +81,7 @@ begin
         FInitError:='{'+e.ClassName+'}'+e.Message;
        end;
     end;
-    FInitTimeMS:=integer(GetTickCount)-tc;
+    FInitTimeMS:=GetTimerIndexMS(tc);
    end
   else
    begin

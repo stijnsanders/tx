@@ -52,7 +52,7 @@ for di:=0 to d1.Count-1 do
   f:TtxFilter;
   fq:TtxSqlQueryFragments;
   i,fi,fcl:integer;
-  tc1,tc2:cardinal;
+  tc1,tc2:TTimerIndex;
   b:boolean;
   fc:array of record
     x:string;
@@ -62,7 +62,7 @@ const
   rname:array[0..1] of string=('view','edit');
 ]][[
 //test: get realms for user
-tc1:=GetTickCount;
+tc1:=GetTimerIndex;
 fcl:=0;
 SetLength(fc,fcl);
 qr:=TQueryResult.Create(Session.DbCon,'SELECT id, name, system, view_expression, edit_expression, limit_expression FROM Rlm ORDER BY id',[]);
@@ -85,7 +85,7 @@ try
          end
         else
          begin
-          tc2:=GetTickCount;
+          tc2:=GetTimerIndex;
           f:=TtxFilter.Create;
           fq:=TtxSqlQueryFragments.Create(itObj);
           try
@@ -108,7 +108,7 @@ try
           fc[fcl].b:=b;
           inc(fcl);
           //
-          fr:=IntToStr(GetTickCount-tc2)+'ms';
+          fr:=IntToStr(GetTimerIndexMS(tc2))+'ms';
          end;
         if b then
           Context.SendHTML('<b style="color:#00CC00;">'+rname[fi]+'</b> '+fr+' ')
@@ -120,7 +120,7 @@ try
     fx:=qr.GetStr('limit_expression');
     if (fx<>'') and Use_ObjPath then
      begin
-      tc2:=GetTickCount;
+      tc2:=GetTimerIndex;
       f:=TtxFilter.Create;
       fq:=TtxSqlQueryFragments.Create(itObj);
       try
@@ -136,7 +136,7 @@ try
         try
           if qr1.EOF then
            begin
-            fr:=IntToStr(GetTickCount-tc2)+'ms';
+            fr:=IntToStr(GetTimerIndexMS(tc2))+'ms';
             Context.SendHTML('<s style="color:#0000CC;">limit</s> '+fr+' ');
            end
           else
@@ -149,7 +149,7 @@ try
               inc(i);
              end;
             s[Length(s)]:=')';
-            fr:=IntToStr(GetTickCount-tc2)+'ms';
+            fr:=IntToStr(GetTimerIndexMS(tc2))+'ms';
             Context.SendHTML('<b style="color:#00CC00;">limit</b> (#'+IntToStr(i)+') '+fr+' ');
            end;
         finally
@@ -166,7 +166,7 @@ try
 finally
   qr.Free;
 end;
-<<p>Total: [[=GetTickCount-tc1]]ms, <a href="Item.xxm?x=i[[=Session.UserID]]">user obj...</a></p>
+<<p>Total: [[=GetTimerIndexMS(tc1)]]ms, <a href="Item.xxm?x=i[[=Session.UserID]]">user obj...</a></p>
 
 <h1>settings</h1>
 <dl>
