@@ -207,7 +207,10 @@ begin
       if dy1=dy2 then
         Result:=FormatDateTime('ddd d/mm',d)
       else
-        Result:=FormatDateTime('ddd d/mm/yyyy',d)
+      if d>d1-533.0 then
+        Result:=FormatDateTime('d/mm/yyyy',d)
+      else
+        Result:=FormatDateTime('mm/yyyy',d);
      end;
    end;
 end;

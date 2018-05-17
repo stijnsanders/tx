@@ -18,11 +18,11 @@ if Length(Objects)<2 then
 <span class="date">>
 if d1<>0 then
  begin
-  ]] c:&nbsp;<a href="Item.xxm?x=i[[=qr[prefix+'c_uid']]]" title="created on [[=NiceDateTime(v1)]] by &#x2026;">[[=ShortDateTime(d1)]]</a>>
+  ]] c:&nbsp;<a href="Item.xxm?x=i[[=qr[prefix+'c_uid']]]" title="created on [[=NiceDateTime(v1)]] by &#x2026;">>=ShortDateTime(d1)<</a>>
  end;
 if d1<>d2 then
  begin
-  ]] m:&nbsp;<a href="Item.xxm?x=i[[=qr[prefix+'m_uid']]]" title="modified on [[=NiceDateTime(v2)]] by &#x2026;">[[=ShortDateTime(d2)]]</a>>
+  ]] m:&nbsp;<a href="Item.xxm?x=i[[=qr[prefix+'m_uid']]]" title="modified on [[=NiceDateTime(v2)]] by &#x2026;">>=ShortDateTime(d2)<</a>>
  end;
 if (Length(Values)>1) and Use_ObjHist then
  begin
