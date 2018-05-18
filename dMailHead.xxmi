@@ -50,6 +50,13 @@ P.midnav {
 	border-right: 0.2em solid #999999;
 	margin-top: 1.2em;
 }
+A.wikilink {
+	color: #008000;
+}
+A.newwiki {
+	color: #006000;
+	text-decoration: none;
+}
 SPAN.date {
 	background-color: #E0E0E0;
 	color: #606060;

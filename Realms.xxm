@@ -1,8 +1,8 @@
 [[@txDefs,DataLank,txSession,txTerms,]][[!var
-  IsAdmin,InView,InControl:boolean;
-  qr:TQueryResult;
-  s,t,USelf,df1,df2,df3:string;
-  id:integer;
+IsAdmin,InView,InControl,SomeLimits:boolean;
+qr:TQueryResult;
+s,t,USelf:string;
+id:integer;
 const
   ImgSuffix:array[boolean] of string=('0','1');
   SetClear:array[boolean] of string=('s','c');
@@ -15,7 +15,11 @@ begin
   i:=4;//assert Copy(sql,1,4)='IN (';
   while (i<=l) and (sql[i]<>')') do inc(i);
   Result:=Copy(sql,4,i-3);
-  if i<l then Result:=Result+'*';
+  if i<l then
+   begin
+    Result:=Result+'*';
+    SomeLimits:=true;
+   end;
 end;
 
 ]][[
@@ -23,6 +27,7 @@ IsAdmin:=Session.IsAdmin('realms');
 Context.Include('dHead.xxmi',['Realms']);
 <meta name="robots" content="nofollow" />
 USelf:='Realms.xxm?a=';//TODO: from context?
+SomeLimits:=false;
 
 s:=Context['a'].Value;
 if s<>'' then
@@ -41,26 +46,21 @@ if IsAdmin then
  end;
 
 //TODO: fRealm.xxm fDelete.xxm?x=rm
-qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Rlm ORDER BY id',[]);
+
+<<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+<tr>
+<th>&nbsp;</th>
+<th>realm</th>
+<th>description</th>
+<th>system</th>
+<th>viewable by</th>
+<th>editable by</th>>
+if Use_ObjPath then begin <<th>limit to</th>> end;
+<<th>&nbsp;</th>
+</tr>>
+
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id<>0 ORDER BY id',[]);
 try
-  if (not qr.EOF) and (qr.GetInt('id')=0) then
-   begin
-    qr.Read;//load first record
-    df1:=qr.GetStr('view_expression');
-    df2:=qr.GetStr('edit_expression');
-    df3:=qr.GetStr('limit_expression');
-   end;
-  <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
-  <tr>
-  <th>&nbsp;</th>
-  <th>realm</th>
-  <th>description</th>
-  <th>system</th>
-  <th>viewable by</th>
-  <th>editable by</th>>
-  if Use_ObjPath then begin <<th>limit to</th>> end;
-  <<th>&nbsp;</th>
-  </tr>>
   while qr.Read do
    begin
     id:=qr.GetInt('id');
@@ -139,19 +139,25 @@ try
     </tr>>
    end;
 
-  id:=0;
-  InView:=true;
-  try
-    Session.HasRealmPermission(0,id,rpView);
-  except
-    on ERealmNotEditableByUser do InView:=false;
-  end;
-  //InControl:=Session.RealmPermission(rpEdit,id);
+finally
+  qr.Free;
+end;
 
+id:=0;
+InView:=true;
+try
+  Session.HasRealmPermission(0,id,rpView);
+except
+  on ERealmNotEditableByUser do InView:=false;
+end;
+//InControl:=Session.RealmPermission(rpEdit,id);
+
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id=0 ORDER BY id',[]);
+try
   <<tr>>
   if IsAdmin then
    begin
-    <<td><a href="fRealm0.xxm" class="linkbutton">edit...</a></td>>
+    <<th style="text-align:left;font-weight:normal;"><a href="fRealm0.xxm" class="linkbutton">edit...</a></th>>
    end
   else
    begin
@@ -168,12 +174,12 @@ try
     Control <b>>=BriefSQL(Session.Realms[rpEdit].SQL)<</b>
     <br />
     Uncheck all or <a href="[[=USelf]]reset">click here to reset defaults</a>.
-  </th>
-  <th>&nbsp;</th>>
-  if IsAdmin and not((df1='') and (df2='') and (df3='')) then
+  </th>>
+  if qr.Read then
    begin
-    <<td style="white-space:nowrap;">>
-    s:=df1;//s:=qr.GetStr('view_expression');
+    <<th>&nbsp;</th>
+    <td style="white-space:nowrap;">>
+    s:=qr.GetStr('view_expression');
     if s='' then Context.SendHTML('&ndash;') else
      begin
       t:='?filter='+URLEncode(s);
@@ -183,7 +189,7 @@ try
      end;
     <</td>
     <td style="white-space:nowrap;">>
-    s:=df2;//s:=qr.GetStr('edit_expression');
+    s:=qr.GetStr('edit_expression');
     if s='' then Context.SendHTML('&ndash;') else
      begin
       t:='?filter='+URLEncode(s);
@@ -195,7 +201,7 @@ try
     if Use_ObjPath then
      begin
       <<td style="white-space:nowrap;">>
-      s:=df3;//s:=qr.GetStr('limit_expression');
+      s:=qr.GetStr('limit_expression');
       if s='' then Context.SendHTML('&ndash;') else
        begin
         t:='?filter='+URLEncode(s);
@@ -205,13 +211,15 @@ try
        end;
       <</td>>
      end;
+    <<th style="text-align:left;font-weight:normal;">>Context.Include('d_cmw.xxmi',[],[qr,nil]);<</th>>
    end
   else
    begin
-    <<th colspan="[[if Use_ObjPath then Context.SendHTML('4') else Context.SendHTML('3');]]">&nbsp;</th>>
+    <<th colspan="[[if Use_ObjPath then Context.SendHTML('5') else Context.SendHTML('4');]]">&nbsp;</th>>
    end;
   <</tr>
   </table>>
+
 finally
   qr.Free;
 end;
@@ -225,5 +233,10 @@ if IsAdmin then
  end;
 <<a href="Item.xxm?x=i[[=Session.UserID]]" class="linkbutton">user obj...</a>
 </p>>
+
+if SomeLimits then
+ begin
+  <<p><b>*:</b> some realm access has limits enforced.</p>>
+ end;
 
 Context.Include('dFoot.xxmi');

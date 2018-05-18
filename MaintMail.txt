@@ -15,7 +15,8 @@ rx$me
 
 ;; another example: if a reference type with system "updates" exists, instruct people to reference
 ;; *from their user object* to project branches of their choice
+;; (or from an object in the path to the root)
 ;; first a filter for all users;
 ;true
-;; then a filter of objects referred to by references of this type
-;i{r$me[rt"updates"]}*
+;; then a filter of objects referred to by a references of type "updates"
+;i{r{path$me*}[rt"updates"]}*
