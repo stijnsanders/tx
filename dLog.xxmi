@@ -173,7 +173,7 @@ try
         s:=ln.GetHTML([ghLink,ghIcon,ghTitle],pid)+s;
        end;
       ]][[#s]]
-      <a href="Item.xxm?x=i[[=id]]" title="[[=qr2['typename']]]">>#txImg(qr2.GetInt('icon'))]] [[=qr2['name']<</a>
+      <a href="Item.xxm?x=i[[=id]]&amp;hr=[[=qr2['id']]]" title="[[=qr2['typename']]]">>#txImg(qr2.GetInt('icon'))]] [[=qr2['name']<</a>
       </p>>
       //TODO: path of obj_id?
       if not(qr2.IsNull('tokicon')) then
@@ -220,4 +220,3 @@ finally
   LocationCache.Free;
   TermDomains.Free;
 end;
-]]

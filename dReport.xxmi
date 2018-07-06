@@ -12,7 +12,7 @@ IsRef:=false;//see below
 hr:=Context['hr'].AsInteger;
 if hr=id then begin]]<div class="highlighteditem">[[end;
 <<p class="reportheader"><a name="rpt[[=id]]"></a><a href="Item.xxm?x=i[[.usrid]]" title="[[.usrtypename]]">>#txImg(qr.GetInt('usricon'))]] [[.usrname<</a>
-<span class="date">reported on [[=NiceDateTime(qr['ts'])]]</span>>
+<span class="date">reported on [[=NiceDateTime(qr['ts'])]] <a href="Item.xxm?x=i[[=qr['obj_id']]]&amp;hr=[[=id]]">&lsaquo;</a></span>>
 //TODO: revoke only own? only last?
 if IsAdmin then
  begin
@@ -63,4 +63,3 @@ if not(IsRef) and not(qr.IsNull('relicon')) then
   <</p>>
  end;
 if hr=id then begin <</div>> end;
-]]

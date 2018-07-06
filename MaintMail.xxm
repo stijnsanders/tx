@@ -361,7 +361,7 @@ try
                       s:=ln.GetHTML([ghLink,ghIcon,ghTitle],pid)+s;
                      end;
                     msg.SendHTML(s);
-                    msg.SendHTML([#13#10'<a href="Item.xxm?x=i',id,'" title="',HTMLEncode(qr2.GetStr('typename')),'">',txImg(qr2.GetInt('icon')),' ',HTMLEncode(qr2.GetStr('name')),'</a>']);
+                    msg.SendHTML([#13#10'<a href="Item.xxm?x=i',id,'&amp;hr=',qr2['id'],'" title="',HTMLEncode(qr2.GetStr('typename')),'">',txImg(qr2.GetInt('icon')),' ',HTMLEncode(qr2.GetStr('name')),'</a>']);
                     msg.SendHTML('</p>');
 
                     //TODO: path of obj_id?
