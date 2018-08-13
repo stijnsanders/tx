@@ -5,14 +5,14 @@ d:TDateTime;
 autoCreate:boolean;
 st:TQueryResult;
 ]][[
-Context.Include('dHead.xxmi',['Maintenance: re-order reports by date']);
 CheckMaintProtect(Context);
 
 root:=Context['obj'].AsInteger;
 if root=0 then
  begin
+  Context.Include('dHead.xxmi',['Maintenance: re-order reports by date']);
   ]]
-  [[#txForm('MaintRpt.xxm',[],'selectnode_required("obj","an object of which to reorder the reports")')]]
+  [[#StringReplace(txForm('MaintRpt.xxm',[],'selectnode_required("obj","an object of which to reorder the reports")'),'method="post"','method="get"',[])]]
   <dl>[[//see also Modify.xxm]]
   <dt>Object</dt><dd>[[Context.Include('dObjSelect.xxmi',['obj',0,0,0,'',true]);]]</dd>
   <dt>Sub-node(s) name format</dt>
@@ -22,6 +22,7 @@ if root=0 then
   </dl>
   [[#txFormButton]]
   </form>>
+  Context.Include('dFoot.xxmi');
  end
 else
  begin
@@ -104,6 +105,3 @@ else
   end;
 
  end;
-
-Context.Include('dFoot.xxmi');
-]]
