@@ -1,0 +1,61 @@
+[[@txSession,DataLank,MSXML,Variants,Windows,Classes]][[!var
+app,key,url1,url2:string;
+r:IXMLHttpRequest;
+qr:TQueryResult;
+sl:TStringList;
+i,l:integer;
+]][[
+
+app:=Context['app'].Value;
+key:=Context['key'].Value;
+
+if (app='') or (key='') then
+  Context.Redirect('/Default.xxm',true);
+
+if (Session.UserID=0) or (Session.IsAnonymous) then
+  Context.Redirect('/Logon.xxm?url='+URLEncode(Context.URL),true);
+  
+//TODO: from DB: registered applications
+sl:=TStringList.Create;
+try
+  sl.LoadFromFile(ModulePath+'AuthApps.txt');
+  url1:=sl.Values[app];
+  if url1='' then
+    raise Exception.Create('Unknown application')
+  else
+   begin
+    i:=1;
+    l:=Length(url1);
+    while (i<=l) and (url1[i]<>' ') do inc(i);
+    url2:=Copy(url1,i+1,l-i);
+    url1:=Copy(url1,1,i-1);
+    if url2='' then url2:=url1;
+   end;
+finally
+  sl.Free;
+end;
+
+
+r:=CoXMLHttpRequest.Create;
+qr:=TQueryResult.Create(Session.DbCon,'select Usr.login,Obj.name,Usr.email from Usr inner join Obj on Usr.uid=Obj.id where Obj.id=?',[Session.UserID]);
+try
+  if qr.EOF then
+    raise Exception.Create('Unable to read authentification data');
+
+  r.open('POST',url1,false,EmptyParam,EmptyParam);
+  r.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+  r.send(URLEncode(
+    ['id',Session.UserID
+    ,'key',key
+    ,'login',qr['login']
+    ,'name',qr['name']
+    ,'email',qr['email']
+    ]));
+  if r.status=200 then
+    Context.Redirect(url2+'?key='+URLEncode(key),false)
+  else
+    raise Exception.CreateFmt('HTTP:%d"%s"%s',[r.status,r.statusText,r.responseText]);
+finally
+  qr.Free;
+  r:=nil;
+end;

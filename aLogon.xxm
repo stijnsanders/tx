@@ -94,7 +94,9 @@ else
   finally
     qr.Free;
   end;
-  url:='Item.xxm?x=i'+IntToStr(uid);
+  url:=Context['next'].Value;
+  if Copy(url,1,4)<>'http' then
+    url:='Item.xxm?x=i'+IntToStr(uid);
  end;
 
 Context.Redirect(url,true);

@@ -139,7 +139,7 @@ else
     $("#username")[0].focus();
     //--></script>
     <p><a href="fLogonPwd.xxm">I forgot my password...</a></p>
-    <p><a href="fLogon.xxm">I'm a new user...</a></p>>
+    <p><a href="fLogon.xxm?url=[[=url]]">I'm a new user...</a></p>>
    end
   else
    begin

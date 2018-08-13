@@ -15,7 +15,7 @@ Context.Include('dHead.xxmi',['Account']);
   else
    begin
     <<h2>New User</h2>
-    [[#txForm('aLogon.xxm',[])]]
+    [[#txForm('aLogon.xxm',['next',Context['url'].Value])]]
     [[#txFormProtect]]
     <script><!--
     [[Context.Include('iLogonJS.xxmi');]]
@@ -58,4 +58,3 @@ Context.Include('dHead.xxmi',['Account']);
    end;
 
 Context.Include('dFoot.xxmi');
-]]
