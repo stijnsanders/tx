@@ -124,6 +124,8 @@ if not(imgonly) then
 <label for="timedelta1">weekly</label>
 <input type="radio" id="timedelta2" name="timedelta" value="2" [[=RadioBool[timedelta=2]]] />
 <label for="timedelta2">monthly</label>
+<input type="radio" id="timedelta3" name="timedelta" value="3" [[=RadioBool[timedelta=3]]] />
+<label for="timedelta3">quarterly</label>
 <br />
 <input type="radio" id="itemcount0" name="items" value="0" [[=RadioBool[itemcount]]] />
 <label for="itemcount0">item count</label>
@@ -232,6 +234,15 @@ try
       else
         d2:=EncodeDate(dy,dm+1,1);
      end;
+    3://quarterly
+     begin
+      dm:=((dm-1) div 3)*3+1;
+      d1:=EncodeDate(dy,dm,1);
+      if dm=10 then
+        d2:=EncodeDate(dy+1,1,1)
+      else
+        d2:=EncodeDate(dy,dm+3,1);
+     end;
   end;
   run:=true;
   while run and Context.Connected do
@@ -241,25 +252,31 @@ try
       0:s:=IntToStr(dd);//daily
       1:s:=IntToStr(dd);//weekly
       2:s:=IntToStr(dm);//monthly
+      3:s:=IntToStr(((dm-1)div 3)+1);//quarterly
     end;
     run:=fg.StartPosition(s);
     if run then
      begin
       case timedelta of
-       0://daily
+        0://daily
          begin
           if dd=1 then if dm=1 then fg.SecondLabel(IntToStr(dy)+'-'+IntToStr(dm)) else fg.SecondLabel(IntToStr(dm));
           if ((Trunc(d1)-2)  mod 7)=0 then fg.VerticalIncrement;
          end;
-       1://weekly
-        if dd<=7 then
-         begin
-          fg.VerticalIncrement;
-          if dm=1 then fg.SecondLabel(IntToStr(dy)+'-'+IntToStr(dm)) else fg.SecondLabel(IntToStr(dm));
-         end;
-       2://monthly
+        1://weekly
+          if dd<=7 then
+           begin
+            fg.VerticalIncrement;
+            if dm=1 then fg.SecondLabel(IntToStr(dy)+'-'+IntToStr(dm)) else fg.SecondLabel(IntToStr(dm));
+           end;
+        2://monthly
          begin
           if ((dm-1) mod 4)=0 then fg.VerticalIncrement;
+          if dm=1 then fg.SecondLabel(IntToStr(dy));
+         end;
+        3://quarterly
+         begin
+          if dm=1 then fg.VerticalIncrement;
           if dm=1 then fg.SecondLabel(IntToStr(dy));
          end;
       end;
@@ -278,6 +295,7 @@ try
         0:d1:=d1-1;//daily
         1:d1:=d1-7;//weekly
         2:if dm=1 then d1:=EncodeDate(dy-1,12,1) else d1:=EncodeDate(dy,dm-1,1);//monthly
+        3:if dm=1 then d1:=EncodeDate(dy-1,10,1) else d1:=EncodeDate(dy,dm-3,1);//quarterly
       end;
     end;
    end;
