@@ -909,8 +909,6 @@ begin
 end;
 
 function GetTimerDeltaMS(TimerIndex1,TimerIndex2:TTimerIndex):integer;
-var
-  x:int64;
 begin
   if qptf=0 then Result:=cardinal(TimerIndex2-TimerIndex1) else
     Result:=(TimerIndex2-TimerIndex1)*1000 div qptf;

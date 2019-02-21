@@ -76,8 +76,19 @@ else
           id:=DbSingleValue('SELECT id FROM Obj WHERE pid=? AND name=?',[id,n],0);
           if id=0 then
             if autoCreate then
-              id:=DbSingleValue('INSERT INTO Obj (pid,objtype_id,name,'+sqlDesc+',url,weight,rlm_id,c_ts,c_uid,m_ts,m_uid) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-                [nid,ObjTypeID,n,'','',dweight,RlmID,VNow,Session.UserID,VNow,Session.UserID],nid)
+              id:=Session.DbCon.Insert('Obj',
+                ['pid',nid
+                ,'objtype_id',ObjTypeID
+                ,'name',n
+                ,sqlDesc,''
+                ,'url',''
+                ,'weight',dweight
+                ,'rlm_id',RlmID
+                ,'c_ts',VNow
+                ,'c_uid',Session.UserID
+                ,'m_ts',VNow
+                ,'m_uid',Session.UserID
+                ],'id')
             else
              begin
               //skip!

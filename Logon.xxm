@@ -130,10 +130,12 @@ else
     <dt>Password</dt><dd><input type="password" name="[[=sid]]" value="" size="20" /></dt>
     </dl>
     <input type="hidden" name="url" value="[[=url]]" />
-    [[#txFormButton]]
-    &nbsp;
+    <p>
     <input type="checkbox" name="autologon" value="1" id="autologon1" />
     <label for="autologon1">log on automatically on this computer</label>
+    <br />
+    [[#txFormButton]]
+    </p>
     </form>
     <script><!--
     $("#username")[0].focus();
