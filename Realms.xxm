@@ -7,14 +7,14 @@ const
   ImgSuffix:array[boolean] of string=('0','1');
   SetClear:array[boolean] of string=('s','c');
 
-function BriefSQL(const sql:string):string;
+function BriefSQL(const sql:UTF8String):string;
 var
   i,l:integer;
 begin
   l:=Length(sql);
   i:=4;//assert Copy(sql,1,4)='IN (';
   while (i<=l) and (sql[i]<>')') do inc(i);
-  Result:=Copy(sql,4,i-3);
+  Result:=string(Copy(sql,4,i-3));
   if i<l then
    begin
     Result:=Result+'*';
@@ -106,7 +106,7 @@ try
     s:=qr.GetStr('view_expression');
     if s='' then Context.SendHTML('&ndash;') else
      begin
-      t:='?filter='+URLEncode(s);
+      t:='?filter='+string(URLEncode(s));
       <<span class="litref">>=s<</span><br />
       <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
       <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
@@ -116,7 +116,7 @@ try
     s:=qr.GetStr('edit_expression');
     if s='' then Context.SendHTML('&ndash;') else
      begin
-      t:='?filter='+URLEncode(s);
+      t:='?filter='+string(URLEncode(s));
       <<span class="litref">>=s<</span><br />
       <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
       <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
@@ -128,7 +128,7 @@ try
       s:=qr.GetStr('limit_expression');
       if s='' then Context.SendHTML('&ndash;') else
        begin
-        t:='?filter='+URLEncode(s);
+        t:='?filter='+string(URLEncode(s));
         <<span class="litref">>=s<</span><br />
         <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
         <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
@@ -182,7 +182,7 @@ try
     s:=qr.GetStr('view_expression');
     if s='' then Context.SendHTML('&ndash;') else
      begin
-      t:='?filter='+URLEncode(s);
+      t:='?filter='+string(URLEncode(s));
       <<span class="litref">>=s<</span><br />
       <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
       <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
@@ -192,7 +192,7 @@ try
     s:=qr.GetStr('edit_expression');
     if s='' then Context.SendHTML('&ndash;') else
      begin
-      t:='?filter='+URLEncode(s);
+      t:='?filter='+string(URLEncode(s));
       <<span class="litref">>=s<</span><br />
       <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
       <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
@@ -204,7 +204,7 @@ try
       s:=qr.GetStr('limit_expression');
       if s='' then Context.SendHTML('&ndash;') else
        begin
-        t:='?filter='+URLEncode(s);
+        t:='?filter='+string(URLEncode(s));
         <<span class="litref">>=s<</span><br />
         <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
         <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>

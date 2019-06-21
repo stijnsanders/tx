@@ -5,19 +5,19 @@ var
   Address,ActionAddress:WideString;
   i,j,gPara:integer;
   op:TtxFilterOperator;
-function Address2(f:string):string;
+function Address2(const f:UTF8String):UTF8String;
 begin
-  Result:='FilterBuild.xxm?filter='+URLEncode(f);//+'&amp;';
+  Result:='FilterBuild.xxm?filter='+f;//+'&amp;';
 end;
-function Inject(a,b:string;i:integer):string;
+function Inject(const a,b:UTF8String;i:integer):UTF8String;
 begin
   Result:=Copy(a,1,i-1)+b+Copy(a,i,Length(a)-i+1);
 end;
-function Contract(a:string;afrom,ato:integer):string;
+function Contract(const a:UTF8String;afrom,ato:integer):UTF8String;
 begin
   Result:=Copy(a,1,afrom-1)+Copy(a,ato,Length(a)-ato+1);
 end;
-function Replace1(a:string;i:integer;c:char):string;
+function Replace1(const a:UTF8String;i:integer;c:AnsiChar):UTF8String;
 begin
   Result:=a;
   Result[i]:=c;
@@ -25,7 +25,7 @@ end;
 ]][[
 
 filter:=Context['filter'].Value;
-filterU:=URLEncode(filter);
+filterU:=string(URLEncode(filter));
 action:=Context['x'].Value;
 
 Context.Include('dHead.xxmi',['Build Filter']);
@@ -65,7 +65,7 @@ if (action='') and (filter<>'') then
 
   txFilter:=TtxFilter.Create;
   try
-    txFilter.FilterExpression:=filter;
+    txFilter.FilterExpression:=UTF8Encode(filter);
 
     if txFilter.ParseError<>'' then
      begin

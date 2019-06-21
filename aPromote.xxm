@@ -74,6 +74,6 @@ x:=Context['relitem'].AsInteger;
 if x=0 then
   url:='Item.xxm?x=i'+IntToStr(id)
 else
-  url:='fRef.xxm'+URLEncode(['id',id,'rid',0,'target',x]);//rid=0 since post values get re-posted on redirect!
+  url:='fRef.xxm'+string(URLEncode(['id',id,'rid',0,'target',x]));//rid=0 since post values get re-posted on redirect!
 Context.Redirect(url,true);
 <<a href="[[=url]]">>=url<</a>

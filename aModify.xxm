@@ -1,5 +1,6 @@
 [[@txDefs,DataLank,txSession,txFilter,txFilterSql,]][[!var
-filter,filterU,fs:string;
+filter,filterU:string;
+fs:UTF8String;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
 x,i,id,weight:integer;
@@ -11,7 +12,7 @@ Context.Include('dHead.xxmi',['Modify']);
 
 x:=Context['x'].AsInteger;
 filter:=Context['filter'].Value;
-filterU:=URLEncode(filter);
+filterU:=string(URLEncode(filter));
 if Context['all'].AsInteger=1 then rpFilter:=rpEdit else rpFilter:=rpBoth; //rpView,rpAny?
 CheckFormProtect(Context);
 
@@ -23,7 +24,7 @@ f:=TtxFilter.Create;
 fq:=TtxSqlQueryFragments.Create(itObj);
 try
   fq.Fields:='Obj.id';
-  f.FilterExpression:=filter;
+  f.FilterExpression:=UTF8Encode(filter);
   if f.ParseError<>'' then begin<<p style="color:red;">>=f.ParseError<</p>>end;
   fq.AddFilter(f);
   //IsAdmin:=Session.IsAdmin('realms');

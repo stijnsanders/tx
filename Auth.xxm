@@ -1,9 +1,11 @@
-[[@txSession,DataLank,MSXML,Variants,Windows,Classes]][[!var
+[[@txSession,DataLank,ComObj,MSXML,Variants,Windows,Classes]][[!var
 app,key,url1,url2:string;
 r:IXMLHttpRequest;
 qr:TQueryResult;
 sl:TStringList;
 i,l:integer;
+const
+CLASS_XMLHTTP: TGUID = '{F6D90F16-9C73-11D3-B32E-00C04F990BB4}';
 ]][[
 
 app:=Context['app'].Value;
@@ -13,7 +15,7 @@ if (app='') or (key='') then
   Context.Redirect('/Default.xxm',true);
 
 if (Session.UserID=0) or (Session.IsAnonymous) then
-  Context.Redirect('/Logon.xxm?url='+URLEncode(Context.URL),true);
+  Context.Redirect('/Logon.xxm?url='+string(URLEncode(Context.URL)),true);
   
 //TODO: from DB: registered applications
 sl:=TStringList.Create;
@@ -36,7 +38,8 @@ finally
 end;
 
 
-r:=CoXMLHttpRequest.Create;
+//r:=CoXMLHttpRequest.Create;
+r:=CreateComObject(CLASS_XMLHTTP) as IXMLHTTPRequest;
 qr:=TQueryResult.Create(Session.DbCon,'select Usr.login,Obj.name,Usr.email from Usr inner join Obj on Usr.uid=Obj.id where Obj.id=?',[Session.UserID]);
 try
   if qr.EOF then
@@ -52,7 +55,7 @@ try
     ,'email',qr['email']
     ]));
   if r.status=200 then
-    Context.Redirect(url2+'?key='+URLEncode(key),false)
+    Context.Redirect(url2+'?key='+string(URLEncode(key)),false)
   else
     raise Exception.CreateFmt('HTTP:%d"%s"%s',[r.status,r.statusText,r.responseText]);
 finally

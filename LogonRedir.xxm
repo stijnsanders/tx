@@ -1,6 +1,6 @@
 [[!var url:string;]][[
 //login required
-url:='/Logon.xxm?url='+URLEncode(Context.URL);
+url:='/Logon.xxm?url='+string(URLEncode(Context.URL));
 Context.Redirect(url,true);
 ]]
 Logon required!<br />

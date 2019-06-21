@@ -7,7 +7,7 @@ e.g. when the 'term pattern' has changed
 
 ]][[@txDefs,DataLank,txSession,txTerms,txFilterSql,]][[!
 
-procedure FillTrl(tbl,qry,objid:string;itype:TtxItemType);
+procedure FillTrl(const tbl,qry,objid:UTF8String;itype:TtxItemType);
 var
   qr:TQueryResult;
   i,id:integer;
@@ -16,7 +16,7 @@ var
 begin
   if Context.Connected then
    begin
-    Context.Send(#13#10+tbl+'('+txItemTypeName[itype]+')'#13#10);
+    Context.Send(#13#10+string(tbl)+'('+txItemTypeName[itype]+')'#13#10);
     ids:=TIdList.Create;
     try
       qr:=TQueryResult.Create(Session.DbCon,'SELECT id FROM '+tbl+qry,[]);
@@ -27,7 +27,7 @@ begin
       end;
       for i:=0 to ids.Count-1 do
        begin
-        qr:=TQueryResult.Create(Session.DbCon,'SELECT '+sqlDesc+', '+objid+' AS oid FROM '+tbl+' WHERE id='+IntToStr(ids[i]),[]);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT '+sqlDesc+', '+objid+' AS oid FROM '+tbl+' WHERE id='+IntToStrU(ids[i]),[]);
         try
           desc:=qr.GetStr('desc');
           id:=qr.GetInt('oid');

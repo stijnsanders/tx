@@ -47,7 +47,7 @@ try
         i:=0;
         while i<ids.Count do
          begin
-          qr:=TQueryResult.Create(Session.DbCon,'SELECT RefType.id FROM RefType WHERE RefType.pid='+IntToStr(ids[i]),[]);
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT RefType.id FROM RefType WHERE RefType.pid='+IntToStrU(ids[i]),[]);
           try
             while qr.Read do ids.Add(qr.GetInt(0));
           finally

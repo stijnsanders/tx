@@ -2,7 +2,8 @@
 i,id,rid,obj2id,oldRefTypeID,newRefTypeID,oldWeight,newWeight1,newWeight,RlmID:integer;
 url:string;
 desc:WideString;
-filter,fs:string;
+filter:string;
+fs:UTF8String;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
 qr:TQueryResult;
@@ -28,7 +29,7 @@ try
     fq:=TtxSqlQueryFragments.Create(itObj);
     try
       fq.Fields:='Obj.id';
-      f.FilterExpression:=filter;
+      f.FilterExpression:=UTF8Encode(filter);
       if f.ParseError<>'' then begin<<p style="color:red;">>=f.ParseError<</p>>end;
       fq.AddFilter(f);
       fq.Where:='Obj.rlm_id'+Session.Realms[rpView].SQL+' AND ('+fq.Where+')';
@@ -151,7 +152,7 @@ try
       2:url:='fRef.xxm?id='+IntToStr(id);
     end
   else
-    url:='Modify.xxm?x=99&filter='+URLEncode(filter)+'&c='+IntToStr(ids.Count);
+    url:='Modify.xxm?x=99&filter='+string(URLEncode(filter))+'&c='+IntToStr(ids.Count);
 finally
   ids.Free;
 end;

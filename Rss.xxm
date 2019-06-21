@@ -1,6 +1,7 @@
 [[@Variants,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,]][[!var
 title:WideString;
-urlprefix,fs1,fs2,s:string;
+urlprefix:string;
+fs1,fs2,s:UTF8String;
 sy,sm,sd,ey,em,ed:word;
 fv:TtxFilterViewInfo;
 f:TtxFilter;
@@ -113,12 +114,12 @@ try
   if (d1<>0) and (d2<>0) and (d1>d2) then SwapDates;
   //if d1<>0 then s:=s+' AND tsx>={ts '''+FormatDateTime('yyyy-mm-dd hh:nn:ss',d1)+'''}';
   //if d2<>0 then s:=s+' AND tsx<{ts '''+FormatDateTime('yyyy-mm-dd hh:nn:ss',d2)+'''}';
-  if d1<>0 then s:=s+' AND datetime(''1900-01-01'',''+''||tsx||'' day'')>=datetime('''+FormatDateTime('yyyy-mm-dd hh:nn:ss',d1)+''')';
-  if d2<>0 then s:=s+' AND datetime(''1900-01-01'',''+''||tsx||'' day'')<datetime('''+FormatDateTime('yyyy-mm-dd hh:nn:ss',d2)+''')';
+  if d1<>0 then s:=s+' AND datetime(''1900-01-01'',''+''||tsx||'' day'')>=datetime('''+UTF8String(FormatDateTime('yyyy-mm-dd hh:nn:ss',d1))+''')';
+  if d2<>0 then s:=s+' AND datetime(''1900-01-01'',''+''||tsx||'' day'')<datetime('''+UTF8String(FormatDateTime('yyyy-mm-dd hh:nn:ss',d2))+''')';
   if fq1.Where<>'' then fq1.Where:=' AND ('+fq1.Where+')';
-  fq1.Where:=StringReplace(s,'tsx','Obj.c_ts',[rfReplaceAll])+fq1.Where;
+  fq1.Where:=UTF8String(StringReplace(string(s),'tsx','Obj.c_ts',[rfReplaceAll]))+fq1.Where;
   if fq2.Where<>'' then fq2.Where:=' AND ('+fq2.Where+')';
-  fq2.Where:=StringReplace(s,'tsx','Rpt.ts',[rfReplaceAll])+fq2.Where;
+  fq2.Where:=UTF8String(StringReplace(string(s),'tsx','Rpt.ts',[rfReplaceAll]))+fq2.Where;
 
   fs1:=fq1.SQL;
   fs2:=fq2.SQL;

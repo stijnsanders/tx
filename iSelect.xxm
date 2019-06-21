@@ -4,7 +4,8 @@
   ItemType:TtxITemType;
   idp:array of integer;
   ItemID,RootID,id,exclude,px,qx:integer;
-  name,fsql,exex:string;
+  name,exex:string;
+  fsql:UTF8String;
   hasChildren,preExpand,highlight:boolean;
 ]][[
 

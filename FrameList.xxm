@@ -1,6 +1,7 @@
 [[@Windows,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,]][[!var
 qr:TQueryResult;
-filter,fs:string;
+filter:string;
+fs:UTF8String;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
 ic:TItemCache;
@@ -44,7 +45,7 @@ filter:=Context['filter'].Value;
   f:=TtxFilter.Create;
   fq:=TtxSqlQueryFragments.Create(itObj);
   try
-    f.FilterExpression:=filter;
+    f.FilterExpression:=UTF8Encode(filter);
     if f.ParseError<>'' then
      begin
       <<p style="color:red;">>=f.ParseError<</p>>

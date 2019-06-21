@@ -15,7 +15,7 @@ end;
 const
   RadioBool:array[boolean] of string=('','checked="1"');
   SelectBool:array[boolean] of string=('','selected="1"');
-  FlgQuery:array[boolean] of string=(
+  FlgQuery:array[boolean] of UTF8String=(
 
     //FlgWeight
     'SELECT F1.flt_id, F2.weight AS [Open], F1.MinWeight AS [Low], F1.MaxWeight AS [High], F3.weight AS [Close] '+

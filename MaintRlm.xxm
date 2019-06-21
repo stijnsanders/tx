@@ -4,7 +4,8 @@ qr:TQueryResult;
 i,j,l,c,RlmID:integer;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
-fs:string;
+fx:string;
+fs1:UTF8String;
 ]][[
 Context.ContentType:='text/plain';
 Context.BufferSize:=0;
@@ -12,37 +13,37 @@ CheckMaintProtect(Context);
 
 sl:=TStringList.Create;
 try
-  fs:=Context['f'].Value;
-  if fs='' then sl.LoadFromFile(ModulePath+'MaintRlm.txt');
+  fx:=Context['f'].Value;
+  if fx='' then sl.LoadFromFile(ModulePath+'MaintRlm.txt');
   for i:=0 to sl.Count-1 do if (sl[i]<>'') and not(AnsiChar(sl[i][1]) in [';','#']) then
    begin
-    fs:=sl[i];
-    Context.SendHTML('   '+fs+#13#10);
-    l:=Length(fs);
+    fx:=sl[i];
+    Context.SendHTML('   '+fx+#13#10);
+    l:=Length(fx);
     j:=l;
-    while (j<>0) and (fs[j]<>':') do dec(j);
-    RlmID:=StrToInt(Trim(Copy(fs,j+1,l-j)));
+    while (j<>0) and (fx[j]<>':') do dec(j);
+    RlmID:=StrToInt(Trim(Copy(fx,j+1,l-j)));
     c:=0;
     f:=TtxFilter.Create;
     fq:=TtxSqlQueryFragments.Create(itObj);
     try
       Context.SendHTML('Parse filter...'#13#10);
-      f.FilterExpression:=Trim(Copy(fs,1,j-1));
+      f.FilterExpression:=UTF8Encode(Trim(Copy(fx,1,j-1)));
       if f.ParseError<>'' then
         Context.SendHTML('PARSE_ERROR!!!'#13#10+f.ParseError+#13#10#13#10);
       fq.AddFilter(f);
       fq.Fields:='Obj.id';
       fq.OrderBy:='';
-      fq.Where:='Obj.rlm_id<>'+IntToStr(RlmID)+' AND ('+fq.Where+')';
+      fq.Where:='Obj.rlm_id<>'+IntToStrU(RlmID)+' AND ('+fq.Where+')';
       //fq.GroupBy
-      fs:=fq.SQL;
+      fs1:=fq.SQL;
     finally
       f.Free;
       fq.Free;
     end;
     Context.SendHTML('Run query...'#13#10);
     try
-      qr:=TQueryResult.Create(Session.DbCon,fs,[VarFromDateTime(Now-7.0)]);//TODO: from settings file!
+      qr:=TQueryResult.Create(Session.DbCon,fs1,[VarFromDateTime(Now-7.0)]);//TODO: from settings file!
       try
         Context.SendHTML('List objects...'#13#10);
         while qr.Read and Context.Connected do

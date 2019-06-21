@@ -39,7 +39,7 @@ if Context['x'].AsInteger=0 then
 
     <input type="checkbox" id="XChildren1" name="children" value="1" />
     <label for="XChildren1">Children of filtered objects,
-        <b>Attention:</b> don't select this option if the filter expression already includes all children of filtered objects
+        <b>Attention:</b> don&#x27;t select this option if the filter expression already includes all children of filtered objects
     </label>
     <br />
 
@@ -97,7 +97,8 @@ else
     DoChildren,DoPath,DoRefered,DoRefChildren,DoRefPath,DoReports:boolean;
     f:TtxFilter;
     fq:TtxSqlQueryFragments;
-    filter,fs,x,y:string;
+    filter,x:string;
+    fs,y:UTF8String;
     i,id:integer;
     qr:TQueryResult;
     xc:char;
@@ -113,7 +114,7 @@ else
   f:=TtxFilter.Create;
   fq:=TtxSqlQueryFragments.Create(itObj);
   try
-    f.FilterExpression:=filter;
+    f.FilterExpression:=UTF8Encode(filter);
     if f.ParseError<>'' then raise Exception.Create(f.ParseError);
     fq.AddFilter(f);
     fq.Fields:='Obj.id';//, Obj.pid, ObjType.id';

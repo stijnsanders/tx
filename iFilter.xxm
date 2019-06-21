@@ -3,7 +3,8 @@ qr,qr1:TQueryResult;
 qrStack:array of TQueryResult;
 ItemID,RootID,id,px,qx:integer;
 fv:TtxFilterViewInfo;
-fw,name,fsql:string;
+fw,fsql:UTF8String;
+name:string;
 doNode,hasChildren,preExpand,highlight:boolean;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
@@ -114,10 +115,10 @@ try
             doNode:=false;
             repeat
               idx:=idc[idc_i];
-              fq.Where:='Obj.id='+IntToStr(idx)+' AND '+fw;
+              fq.Where:='Obj.id='+IntToStrU(idx)+' AND '+fw;
               if idf.Contains(idx) or DBExists(fq.SQL,[]) then doNode:=true else
                begin
-                qr1:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(idx),[]);
+                qr1:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStrU(idx),[]);
                 try
                   while qr1.Read and Context.Connected do idc.Add(qr1.GetInt(0));
                 finally

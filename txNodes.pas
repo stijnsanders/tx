@@ -30,7 +30,7 @@ uses SysUtils, xxm, txSession, DataLank;
 constructor TLocationNode.Create(ItemType:TtxItemType;QueryID:integer);
 var
   qr:TQueryResult;
-  sql:string;
+  sql:UTF8String;
 begin
   inherited Create;
   it:=ItemType;

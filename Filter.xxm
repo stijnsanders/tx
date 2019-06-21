@@ -1,6 +1,6 @@
 [[@Windows,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,]][[!var
 fv:TtxFilterViewInfo;
-fs:string;
+fs:UTF8String;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
 id,pid,i:integer;
@@ -72,9 +72,9 @@ else
     f.FilterExpression:=fv.filter;
     if f.ParseError='' then
      begin
-      i:=Session.FilterCache.IndexOf(fv.filter);
+      i:=Session.FilterCache.IndexOf(string(fv.filter));
       if i>0 then Session.FilterCache.Delete(i);
-      if i<>0 then Session.FilterCache.Insert(0,fv.filter);
+      if i<>0 then Session.FilterCache.Insert(0,string(fv.filter));
      end
     else
      begin

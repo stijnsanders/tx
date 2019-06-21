@@ -17,7 +17,7 @@ else
   filter:=qr.GetStr('expression');
   id:=qr.GetInt('id');
  end;
-filterU:=URLEncode(filter);
+filterU:=string(URLEncode(filter));
 ]]
 <div class="filtername">>
 if (qr<>nil) and (Length(Values)>1) then

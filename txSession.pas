@@ -23,7 +23,8 @@ type
   TtxRealmPermission=(rpView,rpEdit,rpAny,rpBoth);
 
   TtxFilterViewInfo=record
-    filter,filterU,view:string;
+    filter:UTF8String;
+    filterU,view:string;
     rp:TtxRealmPermission;
   end;
 
@@ -45,9 +46,9 @@ type
     Realms:array[TtxRealmPermission] of record
       Ids:array of integer;
       Count,Size:integer;
-      SQL:string;
+      SQL:UTF8String;
     end;
-    RealmsSQLExtra:string;
+    RealmsSQLExtra:UTF8String;
     FilterRecent:array[itObj..itRefType,0..FilterRecentCount-1] of integer;
     FilterCache:TStringList;
     FooterDisplay:string;
@@ -94,7 +95,7 @@ function TermStore:TTermStore;
 
 function DBSingleValue(const SQL:UTF8String;Parameters:array of OleVariant;Default:OleVariant):OleVariant;
 function DBExists(const SQL:UTF8String;Parameters:array of OleVariant):boolean;
-function sqlObjsByPid:string;
+function sqlObjsByPid:UTF8String;
 function txCallProtect:string;
 function txFormProtect:string;
 procedure CheckCallProtect(Context:IXxmContext);
@@ -221,7 +222,7 @@ begin
     end;
     DbFilePath:=sl.Values['DB'];
     //relative?
-    if (DbFilePath<>'') and not(DbFilePath[2] in [':','\']) then DbFilePath:=ModulePath+DbFilePath;
+    if (DbFilePath<>'') and not(AnsiChar(DbFilePath[2]) in [':','\']) then DbFilePath:=ModulePath+DbFilePath;
     MaintAuthKey:=sl.Values['AuthKey'];
     AdministratorEmailAddress:=sl.Values['AdministratorEmailAddress'];
     UseNTAuth:=sl.Values['NTAuth']='1';
@@ -265,7 +266,7 @@ const
 begin
   inherited Create;
   FSessionID:=SessionID;
-  FSessionCrypt:=Copy(SHA1Hash(SessionCryptSalt+FSessionID),7,17);
+  FSessionCrypt:=Copy(string(SHA1Hash(UTF8Encode(SessionCryptSalt+FSessionID))),7,17);
   FIsAnonymous:=false;
   FLogonAttemptCount:=0;
   FilterCache:=TStringList.Create;
@@ -317,7 +318,7 @@ function TtxSession.GetDbCon: TDataConnection;
 begin
   if ThreadDbCon=nil then
    begin
-    ThreadDBCon:=TDataConnection.Create(DbFilePath);
+    ThreadDBCon:=TDataConnection.Create(UTF8Encode(DbFilePath));
     ThreadDBCon.BusyTimeout:=5000;
    end;
   Result:=ThreadDbCon;
@@ -422,11 +423,11 @@ begin
             try
               fq.Fields:='Obj.id';
               fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
-              fq.Where:='Obj.id='+IntToStr(UserID)+' AND ';
+              fq.Where:='Obj.id='+IntToStrU(UserID)+' AND ';
               fq.GroupBy:='';
               fq.Having:='';
               fq.OrderBy:='';
-              f.FilterExpression:=fx;
+              f.FilterExpression:=UTF8Encode(fx);
               fq.AddFilter(f);
               qr1:=TQueryResult.Create(DbCon,fq.Sql,[]);
               try
@@ -460,7 +461,7 @@ begin
           fq.GroupBy:='';
           fq.Having:='';
           fq.OrderBy:='';
-          f.FilterExpression:=fx;
+          f.FilterExpression:=UTF8Encode(fx);
           fq.AddFilter(f);
           qr1:=TQueryResult.Create(Session.DbCon,fq.Sql,[]);
           try
@@ -469,7 +470,7 @@ begin
               s:='';
               while qr1.Read do s:=s+IntToStr(qr1['id'])+',';
               s[Length(s)]:=')';
-              RealmsSQLExtra:=' AND (Obj.rlm_id<>'+IntToStr(rid)+' OR EXISTS (SELECT lvl FROM ObjPath WHERE ObjPath.oid=Obj.id AND ObjPath.pid IN ('+s+'))';
+              RealmsSQLExtra:=' AND (Obj.rlm_id<>'+IntToStrU(rid)+' OR EXISTS (SELECT lvl FROM ObjPath WHERE ObjPath.oid=Obj.id AND ObjPath.pid IN ('+UTF8Encode(s)+'))';
              end;
           finally
             qr1.Free;
@@ -520,7 +521,7 @@ begin
     else
      begin
       SQL:=' IN (';
-      for i:=0 to Count-1 do SQL:=SQL+IntToStr(Ids[i])+',';
+      for i:=0 to Count-1 do SQL:=SQL+IntToStrU(Ids[i])+',';
       SQL[Length(SQL)]:=')';
      end;
     SQL:=SQL+RealmsSQLExtra;
@@ -746,21 +747,27 @@ begin
   end;
 end;
 
-function sqlObjsByPid:string;
+function sqlObjsByPid:UTF8String;
+var
+  uid:UTF8String;
 begin
   Result:=
     'SELECT Obj.id, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', Obj.url, Obj.weight,'+
     ' Obj.rlm_id, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts,'+
     ' ObjType.icon, ObjType.name AS typename';
   if Use_ObjTokRefCache then Result:=Result+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
-  if Session.QryUnread then Result:=Result+', (SELECT MIN(Obx.id) FROM Obx LEFT OUTER JOIN Urx'+
-    ' ON Urx.uid='+IntToStr(Session.UserID)+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
-    ' WHERE Obx.obj_id=Obj.id AND Urx.id IS NULL) AS r0, '+
-    '(SELECT COUNT(DISTINCT U1.id) FROM ObjPath U0'+
-    ' INNER JOIN Obj U1 ON U1.id=U0.oid AND U1.rlm_id'+Session.Realms[rpView].SQL+
-    ' INNER JOIN Obx U2 ON U2.obj_id=U0.oid'+
-    ' LEFT OUTER JOIN Urx U3 ON U3.uid='+IntToStr(Session.UserID)+' AND U2.id BETWEEN U3.id1 AND U3.id2'+
-    ' WHERE U0.pid=Obj.id AND U0.pid<>U0.oid AND U3.id IS NULL) AS r1';
+  if Session.QryUnread then
+   begin
+    uid:=IntToStrU(Session.UserID);
+    Result:=Result+', (SELECT MIN(Obx.id) FROM Obx LEFT OUTER JOIN Urx'+
+      ' ON Urx.uid='+uid+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
+      ' WHERE Obx.obj_id=Obj.id AND Urx.id IS NULL) AS r0, '+
+      '(SELECT COUNT(DISTINCT U1.id) FROM ObjPath U0'+
+      ' INNER JOIN Obj U1 ON U1.id=U0.oid AND U1.rlm_id'+Session.Realms[rpView].SQL+
+      ' INNER JOIN Obx U2 ON U2.obj_id=U0.oid'+
+      ' LEFT OUTER JOIN Urx U3 ON U3.uid='+uid+' AND U2.id BETWEEN U3.id1 AND U3.id2'+
+      ' WHERE U0.pid=Obj.id AND U0.pid<>U0.oid AND U3.id IS NULL) AS r1';
+   end;
   Result:=Result+
     ' FROM Obj'+
     ' INNER JOIN ObjType ON ObjType.id=Obj.objtype_id';
@@ -772,10 +779,10 @@ end;
 
 procedure GetFilterViewInfo(ctx:IXxmContext;var fv:TtxFilterViewInfo);
 begin
-  fv.filter:=ctx['filter'].Value;
-  fv.filterU:=URLEncode(fv.filter);
+  fv.filter:=UTF8Encode(ctx['filter'].Value);
+  fv.filterU:=string(URLEncode(fv.filter));
   fv.view:=ctx['view'].Value;
-  if fv.view<>'' then fv.filterU:=fv.filterU+'&view='+URLEncode(fv.view);
+  if fv.view<>'' then fv.filterU:=fv.filterU+'&view='+string(URLEncode(fv.view));
   //if fv.view='both' then fv.rp:=rpBoth else
   if (fv.view='any') or (fv.view='all') or (fv.view='both') then fv.rp:=rpAny else
     if fv.view='edit' then fv.rp:=rpEdit else
@@ -844,7 +851,7 @@ end;
 
 function PasswordToken(const Salt,Password:string):string;
 begin
-  if Password='' then Result:='' else Result:=SHA1Hash('[[[tx]]]'+Salt+'[[[tx]]]'+Password);
+  if Password='' then Result:='' else Result:=string(SHA1Hash(UTF8Encode('[[[tx]]]'+Salt+'[[[tx]]]'+Password)));
 end;
 
 procedure NewAutoLogonToken(Context:IXxmContext;UslID:integer);
@@ -852,7 +859,9 @@ var
   x:string;
 begin
   //assert caller does transaction
-  x:=SHA1Hash(IntToHex(integer(Session),8)+'_'+Context.ContextString(csRemoteAddress)+'_'+IntToStr(GetTickCount)+'_'+FormatDateTime('yyyymmss_hhnnss_zzz',Now));
+  x:=string(SHA1Hash(UTF8Encode(
+      IntToHex(integer(Session),8)+'_'+Context.ContextString(csRemoteAddress)+
+      '_'+IntToStr(GetTickCount)+'_'+FormatDateTime('yyyymmss_hhnnss_zzz',Now))));
   //assert called did UPDATE Ust SET seq=seq+1 WHERE usl_id=?
   Session.DbCon.Insert('Ust',
     ['usl_id',UslID

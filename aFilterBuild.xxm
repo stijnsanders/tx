@@ -1,7 +1,6 @@
-[[@txDefs,txSession,txFilter,txFilterSql,]][[!
-var
-  filter,x:string;
-  id:integer;
+[[@txDefs,txSession,txFilter,txFilterSql,]][[!var
+filter,x:string;
+id:integer;
 ]][[
 filter:=Context['filter'].Value;
 x:=Context['x'].Value;
@@ -40,7 +39,7 @@ if (x='r') or (x='rr') or (x='rx') or (x='rxr') then
 else
  begin
   id:=Context['item'+x].AsInteger;
-  Session.AddFilterRecent(TtxFilter.GetActionItemType(x),id);
+  Session.AddFilterRecent(TtxFilter.GetActionItemType(UTF8Encode(x)),id);
   filter:=filter+
     Context['oper'].Value+
     x+
@@ -48,4 +47,4 @@ else
     Context['flags'].Value;
  end;
 
-Context.Redirect('FilterBuild.xxm?filter='+URLEncode(filter),true);
+Context.Redirect('FilterBuild.xxm?filter='+string(URLEncode(filter)),true);

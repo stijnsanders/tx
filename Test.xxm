@@ -91,11 +91,11 @@ try
           try
             fq.Fields:='Obj.id';
             fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
-            fq.Where:='Obj.id='+IntToStr(Session.UserID)+' AND ';
+            fq.Where:='Obj.id='+IntToStrU(Session.UserID)+' AND ';
             fq.GroupBy:='';
             fq.Having:='';
             fq.OrderBy:='';
-            f.FilterExpression:=fx;
+            f.FilterExpression:=UTF8Encode(fx);
             fq.AddFilter(f);
             b:=DBExists(fq.Sql,[]);
           finally
@@ -130,7 +130,7 @@ try
         fq.GroupBy:='';
         fq.Having:='';
         fq.OrderBy:='';
-        f.FilterExpression:=fx;
+        f.FilterExpression:=UTF8Encode(fx);
         fq.AddFilter(f);
         qr1:=TQueryResult.Create(Session.DbCon,fq.Sql,[]);
         try
@@ -184,6 +184,7 @@ if TermStore.InitError<>'' then
 <dt>Use_ObjPath</dt><dd>>=Use_ObjPath]] (<a href="MaintPath.xxm" rel="nofollow" onclick="return confirm('Are you sure to redo ObjPath?');">redo...</a>)</dd>
 <dt>Use_NewUserEmailActivation</dt><dd>>=Use_NewUserEmailActivation<</dd>
 <dt>Use_Unread</dt><dd>>=Use_Unread]] (<a href="MaintUrx.xxm" rel="nofollow">collapse...</a>)</dd>
+<dt>Use_Journal</dt><dd>>=Use_Journal<</dd>
 </dl>
 
 Context.Include('dFoot.xxmi');

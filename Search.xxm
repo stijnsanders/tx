@@ -9,8 +9,8 @@ xf:=Context['filter'].Value;
 if xf<>'' then
  begin
   o:=TtxFilterOperator(0);
-  while (o<>fo_Unknown) and (xf[1]<>txFilterOperatorChar[o]) do inc(o);
-  if o=fo_Unknown then xf:=txFilterOperatorChar[foAnd]+xf;
+  while (o<>fo_Unknown) and (AnsiChar(xf[1])<>txFilterOperatorChar[o]) do inc(o);
+  if o=fo_Unknown then xf:=string(txFilterOperatorChar[foAnd])+xf;
  end;
 <<h2>Search</h2>
 [[#txForm('aSearch.xxm',['f',xf])]]

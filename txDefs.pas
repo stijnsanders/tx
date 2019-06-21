@@ -27,6 +27,7 @@ const
   Use_ObjPath=true;//requires table ObjPath
   Use_NewUserEmailActivation=true;
   Use_Unread=true;//requires table Obx,Urx
+  Use_Journal=false;//requires table Jrl,Jre
   Use_Extra=false;//use prefix "::" on ObjType.system
 
   txItemTypeKey:array[TtxItemType] of string=(
@@ -42,7 +43,7 @@ const
     //add new here above
     ''
   );
-  txItemTypeTable:array[TtxItemType] of string=(
+  txItemTypeTable:array[TtxItemType] of UTF8String=(
     'Obj','ObjType',
     'Tok','TokType',
     'Ref','RefType',
@@ -50,7 +51,7 @@ const
     //add new here above
     ''
   );
-  txItemSQL_PidById:array[TtxItemType] of string=(
+  txItemSQL_PidById:array[TtxItemType] of UTF8String=(
     'SELECT pid FROM Obj WHERE id=?',
     'SELECT pid FROM ObjType WHERE id=?',
     '','SELECT pid FROM TokType WHERE id=?',
@@ -59,7 +60,7 @@ const
     //add new here above
     ''
   );
-  txItemSQL_Move:array[TtxItemType] of string=(
+  txItemSQL_Move:array[TtxItemType] of UTF8String=(
     'UPDATE Obj SET pid=? WHERE id=?',
     'UPDATE ObjType SET pid=? WHERE id=?',
     '','UPDATE TokType SET pid=? WHERE id=?',
@@ -86,7 +87,7 @@ const
   DefaultRlmID=0;//do not change
   EmailCheckRegEx='^[-_\.a-z0-9]+?@[-\.a-z0-9]+?\.[a-z][a-z]+$';//TODO: unicode?
 
-procedure txItem(const Key:string;var ItemType:TtxItemType;var ItemID:integer);
+procedure txItem(const KeyX:string;var ItemType:TtxItemType;var ItemID:integer);
 function txImg(IconNr:integer; const Desc:string=''):string;
 function txForm(const Action:string; const HVals:array of OleVariant;const OnSubmitEval:string=''):string; overload;
 
@@ -94,14 +95,18 @@ function DateToXML(d:TDateTime):string;
 function NiceDateTime(const x:OleVariant):string;
 function ShortDateTime(d:TDateTime):string;
 
+function IntToStrU(x:integer):UTF8String;
+
 implementation
 
 uses Variants;
 
-procedure txItem(const Key:string;var ItemType:TtxItemType;var ItemID:integer);
+procedure txItem(const KeyX:string;var ItemType:TtxItemType;var ItemID:integer);
 var
+  Key:AnsiString;
   i:integer;
 begin
+  Key:=AnsiString(KeyX);
   ItemType:=itObj;//default;
   ItemID:=0;
   for i:=1 to Length(Key) do if Key[i] in ['0'..'9'] then ItemID:=ItemID*10+(byte(Key[i]) and $F);
@@ -212,6 +217,46 @@ begin
       else
         Result:=FormatDateTime('mm/yyyy',d);
      end;
+   end;
+end;
+
+function IntToStrU(x:integer):UTF8String;
+var
+  c:array[0..11] of byte;
+  i,j:integer;
+  neg:boolean;
+begin
+  //Result:=UTF8String(IntToStr(x));
+  neg:=x<0;
+  if neg then x:=-x;
+  i:=0;
+  while x<>0 do
+   begin
+    c[i]:=x mod 10;
+    x:=x div 10;
+    inc(i);
+   end;
+  if i=0 then
+   begin
+    c[0]:=0;
+    inc(i);
+   end;
+  if neg then
+   begin
+    SetLength(Result,i+1);
+    Result[1]:='-';
+    j:=2;
+   end
+  else
+   begin
+    SetLength(Result,i);
+    j:=1;
+   end;
+  while i<>0 do
+   begin
+    dec(i);
+    Result[j]:=AnsiChar($30+c[i]);
+    inc(j);
    end;
 end;
 

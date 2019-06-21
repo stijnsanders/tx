@@ -57,7 +57,7 @@ try
       itTok: url:='Item.xxm?x=i'+VarToStr(DBSingleValue('SELECT obj_id FROM Tok WHERE id=?',[ItemID],0))+'&htok='+IntToStr(ItemID)+'#tok'+IntToStr(ItemID);
       itRef: url:='Item.xxm?x=i'+VarToStr(DBSingleValue('SELECT obj1_id FROM Ref WHERE id=?',[ItemID],0))+'&href='+IntToStr(ItemID)+'#ref'+IntToStr(ItemID);
       itReport: url:='Item.xxm?x=i'+VarToStr(DBSingleValue('SELECT obj_id FROM Rpt WHERE id=?',[ItemID],0))+'&hr='+IntToStr(ItemID)+'#rpt'+IntToStr(ItemID);
-      else url:='Item.xxm?x='+URLEncode(qr.GetStr('source'));
+      else url:='Item.xxm?x='+string(URLEncode(qr.GetStr('source')));
     end;
     <<p[[if d1<>d then begin odl:=true;]] class="otherdomain"[[end;]]>
     <a href="[[=url]]">>.source<</a>>

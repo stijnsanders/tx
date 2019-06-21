@@ -82,11 +82,14 @@ type
     function GetInt64(const Idx:OleVariant):int64;
     function GetStr(const Idx:OleVariant):WideString;
     function GetDate(const Idx:OleVariant):TDateTime;
-      function GetDefault(const Idx,Default:OleVariant):OleVariant;
+	  function GetDefault(const Idx,Default:OleVariant):OleVariant;
     function IsNull(const Idx:OleVariant):boolean;
   end;
 
   ESQLiteDataException=class(Exception);
+  ESQLiteExecException=class(ESQLiteException)
+    constructor Create(ErrorCode:integer;const Msg:string);
+  end;
 
 function VNow:OleVariant;
 
@@ -104,6 +107,7 @@ end;
 constructor TSQLiteConnection.Create(const FileName: UTF8String);
 begin
   inherited Create;
+  FBusyTimeout:=0;
   sqlite3_check(sqlite3_open(PAnsiChar(FileName),FHandle));
 end;
 
@@ -121,15 +125,16 @@ end;
 
 function TSQLiteConnection.Execute(const SQL: UTF8String): integer;
 var
+  r:integer;
   e:PAnsiChar;
   s:string;
 begin
-  sqlite3_exec(FHandle,PAnsiChar(SQL),nil,nil,e);
+  r:=sqlite3_exec(FHandle,PAnsiChar(SQL),nil,nil,e);
   if e<>nil then
    begin
     s:=Utf8ToAnsi(e);
     sqlite3_free(e);
-    raise ESQLiteDataException.Create(s);//TODO: prefix?
+    raise ESQLiteExecException.Create(r,s);//TODO: prefix?
    end;
   Result:=sqlite3_changes(FHandle);
 end;
@@ -159,9 +164,9 @@ var
 begin
   l:=Length(Values);
   if l=0 then
-    raise ESQLiteDataException.Create('Insert('+TableName+') values required');
+    raise ESQLiteDataException.Create('Insert('+string(TableName)+') values required');
   if (l and 1)<>0 then
-    raise ESQLiteDataException.Create('Insert('+TableName+') even number of field,values required');
+    raise ESQLiteDataException.Create('Insert('+string(TableName)+') even number of field,values required');
   i:=0;
   l:=l div 2;
   //TODO: TStringStream
@@ -170,7 +175,7 @@ begin
   SetLength(x,l);
   while i<l do
    begin
-    s:=s+',['+Values[i*2]+']';
+    s:=s+',['+UTF8Encode(VarToWideStr(Values[i*2]))+']';
     t:=t+',?';
     x[i]:=Values[i*2+1];
     inc(i);
@@ -197,9 +202,9 @@ var
 begin
   l:=Length(Values);
   if l<=2 then
-    raise ESQLiteDataException.Create('Update('+TableName+') values required');
+    raise ESQLiteDataException.Create('Update('+string(TableName)+') values required');
   if (l and 1)<>0 then
-    raise ESQLiteDataException.Create('Update('+TableName+') even number of field,values required');
+    raise ESQLiteDataException.Create('Update('+string(TableName)+') even number of field,values required');
   i:=1;
   l:=l div 2;
   //TODO: TStringStream
@@ -207,13 +212,14 @@ begin
   SetLength(x,l);
   while i<l do
    begin
-    s:=s+',['+Values[i*2]+']=?';
+    s:=s+',['+UTF8Encode(VarToWideStr(Values[i*2]))+']=?';
     x[i-1]:=Values[i*2+1];
     inc(i);
    end;
   x[l-1]:=Values[1];
   s[1]:=' ';
-  st:=TSQLiteStatement.Create(Self,'UPDATE ['+TableName+'] SET'+s+' WHERE '+Values[0]+'=?',x);
+  st:=TSQLiteStatement.Create(Self,'UPDATE ['+TableName+'] SET'+s+' WHERE '+
+    UTF8Encode(VarToWideStr(Values[0]))+'=?',x);
   try
     st.Read;
   finally
@@ -273,7 +279,10 @@ end;
 
 procedure TSQLiteConnection.BeginTrans;
 begin
-  Execute('BEGIN TRANSACTION');
+  if FBusyTimeout=0 then
+    Execute('BEGIN TRANSACTION')
+  else
+    Execute('BEGIN IMMEDIATE TRANSACTION');
 end;
 
 procedure TSQLiteConnection.CommitTrans;
@@ -290,6 +299,15 @@ procedure TSQLiteConnection.SetBusyTimeout(const Value: integer);
 begin
   sqlite3_check(sqlite3_busy_timeout(FHandle,Value));
   FBusyTimeout:=Value;
+end;
+
+{ ESQLiteExecException }
+
+constructor ESQLiteExecException.Create(ErrorCode: integer;
+  const Msg: string);
+begin
+  inherited Create(ErrorCode);
+  Self.Message:=Msg;
 end;
 
 { TSQLiteStatement }
@@ -560,7 +578,7 @@ begin
         //varUnknown IPersist? IStream?
         else raise ESQLiteDataException.Create('Unsupported variant type');
       end;
-    end;
+	end;
 end;
 
 function TSQLiteStatement.GetParameterCount: integer;

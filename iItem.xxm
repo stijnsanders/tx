@@ -18,7 +18,7 @@ name:=Context['name'].Value;
 
 if ItemType=itObj then
  begin
-  qr:=TQueryResult.Create(Session.DbCon,StringReplace(sqlObjsByPid,'Obj.pid=?','Obj.id=?',[]),[ItemID]);
+  qr:=TQueryResult.Create(Session.DbCon,UTF8String(StringReplace(string(sqlObjsByPid),'Obj.pid=?','Obj.id=?',[])),[ItemID]);
   try
     hasChildren:=DBExists('SELECT id FROM Obj WHERE pid=? LIMIT 1',[ItemID]);
     preExpand:=false;//TODO: get from caller?

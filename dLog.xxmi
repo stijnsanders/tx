@@ -1,5 +1,6 @@
 [[@Variants,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,txTerms,txNodes,]][[!var
-filter,filterU,fs1,fs2,s:string;
+filter,filterU,s:string;
+fs1,fs2:UTF8String;
 f:TtxFilter;
 fq1,fq2:TtxSqlQueryFragments;
 id,pid,limit,d,c1,c2:integer;
@@ -30,7 +31,7 @@ if VarIsNull(Values[4]) then d2:=0 else d2:=Trunc(VarToDateTime(Values[4]))+1;//
 showAsc:=Values[5];
 if showAsc then s:='ASC' else s:='DESC';
 
-filterU:=URLEncode(filter);
+filterU:=string(URLEncode(filter));
 //IsAdminReports:=Session.IsAdmin('reports');
 
 //TODO: delete events? (separate journal?)
@@ -46,7 +47,7 @@ try
   tc1:=GetTimerIndex;
   if filter<>'' then
    begin
-    f.FilterExpression:=filter;
+    f.FilterExpression:=UTF8Encode(filter);
     if f.ParseError<>'' then
      begin
       <<p style="color:red;">>=f.ParseError<</p>>

@@ -3,11 +3,12 @@ qr:TQueryResult;
 i,ItemCount,TotalWeight:integer;
 fl:array of record
   id:integer;
-  ex,name:string;
+  ex:UTF8String;
+  name:string;
 end;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
-fs:string;
+fs:UTF8String;
 dry:boolean;
 ]][[
 Context.ContentType:='text/plain';
@@ -26,7 +27,7 @@ try
     SetLength(fl,i+1);
     fl[i].id:=qr.GetInt('id');
     fl[i].name:=qr.GetStr('name');
-    fl[i].ex:=qr.GetStr('expression');
+    fl[i].ex:=UTF8Encode(qr.GetStr('expression'));
     inc(i);
    end;
 finally

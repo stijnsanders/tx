@@ -14,6 +14,6 @@ Session.DbCon.Insert('Trm',['domain_id',domain,'obj_id',id,'term',n]);
 Session.AddFilterRecent(itObj,id);
 
 //url:='Item.xxm?x=i'+IntToStr(id);
-url:='TermLinks.xxm'+URLEncode(['n',n,'d',domain,'r',r]);
+url:='TermLinks.xxm'+string(URLEncode(['n',n,'d',domain,'r',r]));
 Context.Redirect(url,true);
 <<a href="[[=url]]">>=url<</a>

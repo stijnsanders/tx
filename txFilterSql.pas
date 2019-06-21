@@ -11,16 +11,16 @@ type
     AliasCount,FParentID:integer;
     AddedWhere:boolean;
     DbCon:TDataConnection;
-    function BuildSQL:string;
+    function BuildSQL:UTF8String;
 
-    function SqlStr(s:string):string;
+    function SqlStr(const s:UTF8String):UTF8String;
     function Criterium(const El:TtxFilterElement;
-      SubQryField, SubQryFrom: string;
-      ParentsOnly, Reverse: boolean):string;
+      const SubQryField, SubQryFrom: UTF8String;
+      ParentsOnly, Reverse: boolean):UTF8String;
 
   public
     Limit:integer;
-    Fields,Tables,Where,GroupBy,Having,OrderBy:string;
+    Fields,Tables,Where,GroupBy,Having,OrderBy:UTF8String;
     EnvVars:array[TtxFilterEnvVar] of integer;
 
     constructor Create(ItemType: TtxItemType);
@@ -28,12 +28,12 @@ type
 
     procedure AddFilter(f:TtxFilter);
 
-    procedure AddWhere(s:string);
-    procedure AddWhereSafe(s:string);
-    procedure AddOrderBy(s:string);
-    procedure AddFrom(s:string);
+    procedure AddWhere(const s:UTF8String);
+    procedure AddWhereSafe(const s:UTF8String);
+    procedure AddOrderBy(const s:UTF8String);
+    procedure AddFrom(const s:UTF8String);
 
-    property SQL:string read BuildSQL;
+    property SQL:UTF8String read BuildSQL;
     property ParentID:integer read FParentID;
   end;
 
@@ -43,7 +43,7 @@ type
   private
     idCount,idSize:integer;
     ids:array of integer;
-    function GetList:string;
+    function GetList:UTF8String;
     function GetItem(Idx:integer):integer;
     procedure SetItem(Idx,Value:integer);
   public
@@ -54,7 +54,7 @@ type
     procedure AddClip(id:integer; var Clip:integer);
     procedure Clear;
     function Contains(id:integer):boolean;
-    property List:string read GetList;
+    property List:UTF8String read GetList;
     property Count:integer read idCount;
     property Item[Idx:integer]:integer read GetItem write SetItem; default;
   end;
@@ -67,7 +67,7 @@ uses txSession, Classes, Variants;
 
 constructor TtxSqlQueryFragments.Create(ItemType: TtxItemType);
 var
-  t:string;
+  t:UTF8String;
   fe:TtxFilterEnvVar;
 begin
   inherited Create;
@@ -135,19 +135,19 @@ begin
   inherited;
 end;
 
-function CritDate(fx:TtxFilterElement):string;
+function CritDate(fx:TtxFilterElement):UTF8String;
 begin
   case fx.IDType of
     dtNumber:
       //Result:='{d '''+FormatDate('yyyy-mm-dd',Date-StrToInt(fx.ID))+'''}';
-      Result:=FloatToStr(Date-StrToInt(fx.ID));//SQLite allows storing Delphi date-as-float
+      Result:=UTF8String(FloatToStr(Date-StrToInt(string(fx.ID))));//SQLite allows storing Delphi date-as-float
     //TODO
     else
       raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(fx.Idx1));
   end;
 end;
 
-function CritTime(fx:TtxFilterElement):string;
+function CritTime(fx:TtxFilterElement):UTF8String;
 var
   dy,dm,dd,th,tm,ts,tz:word;
   d:TDateTime;
@@ -158,12 +158,12 @@ var
   begin
     vv:=0;
     j:=i+max;
-    while (i<=l) and (i<j) and (AnsiChar(fx.ID[i]) in ['0'..'9']) do
+    while (i<=l) and (i<j) and (fx.ID[i] in ['0'..'9']) do
      begin
       vv:=vv*10+(byte(fx.ID[i]) and $0F);
       inc(i);
      end;
-    while (i<=l) and not(AnsiChar(fx.ID[i]) in ['0'..'9']) do inc(i);
+    while (i<=l) and not(fx.ID[i] in ['0'..'9']) do inc(i);
   end;
 begin
   case fx.IDType of
@@ -179,7 +179,7 @@ begin
       tz:=0;
       l:=Length(fx.ID);
       i:=1;
-      while (i<=l) and not(AnsiChar(fx.ID[i]) in ['0'..'9']) do inc(i);
+      while (i<=l) and not(fx.ID[i] in ['0'..'9']) do inc(i);
       if i<=l then
        begin
         Next(dy,4);//year
@@ -198,7 +198,7 @@ begin
        end;
       d:=EncodeDate(dy,dm,dd)+EncodeTime(th,tm,ts,tz);
       //Result:='{ts '''+FormatDate('yyyy-mm-dd hh:nn:ss.zzz',d)+'''}';
-      Result:=FloatToStr(d);//SQLite allows storing Delphi date-as-float
+      Result:=UTF8String(FloatToStr(d));//SQLite allows storing Delphi date-as-float
      end;
     //TODO
     else
@@ -209,7 +209,7 @@ end;
 procedure TtxSqlQueryFragments.AddFilter(f: TtxFilter);
 var
   i,j,k:integer;
-  s,t:string;
+  s,t:UTF8String;
   qr:TQueryResult;
   fx:TtxFilter;
   fq:TtxSqlQueryFragments;
@@ -229,7 +229,7 @@ var
       end;
   end;
 const
-  RefBSel:array[boolean] of string=('1','2');
+  RefBSel:array[boolean] of UTF8String=('1','2');
 begin
   //TODO: when FItemType<>itObj
 
@@ -265,7 +265,7 @@ begin
         else
          begin
           inc(AliasCount);
-          t:='ttSQ'+IntToStr(AliasCount);
+          t:='ttSQ'+IntToStrU(AliasCount);
           s:='SELECT DISTINCT Tok.obj_id FROM Tok WHERE Tok.toktype_id'+Criterium(f[i],
             'DISTINCT '+t+'.toktype_id','RIGHT JOIN Tok AS '+t+' ON '+t+'.obj_id=Obj.id',false,false);
           if Parameters<>'' then
@@ -299,7 +299,7 @@ begin
         else
          begin
           inc(AliasCount);
-          t:='rtSQ'+IntToStr(AliasCount);
+          t:='rtSQ'+IntToStrU(AliasCount);
           s:='SELECT DISTINCT Ref.obj1_id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
             'DISTINCT '+t+'.reftype_id','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj1_id=Obj.id',false,false);
           if Parameters<>'' then
@@ -339,7 +339,7 @@ begin
                 faRefType:
                  begin
                   inc(AliasCount);
-                  t:='rxSQ'+IntToStr(AliasCount);
+                  t:='rxSQ'+IntToStrU(AliasCount);
                   s:=s+' AND Ref.reftype_id'+Criterium(fx[j],
                     'DISTINCT '+t+'.id','RIGHT JOIN Ref AS '+t+' ON '+t+'.ref_obj'+RefBSel[Action=faBackRef]+'_id=Obj.id',false,false);
                  end;
@@ -363,7 +363,7 @@ begin
 
       faParent:
         case IDType of
-          dtNumber:FParentID:=StrToInt(ID);
+          dtNumber:FParentID:=StrToInt(string(ID));
           //TODO
           //dtSystem:;
           //dtSubQuery:;
@@ -388,7 +388,7 @@ begin
           qr:=TQueryResult.Create(Session.DbCon,'SELECT Flt.expression FROM Flt WHERE Flt.id'+Criterium(f[i],'','',false,false)+' LIMIT 1',[]);
           try
             if qr.EOF then raise EtxSqlQueryError.Create('Filter not found at position '+IntToStr(Idx1));
-              fx.FilterExpression:=qr.GetStr(0);
+              fx.FilterExpression:=UTF8Encode(qr.GetStr(0));
           finally
             qr.Free;
           end;
@@ -523,7 +523,7 @@ begin
       faPathTokType:
        begin
         inc(AliasCount);
-        t:='ptSQ'+IntToStr(AliasCount);
+        t:='ptSQ'+IntToStrU(AliasCount);
         s:='SELECT DISTINCT Tok.obj_id FROM Tok WHERE Tok.toktype_id'+Criterium(f[i],
           'DISTINCT '+t+'.toktype_pid','RIGHT JOIN Tok AS '+t+' ON '+t+'.obj_id=Obj.id',false,true);
         if Prefetch then LocalPrefetch;
@@ -532,7 +532,7 @@ begin
       faPathRefType:
        begin
         inc(AliasCount);
-        t:='prSQ'+IntToStr(AliasCount);
+        t:='prSQ'+IntToStrU(AliasCount);
         s:='SELECT DISTINCT Ref.obj1_id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
           'DISTINCT '+t+'.reftype_pid','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj1_id=Obj.id',false,true);
         if Prefetch then LocalPrefetch;
@@ -581,7 +581,7 @@ begin
                 faRefType:
                  begin
                   inc(AliasCount);
-                  t:='urSQ'+IntToStr(AliasCount);
+                  t:='urSQ'+IntToStrU(AliasCount);
                   s:=s+' AND Ref.reftype_id'+Criterium(fx[j],'DISTINCT '+t+'.id','RIGHT JOIN Ref AS '+t+' ON '+t+
                     '.ref_obj'+RefBSel[fx[j].Action=faBackRefCreated]+'_id=Obj.id',false,false);
                  end;
@@ -615,7 +615,7 @@ begin
         AddFrom('INNER JOIN Tok ON Obj.id=Tok.obj_id');
         AddOrderBy('Tok.m_ts DESC');
         inc(AliasCount);
-        t:='ttSQ'+IntToStr(AliasCount);
+        t:='ttSQ'+IntToStrU(AliasCount);
         if Prefetch then
          begin
           s:='SELECT DISTINCT Tok.id FROM Tok WHERE Tok.toktype_id'+Criterium(f[i],
@@ -632,7 +632,7 @@ begin
         AddFrom('INNER JOIN Ref ON Ref.obj'+RefBSel[Action=faRecentBackRef]+'_id=Obj.id');
         AddOrderBy('Ref.m_ts DESC');
         inc(AliasCount);
-        t:='rtSQ'+IntToStr(AliasCount);
+        t:='rtSQ'+IntToStrU(AliasCount);
         if Prefetch then
          begin
            s:='SELECT DISTINCT Ref.id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
@@ -658,7 +658,7 @@ begin
         if Session.IsAdmin('logins') and not((f[i].IDType=dtNumber) and ((f[i].ID='0') or (f[i].ID=''))) then
           s:=Criterium(f[i],'Obj.id','',false,false)
         else
-          s:='='+IntToStr(Session.UserID);
+          s:='='+IntToStrU(Session.UserID);
         AddWhere('EXISTS (SELECT Obx.id FROM Obx'+
           ' LEFT OUTER JOIN Urx ON Urx.uid'+s+
           ' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
@@ -677,43 +677,52 @@ begin
    end;
 end;
 
-function TtxSqlQueryFragments.BuildSQL: string;
+function TtxSqlQueryFragments.BuildSQL: UTF8String;
 var
-  s:TStringStream;
-  procedure Add(t,u:string);
+  m:TMemoryStream;
+  procedure Add1(const s:UTF8String);
+  begin
+    m.Write(s[1],Length(s));
+  end;
+  procedure Add(const t,u:UTF8String);
   begin
     if u<>'' then
      begin
-      s.WriteString(t);
-      s.WriteString(u);
+      m.Write(t[1],Length(t));
+      m.Write(u[1],Length(u));
      end;
   end;
+var
+  l:integer;
 begin
-  s:=TStringStream.Create('');
+  m:=TMemoryStream.Create;
   try
-    s.WriteString('SELECT ');
-    s.WriteString(Fields);
-    s.WriteString(#13#10'FROM ');
-    s.WriteString(Tables);//assert ends in #13#10
+    Add1('SELECT ');
+    Add1(Fields);
+    Add1(#13#10'FROM ');
+    Add1(Tables);//assert ends in #13#10
     Add('WHERE ',Where);
     Add(#13#10'GROUP BY ',GroupBy);
     Add(#13#10'HAVING ',Having);
     Add(#13#10'ORDER BY ',OrderBy);
-    if Limit<>-1 then s.WriteString(#13#10'LIMIT '+IntToStr(Limit));
-    //MySql: s.WriteString(' LIMIT '+IntToStr(Limit)+',0');
-    Result:=s.DataString;
+    if Limit<>-1 then Add1(#13#10'LIMIT '+IntToStrU(Limit));
+    //MySql: Add1(' LIMIT '+IntToStrU(Limit)+',0');
+    l:=m.Position;
+    SetLength(Result,l);
+    m.Position:=0;
+    m.Read(Result[1],l);
   finally
-    s.Free;
+    m.Free;
   end;
 end;
 
-procedure TtxSqlQueryFragments.AddWhere(s: string);
+procedure TtxSqlQueryFragments.AddWhere(const s:UTF8String);
 begin
   Where:=Where+s;
   AddedWhere:=true;
 end;
 
-procedure TtxSqlQueryFragments.AddWhereSafe(s: string);
+procedure TtxSqlQueryFragments.AddWhereSafe(const s:UTF8String);
 var
   i,j:integer;
 begin
@@ -729,26 +738,51 @@ begin
   AddedWhere:=true;
 end;
 
-procedure TtxSqlQueryFragments.AddFrom(s: string);
+procedure TtxSqlQueryFragments.AddFrom(const s:UTF8String);
 begin
   if s<>'' then
     if Pos(s,Tables)=0 then
       Tables:=Tables+s+#13#10;
 end;
 
-function TtxSqlQueryFragments.SqlStr(s: string): string;
+function TtxSqlQueryFragments.SqlStr(const s:UTF8String): UTF8String;
+var
+  i,j:integer;
 begin
-  Result:=''''+StringReplace(s,'''','''''',[rfReplaceAll])+'''';
+  j:=0;
+  for i:=1 to Length(s) do if s[i]='''' then inc(j);
+  if j=0 then
+    Result:=''''+s+''''
+  else
+   begin
+    i:=Length(s)+j+2;
+    SetLength(Result,i);
+    Result[1]:='''';
+    Result[i]:='''';
+    i:=1;
+    j:=2;
+    while i<=Length(s) do
+     begin
+      if s='''' then
+       begin
+        Result[j]:='''';
+        inc(j);
+       end;
+      Result[j]:=s[i];
+      inc(j);
+      inc(i);
+     end;
+   end;
 end;
 
 function TtxSqlQueryFragments.Criterium(const El:TtxFilterElement;
-  SubQryField, SubQryFrom: string;
-  ParentsOnly, Reverse: boolean): string;
+  const SubQryField, SubQryFrom: UTF8String;
+  ParentsOnly, Reverse: boolean): UTF8String;
 const
   idGrow=$1000;
 var
   ItemType:TtxItemType;
-  idSQL,t:string;
+  idSQL,t:UTF8String;
   ids,ids1:TIdList;
   i,j,l:integer;
   fe:TtxFilterEnvVar;
@@ -763,7 +797,7 @@ begin
     t:=txItemTypeTable[ItemType];
     case El.IDType of
       dtNumber:
-        ids.Add(StrToInt(El.ID));
+        ids.Add(StrToInt(string(El.ID)));
       dtNumberList:
        begin
         i:=1;
@@ -819,8 +853,8 @@ begin
        begin
         fe:=TtxFilter.GetFilterEnvVar(El.ID);
         case fe of
-          feUs:idSQL:='SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStr(EnvVars[feMe]);
-          fe_Unknown:raise EtxSqlQueryError.Create('Unknown Filter Environment Variable: '+El.ID);
+          feUs:idSQL:='SELECT Obj.id FROM Obj WHERE Obj.pid='+IntToStrU(EnvVars[feMe]);
+          fe_Unknown:raise EtxSqlQueryError.Create('Unknown Filter Environment Variable: '+string(El.ID));
           else ids.Add(EnvVars[fe]);
         end;
        end;
@@ -844,7 +878,7 @@ begin
         if Use_ObjPath and (ItemType=itObj) then
           if idSQL='' then
             if ids.Count=1 then
-              idSQL:='SELECT pid FROM ObjPath WHERE oid='+IntToStr(ids[0])
+              idSQL:='SELECT pid FROM ObjPath WHERE oid='+IntToStrU(ids[0])
             else
               idSQL:='SELECT pid FROM ObjPath WHERE oid IN ('+ids.List+')'
           else
@@ -854,7 +888,7 @@ begin
           i:=0;
           while i<ids.Count do
            begin
-            qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]),[]);
+            qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStrU(ids[i]),[]);
             try
               while qr.Read do ids.Add(qr.GetInt(0));
             finally
@@ -869,7 +903,7 @@ begin
           if Use_ObjPath and (ItemType=itObj) then
             if idSQL='' then
               if ids.Count=1 then
-                idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid='+IntToStr(ids[0])
+                idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid='+IntToStrU(ids[0])
               else
                 idSQL:='SELECT DISTINCT X2.pid FROM ObjPath X1 INNER JOIN Obj X2 ON X1.pid<>X1.oid AND X2.id=X1.oid WHERE X1.pid IN ('+ids.List+')'
             else
@@ -884,7 +918,7 @@ begin
               while i<ids1.Count do
                begin
                 //only add those with children
-                qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids1[i]),[]);
+                qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStrU(ids1[i]),[]);
                 try
                   if not qr.EOF then ids.Add(ids1[i]);
                   while qr.Read do ids1.AddClip(qr.GetInt(0),i);
@@ -904,7 +938,7 @@ begin
           if Use_ObjPath and (ItemType=itObj) then
             if idSQL='' then
               if ids.Count=1 then
-                idSQL:='SELECT oid FROM ObjPath WHERE pid='+IntToStr(ids[0])
+                idSQL:='SELECT oid FROM ObjPath WHERE pid='+IntToStrU(ids[0])
               else
                 idSQL:='SELECT oid FROM ObjPath WHERE pid IN ('+ids.List+')'
             else
@@ -914,7 +948,7 @@ begin
             i:=0;
             while i<ids.Count do
              begin
-              qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStr(ids[i]),[]);
+              qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.id FROM '+t+' WHERE '+t+'.pid='+IntToStrU(ids[i]),[]);
               try
                 while qr.Read do ids.Add(qr.GetInt(0));
               finally
@@ -930,7 +964,7 @@ begin
       if Reverse then //one level up
         for i:=0 to ids.Count-1 do
          begin
-          qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStr(ids[i]),[]);
+          qr:=TQueryResult.Create(Session.DbCon,'SELECT '+t+'.pid FROM '+t+' WHERE '+t+'.id='+IntToStrU(ids[i]),[]);
           try
             ids[i]:=qr.GetInt(0);
           finally
@@ -941,7 +975,7 @@ begin
     if idSQL='' then
       case ids.Count of
         0:Result:='=-1';
-        1:Result:='='+IntToStr(ids[0]);
+        1:Result:='='+IntToStrU(ids[0]);
         else Result:=' IN ('+ids.List+')';
       end
     else
@@ -952,7 +986,7 @@ begin
   end;
 end;
 
-procedure TtxSqlQueryFragments.AddOrderBy(s: string);
+procedure TtxSqlQueryFragments.AddOrderBy(const s: UTF8String);
 begin
   if s<>'' then
     if OrderBy='' then OrderBy:=s else
@@ -1023,21 +1057,19 @@ begin
   //SetLength(ids,idSize);//keep allocated data for re-use
 end;
 
-function TIdList.GetList: string;
+function TIdList.GetList: UTF8String;
 var
   i:integer;
-  s:TStringStream;
 begin
   if idCount=0 then Result:='' else
    begin
-    s:=TStringStream.Create('');
-    try
-      s.WriteString(IntToStr(ids[0]));
-      for i:=1 to idCount-1 do s.WriteString(','+IntToStr(ids[i]));
-      Result:=s.DataString;
-    finally
-      s.Free;
-    end;
+    Result:=IntToStrU(ids[0]);
+    i:=1;
+    while i<idCount do
+     begin
+      Result:=Result+','+IntToStrU(ids[i]) ;
+      inc(i);
+     end;
    end;
 end;
 

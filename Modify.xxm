@@ -10,7 +10,7 @@ const
 Context.Include('dHead.xxmi',['Modify']);
 
 filter:=Context['filter'].Value;
-filterU:=URLEncode(filter);
+filterU:=string(URLEncode(filter));
 FormButton:=txFormButton+' <a href="Modify.xxm?filter='+filterU+'">back</a>';
 
 <<h2>Modify filtered objects</h2>

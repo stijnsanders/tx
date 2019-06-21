@@ -18,6 +18,6 @@ except
   raise;
 end;
 
-url:='TermLinks.xxm?d='+IntTostr(d)+'&n='+URLEncode(n);
+url:='TermLinks.xxm?d='+IntTostr(d)+'&n='+string(URLEncode(n));
 Context.Redirect(url,true);
 <<a href="[[=url]]">>=url<</a>

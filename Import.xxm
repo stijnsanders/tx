@@ -1,4 +1,4 @@
-[[@Classes,MSXML,txDefs,txSession,DataLank,txImport,Variants,]][[!var
+[[@Classes,ComObj,MSXML,txDefs,txSession,DataLank,txImport,Variants,]][[!var
 doc:DOMDocument;
 ss:TStringStream;
 im:TtxImport;
@@ -10,6 +10,15 @@ DoPageLayout,SingleItem:boolean;
 name:string;
 const
 ActionURL='Import.xxm';//TODO: from Context?
+CLASS_FreeThreadedDOMDocument: TGUID = '{F6D90F12-9C73-11D3-B32E-00C04F990BB4}';
+
+{$IF not Declared(UTF8ToWideString)}
+function UTF8ToWideString(const s: UTF8String): WideString;
+begin
+  Result:=UTF8Decode(s);
+end;
+{$IFEND}
+
 ]][[
 act:=Context['x'].AsInteger;
 q:=act mod 10;
@@ -23,26 +32,26 @@ try
 case act of
   50..59://clear graft
    begin
-    im.Doc.documentElement.setAttribute('graft'+QName[q],'');
+    im.Doc.documentElement.setAttribute('graft'+UTF8ToWideString(QName[q]),'');
     act:=10+q;
    end;
   60..69://clear propo
    begin
     id2:=Context['id'].AsInteger;
-    x:=im.Doc.documentElement.selectSingleNode(QName[q]+'[@id="'+IntToStr(id2)+'"]') as IXMLDOMElement;
+    x:=im.Doc.documentElement.selectSingleNode(UTF8ToWideString(QName[q])+'[@id="'+IntToStr(id2)+'"]') as IXMLDOMElement;
     x.setAttribute('propo','');
     act:=20+q;
     SingleItem:=true;
    end;
   70..79://set graft
    begin
-    im.Doc.documentElement.setAttribute('graft'+QName[q],Context['graft'].AsInteger);
+    im.Doc.documentElement.setAttribute('graft'+UTF8ToWideString(QName[q]),Context['graft'].AsInteger);
     act:=10+q;
    end;
   80..89://set propo
    begin
     id2:=Context['id'].AsInteger;
-    x:=im.Doc.documentElement.selectSingleNode(QName[q]+'[@id="'+IntToStr(id2)+'"]') as IXMLDOMElement;
+    x:=im.Doc.documentElement.selectSingleNode(UTF8ToWideString(QName[q])+'[@id="'+IntToStr(id2)+'"]') as IXMLDOMElement;
     x.setAttribute('propo',Context['propo'].AsInteger);
     act:=20+q;
     SingleItem:=true;
@@ -50,7 +59,7 @@ case act of
   90..99://reset propo
    begin
     id2:=Context['id'].AsInteger;
-    x:=im.Doc.documentElement.selectSingleNode(QName[q]+'[@id="'+IntToStr(id2)+'"]') as IXMLDOMElement;
+    x:=im.Doc.documentElement.selectSingleNode(UTF8ToWideString(QName[q])+'[@id="'+IntToStr(id2)+'"]') as IXMLDOMElement;
     x.setAttribute('propo',x.getAttribute('propoDef'));
     act:=20+q;
     SingleItem:=true;
@@ -139,7 +148,7 @@ case act of
 }
 //--></style>
 [[for q:=0 to 3 do begin]]
-<div class="colH">[[=QDesc[q]]] ([[=im.Doc.documentElement.selectNodes(QName[q]).length]])</div>
+<div class="colH">[[=QDesc[q]]] ([[=im.Doc.documentElement.selectNodes(UTF8ToWideString(QName[q])).length]])</div>
 <div id="[[=QName[q]]]_root">>#StringReplace(lblLoading,'''','\''',[rfReplaceAll])<</div>
 [[end;]]
 <script language="javascript"><!--
@@ -176,10 +185,10 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
      end;
   10://graft node Obj
    begin
-      name:=QName[q]+'_node_0';
+      name:=UTF8ToWideString(QName[q])+'_node_0';
       <<div id="[[=name]]_row" class="row1">
       <div class="col2">>
-        id2:=DefAttr(im.Doc.documentElement,'graft'+QName[q],0);
+        id2:=DefAttr(im.Doc.documentElement,'graft'+UTF8ToWideString(QName[q]),0);
         if id2=0 then
          begin
           ]][[#txImg(-1)]] <i>top level</i> [[
@@ -211,10 +220,10 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
    end;
   11..19://graft node
    begin
-    name:=QName[q]+'_node_0';
+    name:=UTF8ToWideString(QName[q])+'_node_0';
     <<div id="[[=name]]_row" class="row1">
     <div class="col2">>
-    id2:=DefAttr(im.Doc.documentElement,'graft'+QName[q],0);
+    id2:=DefAttr(im.Doc.documentElement,'graft'+UTF8ToWideString(QName[q]),0);
     if id2=0 then
      begin
       ]][[#txImg(-1)]] <i>top level</i> [[
@@ -257,7 +266,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
       if y=nil then icon:=-1 else icon:=DefAttr(y,'icon',-1);
       id2:=DefAttr(x,'propo',0);
       id3:=DefAttr(x,'propoDef',0);
-      name:=QName[q]+'_node_'+IntToStr(id1);
+      name:=UTF8ToWideString(QName[q])+'_node_'+IntToStr(id1);
       if not SingleItem then
        begin
         <<div id="[[=name]]_row" class="row1">>
@@ -308,19 +317,19 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
    begin
     id1:=Context['pid'].AsInteger;
     if SingleItem then
-      xl:=im.Doc.documentElement.selectNodes(QName[q]+'[@id="'+IntToStr(id2)+'"]')
+      xl:=im.Doc.documentElement.selectNodes(UTF8ToWideString(QName[q])+'[@id="'+IntToStr(id2)+'"]')
     else
       if id1=0 then
-        xl:=im.Doc.documentElement.selectNodes(QName[q]+'[@graft="1"]')
+        xl:=im.Doc.documentElement.selectNodes(UTF8ToWideString(QName[q])+'[@graft="1"]')
       else
-        xl:=im.Doc.documentElement.selectNodes(QName[q]+'[@pid="'+IntToStr(id1)+'"]');
+        xl:=im.Doc.documentElement.selectNodes(UTF8ToWideString(QName[q])+'[@pid="'+IntToStr(id1)+'"]');
     x:=xl.nextNode as IXMLDOMElement;
     while (x<>nil) and Context.Connected do
      begin
       id1:=x.getAttribute('id');
       id2:=DefAttr(x,'propo',0);
       id3:=DefAttr(x,'propoDef',0);
-      name:=QName[q]+'_node_'+IntToStr(id1);
+      name:=UTF8ToWideString(QName[q])+'_node_'+IntToStr(id1);
       if not SingleItem then
        begin
         <<div id="[[=name]]_row" class="row1">>
@@ -346,7 +355,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
           [[if (id3<>0) and (id2<>id3) then begin<<a href="javascript:import_update('[[=name]]',{x:[[=90+q]],id:[[=id1]]});" class="linkbutton">reset</a>>end;]]
       </div>
       <div id="[[=name]]" expandurl="[[=ActionURL]]?x=[[=20+q]]&amp;pid=[[=id1]]" class="col1">>
-      if im.Doc.documentElement.selectSingleNode(QName[q]+'[@pid="'+IntToStr(id1)+'"]')=nil then
+      if im.Doc.documentElement.selectSingleNode(UTF8ToWideString(QName[q])+'[@pid="'+IntToStr(id1)+'"]')=nil then
        begin
         <<img src="img_trx.png" width="16" height="16" alt="" [[#globalIconAlign]]/>>
        end
@@ -367,7 +376,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
    end;
   30..39://select graft
    begin
-    id2:=DefAttr(im.Doc.documentElement,'graft'+QName[q],0);
+    id2:=DefAttr(im.Doc.documentElement,'graft'+UTF8ToWideString(QName[q]),0);
     if q=0 then
       Context.Include('dObjSelect.xxmi',['graft',id2,0,0,'',true])
     else
@@ -397,7 +406,8 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
       CheckFormProtect(Context);
 
       //doc:=CoDOMDocument.Create;
-      doc:=CoDOMFreeThreadedDocument.Create;
+      //doc:=CoDOMFreeThreadedDocument.Create;
+      doc:=CreateComObject(CLASS_FreeThreadedDOMDocument) as IXMLDOMDocument2;
       try
         //TODO: use IStream on DOMDocument?
         ss:=TStringStream.Create('');

@@ -40,13 +40,13 @@ const
     it_Unknown
   );
 
-  txFilterOperatorChar:array[TtxFilterOperator] of char=('+','.','/',',',#0);
-  txFilterOperatorSQL:array[TtxFilterOperator] of string=('AND','OR','AND NOT','OR NOT','');
+  txFilterOperatorChar:array[TtxFilterOperator] of AnsiChar=('+','.','/',',',#0);
+  txFilterOperatorSQL:array[TtxFilterOperator] of UTF8String=('AND','OR','AND NOT','OR NOT','');
 
   txFilterActionNameCount=100;
   txFilterActionName:array[0..txFilterActionNameCount-1] of record
     a:TtxFilterAction;
-    n:string;
+    n:UTF8String;
   end=(
     //(a:;n:''),
 
@@ -169,7 +169,7 @@ type
   );
 
 const
-  txFilterEnvVarName:array[TtxFilterEnvVar] of string=(
+  txFilterEnvVarName:array[TtxFilterEnvVar] of UTF8String=(
     'me',
     'us',
     'this',
@@ -184,31 +184,31 @@ type
     ParaOpen,ParaClose,Idx1,Idx2,Idx3:integer;
     Action:TtxFilterAction;
     IDType:TtxFilterIDType;
-    ID:string;
+    ID:UTF8String;
     Descending,Prefetch:boolean;//flags
-    Parameters:string;
+    Parameters:UTF8String;
     Operator:TtxFilterOperator;
   end;
 
   TtxFilter=class(TObject)
   private
-    Ex:string;
+    Ex:UTF8String;
     El:array of TtxFilterElement;
     FRaiseParseError:boolean;
     FParseError:string;
     function GetCount:integer;
-    procedure SetEx(AEx:string);
+    procedure SetEx(const AEx:UTF8String);
     function GetElement(Idx:integer):TtxFilterElement;
   public
     constructor Create;
     destructor Destroy; override;
-    property FilterExpression:string read Ex write SetEx;
+    property FilterExpression:UTF8String read Ex write SetEx;
     property Count:integer read GetCount;
     property Item[Idx:integer]:TtxFilterElement read GetElement; default;
     property RaiseParseError:boolean read FRaiseParseError write FRaiseParseError;
     property ParseError:string read FParseError;
-    class function GetActionItemType(Action:string):TtxItemType;
-    class function GetFilterEnvVar(EnvVarName:string):TtxFilterEnvVar;
+    class function GetActionItemType(const Action:UTF8String):TtxItemType;
+    class function GetFilterEnvVar(const EnvVarName:UTF8String):TtxFilterEnvVar;
   end;
 
   EtxFilterParseError=class(Exception);
@@ -230,7 +230,7 @@ begin
   inherited;
 end;
 
-class function TtxFilter.GetActionItemType(Action: string): TtxItemType;
+class function TtxFilter.GetActionItemType(const Action: UTF8String): TtxItemType;
 var
   i:integer;
 begin
@@ -242,7 +242,7 @@ begin
     Result:=txFilterActionItemType[txFilterActionName[i].a];
 end;
 
-class function TtxFilter.GetFilterEnvVar(EnvVarName:string):TtxFilterEnvVar;
+class function TtxFilter.GetFilterEnvVar(const EnvVarName: UTF8String): TtxFilterEnvVar;
 begin
   Result:=TtxFilterEnvVar(0);
   while (Result<fe_Unknown) and (txFilterEnvVarName[Result]<>EnvVarName) do inc(Result);
@@ -258,10 +258,10 @@ begin
   Result:=El[Idx];
 end;
 
-procedure TtxFilter.SetEx(AEx: string);
+procedure TtxFilter.SetEx(const AEx: UTF8String);
 var
   e,i,j,k,l,gPara:integer;
-  s:string;
+  s:UTF8String;
   b:boolean;
   x:^TtxFilterElement;
 
@@ -269,11 +269,11 @@ var
   begin
     while (i<=l) and (Ex[i] in [#0..#32]) do inc(i);
   end;
-  procedure Error(Msg: string);
+  procedure Error(const Msg: UTF8string);
   begin
-    if FRaiseParseError then raise EtxFilterParseError.Create(Msg);
-    if FParseError='' then FParseError:=Msg else
-      FParseError:=FParseError+#13#10+Msg;
+    if FRaiseParseError then raise EtxFilterParseError.Create(string(Msg));
+    if FParseError='' then FParseError:=string(Msg) else
+      FParseError:=FParseError+#13#10+string(Msg);
   end;
 
 begin
@@ -449,7 +449,7 @@ begin
      begin
       x.Operator:=TtxFilterOperator(0);
       while (x.Operator<>fo_Unknown) and (Ex[i]<>txFilterOperatorChar[x.Operator]) do inc(x.Operator);
-      if x.Operator=fo_Unknown then Error('Unknown operator "'+Ex[i]+'"');
+      if x.Operator=fo_Unknown then Error('Unknown operator "'+UTF8String(Ex[i])+'"');
       inc(i);
      end
     else

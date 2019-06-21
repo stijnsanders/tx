@@ -3,7 +3,7 @@ var
   i,j,icon:integer;
   qr:TQueryResult;
 const
-  qry:array[0..2] of string=('ObjType','TokType','RefType');
+  qry:array[0..2] of UTF8String=('ObjType','TokType','RefType');
   pfx:array[0..2] of string=('ot','tt','rt');
   lbl:array[0..2] of string=(lblLocation,lblTokens,lblReferences);
 ]][[

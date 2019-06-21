@@ -5,12 +5,12 @@ name,filter,url:string;
 ]][[
 Context.Include('dFrameHead.xxmi',[],[]);
 txItem(Context['x'].Value,ItemType,ItemID);
-name:='ftree'+txItemTypeTable[ItemType];
+name:='ftree'+string(txItemTypeTable[ItemType]);
 filter:=Context['filter'].Value;
 if filter='' then
   url:='iSelect.xxm?name='+name+txCallProtect+'&x='+txItemTypeKey[ItemType]
 else
-  url:='iFilter.xxm?name='+name+txCallProtect+'&filter='+URLEncode(filter)+'&id=';
+  url:='iFilter.xxm?name='+name+txCallProtect+'&filter='+string(URLEncode(filter))+'&id=';
 <<div id="selbox" style="white-space: nowrap; margin: 0em;">>#lblLoading<</div>
 <script><!--
   $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"+request.requestText+"</p>");});

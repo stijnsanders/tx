@@ -44,9 +44,9 @@ if qtype in [0,1] then
     qr:=TQueryResult.Create(Session.DbCon,
       'SELECT Obj.id, Obj.pid, Obj.name, ObjType.icon, ObjType.name AS typename'+
       ' FROM Ref'+
-      ' INNER JOIN Obj ON Obj.id=Ref.obj'+IntToStr(2-qtype)+'_id'+
+      ' INNER JOIN Obj ON Obj.id=Ref.obj'+IntToStrU(2-qtype)+'_id'+
       ' INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'+
-      ' WHERE Ref.obj'+IntToStr(1+qtype)+'_id=? and Ref.reftype_id=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+
+      ' WHERE Ref.obj'+IntToStrU(1+qtype)+'_id=? and Ref.reftype_id=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+
       ' ORDER BY Obj.weight, Obj.name, Obj.c_ts',[pid,rid]);
     qtype:=9;
    end;

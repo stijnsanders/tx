@@ -7,7 +7,7 @@ qr:TQueryResult;
 ]][[
 s:=Values[0];
 i:=1;
-while (i<=Length(s)) and not(s[i] in ['/','?']) do inc(i);
+while (i<=Length(s)) and not(AnsiChar(s[i]) in ['/','?']) do inc(i);
 s:=LowerCase(Copy(s,1,i-1));
 if s='default.asp' then Context.Redirect('/Log.xxm?filter='+Context['f'].Value,true);
 if s='item.asp' then Context.Redirect('/Item.xxm?x='+Context.ContextString(csQueryString),true);

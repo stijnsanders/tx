@@ -11,14 +11,14 @@ type
   public
     constructor Create(Doc:DOMDocument);
     destructor Destroy; override;
-    procedure VerifyTree(const QName:string);
-    procedure BuildMapping(const QName:string;DefOnly:boolean);
+    procedure VerifyTree(const QName:UTF8String);
+    procedure BuildMapping(const QName:UTF8String;DefOnly:boolean);
     property Doc:DOMDocument read FDoc;
   end;
 
 const
   QType:array[0..3] of TtxItemType=(itObj,itObjType,itTokType,itRefType);
-  QName:array[0..3] of string=('Obj','ObjType','TokType','RefType');
+  QName:array[0..3] of UTF8String=('Obj','ObjType','TokType','RefType');
   QDesc:array[0..3] of string=('Objects','Object types','Token types','Reference types');
 
 function DefAttr(x:IXMLDOMElement;const aname:string;dval:integer):integer;
@@ -43,7 +43,7 @@ var
   function GetNext:word;
    begin
     Result:=0;
-    while (i<=l) and (d[i] in ['0'..'9']) do
+    while (i<=l) and (AnsiChar(d[i]) in ['0'..'9']) do
      begin
       Result:=Result*10+byte(d[i])-$30;
       inc(i);
@@ -68,15 +68,22 @@ begin
   Result:=EncodeDate(dy,dm,dd)+EncodeTime(th,tm,ts,tz);
 end;
 
+{$IF not Declared(UTF8ToWideString)}
+function UTF8ToWideString(const s: UTF8String): WideString;
+begin
+  Result:=UTF8Decode(s);
+end;
+{$IFEND}
+
 { TtxImport }
 
-procedure TtxImport.VerifyTree(const QName:string);
+procedure TtxImport.VerifyTree(const QName:UTF8String);
 var
   xl:IXMLDOMNodeList;
   x:IXMLDOMElement;
 begin
   //Clear?
-  xl:=FDoc.documentElement.selectNodes(QName);
+  xl:=FDoc.documentElement.selectNodes(UTF8ToWideString(QName));
   x:=xl.nextNode as IXMLDOMElement;
   while not(x=nil) do
    begin
@@ -87,16 +94,16 @@ begin
   xl:=nil;
 end;
 
-procedure TtxImport.BuildMapping(const QName:string;DefOnly:boolean);
+procedure TtxImport.BuildMapping(const QName:UTF8String;DefOnly:boolean);
 var
   xl:IXMLDOMNodeList;
   x:IXMLDOMElement;
   id:integer;
   qr:TQueryResult;
-  sql:string;
+  sql:UTF8String;
 begin
   //Clear?
-  xl:=FDoc.documentElement.selectNodes(QName);
+  xl:=FDoc.documentElement.selectNodes(UTF8ToWideString(QName));
   x:=xl.nextNode as IXMLDOMElement;
   while not(x=nil) do
    begin

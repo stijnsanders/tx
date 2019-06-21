@@ -6,7 +6,8 @@ type
   end;
 ]][[!var
 fv:TtxFilterViewInfo;
-fs1,fs2,s:string;
+fs1,fs2:UTF8String;
+s:string;
 f:TtxFilter;
 fq1,fq2:TtxSqlQueryFragments;
 id:integer;
@@ -356,7 +357,7 @@ else if Context['go'].AsInteger=0 then
             <dt>Children</dt>
             <dd>
                 <input type="radio" name="children" id="children0" value="0" onclick="DoRadioChildren(this);" checked="1" />
-                <label for="children0">Don't display</label>
+                <label for="children0">Don&#x27;t display</label>
                 <br />
 
                 <input type="radio" name="children" id="children1" value="1" onclick="DoRadioChildren(this);" />
@@ -424,9 +425,9 @@ const
     f.FilterExpression:=fv.filter;
     if f.ParseError='' then
      begin
-      i:=Session.FilterCache.IndexOf(fv.filter);
+      i:=Session.FilterCache.IndexOf(string(fv.filter));
       if (i>0) then Session.FilterCache.Delete(i);
-      if (i<>0) then Session.FilterCache.Insert(0,fv.filter);
+      if (i<>0) then Session.FilterCache.Insert(0,string(fv.filter));
      end
     else
      begin
@@ -808,7 +809,7 @@ const
             if bytree then
              begin
               fq1.Where:=fs1;
-              fq1.AddWhere('Obj.pid='+IntToStr(id)+' AND Obj.id IN ('+nlist.List+')');
+              fq1.AddWhere('Obj.pid='+IntToStrU(id)+' AND Obj.id IN ('+nlist.List+')');
               qrDsc:=TQueryResultX.Create(Session.DbCon,fq1.SQL,[]);
               if qrDsc.EOF then
                begin

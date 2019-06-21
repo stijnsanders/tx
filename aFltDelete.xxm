@@ -31,6 +31,6 @@ except
 end;
 
 //url:='Item.xxm?x=i'+IntToStr(objid);
-url:='FilterBuild.xxm?filter='+URLEncode(filter);
+url:='FilterBuild.xxm?filter='+string(URLEncode(filter));
 Context.Redirect(url,true);
 <<a href="[[=url]]">>=url<</a>
