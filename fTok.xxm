@@ -19,8 +19,8 @@ if tid<>0 then id:=qr.GetInt('obj_id');//token move not supported
 [[#txForm('aTok.xxm',['id',id,'tid',tid],'selectnode_required("toktype","a token type")')]]
 [[#txFormProtect]]
 <dl>[[//see also Modify.xxm]]
-<dt>Token type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itTokType,'toktype',qr.GetInt('toktype_id')]);]]</dd>
-<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetStr('desc'),true]);]]</dd>
+<dt>Token type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itTokType,'toktype',qr.GetInt('toktype_id')]);<</dd>
+<dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc',qr.GetStr('desc'),true]);<</dd>
 <dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetInt('weight')]]" /></dd>
 [[/TODO: realm?]]
 </dl>

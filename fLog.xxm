@@ -36,14 +36,14 @@ for i:=0 to Session.FilterCache.Count-1 do
 <dt>Start date (leave year empty for none)</dt>
 <dd>
 <input type="text" name="sy" size="4" />
-<select name="sm">[[for i:=1 to 12 do begin]]<option>>=i<</option>[[end;]]</select>
-<select name="sd">[[for i:=1 to 31 do begin]]<option>>=i<</option>[[end;]]</select>
+<select name="sm">> for i:=1 to 12 do begin <<option>>=i<</option>> end; <</select>
+<select name="sd">> for i:=1 to 31 do begin <<option>>=i<</option>> end; <</select>
 </dd>
 <dt>End date (leave year empty for none)</dt>
 <dd>
 <input type="text" name="ey" size="4" />
-<select name="em">[[for i:=1 to 12 do begin]]<option>>=i<</option>[[end;]]</select>
-<select name="ed">[[for i:=1 to 31 do begin]]<option>>=i<</option>[[end;]]</select>
+<select name="em">> for i:=1 to 12 do begin <<option>>=i<</option>> end; <</select>
+<select name="ed">> for i:=1 to 31 do begin <<option>>=i<</option>> end; <</select>
 </dd>
 <dt>Realms</dt>
 <dd>

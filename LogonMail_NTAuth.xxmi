@@ -11,7 +11,7 @@ Content-Type: text/html
 <dt>comment</dt><dd>>=Context['comment'].Value<</dd>
 <dt>url</dt><dd>>=Context['url'].Value<</dd>
 <dt>referer</dt><dd>>=Context.ContextString(csReferer)<</dd>
-<dt>address</dt><dd>[[=Context.ContextString(csRemoteAddress)]] ([[=Context.ContextString(csRemoteHost)]])</dd>
+<dt>address</dt><dd>>=Context.ContextString(csRemoteAddress)]] ([[=Context.ContextString(csRemoteHost)]])</dd>
 <dt>now</dt><dd>>=FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz',Now)<</dd>
 </dl>
 </body></html>

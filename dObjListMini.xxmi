@@ -6,9 +6,6 @@
 qr:=Objects[0] as TQueryResult;
 name:=Values[0];
 id:=Values[1];
-]]
-<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);" title="[[.typename]]">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a>
-[[
+<<a id="[[=name]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name]]',[[=id]]);" title="[[.typename]]">[[#txImg(qr.GetInt('icon'))]] <span id="nodename[[=id]]">>.name<</span></a>>
 Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
-]]
-<br />
+<<br />

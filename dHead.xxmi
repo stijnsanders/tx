@@ -52,26 +52,33 @@ if not(Session.IsAnonymous) then
   {
     $("#frameLink").hide();
     window.top.document.title=document.title;
+    window.top.window.history.replaceState({},document.title,"Frame.xxm?url="+encodeURI(document.location.href));
   }
   //--></script>
   <a href="Default.xxm">home</a>
   <a href="Item.xxm">browse</a>
   <a href="Filter.xxm" rel="nofollow">filter</a>
+  [[
+  if Use_Journals and (Length(Session.Journals)<>0) then
+   begin
+    <<a href="Journal.xxm" rel="nofollow">journal</a>>
+   end;
+  ]]
   <a href="Search.xxm" rel="nofollow">search</a>
-    [[
+  [[
   if Session.Data<>nil then
    begin
     <<a href="Import.xxm">import</a>>
    end;
   if not(Session.IsAnonymous) then
    begin
-  ]]
-  |
-  <a href="Users.xxm" rel="nofollow">account</a>
-  <a href="Realms.xxm" rel="nofollow">realm</a>
-  <a href="FCount.xxm" rel="nofollow">fcount</a>
-  <a href="Test.xxm" rel="nofollow">test</a>
-  [[
+    ]]
+    |
+    <a href="Users.xxm" rel="nofollow">account</a>
+    <a href="Realms.xxm" rel="nofollow">realm</a>
+    <a href="FCount.xxm" rel="nofollow">fcount</a>
+    <a href="Test.xxm" rel="nofollow">test</a>
+    [[
    end;
   ]]
   |

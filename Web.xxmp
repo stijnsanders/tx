@@ -912,6 +912,46 @@
 			"path": "Auth.xxm",
 			"unitName": "auth_xxm1",
 			"unitPath": ""
+		},
+		"journal_xxm": {
+			"path": "Journal.xxm",
+			"unitName": "journal_xxm1",
+			"unitPath": ""
+		},
+		"fjrl_xxm": {
+			"path": "fJrl.xxm",
+			"unitName": "fjrl_xxm1",
+			"unitPath": ""
+		},
+		"dfltselect_xxmi": {
+			"path": "dFltSelect.xxmi",
+			"unitName": "dfltselect_xxmi1",
+			"unitPath": ""
+		},
+		"ajrl_xxm": {
+			"path": "aJrl.xxm",
+			"unitName": "ajrl_xxm1",
+			"unitPath": ""
+		},
+		"ijre_xxm": {
+			"path": "iJre.xxm",
+			"unitName": "ijre_xxm1",
+			"unitPath": ""
+		},
+		"journals_xxm": {
+			"path": "Journals.xxm",
+			"unitName": "journals_xxm1",
+			"unitPath": ""
+		},
+		"ausersus_xxm": {
+			"path": "aUserSus.xxm",
+			"unitName": "ausersus_xxm1",
+			"unitPath": ""
+		},
+		"ajredelete_xxm": {
+			"path": "aJreDelete.xxm",
+			"unitName": "ajredelete_xxm1",
+			"unitPath": ""
 		}
 	},
 	"units": {

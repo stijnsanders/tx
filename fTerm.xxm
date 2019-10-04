@@ -16,7 +16,10 @@ r:=Context['r'].Value;
 <<h2>Term "[[=n]]" <a href="Item.xxm?x=i[[=d]]" class="domainlink">&lsaquo;</a></h2>
 
 [[#txForm('aTerm.xxm',['n',n,'d',d,'r',r],'selectnode_required("term","an object to assign the term to")')]]
-<p>>Context.Include('dObjSelect.xxmi',['term',0,0,d,n,true]);<</p>
+<dl>
+<dt>Link term to object</dt>
+<dd>>Context.Include('dObjSelect.xxmi',['term',0,0,d,n,true]);<</dd>
+</dl>
 <p>
 [[#txFormButton]]
 |

@@ -1,0 +1,34 @@
+[[@txDefs,DataLank,txSession,]][[!var
+id:integer;
+url:string;
+]][[
+
+CheckCallProtect(Context);
+
+if not(Session.IsAdmin('logins')) then
+  raise Exception.Create('You''re not allowed to modify accounts.');
+
+id:=Context['id'].AsInteger;
+
+Session.DbCon.BeginTrans;
+try
+  if Context['x'].AsInteger=0 then
+   begin
+    //release
+    Session.DbCon.Execute('UPDATE Usr SET suspended=NULL WHERE id=? AND suspended IS NOT NULL',[id]);//, m_ts=?, m_uid=?
+    url:='Users.xxm?suspended=1';
+   end
+  else
+   begin
+    //suspend
+    Session.DbCon.Execute('UPDATE Usr SET suspended=? WHERE id=?',[VNow,id]);//, m_ts=?, m_uid=?
+    url:='Users.xxm';
+   end;
+  Session.DbCon.CommitTrans;
+except
+  Session.DbCon.RollbackTrans;
+  raise;
+end;
+
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

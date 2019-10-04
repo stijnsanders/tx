@@ -24,7 +24,6 @@ IFRAME {background-color:white;border:1px inset;user-select:none;-webkit-user-se
 <div id="rV" style="cursor:ew-resize;"></div>
 <iframe src="[[=url3]]" id="f3" name="MainFrame"></iframe>
 <div id="rR" style="display:none;[[/background-color:#808080;filter:alpha(opacity=25);opacity:0.25;]]"></div>
-</frameset>
 <script><!--
 var f1=document.getElementById("f1");
 var f2=document.getElementById("f2");

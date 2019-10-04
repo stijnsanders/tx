@@ -79,7 +79,7 @@ begin
   case FItemType of
     itObj:
      begin
-      Fields:='Obj.id, Obj.pid, Obj.name, Obj."desc", Obj.weight, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename';
+      Fields:='Obj.id, Obj.pid, Obj.name, Obj.'+sqlDesc+', Obj.weight, Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename';
       Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
       Where:='';
       GroupBy:='';
@@ -88,7 +88,7 @@ begin
      end;
     itReport:
      begin
-      Fields:='Rpt.id, Rpt.obj_id, Rpt."desc", Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id,'+
+      Fields:='Rpt.id, Rpt.obj_id, Rpt.'+sqlDesc+', Rpt.uid, Rpt.ts, Rpt.toktype_id, Rpt.reftype_id, Rpt.obj2_id,'+
        ' Obj.name, Obj.pid, ObjType.icon, ObjType.name AS typename,'+
        ' UsrObj.id AS usrid, UsrObj.name AS usrname, UsrObjType.icon AS usricon, UsrObjType.name AS usrtypename,'+
        ' RelTokType.icon AS tokicon, RelTokType.name AS tokname, RelTokType.system AS toksystem,'+
@@ -421,7 +421,7 @@ begin
        end;
       faDesc:
        begin
-        AddWhere('Obj."desc" LIKE '+SqlStr(ID));
+        AddWhere('Obj.'+sqlDesc+' LIKE '+SqlStr(ID));
         OrderBy:='Obj.m_ts, Obj.weight, Obj.name';
        end;
       faSearchName:
@@ -441,7 +441,7 @@ begin
           if k-j<>0 then
            begin
             if s<>'' then s:=s+' AND ';
-            s:=s+'(Obj.name LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%')+' OR Obj."desc" LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%')+')';
+            s:=s+'(Obj.name LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%')+' OR Obj.'+sqlDesc+' LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%')+')';
            end;
           inc(k);
          end;
@@ -462,7 +462,7 @@ begin
           if k-j<>1 then
            begin
             if s<>'' then s:=s+' AND ';
-            s:=s+'Rpt."desc" LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%');
+            s:=s+'Rpt.'+sqlDesc+' LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%');
            end;
           inc(k);
          end;

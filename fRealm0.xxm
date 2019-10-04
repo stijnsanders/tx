@@ -1,5 +1,4 @@
 [[@txDefs,DataLank,txSession,]][[!var
-i:integer;
 qr:TQueryResult;
 ]][[
 
@@ -15,45 +14,12 @@ try
 [[#txFormProtect]]
 [[//TODO: attention message here about dangers of limiting the default realm?]]
 <dl>
-<dt>Viewable by <span style="font-weight:normal;">(e.g.: <span class="litref">true1</span>)</span></dt><dd>
-  [[if Session.FilterCache.Count<>0 then begin]]
-  <select name="view1" id="RlmViewFilter" onchange="if(this.value=='') $('#RlmViewEx').show(); else $('#RlmViewEx').hide();">
-  <option value=""></option>>
-  for i:=0 to Session.FilterCache.Count-1 do
-   begin
-    <<option value="[[=Session.FilterCache[i]]]">>=Session.FilterCache[i]<</option>>
-   end;
-  <</select>
-  <br />
-  [[end;]]
-  <input type="text" name="view2" id="RlmViewEx" value="[[=qr.GetStr('view_expression')]]" class="textfield" />
-</dd>
-<dt>Editable by <span style="font-weight:normal;">(e.g.: <span class="litref">child"staff"*</span>)</span></dt><dd>
-  [[if Session.FilterCache.Count<>0 then begin]]
-  <select name="edit1" id="RlmEditFilter" onchange="if(this.value=='') $('#RlmEditEx').show(); else $('#RlmEditEx').hide();">
-  <option value=""></option>>
-  for i:=0 to Session.FilterCache.Count-1 do
-   begin
-    <<option value="[[=Session.FilterCache[i]]]">>=Session.FilterCache[i]<</option>>
-   end;
-  <</select>
-  <br />
-  [[end;]]
-  <input type="text" name="edit2" id="RlmEditEx" value="[[=qr.GetStr('edit_expression')]]" class="textfield" />
-</dd>
-<dt>Limit to <span style="font-weight:normal;">(e.g.: <span class="litref">reference$me[reftype"access"]</span>)</span></dt><dd>
-  [[if Session.FilterCache.Count<>0 then begin]]
-  <select name="limit1" id="RlmLimitFilter" onchange="if(this.value=='') $('#RlmLimitEx').show(); else $('#RlmLimitEx').hide();">
-  <option value=""></option>>
-  for i:=0 to Session.FilterCache.Count-1 do
-   begin
-    <<option value="[[=Session.FilterCache[i]]]">>=Session.FilterCache[i]<</option>>
-   end;
-  <</select>
-  <br />
-  [[end;]]
-  <input type="text" name="limit2" id="RlmLimitEx" value="[[=qr.GetStr('limit_expression')]]" class="textfield" />
-</dd>
+<dt>Viewable by <span style="font-weight:normal;">(e.g.: <span class="litref">true1</span>)</span></dt>
+<dd>>Context.Include('dFltSelect.xxmi',['view',qr.GetStr('view_expression')]);<</dd>
+<dt>Editable by <span style="font-weight:normal;">(e.g.: <span class="litref">child"staff"*</span>)</span></dt>
+<dd>>Context.Include('dFltSelect.xxmi',['edit',qr.GetStr('edit_expression')]);<</dd>
+<dt>Limit to <span style="font-weight:normal;">(e.g.: <span class="litref">reference$me[reftype"access"]</span>)</span></dt>
+<dd>>Context.Include('dFltSelect.xxmi',['limit',qr.GetStr('limit_expression')]);<</dd>
 </dl>
 [[#txFormButton]]
 <a href="Realms.xxm">back</a>

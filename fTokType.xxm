@@ -22,8 +22,8 @@ if Session.IsAdmin('config') then
   <<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetStr('system')]]" class="systemfield" /></dd>>
  end;
 <<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetInt('weight')]]" class="weightfield" /></dd>
-<dt>Icon</dt><dd>[[Context.Include('fIcons.xxmi',['icon',qr.GetInt('icon')]);]]</dd>
-<dt>Limit one token per branch</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itTokType,'default',qr.GetInt('dft')]);]]</dd>
+<dt>Icon</dt><dd>>Context.Include('fIcons.xxmi',['icon',qr.GetInt('icon')]);<</dd>
+<dt>Limit one token per branch</dt><dd>>Context.Include('dTypeSelect.xxmi',[itTokType,'default',qr.GetInt('dft')]);<</dd>
 </dl>
 [[#txFormButton]]
 <a href="Item.xxm?x=tt[[=xid]]">back</a>

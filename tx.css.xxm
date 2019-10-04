@@ -406,14 +406,20 @@ A.domainlink {
 	text-decoration: none;
 }
 
+.jrl {
+	color: #CC0000;
+	font-weight: bold;
+}
+
 
 @media print {
-	#toplogo 	{ display: none; }
-	#topnav 	{ display: none; }
-	TABLE.toolbar { display: none; }
-	A.linkbutton { display: none; }
-	.htmlcontrol { display: none; }
-	.buttons { display: none; }
+	#toplogo {display: none;}
+	#topnav {display: none;}
+	TABLE.toolbar {display: none;}
+	A.linkbutton {display: none;}
+	.htmlcontrol {display: none;}
+	.buttons {display: none;}
+	.jrl {display: none;}
 	#topinfo {
 		border-bottom: 0.1em dashed #C0C0C0;
 		width: 100%;

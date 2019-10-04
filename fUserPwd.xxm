@@ -13,6 +13,8 @@ IsAdmin:=Session.IsAdmin('logins');
 
 qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Usr WHERE id=?',[id]);
 try
+  if not(qr.IsNull('suspended')) then
+    raise Exception.Create('Account is suspended.');
   if not(IsAdmin) and (qr.GetInt('uid')<>Session.UserID) then
     raise Exception.Create('Updating accounts other than own is only allowed by login-admininistrator.');
   <<h2>Account Password</h2>>

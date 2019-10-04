@@ -1,0 +1,25 @@
+[[@txDefs,txSession,DataLank]][[!var
+qr:TQueryResult;
+id,jid:integer;
+]][[
+
+CheckCallProtect(Context);
+//assert Use_Journals
+Session.CheckJournalPermissions;
+id:=Context['id'].AsInteger;
+qr:=TQueryResult.Create(Session.DbCon,'select jrl_id from Jre where id=? and uid=?',[id,Session.UserID]);
+try
+  jid:=qr.GEtInt('jrl_id');
+finally
+  qr.Free;
+end;
+//TODO: (offer to) fix minutes/start of adjacent Jre's?
+Session.DbCon.BeginTrans;
+try
+  Session.DbCon.Execute('delete from Jre where id=? and uid=?',[id,Session.UserID]);
+  Session.DbCon.CommitTrans;
+except
+  Session.DbCon.RollbackTrans;
+  raise;
+end;
+Context.Redirect('Journal.xxm?id='+IntToStr(jid),true);

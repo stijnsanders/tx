@@ -14,7 +14,7 @@ if root=0 then
   ]]
   [[#StringReplace(txForm('MaintRpt.xxm',[],'selectnode_required("obj","an object of which to reorder the reports")'),'method="post"','method="get"',[])]]
   <dl>[[//see also Modify.xxm]]
-  <dt>Object</dt><dd>[[Context.Include('dObjSelect.xxmi',['obj',0,0,0,'',true]);]]</dd>
+  <dt>Object</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',0,0,0,'',true]);<</dd>
   <dt>Sub-node(s) name format</dt>
   <dd><input type="text" name="fmt" value="yyyy\yyyy-mm" /> <span class="small">use "\" to define multiple levels of sub-nodes</span></dd>
   <dt>Options</dt>

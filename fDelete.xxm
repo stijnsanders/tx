@@ -19,6 +19,7 @@ txItem(Context['x'].Value,ItemType,ItemID);
     itRefType:Context.Include('fRefTypeDelete.xxmi',[ItemID]);
     itFilter:Context.Include('fFltDelete.xxmi',[ItemID]);
     //itUser:Context.Include('fUsrDelete.xxmi',[ItemID]);//TODO
+    //itJournal:Context.Include('fJrlDelete.xxmi',[ItemID]);
 
     else
       ]]

@@ -1,8 +1,10 @@
-[[@txDefs,txSession,DataLank,txTerms,]][[!var
+[[@txDefs,txSession,DataLank,txTerms,txFilter,txFilterSql]][[!var
 qr,qr1:TQueryResult;
 id,qid,i,d,hi:integer;
-ShowControls,InControl:boolean;
+ShowControls,InControl,b:boolean;
 url,s:string;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
 ]][[
 qr:=Objects[0] as TQueryResult;
 id:=qr.GetInt('id');
@@ -29,6 +31,54 @@ if url<>'' then
  end;
 <<p>>
 Context.Include('d_cmw.xxmi',['',id],[qr]);
+
+if Use_Journals then
+  for i:=0 to Length(Session.Journals)-1 do
+   begin
+
+    qr1:=TQueryResult.Create(Session.DbCon,'select Jrl.root_id, ObjPath.oid, Jrl.limit_expression from Jrl'+
+      ' left outer join ObjPath on ObjPath.pid=Jrl.root_id and ObjPath.oid=?'+
+      ' where Jrl.id=?',[id,Session.Journals[i].ID]);
+    try
+      b:=qr1.IsNull('root_id') or not(qr1.IsNull('oid'));
+      s:=qr1.GetStr('limit_expression');
+    finally
+      qr1.Free;
+    end;
+    if b and (s<>'') then
+     begin
+      f:=TtxFilter.Create;
+      fq:=TtxSqlQueryFragments.Create(itObj);
+      try
+        fq.Fields:='Obj.id';
+        fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+        fq.Where:='Obj.id='+IntToStrU(id)+' AND ';
+        fq.GroupBy:='';
+        fq.Having:='';
+        fq.OrderBy:='';
+        f.FilterExpression:=UTF8Encode(s);
+        fq.AddFilter(f);
+        qr1:=TQueryResult.Create(Session.DbCon,fq.Sql,[]);
+        try
+          b:=not(qr1.EOF);
+        finally
+          qr1.Free;
+        end;
+      finally
+        f.Free;
+        fq.Free;
+      end;
+     end;
+    if b then
+     begin
+      <<span id="jre[[=Session.Journals[i].ID]]" class="jrl" onclick="$('#jre[[=Session.Journals[i].ID]]').load('iJre.xxm',{id:[[=Session.Journals[i].ID]],x:[[=id]],xxx:'[[#Session.SessionCrypt]]'});">>
+      Context.SendHTML(txImg(Session.Journals[i].Icon,Session.Journals[i].Name));
+      if Session.Journals[i].CurrentID=id then
+        Context.Send(JournalTime(Session.Journals[i].Start));
+      <</span>>
+     end;
+   end;
+
 <</p>>
 
   if InControl then
@@ -160,7 +210,7 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
       while qr1.Read and Context.Connected do
        begin
         qid:=qr1.GetInt('id');
-        if hi=qid then begin ]]<div class="highlighteditem">[[ end;
+        if hi=qid then begin <<div class="highlighteditem">> end;
         <<p class="objecttitle"><a name="ref[[=qid]]"></a>[[#txImg(qr1['icon'])]] [[,typename]]
         <a href="Item.xxm?x=i[[,obj2_id]]" title="[[,objtypename]]">
         [[#txImg(qr1['objicon'])]]

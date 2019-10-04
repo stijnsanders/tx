@@ -54,7 +54,7 @@ case x of
     [[#txForm('aTok.xxm',['filter',filter],'selectnode_required("toktype","a token type")&&'+FormConfirm)]]
     [[#txFormProtect]]
     <dl>
-    <dt>Token type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itTokType,'toktype']);]]</dd>
+    <dt>Token type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itTokType,'toktype']);<</dd>
     <dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc']);<</dd>
     <dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="0" /></dd>
     </dl>

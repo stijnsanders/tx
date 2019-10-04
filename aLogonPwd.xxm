@@ -10,14 +10,14 @@ id:=Context['id'].AsInteger;
 id1:=0;
 if id=0 then
  begin
-  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.email=?',[Context['email'].Value]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.email=? AND suspended IS NULL',[Context['email'].Value]);
   if qr.GetStr('auth')='anonymous' then
     raise Exception.Create('Resetting password on anonymous user not allowed');
   s:='New';
  end
 else
  begin
-  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.id=?',[id]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Usr INNER JOIN Obj ON Obj.id=Usr.uid WHERE Usr.id=? AND suspended IS NULL',[id]);
   s:='Reset';
  end;
 try

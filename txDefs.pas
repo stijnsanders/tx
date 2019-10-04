@@ -13,6 +13,7 @@ type
     itRealm,
     itUser,
     itReport,
+    itJournal,
     //add new here above
     it_Unknown
   );
@@ -27,27 +28,27 @@ const
   Use_ObjPath=true;//requires table ObjPath
   Use_NewUserEmailActivation=true;
   Use_Unread=true;//requires table Obx,Urx
-  Use_Journal=false;//requires table Jrl,Jre
+  Use_Journals=true;//requires table Jrl,Jre
   Use_Extra=false;//use prefix "::" on ObjType.system
 
   txItemTypeKey:array[TtxItemType] of string=(
-    'i','ot','t','tt','r','rt','f','rm','u','rp',
-    //add new here above
+    'i','ot','t','tt','r','rt','f','rm','u','rp','j',
+    //add new here above (see also procedure txItem below)
     ''
   );
   txItemTypeName:array[TtxItemType] of string=(
     'object','objecttype',
     'token','tokentype',
     'reference','referencetype',
-    'filter','realm','user','report',
+    'filter','realm','user','report','journal',
     //add new here above
-    ''
+    'unknown'
   );
   txItemTypeTable:array[TtxItemType] of UTF8String=(
     'Obj','ObjType',
     'Tok','TokType',
     'Ref','RefType',
-    'Flt','Rlm','Usr','Rpt',
+    'Flt','Rlm','Usr','Rpt','Jrl',
     //add new here above
     ''
   );
@@ -56,7 +57,7 @@ const
     'SELECT pid FROM ObjType WHERE id=?',
     '','SELECT pid FROM TokType WHERE id=?',
     '','SELECT pid FROM RefType WHERE id=?',
-    '','','','',
+    '','','','','',
     //add new here above
     ''
   );
@@ -65,7 +66,7 @@ const
     'UPDATE ObjType SET pid=? WHERE id=?',
     '','UPDATE TokType SET pid=? WHERE id=?',
     '','UPDATE RefType SET pid=? WHERE id=?',
-    '','','','',
+    '','','','','',
     //add new here above
     ''
   );
@@ -94,6 +95,7 @@ function txForm(const Action:string; const HVals:array of OleVariant;const OnSub
 function DateToXML(d:TDateTime):string;
 function NiceDateTime(const x:OleVariant):string;
 function ShortDateTime(d:TDateTime):string;
+function JournalTime(d:TDateTime):string;
 
 function IntToStrU(x:integer):UTF8String;
 
@@ -132,6 +134,7 @@ begin
         end;
       'f':ItemType:=itFilter;
       'u':ItemType:=itUser;
+      'j':ItemType:=itJournal;
       //else raise?
       else ItemType:=it_Unknown;
     end;
@@ -154,8 +157,7 @@ end;
 
 function txImg(IconNr:integer; const Desc:string): string;
 begin
-  Result:='<img src="img/ic'+IntToStr(IconNr)+
-   '.png" width="16" height="16" ';
+  Result:='<img src="img/ic'+IntToStr(IconNr)+'.png" width="16" height="16" ';
   if Desc<>'' then Result:=Result+'alt="'+HTMLEncode(Desc)+'" title="'+HTMLEncode(Desc)+'" ';
   Result:=Result+globalIconAlign+'/>';
 end;
@@ -218,6 +220,15 @@ begin
         Result:=FormatDateTime('mm/yyyy',d);
      end;
    end;
+end;
+
+function JournalTime(d:TDateTime):string;
+var
+  d0:TDateTime;
+begin
+  d0:=Now;
+  if Trunc(d)=Trunc(d0) then Result:=FormatDateTime('hh:nn',d) else Result:=FormatDateTime('ddd d/mm hh:nn',d);
+  Result:=Result+' ('+IntToStr(Round((d0-d)*1440.0))+''')';
 end;
 
 function IntToStrU(x:integer):UTF8String;

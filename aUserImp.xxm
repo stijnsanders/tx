@@ -19,7 +19,7 @@ if (id=0) and (Session.RevertUserID<>0) and (Session.RevertUserID=Context['r'].A
  end
 else
  begin
-  qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 0 AS isanon FROM Usr WHERE id=?',[id]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 0 AS isanon FROM Usr WHERE id=?',[id]);//AND suspended IS NULL?
   try
     if not Session.IsAdmin('logins') then
       raise Exception.Create('Impersonating is only allowed by login-admininistrator.');

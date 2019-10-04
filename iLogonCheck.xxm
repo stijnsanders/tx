@@ -24,4 +24,3 @@ else
     qr.Free;
   end;
  end;
-]]

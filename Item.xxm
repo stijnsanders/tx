@@ -10,7 +10,7 @@ const
     'Browse','Object Types',
     '','Token Types',
     '','Reference Types',
-    '','','','',
+    '','','','','',
     //add new here above
     ''
   );

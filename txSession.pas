@@ -12,7 +12,19 @@ const
   ViewedLastCount=50;
   AutoLogonCookieName='txAutoLogon';
   AutoLogonCookieTimeoutDays=100;
+
   sqlDesc='desc';//='[desc]';? ='"desc"';?
+
+  sqlObjByID=
+    'SELECT Obj.id, Obj.pid, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', Obj.url, Obj.weight, Obj.rlm_id,'+
+    ' Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename,'+
+    ' ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+    'FROM Obj '+
+    'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+    'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+ //TODO: if Use_ObjTokRefCache
+    'WHERE Obj.id=?';
+
+function sqlObjsByPid:UTF8String;
 
 var
   //see LoadProjectSettings
@@ -31,7 +43,7 @@ type
   TtxSession=class(TObject)
   private
     FSessionID,FSessionCrypt:string;
-    FRealmsCounter,FLogonAttemptCount: integer;
+    FRealmsCounter,FJournalsCounter,FLogonAttemptCount: integer;
     FTerms: TTermStore;
     FIsAnonymous: boolean;
     function Grow(rp:TtxRealmPermission):integer;
@@ -62,6 +74,12 @@ type
     RevertUserID:integer;
     RevertFooterDisplay:string;
     RecentReferences:array[0..FilterRecentCount-1] of record reftype,obj2:integer; end;
+    Journals:array of record
+      ID,Icon,CurrentID:integer;
+      Name:string;
+      Start:TDateTime;
+      CanConsult:boolean;
+    end;
 
     constructor Create(const SessionID:string);
     destructor Destroy; override;
@@ -74,6 +92,8 @@ type
     procedure BuildRealmPermissionsSQL;
     procedure SetViewRealm(AddRemove:boolean;RealmID:integer);//used by Realm.xxm only!
     procedure HasRealmPermission(ObjID,RealmID:integer;RealmPerm:TtxRealmPermission);
+    procedure LoadJournalPermissions;
+    function CheckJournalPermissions:UTF8String;
     function IsAdmin(const Key:string):boolean;
     procedure AddFilterRecent(ItemType:TtxItemType;id:integer);
     procedure RemoveFilterRecent(ItemType:TtxItemType;id:integer);
@@ -95,7 +115,6 @@ function TermStore:TTermStore;
 
 function DBSingleValue(const SQL:UTF8String;Parameters:array of OleVariant;Default:OleVariant):OleVariant;
 function DBExists(const SQL:UTF8String;Parameters:array of OleVariant):boolean;
-function sqlObjsByPid:UTF8String;
 function txCallProtect:string;
 function txFormProtect:string;
 procedure CheckCallProtect(Context:IXxmContext);
@@ -133,6 +152,7 @@ threadvar
   ThreadDbCon: TDataConnection;
 var
   RealmsCounter: integer;
+  JournalsCounter: integer;
 
 implementation
 
@@ -354,6 +374,7 @@ begin
   FLogonAttemptCount:=0;//reset
   //Stealth:=?
   LoadRealmPermissions;
+  if Use_Journals then LoadJournalPermissions;
 end;
 
 function TtxSession.Grow(rp:TtxRealmPermission):integer;
@@ -389,6 +410,7 @@ const
 begin
   //lock?
   FRealmsCounter:=RealmsCounter;
+  FJournalsCounter:=JournalsCounter;
   for rp:=rpView to rpEdit do with Realms[rp] do
    begin
     Count:=0;
@@ -580,6 +602,107 @@ begin
        end;
      end;
   BuildRealmPermissionsSQL;
+end;
+
+procedure TtxSession.LoadJournalPermissions;
+var
+  qr,qr1:TQueryResult;
+  i:integer;
+  b1,b2:boolean;
+  fx:string;
+  f:TtxFilter;
+  fq:TtxSqlQueryFragments;
+begin
+  //lock?
+  FJournalsCounter:=JournalsCounter;
+  i:=0;
+  SetLength(Journals,0);
+  qr:=TQueryResult.Create(DbCon,'SELECT * FROM Jrl',[]);
+  try
+    while qr.Read do
+     begin
+      fx:=qr.GetStr('view_expression');
+      if fx='' then b1:=true else
+       begin
+        f:=TtxFilter.Create;
+        fq:=TtxSqlQueryFragments.Create(itObj);
+        try
+          fq.Fields:='Obj.id';
+          fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+          fq.Where:='Obj.id='+IntToStrU(UserID)+' AND ';
+          fq.GroupBy:='';
+          fq.Having:='';
+          fq.OrderBy:='';
+          f.FilterExpression:=UTF8Encode(fx);
+          fq.AddFilter(f);
+          qr1:=TQueryResult.Create(DbCon,fq.Sql,[]);
+          try
+            b1:=not(qr1.EOF);
+          finally
+            qr1.Free;
+          end;
+        finally
+          f.Free;
+          fq.Free;
+        end;
+       end;
+      if b1 then
+       begin
+
+        fx:=qr.GetStr('edit_expression');
+        if fx='' then b2:=false else
+        begin
+          f:=TtxFilter.Create;
+          fq:=TtxSqlQueryFragments.Create(itObj);
+          try
+            fq.Fields:='Obj.id';
+            fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+            fq.Where:='Obj.id='+IntToStrU(UserID)+' AND ';
+            fq.GroupBy:='';
+            fq.Having:='';
+            fq.OrderBy:='';
+            f.FilterExpression:=UTF8Encode(fx);
+            fq.AddFilter(f);
+            qr1:=TQueryResult.Create(DbCon,fq.Sql,[]);
+            try
+              b2:=not(qr1.EOF);
+            finally
+              qr1.Free;
+            end;
+          finally
+            f.Free;
+            fq.Free;
+          end;
+        end;
+
+        SetLength(Journals,i+1);
+        Journals[i].ID:=qr.GetInt('id');
+        Journals[i].Name:=qr.GetStr('name');
+        Journals[i].Icon:=qr.GetInt('icon');
+        Journals[i].CurrentID:=0;
+        Journals[i].Start:=0.0;
+        Journals[i].CanConsult:=b2;
+        inc(i);
+       end;
+     end;
+  finally
+    qr.Free;
+  end;
+end;
+
+function TtxSession.CheckJournalPermissions:UTF8String;
+var
+  i:integer;
+begin
+  if FJournalsCounter<>JournalsCounter then LoadJournalPermissions;
+  if Length(Journals)=0 then
+    Result:='=0'
+  else
+   begin
+    Result:=' in (';
+    for i:=0 to Length(Journals)-1 do Result:=Result+IntToStrU(Journals[i].ID)+',';
+    Result[Length(Result)]:=')';
+   end;
 end;
 
 procedure TtxSession.AddFilterRecent(ItemType: TtxItemType; id: integer);
@@ -976,6 +1099,7 @@ initialization
   SessionStore.Sorted:=true;
   InitializeCriticalSection(SessionStoreLock);
   RealmsCounter:=0;
+  JournalsCounter:=0;
 finalization
   //ClearSessionStore;
   //DeleteCriticalSection(SessionStoreLock);

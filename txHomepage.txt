@@ -46,7 +46,7 @@ Read more about how to get started here:
 <div class="lbox"><b>Configure</b>
 <br /><a href="Users.xxm" rel="nofollow">users...</a>
 <br /><a href="Realms.xxm" rel="nofollow">realms...</a>
-<br /><a href="Test.xxm" rel="nofollow">test...</a>
+<br /><a href="Menu.xxm" rel="nofollow">more...</a>
 </div>
 
 

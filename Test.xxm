@@ -168,9 +168,56 @@ finally
 end;
 <<p>Total: [[=GetTimerIndexMS(tc1)]]ms, <a href="Item.xxm?x=i[[=Session.UserID]]">user obj...</a></p>
 
+[[
+if Use_Journals then
+ begin
+  tc1:=GetTimerIndex;
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Jrl',[]);
+  try
+    if not qr.EOF then
+     begin
+      <<h1>journal permissions</h1>>
+      while qr.Read do
+       begin
+        fx:=qr.GetStr('view_expression');
+        if fx='' then Context.SendHTML('<b style="color:#00CC00;">all</b> ') else
+         begin
+          tc2:=GetTimerIndex;
+          f:=TtxFilter.Create;
+          fq:=TtxSqlQueryFragments.Create(itObj);
+          try
+            fq.Fields:='Obj.id';
+            fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+            fq.Where:='Obj.id='+IntToStrU(Session.UserID)+' AND ';
+            fq.GroupBy:='';
+            fq.Having:='';
+            fq.OrderBy:='';
+            f.FilterExpression:=UTF8Encode(fx);
+            fq.AddFilter(f);
+            b:=DBExists(fq.Sql,[]);
+          finally
+            f.Free;
+            fq.Free;
+          end;
+          //
+          fr:=IntToStr(GetTimerIndexMS(tc2))+'ms';
+          if b then
+            Context.SendHTML('<b style="color:#00CC00;">usr</b> '+fr+' ')
+          else
+            Context.SendHTML('<s style="color:#CC0000;">usr</s> '+fr+' ');
+         end;
+       end;
+      <<p>Total= [[=GetTimerIndexMS(tc1)]]ms</p>>
+     end;
+  finally
+    qr.Free;
+  end;
+ end;
+]]
+
 <h1>settings</h1>
 <dl>
-<dt>Use_Terms</dt><dd>[[=Use_Terms]] (init:[[=TermStore.InitTimeMS]]ms, <a href="MaintTrl.xxm" rel="nofollow" onclick="return confirm('Are you sure to redo Trl?');">redo links..</a>) [[
+<dt>Use_Terms</dt><dd>>=Use_Terms]] (init:[[=TermStore.InitTimeMS]]ms, <a href="MaintTrl.xxm" rel="nofollow" onclick="return confirm('Are you sure to redo Trl?');">redo links..</a>) [[
 if TermStore.InitError<>'' then
  begin
   <<b style="color:red;">WikiEngine initialization error:</b>
@@ -184,7 +231,7 @@ if TermStore.InitError<>'' then
 <dt>Use_ObjPath</dt><dd>>=Use_ObjPath]] (<a href="MaintPath.xxm" rel="nofollow" onclick="return confirm('Are you sure to redo ObjPath?');">redo...</a>)</dd>
 <dt>Use_NewUserEmailActivation</dt><dd>>=Use_NewUserEmailActivation<</dd>
 <dt>Use_Unread</dt><dd>>=Use_Unread]] (<a href="MaintUrx.xxm" rel="nofollow">collapse...</a>)</dd>
-<dt>Use_Journal</dt><dd>>=Use_Journal<</dd>
+<dt>Use_Journals</dt><dd>>=Use_Journals<</dd>
 </dl>
 
 Context.Include('dFoot.xxmi');

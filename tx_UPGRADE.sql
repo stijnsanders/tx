@@ -40,3 +40,34 @@ rpt_id int not null,
 constraint FK_Umr_Usr foreign key (usr_id) references Usr (id),
 constraint FK_Umr_Rpt foreign key (rpt_id) references Rpt (id)
 );
+
+--v1.4.0
+alter table Usr add suspended datetime null;
+
+create table Jrl (
+id integer primary key autoincrement,
+name varchar(100),
+obj_id int not null,
+root_id int null,
+icon int not null,
+view_expression varchar(200) null,
+edit_expression varchar(200) null,
+limit_expression varchar(200) null,
+granularity int not null,
+c_uid int null,
+c_ts datetime null,
+m_uid int null,
+m_ts datetime null
+);
+
+create table Jre (
+id integer primary key autoincrement,
+jrl_id int not null,
+obj_id int not null,
+uid int not null,
+ts datetime not null,
+minutes int not null,
+constraint FK_Jre_Jrl foreign key (jrl_id) references Jrl (id),
+constraint FK_Jre_Obj foreign key (obj_id) references Obj (id),
+constraint FK_Jre_Obj foreign key (uid) references Obj (id)--not Usr!
+);

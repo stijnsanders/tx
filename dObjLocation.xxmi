@@ -13,7 +13,7 @@ DoTreeScript:=(Length(Values)>0) {and Values[0]};
 if DoTreeScript then t:=IntToStr(qr.GetInt('id'));
 if pid<>0 then
  begin
-  ]]<p class="objectlocation">[[//#lblLocation]]
+  <<p class="objectlocation">[[//#lblLocation]]
   [[
   s:='';
   while (pid<>0) and Context.Connected do
@@ -32,9 +32,9 @@ if pid<>0 then
   if ic=nil then ln.Free;
    end;
   Context.SendHTML(s);
-  ]]</p>
+  <</p>
   [[
  end;
-if DoTreeScript then begin]]<script><!--
+if DoTreeScript then begin <<script><!--
 (function(tf){if(tf && tf.frametree_expandto) tf.frametree_expandto('i','[[=t]]');})(window.parent.frames["TreeFrame"]);
-//--></script>[[end;]]
+//--></script>> end;

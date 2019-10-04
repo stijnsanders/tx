@@ -24,17 +24,22 @@ if not(IsAdmin) and (Context['uid'].AsInteger<>Session.UserID) then
 
 url:='Users.xxm';
 allok:=false;//default false
-qr:=TQueryResult.Create(Session.DbCon,'SELECT salt, pwd FROM Usr WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT salt, pwd, suspended FROM Usr WHERE id=?',[id]);
 try
-  salt:=qr.GetStr('salt');
-  s:=qr.GetStr('pwd');
-  if not(IsAdmin) and (s<>'') and {(s[1]<>'?') and} (s<>PasswordToken(salt,Context['pwd0'].Value)) then
-    url:='fUserPwd.xxm?id='+IntToStr(id)+'&msg=Incorrect+password'
+  if not(qr.IsNull('suspended')) then
+    url:='fUserPwd.xxm?id='+IntToStr(id)+'&msg=Account+suspended'
   else
-    if (pwd<>Context['pwd2'].Value) then
-      url:='fUserPwd.xxm?id='+IntToStr(id)+'&msg=Password+mismatch'
+   begin
+    salt:=qr.GetStr('salt');
+    s:=qr.GetStr('pwd');
+    if not(IsAdmin) and (s<>'') and {(s[1]<>'?') and} (s<>PasswordToken(salt,Context['pwd0'].Value)) then
+      url:='fUserPwd.xxm?id='+IntToStr(id)+'&msg=Incorrect+password'
     else
-      allok:=true;
+      if (pwd<>Context['pwd2'].Value) then
+        url:='fUserPwd.xxm?id='+IntToStr(id)+'&msg=Password+mismatch'
+      else
+        allok:=true;
+   end;
 finally
   qr.Free;
 end;

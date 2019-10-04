@@ -35,9 +35,7 @@ else
     [[=qrRef['name']]]</a>
     [[#txImg(qrRef['icon'])]] [[=qrRef['typename']]]</p>
     [[#qrRef['desc']]]
-    <p>[[Context.Include('d_cmw.xxmi',[],[qrRef]);]]</p>>
+    <p>>Context.Include('d_cmw.xxmi',[],[qrRef]);<</p>>
     //TODO: SafeHTML
    end;
 qrRef.Free;
-
-]]

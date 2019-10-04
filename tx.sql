@@ -122,6 +122,7 @@ email varchar(200) not null,
 salt varchar(50) not null,
 pwd varchar(50) not null,
 auth varchar(100) not null,
+suspended datetime null,
 c_ts datetime null,
 c_uid int null,
 m_ts datetime null,
@@ -267,6 +268,37 @@ insert into Urx (uid,id1,id2)
 select uid,1,(select max(id) as id from Obx) from Usr;
 
 
+-- Use_Journals
+
+create table Jrl (
+id integer primary key autoincrement,
+name varchar(100),
+obj_id int not null,
+root_id int null,
+icon int not null,
+view_expression varchar(200) null,
+edit_expression varchar(200) null,
+limit_expression varchar(200) null,
+granularity int not null,
+c_uid int null,
+c_ts datetime null,
+m_uid int null,
+m_ts datetime null
+);
+
+create table Jre (
+id integer primary key autoincrement,
+jrl_id int not null,
+obj_id int not null,
+uid int not null,
+ts datetime not null,
+minutes int not null,
+constraint FK_Jre_Jrl foreign key (jrl_id) references Jrl (id),
+constraint FK_Jre_Obj foreign key (obj_id) references Obj (id),
+constraint FK_Jre_Obj foreign key (uid) references Obj (id)--not Usr!
+);
+
+
 -- MaintMail.xxm
 
 create table Umi (
@@ -302,11 +334,12 @@ insert into ObjType (id,pid,icon,name,system,weight,dft) values (4,0,17,'user gr
 insert into ObjType (id,pid,icon,name,system,weight) values (5,3,22,'administrator','administrator',200);
 
 insert into TokType (id,pid,icon,name,system,weight) values (1,0,9,'[system tokens]','',0);
-insert into TokType (id,pid,icon,name,system,weight) values (2,1,26,'administrator config','auth.config',0);
-insert into TokType (id,pid,icon,name,system,weight) values (3,1,27,'administrator logins','auth.logins',0);
-insert into TokType (id,pid,icon,name,system,weight) values (4,1,28,'administrator realms','auth.realms',0);
-insert into TokType (id,pid,icon,name,system,weight) values (5,1,29,'administrator reports','auth.reports',0);
-insert into TokType (id,pid,icon,name,system,weight) values (6,1,42,'wiki domain','wiki.prefix',0);
+insert into TokType (id,pid,icon,name,system,weight) values (2,1,42,'wiki domain','wiki.prefix',0);
+insert into TokType (id,pid,icon,name,system,weight) values (3,1,26,'administrator config','auth.config',0);
+insert into TokType (id,pid,icon,name,system,weight) values (4,1,34,'administrator logins','auth.logins',0);
+insert into TokType (id,pid,icon,name,system,weight) values (5,1,29,'administrator realms','auth.realms',0);
+insert into TokType (id,pid,icon,name,system,weight) values (6,1,28,'administrator reports','auth.reports',0);
+insert into TokType (id,pid,icon,name,system,weight) values (7,1,27,'administrator journals','auth.journals',0);
 
 insert into RefType (pid,icon,name,system,weight) values (0,63,'see also','see-also',0);
 

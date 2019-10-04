@@ -1,0 +1,47 @@
+[[@txDefs,txSession,DataLank]][[!var
+i,id:integer;
+]][[
+
+CheckCallProtect(Context);
+//assert Use_Journals
+Session.CheckJournalPermissions;
+id:=Context['id'].AsInteger;
+i:=0;
+while (i<Length(Session.Journals)) and (id<>Session.Journals[i].ID) do inc(i);
+if i=Length(Session.Journals) then
+  Context.SendHTML('&mdash;')
+else
+ begin
+  id:=Context['x'].AsInteger;
+
+  if Session.Journals[i].CurrentID<>id then
+   begin
+    if Session.Journals[i].CurrentID<>0 then
+     begin
+      Session.DbCon.BeginTrans;
+      try
+        Session.DbCon.Insert('Jre',
+          ['jrl_id',Session.Journals[i].ID
+          ,'obj_id',Session.Journals[i].CurrentID
+          ,'uid',Session.UserID
+          ,'ts',VNow
+          ,'minutes',Round((Now-Session.Journals[i].Start)*1440.0+0.5)
+          ]);
+        //TODO: granularity
+      
+        Session.DbCon.CommitTrans;
+      except
+        Session.DbCon.RollbackTrans;
+        raise;
+      end;
+     end;
+
+    Session.Journals[i].CurrentID:=id;
+    Session.Journals[i].Start:=Now;
+   end;
+
+  if Context['r'].AsInteger=0 then
+    Context.SendHTML(txImg(Session.Journals[i].Icon,Session.Journals[i].Name)+JournalTime(Session.Journals[i].Start))
+  else
+    Context.Redirect('Journal.xxm',true);
+ end;

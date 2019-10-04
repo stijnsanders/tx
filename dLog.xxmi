@@ -1,6 +1,6 @@
 [[@Variants,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,txTerms,txNodes,]][[!var
 filter,filterU,s:string;
-fs1,fs2:UTF8String;
+fs1,fs2,ss:UTF8String;
 f:TtxFilter;
 fq1,fq2:TtxSqlQueryFragments;
 id,pid,limit,d,c1,c2:integer;
@@ -29,7 +29,7 @@ if Values[2]='' then limit:=100 else limit:=StrToInt(Values[2]);
 if VarIsNull(Values[3]) then d1:=0 else d1:=Trunc(VarToDateTime(Values[3]));
 if VarIsNull(Values[4]) then d2:=0 else d2:=Trunc(VarToDateTime(Values[4]))+1;//end date +1 to be smaller than 'opening' midnight of next day
 showAsc:=Values[5];
-if showAsc then s:='ASC' else s:='DESC';
+if showAsc then ss:='ASC' else ss:='DESC';
 
 filterU:=string(URLEncode(filter));
 //IsAdminReports:=Session.IsAdmin('reports');
@@ -38,10 +38,10 @@ filterU:=string(URLEncode(filter));
 
 f:=TtxFilter.Create;
 fq1:=TtxSqlQueryFragments.Create(itObj);
-fq1.OrderBy:='Obj.c_ts '+s+', Obj.weight, Obj.name';//m_ts?
+fq1.OrderBy:='Obj.c_ts '+ss+', Obj.weight, Obj.name';//m_ts?
 if limit<>0 then fq1.Limit:=limit;
 fq2:=TtxSqlQueryFragments.Create(itReport);
-fq2.OrderBy:='Rpt.ts '+s;
+fq2.OrderBy:='Rpt.ts '+ss;
 if limit<>0 then fq2.Limit:=limit;
 try
   tc1:=GetTimerIndex;
@@ -71,16 +71,16 @@ try
   else
     tc2:=GetTimerIndex;
 
-  s:='Obj.rlm_id'+Session.Realms[rpFilter].SQL;
+  ss:='Obj.rlm_id'+Session.Realms[rpFilter].SQL;
   if (d1<>0) and (d2<>0) and (d1>d2) then SwapDates;
-  //if d1<>0 then s:=s+' AND tsx>={ts '''+FormatDateTime('yyyy-mm-dd hh:nn:ss',d1)+'''}';
-  //if d2<>0 then s:=s+' AND tsx<{ts '''+FormatDateTime('yyyy-mm-dd hh:nn:ss',d2)+'''}';
-  if d1<>0 then s:=s+' AND datetime(''1900-01-01'',''+''||tsx||'' day'')>=datetime('''+FormatDateTime('yyyy-mm-dd hh:nn:ss',d1)+''')';
-  if d2<>0 then s:=s+' AND datetime(''1900-01-01'',''+''||tsx||'' day'')<datetime('''+FormatDateTime('yyyy-mm-dd hh:nn:ss',d2)+''')';
+  //if d1<>0 then ss:=ss+' AND tsx>={ts '''+UTF8Encode(FormatDateTime('yyyy-mm-dd hh:nn:ss',d1))+'''}';
+  //if d2<>0 then ss:=ss+' AND tsx< {ts '''+UTF8Encode(FormatDateTime('yyyy-mm-dd hh:nn:ss',d2))+'''}';
+  if d1<>0 then ss:=ss+' AND datetime(''1900-01-01'',''+''||tsx||'' day'')>=datetime('''+UTF8Encode(FormatDateTime('yyyy-mm-dd hh:nn:ss',d1))+''')';
+  if d2<>0 then ss:=ss+' AND datetime(''1900-01-01'',''+''||tsx||'' day'')< datetime('''+UTF8Encode(FormatDateTime('yyyy-mm-dd hh:nn:ss',d2))+''')';
   if fq1.Where<>'' then fq1.Where:=' AND ('+fq1.Where+')';
-  fq1.Where:=StringReplace(s,'tsx','Obj.c_ts',[rfReplaceAll])+fq1.Where;
+  fq1.Where:=UTF8Encode(StringReplace(string(ss),'tsx','Obj.c_ts',[rfReplaceAll]))+fq1.Where;
   if fq2.Where<>'' then fq2.Where:=' AND ('+fq2.Where+')';
-  fq2.Where:=StringReplace(s,'tsx','Rpt.ts',[rfReplaceAll])+fq2.Where;
+  fq2.Where:=UTF8Encode(StringReplace(string(ss),'tsx','Rpt.ts',[rfReplaceAll]))+fq2.Where;
 
   fs1:=fq1.SQL;
   fs2:=fq2.SQL;

@@ -40,7 +40,7 @@ end;
 
 //r:=CoXMLHttpRequest.Create;
 r:=CreateComObject(CLASS_XMLHTTP) as IXMLHTTPRequest;
-qr:=TQueryResult.Create(Session.DbCon,'select Usr.login,Obj.name,Usr.email from Usr inner join Obj on Usr.uid=Obj.id where Obj.id=?',[Session.UserID]);
+qr:=TQueryResult.Create(Session.DbCon,'select Usr.login,Obj.name,Usr.email from Usr inner join Obj on Usr.uid=Obj.id where Obj.id=? and Usr.suspended is null',[Session.UserID]);
 try
   if qr.EOF then
     raise Exception.Create('Unable to read authentification data');

@@ -38,6 +38,12 @@ if qr<>nil then
       Session.LogonAttemptCheck;
      end
     else
+    if not(qr.IsNull('suspended')) then
+     begin
+      umsg:='Account is suspended.';
+      Session.LogonAttemptCheck;
+     end
+    else
      begin
       Session.LoadUser(qr);
 
@@ -96,7 +102,7 @@ if ntauth then
    begin
     <<h2>Unknown user</h2>
     <p>An NT-account name has been found, but no credentials are provided in the database for your NT-account.</p>
-    <p>If you would like to send a mail to the system's administrator(s) to request your NT-account information be added, please fill out this form:</p>
+    <p>If you would like to send a mail to the system&#x27;s administrator(s) to request your NT-account information be added, please fill out this form:</p>
     [[#txForm('Logon.xxm',['sendmail',1,'url',url])]]
     <dl>
     <dt>Your name</dt><dd><input type="text" name="name" id="username" value="[[=TryGetUserName(uname)]]" size="30" /></dd>
@@ -141,7 +147,7 @@ else
     $("#username")[0].focus();
     //--></script>
     <p><a href="fLogonPwd.xxm">I forgot my password...</a></p>
-    <p><a href="fLogon.xxm?url=[[=url]]">I'm a new user...</a></p>>
+    <p><a href="fLogon.xxm?url=[[=url]]">I&#x27;m a new user...</a></p>>
    end
   else
    begin

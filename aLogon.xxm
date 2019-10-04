@@ -88,7 +88,7 @@ if Use_NewUserEmailActivation then
  end
 else
  begin
-  qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 0 as isanon FROM Usr WHERE id=?',[id]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 0 as isanon FROM Usr WHERE id=? AND suspended IS NULL',[id]);
   try
     Session.LoadUser(qr);
   finally

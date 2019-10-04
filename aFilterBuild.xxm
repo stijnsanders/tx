@@ -12,17 +12,13 @@ if x='edit' then
 else
 {else
  begin
-  ]]
-  <p>Unknown action <b>>=x<</b></p>
-  <dl>
-  [[
+  <<p>Unknown action <b>>=x<</b></p>
+  <dl>>
   for i:=0 to Context.ParameterCount-1 do with Context[i] do
    begin
-    ]]<dt>>=Name<</dt><dd>>=Value<</dd>[[
+    <<dt>>=Name<</dt><dd>>=Value<</dd>>
    end;
-  ]]
-  </dl>
-  [[
+  <</dl>>
  end}
 if (x='r') or (x='rr') or (x='rx') or (x='rxr') then
  begin

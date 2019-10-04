@@ -37,7 +37,7 @@ for q:=1 to 3 do
   <<b>[[=QDesc[q]]]...</b><br />>
   repeat
     retryCount:=0;
-    xl:=im.Doc.documentElement.selectNodes(QName[q]);
+    xl:=im.Doc.documentElement.selectNodes(string(QName[q]));
     x:=xl.nextNode as IXMLDOMElement;
     while x<>nil do
      begin
@@ -53,11 +53,11 @@ for q:=1 to 3 do
           pid1:=DefAttr(x,'pid',0);
           pid2:=0;//counter warning
           pfound:=true;//true in most cases
-          if pid1=0 then pid2:=DefAttr(im.Doc.documentElement,'graft'+QName[q],0) else
+          if pid1=0 then pid2:=DefAttr(im.Doc.documentElement,'graft'+string(QName[q]),0) else
            begin
             //see if in-import parent item is done yet
-            y:=im.Doc.documentElement.selectSingleNode(QName[q]+'[@id="'+IntToStr(pid1)+'"]') as IXMLDOMElement;
-            if y=nil then pid2:=DefAttr(im.Doc.documentElement,'graft'+QName[q],0) else
+            y:=im.Doc.documentElement.selectSingleNode(string(QName[q])+'[@id="'+IntToStr(pid1)+'"]') as IXMLDOMElement;
+            if y=nil then pid2:=DefAttr(im.Doc.documentElement,'graft'+string(QName[q]),0) else
              begin
               s:=VarToStr(y.getAttribute('newid'));
               if s='' then pfound:=false else pid2:=StrToInt(s);
@@ -132,7 +132,7 @@ for q:=1 to 3 do
   <<b>[[=QDesc[q]]]...</b><br />>
   repeat
     retryCount:=0;
-    xl:=im.Doc.documentElement.selectNodes(QName[q]);
+    xl:=im.Doc.documentElement.selectNodes(string(QName[q]));
     x:=xl.nextNode as IXMLDOMElement;
     while x<>nil do
      begin
@@ -146,11 +146,11 @@ for q:=1 to 3 do
           pid1:=DefAttr(x,'pid',0);
           pid2:=0;//counter warning
           pfound:=true;//true in most cases
-          if pid1=0 then pid2:=DefAttr(im.Doc.documentElement,'graft'+QName[q],0) else
+          if pid1=0 then pid2:=DefAttr(im.Doc.documentElement,'graft'+string(QName[q]),0) else
            begin
             //see if in-import parent item is done yet
-            y:=im.Doc.documentElement.selectSingleNode(QName[q]+'[@id="'+IntToStr(pid1)+'"]') as IXMLDOMElement;
-            if y=nil then pid2:=DefAttr(im.Doc.documentElement,'graft'+QName[q],0) else
+            y:=im.Doc.documentElement.selectSingleNode(string(QName[q])+'[@id="'+IntToStr(pid1)+'"]') as IXMLDOMElement;
+            if y=nil then pid2:=DefAttr(im.Doc.documentElement,'graft'+string(QName[q]),0) else
              begin
               s:=VarToStr(y.getAttribute('newid'));
               if s='' then pfound:=false else pid2:=StrToInt(s);
@@ -229,7 +229,7 @@ for q:=1 to 3 do
 
   //tokens
   <<b>Tokens...</b><br />>
-  xl:=im.Doc.documentElement.selectNodes(QName[q]);
+  xl:=im.Doc.documentElement.selectNodes(string(QName[q]));
   x1:=xl.nextNode as IXMLDOMElement;
   while x1<>nil do
    begin
@@ -257,7 +257,7 @@ for q:=1 to 3 do
 
   //references
   <<b>References...</b><br />>
-  xl:=im.Doc.documentElement.selectNodes(QName[q]);
+  xl:=im.Doc.documentElement.selectNodes(string(QName[q]));
   x1:=xl.nextNode as IXMLDOMElement;
   while x1<>nil do
    begin
@@ -288,7 +288,7 @@ for q:=1 to 3 do
 
   //reports
   <<b>Reports...</b><br />>
-  xl:=im.Doc.documentElement.selectNodes(QName[q]);
+  xl:=im.Doc.documentElement.selectNodes(string(QName[q]));
   x1:=xl.nextNode as IXMLDOMElement;
   while x1<>nil do
    begin

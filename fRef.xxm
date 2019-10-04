@@ -24,9 +24,9 @@ if rid<>0 then id:=qrGetDefault('obj1_id',0);//reference move not supported
 [[#txForm('aRef.xxm',['id',id,'rid',rid],'selectnode_required("reftype","a reference type")&&selectnode_required("obj2","an object to refer to")')]]
 [[#txFormProtect]]
 <dl>[[//see also Modify.xxm]]
-<dt>Reference type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itRefType,'reftype',qrGetDefault('reftype_id',0)]);]]</dd>
-<dt>Refer to object</dt><dd>[[Context.Include('dObjSelect.xxmi',['obj2',qrGetDefault('obj2_id',tid),id,id,'',true]);]]</dd>
-<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qrGetDefault('desc',''),true]);]]</dd>
+<dt>Reference type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'reftype',qrGetDefault('reftype_id',0)]);<</dd>
+<dt>Refer to object</dt><dd>>Context.Include('dObjSelect.xxmi',['obj2',qrGetDefault('obj2_id',tid),id,id,'',true]);<</dd>
+<dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc',qrGetDefault('desc',''),true]);<</dd>
 <dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=qrGetDefault('weight',0)]]" /></dd>
 [[/TODO: realm?]]
 </dl>

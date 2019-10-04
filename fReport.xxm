@@ -24,7 +24,7 @@ end;
 [[#txForm('aReport.xxm',['id',id{,'rid',...}])]]
 [[#txFormProtect]]
 [[Context.Include('dTextField.xxmi',['desc','',true]);]]
-<dl id="SelRelObj" style="display: none;"><dt>Related object</dt><dd>[[Context.Include('dObjSelect.xxmi',['related',0,id,id,'',true]);]]</dd></dl>
+<dl id="SelRelObj" style="display: none;"><dt>Related object</dt><dd>>Context.Include('dObjSelect.xxmi',['related',0,id,id,'',true]);<</dd></dl>
 [[#txFormButton]]
 <a href="Item.xxm?x=i[[=id]]">back</a>
 |

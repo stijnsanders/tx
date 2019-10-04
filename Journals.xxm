@@ -1,0 +1,133 @@
+[[@txSession,txDefs,DataLank]][[!var
+qr,qr1:TQueryResult;
+s,t:string;
+id,i:integer;
+]][[
+
+if not(Session.IsAdmin('journals')) then
+  raise Exception.Create('You''re not allowed to modify journals.');
+
+Context.Include('dHead.xxmi',['Journals']);
+id:=Context['id'].AsInteger;
+if id=0 then
+ begin
+  qr:=TQueryResult.Create(Session.DbCon,'select * from Jrl order by id',[]);
+  try
+    if qr.EOF then
+     begin
+      <<p class="information">No journals.<br /><a href="fJrl.xxm">Click here</a> to create a journal.</p>>
+     end
+    else
+     begin
+      <<p class="buttons"><a href="fJrl.xxm" class="linkbutton">add...</a></p>
+      <table cellspacing="2" cellpadding="2" border="0" class="listtable">
+      <tr>
+      <th>&nbsp;</th>
+      <th>name</th>
+      <th>attached to</th>
+      <th>available to</th>
+      <th>consultable by</th>
+      <th>branch</th>
+      <th>limited to</th>
+      <th title="granularity (minutes)">&#x27;</th>
+      <th>&nbsp;</th>
+      </tr>>
+  
+      while qr.Read do
+       begin
+        id:=qr.GetInt('id');
+        <<tr>
+        <td style="white-space:nowrap;">
+        <a href="fJrl.xxm?id=[[=id]]" class="linkbutton">edit</a>
+        <a href="fDelete.xxm?x=j[[=id]]" class="linkbutton">delete</a>
+        </td>
+        <td><a href="?id=[[=id]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a></td>
+        <td>>
+        if qr.IsNull('obj_id') then
+          Context.SendHTML('&ndash;')
+        else
+         begin
+          id:=qr.GetInt('obj_id');
+          qr1:=TQueryResult.Create(Session.DbCon,sqlObjByID,[id]);
+          try
+            Context.Include('dObjLink.xxmi',[],[qr1]);
+            Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr1]);
+            //Context.Include('d_cmw.xxmi',[],[qr]);
+          finally
+            qr1.Free;
+          end;
+         end;
+        <</td>
+        <td style="white-space:nowrap;">>
+        s:=qr.GetStr('view_expression');
+        if s='' then Context.SendHTML('&ndash;') else
+         begin
+          t:='?filter='+string(URLEncode(s));
+          <<span class="litref">>=s<</span><br />
+          <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
+          <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
+         end;
+        <</td>
+        <td style="white-space:nowrap;">>
+        s:=qr.GetStr('edit_expression');
+        if s='' then Context.SendHTML('&ndash;') else
+         begin
+          t:='?filter='+string(URLEncode(s));
+          <<span class="litref">>=s<</span><br />
+          <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
+          <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
+         end;
+        <</td>
+        <td>>
+        if qr.IsNull('root_id') then
+          Context.SendHTML('&ndash;')
+        else
+         begin
+          id:=qr.GetInt('obj_id');
+          qr1:=TQueryResult.Create(Session.DbCon,sqlObjByID,[id]);
+          try
+            Context.Include('dObjLink.xxmi',[],[qr1]);
+            Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr1]);
+            //Context.Include('d_cmw.xxmi',[],[qr]);
+          finally
+            qr1.Free;
+          end;
+         end;
+        <</td>
+        <td style="white-space:nowrap;">>
+        s:=qr.GetStr('limit_expression');
+        if s='' then Context.SendHTML('&ndash;') else
+         begin
+          t:='?filter='+string(URLEncode(s));
+          <<span class="litref">>=s<</span><br />
+          <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
+          <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
+         end;
+        <</td>
+        <td class="r">>.granularity<</td>
+        <td>>Context.Include('d_cmw.xxmi',[],[qr,nil]);<</td>
+        </tr>>
+        
+       end;
+  
+      <</table>>
+  
+      <<p class="buttons"><a href="fRealm.xxm" class="linkbutton">add...</a></p>>
+        
+     end;
+  finally
+    qr.Free;
+  end;
+ end
+else
+ begin
+  qr:=TQueryResult.Create(Session.DbCon,'select * from Jrl where id=?',[id]);
+  try
+    <<h2>[[#txImg(qr.GetInt('icon'))]]&nbsp;[[.name]]</h2>>
+  finally
+    qr.Free;
+  end;
+  <<p>//TODO</p>>
+ end;
+Context.Include('dFoot.xxmi');
+  

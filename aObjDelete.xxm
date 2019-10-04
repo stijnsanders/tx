@@ -60,7 +60,8 @@ if Context['full'].AsInteger=1 then
      end
     else
      begin
-      Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['r'+IntToStr(id)]);
+      if Use_Terms then
+        Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['r'+IntToStr(id)]);
       Session.DbCon.Execute('DELETE FROM Ref WHERE obj1_id=?',[id]);
       Session.DbCon.Execute('DELETE FROM Ref WHERE obj2_id=?',[id]);
      end;
@@ -90,7 +91,7 @@ if Context['full'].AsInteger=1 then
         Session.DbCon.Execute('DELETE FROM Trl WHERE source=?',['i'+IntToStr(id)]);
       if Use_Unread then
         Session.DbCon.EXecute('DELETE FROM Obx WHERE obj_id=?',[id]);
-      if Use_Journal then
+      if Use_Journals then
         Session.DbCon.Execute('DELETE FROM Jre WHERE obj_id=?',[id]);//update nid?
       Session.DbCon.Execute('DELETE FROM Obj WHERE id=?',[id]);
       pid:=nid;//see forward below
@@ -134,7 +135,7 @@ if Context['full'].AsInteger=1 then
             Session.DbCon.Execute('DELETE FROM ObjPath WHERE pid=? OR oid=?',[id,id]);
           if Use_Unread then
             Session.DbCon.Execute('DELETE FROM Obx WHERE obj_id=?',[id]);
-          if Use_Journal then
+          if Use_Journals then
             Session.DbCon.Execute('DELETE FROM Jre WHERE obj_id=?',[id]);
           Session.DbCon.Execute('DELETE FROM Obj WHERE id=?',[id]);
          end;

@@ -1,8 +1,9 @@
 [[@txDefs,DataLank,txSession,Variants,]][[!var
-IsAdmin:boolean;
+IsAdmin,Suspended:boolean;
 qr:TQueryResult;
 id,uid:integer;
-pwd,sqlListUsr:string;
+pwd:string;
+sqlListUsr:UTF8String;
 const
 csel:array[boolean] of string=('',' checked="1"');
 ]][[
@@ -21,6 +22,7 @@ if Context['UpdatePrefs'].AsInteger=1 then
  end;
 
 IsAdmin:=Session.IsAdmin('logins');
+Suspended:=Context['suspended'].AsInteger<>0;
 Context.Include('dHead.xxmi',['Accounts']);
 
 if Session.RevertUserID<>0 then
@@ -28,7 +30,7 @@ if Session.RevertUserID<>0 then
   <<p class="buttons"><a href="aUserImp.xxm?r=[[=Session.RevertUserID]][[=txCallProtect]]" class="linkbutton">end impersonation</a></p>>
  end;
 
-if IsAdmin then
+if IsAdmin and not(Suspended) then
  begin
   <<p class="buttons"><a href="fUser.xxm" class="linkbutton">add...</a></p>>
  end;
@@ -44,7 +46,13 @@ if Use_ObjTokRefCache then sqlListUsr:=sqlListUsr+
   'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id ';
 
 if IsAdmin then
-  qr:=TQueryResult.Create(Session.DbCon,sqlListUsr+'ORDER BY Usr.login, Usr.auth',[])
+ begin
+  if Suspended then
+    sqlListUsr:=sqlListUsr+'WHERE Usr.suspended IS NOT NULL '
+  else
+    sqlListUsr:=sqlListUsr+'WHERE Usr.suspended IS NULL ';
+  qr:=TQueryResult.Create(Session.DbCon,sqlListUsr+'ORDER BY Usr.login, Usr.auth',[]);
+ end
 else
   qr:=TQueryResult.Create(Session.DbCon,sqlListUsr+'WHERE Usr.uid=?',[Session.UserID]);
 
@@ -59,9 +67,19 @@ try
      <<tr>
      <td style="white-space:nowrap;">
      <a href="fUser.xxm?id=[[=id]]" class="linkbutton">edit</a>>
-     if IsAdmin then begin ]] <a href="fDelete.xxm?x=u[[=id]]" class="linkbutton">delete</a>> end;
      if IsAdmin and (uid<>Session.UserID) then
-      begin ]] <a href="aUserImp.xxm?u=[[=id]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Attention this will switch your current web session (all windows) to the selected user.');">impersonate</a>> end;
+      begin
+       if Suspended then
+        begin
+         ]] <a href="aUserSus.xxm[[?'x',0,'id',id]][[#txCallProtect]]" class="linkbutton">release</a>>
+        end
+       else
+        begin
+         ]] <a href="aUserSus.xxm[[?'x',1,'id',id]][[#txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to suspend this account?');">suspend</a>>
+        end;
+       ]] <a href="fDelete.xxm?x=u[[=id]]" class="linkbutton">delete</a>>
+       ]] <a href="aUserImp.xxm?u=[[=id]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Attention this will switch your current web session (all windows) to the selected user.');">impersonate</a>>
+      end;
      <</td>
      <td style="white-space: nowrap;"><a href="Item.xxm?x=i[[=uid]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
      Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);<</td>
@@ -77,7 +95,7 @@ try
        if IsAdmin then
         begin
          <<a href="aUserPwd.xxm[[?'reset',id,'uid',uid]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to reset the password for [[.login]]?');">clear</a>>
-         if pwd[1] in ['-','?'] then
+         if AnsiChar(pwd[1]) in ['-','?'] then
           begin
            //assert Use_NewUserEmailActivation
            ]] <a href="aLogonPwd.xxm?id=[[=id]]" class="linkbutton" title="re-send activation e-mail">mail</a>>
@@ -88,7 +106,13 @@ try
      <</td>
      <td>>.auth<</td>
      <td><a href="mailto:[[.email]]">>.email<</a></td>
-   <td>>Context.Include('d_cmw.xxmi',[],[qr,nil]);<</td>
+     <td>>
+     Context.Include('d_cmw.xxmi',[],[qr,nil]);
+     if Suspended then
+      begin
+       ]] <span class="date">s:&nbsp;[[=NiceDateTime(qr['suspended'])]]</span>>
+      end;
+     <</td>
      </tr>>
     end;
    <</table>>
@@ -98,7 +122,17 @@ end;
 
 if IsAdmin then
  begin
-  <<p class="buttons"><a href="fUser.xxm" class="linkbutton">add...</a></p>>
+  <<p class="buttons">>
+  if Suspended then
+   begin
+    ]] <a href="Users.xxm" class="linkbutton">active...</a>>
+   end
+  else
+   begin
+    <<a href="fUser.xxm" class="linkbutton">add...</a>
+    <a href="Users.xxm?suspended=1" class="linkbutton">suspended...</a>>
+   end;
+  <</p>>
  end;
 
 <<h2>Preferences</h2>
@@ -145,4 +179,3 @@ finally
 end;
 
 Context.Include('dFoot.xxmi');
-]]

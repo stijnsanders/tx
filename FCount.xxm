@@ -171,9 +171,9 @@ function doClr()
         j:=DefaultClrs[Length(filters) mod DefaultClrCount];
 
 <</select>
-R <select name="addr" id="addr" onchange="doClr()">[[for i:=0 to 5 do begin]]<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[((j shr 8) and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>[[end;]]</select>
-G <select name="addg" id="addg" onchange="doClr()">[[for i:=0 to 5 do begin]]<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[((j shr 4) and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>[[end;]]</select>
-B <select name="addb" id="addb" onchange="doClr()">[[for i:=0 to 5 do begin]]<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[(j and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>[[end;]]</select>
+R <select name="addr" id="addr" onchange="doClr()">> for i:=0 to 5 do begin <<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[((j shr 8) and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>> end; <</select>
+G <select name="addg" id="addg" onchange="doClr()">> for i:=0 to 5 do begin <<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[((j shr 4) and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>> end; <</select>
+B <select name="addb" id="addb" onchange="doClr()">> for i:=0 to 5 do begin <<option value="[[=Hex[ClrC[i]]]]" [[=SelectBool[(j and $F)=ClrC[i]]]]>>=Hex[ClrC[i]]<</option>> end; <</select>
 <span id="previewrgb">&nbsp;&nbsp;&nbsp;</span>
 <script><!--
 doClr();

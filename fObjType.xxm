@@ -26,8 +26,8 @@ if Session.IsAdmin('config') then
   <<dt>System</dt><dd><input type="text" name="system" value="[[=qrGetDefault('system','')]]" class="systemfield" /></dd>>
  end;
 <<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qrGetDefault('weight',0)]]" class="weightfield" /></dd>
-<dt>Icon</dt><dd>[[Context.Include('fIcons.xxmi',['icon',qrGetDefault('icon',0)]);]]</dd>
-<dt>Default child type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itObjType,'default',qr.GetInt('dft')]);]]</dd>
+<dt>Icon</dt><dd>>Context.Include('fIcons.xxmi',['icon',qrGetDefault('icon',0)]);<</dd>
+<dt>Default child type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itObjType,'default',qr.GetInt('dft')]);<</dd>
 </dl>
 [[#txFormButton]]
 <a href="Item.xxm?x=ot[[=xid]]">back</a>

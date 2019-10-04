@@ -34,12 +34,12 @@ ObjTypeID:=DBSingleValue('SELECT ObjType.dft FROM ObjType INNER JOIN Obj ON Obj.
 [[#txFormProtect]]
 <dl>
 <dt>Name</dt><dd><input type="text" name="name" id="ObjName" value="" class="textfield" /></dd>
-<dt>Object type</dt><dd>[[Context.Include('dTypeSelect.xxmi',[itObjType,'objtype',ObjTypeID]);]]</dd>
+<dt>Object type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itObjType,'objtype',ObjTypeID]);<</dd>
 <dt>Promoted report</dt><dd>
 <input type="checkbox" name="delrpt" id="delrpt1" value="1" checked="1" />
 <label for="delrpt1">Delete report</label>
 </dd>
-<dt>Description</dt><dd>[[Context.Include('dTextField.xxmi',['desc',qr.GetStr('desc')]);]]</dd>
+<dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc',qr.GetStr('desc')]);<</dd>
 <dt>URL</dt><dd><input type="text" name="url" value="" class="textfield" /></dd>
 <dt>&Delta; Weight</dt><dd><input type="text" name="weight" value="[[=
 integer(0){ATTENTION: don't use "qr.GetInt('weight')" here as Rpt.weight only serves as a 'snapshot' of the weight of the object at the time of reporting}]]" /></dd>

@@ -1,0 +1,21 @@
+[[//
+Values
+0: control name
+1: filter expression
+]][[@txSession,DataLank]][[!var
+name:string;
+i:integer;
+]][[
+name:=Values[0];
+if Session.FilterCache.Count<>0 then
+ begin
+  <<select name="[[=name]]1" id="Flt[[=name]]Sel" onchange="if(this.value=='') $('#Flt[[=name]]Ex').show(); else $('#Flt[[=name]]Ex').hide();">
+  <option value=""></option>>
+  for i:=0 to Session.FilterCache.Count-1 do
+    begin
+    <<option value="[[=Session.FilterCache[i]]]">>=Session.FilterCache[i]<</option>>
+    end;
+  <</select>
+  <br />>
+ end;
+<<input type="text" name="[[=name]]2" id="Flt[[=name]]Ex" value="[[=Values[1]]]" class="textfield" />

@@ -40,7 +40,7 @@ begin
     try
       uname:=Context.ContextString(csAuthUser);
       if uname='' then qr:=nil else
-        qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 0 AS isanon FROM Usr WHERE LOWER(auth)=LOWER(?)',[uname]);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 0 AS isanon FROM Usr WHERE LOWER(auth)=LOWER(?) AND suspended IS NULL',[uname]);
       if (qr=nil) or (qr.EOF) then
        begin
         if qr<>nil then FreeAndNil(qr);
@@ -50,7 +50,7 @@ begin
           qr:=TQueryResult.Create(Session.DbCon,
             'SELECT Usr.id, Usr.uid, Usr.email, 0 AS isanon, Ust.usl_id, Ust.seq'+
             ' FROM Usr INNER JOIN Usl ON Usl.usr_id=Usr.id'+
-            ' INNER JOIN Ust ON Ust.usl_id=Usl.id WHERE Ust.token=?',[x]);
+            ' INNER JOIN Ust ON Ust.usl_id=Usl.id WHERE Ust.token=? AND Usr.suspended IS NULL',[x]);
           if qr.EOF then
            begin
             //TODO: raise? log?
@@ -87,7 +87,7 @@ begin
       if (qr=nil) or (qr.EOF) then
        begin
         if qr<>nil then qr.Free;
-        qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 1 AS isanon FROM Usr WHERE auth=?',['anonymous']);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 1 AS isanon FROM Usr WHERE auth=? AND suspended IS NULL',['anonymous']);
        end;
       if qr.EOF then
        begin

@@ -1,4 +1,4 @@
-[[
+[[@txDefs,]][[
 Context.Include('dHead.xxmi',['Welcome']);
 <<meta name="robots" content="nofollow" />
 
@@ -31,7 +31,7 @@ Read more about how to get started here:
 <div class="lbox"><b>View by structure</b>
 <br /><a href="Tree.xxm" rel="nofollow">tree...</a>
 <br /><a href="Trace.xxm" rel="nofollow">trace...</a>
-<br /><a href="TermTrace.xxm" rel="nofollow">terms..</a>
+[[if Use_Terms then begin <<br /><a href="TermTrace.xxm" rel="nofollow">terms..</a>> end;]]
 </div>
 <div class="lbox"><b>Transport items</b>
 <br /><a href="Export.xxm" rel="nofollow">export...</a>
@@ -42,7 +42,10 @@ Read more about how to get started here:
 <br /><a href="Users.xxm" rel="nofollow">users...</a>
 <br /><a href="Realms.xxm" rel="nofollow">realms...</a>
 <br /><a href="Filters.xxm" rel="nofollow">stored filters...</a>
+[[if Use_Journals then begin <<br/><a href="Journal.xxm" rel="nofollow">journals...</a>> end;]]
+<!--
 <br /><a href="Test.xxm" rel="nofollow">test...</a>
+  -->
 </div>
 
 [[

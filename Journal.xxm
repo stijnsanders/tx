@@ -1,0 +1,144 @@
+[[@txSession,txDefs,DataLank,Variants]][[!var
+IsAdmin:boolean;
+qr:TQueryResult;
+i,id,m:integer;
+]][[
+
+Context.Include('dHead.xxmi',['Journal']);
+IsAdmin:=Session.IsAdmin('journals');
+
+id:=Context['id'].AsInteger;
+if id=0 then
+ begin
+
+  if Length(Session.Journals)=0 then
+   begin
+    <<p class="information">No journals available to you.</p>>
+    if IsAdmin then
+     begin
+      <<p class="buttons"><a href="Journals.xxm" class="linkbutton">journals...</a></p>>
+     end;
+   end
+  else
+   begin
+    <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+    <tr>
+    <th>journal</th>
+    <th title="entries today">#</th>
+    <th title="objects today">o#</th>
+    <th title="minutes today">&Sigma;&#x27;</th>
+    <th>current</th>
+    <th>started</th>
+    </tr>>
+    for i:=0 to Length(Session.Journals)-1 do
+     begin
+      <<tr>
+      <td><a href="?id=[[=Session.Journals[i].ID]]">>#txImg(Session.Journals[i].Icon)]]&nbsp;[[=Session.Journals[i].Name<</a></td>>
+      qr:=TQueryResult.Create(Session.DbCon,'select count(*) as entries,count(distinct obj_id) as objects,sum(minutes) as minutes from Jre where jrl_id=? and uid=? and ts>=?',[Session.Journals[i].ID,Session.UserID,VarFromDateTime(Date)]);
+      try
+        if qr.EOF then
+         begin
+          <<td style="text-align:right;">0</td>
+          <td style="text-align:right;">0</td>
+          <td style="text-align:right;">00:00</td>>
+         end
+        else
+         begin
+          m:=qr.GetInt('minutes');
+          <<td style="text-align:right;">>.entries<</td>
+          <td style="text-align:right;">>.objects<</td>
+          <td style="text-align:right;">>=Format('%d:%.2d',[m div 60,m mod 60])<</td>>
+        end;
+      finally
+        qr.Free;
+      end;
+      id:=Session.Journals[i].CurrentID;
+      if id=0 then
+       begin
+       <<td colspan="2">&mdash;</td>>
+       end
+      else
+       begin
+        <<td>>
+        qr:=TQueryResult.Create(Session.DbCon,sqlObjById,[id]);
+        try
+          Context.Include('dObjLink.xxmi',[],[qr]);
+          Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
+          //Context.Include('d_cmw.xxmi',[],[qr]);
+        finally
+          qr.Free;
+        end;
+        <</td>
+        <td style="text-align:right;">
+        <span class="jrl">>=JournalTime(Session.Journals[i].Start)<</span>
+        <a href="iJre.xxm[[?'id',Session.Journals[i].ID,'x',0,'r',1]][[#txCallProtect]]" class="linkbutton">stop</a>
+        </td>>
+       end;
+      <</tr>>
+     end;
+    <</table>>
+    if IsAdmin then
+     begin
+      <<p class="buttons"><a href="Journals.xxm" class="linkbutton">journals...</a></p>>
+     end;
+  end;
+ end
+else
+ begin
+  i:=0;
+  while (i<Length(Session.Journals)) and (Session.Journals[i].ID<>id) do inc(i);
+  if i=Length(Session.Journals) then raise Exception.Create('Unknown journal');
+
+  <<h2>[[#txImg(Session.Journals[i].Icon)]]&nbsp;[[=Session.Journals[i].Name]]</h2>>
+
+  <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+  <tr>
+  <th>&nbsp;</th>
+  <th>object</th>
+  <th>start</th>
+  <th title="minutes">&#x27;</th>
+  </tr>>
+  qr:=TQueryResult.Create(Session.DbCon,
+    'SELECT Jre.id AS jre_id, Jre.ts, Jre.minutes, Obj.id, Obj.pid, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', Obj.url, Obj.weight, Obj.rlm_id,'+
+    ' Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename,'+
+    ' ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+    'FROM Jre '+
+    'INNER JOIN Obj ON Obj.id=Jre.obj_id '+
+    'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+    'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+ //TODO: if Use_ObjTokRefCache
+    'WHERE Jre.jrl_id=? AND Jre.uid=? '+
+    'ORDER BY Jre.ts DESC LIMIT 100',
+    [id,Session.UserID]);
+  try
+    while qr.Read do
+     begin
+      <<tr>
+      <td>
+      <a href="fJre.xxm?id=[[.jre_id]]" class="linkbutton">edit</a>
+      <a href="aJreDelete.xxm?id=[[.jre_id]][[#txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to delete this journal entry?');">delete</a>
+      </td>
+      <td>>
+      Context.Include('dObjLink.xxmi',[],[qr]);
+      Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ',' '],[qr]);
+      //Context.Include('d_cmw.xxmi',[],[qr]);
+      <</td>
+      <td style="text-align:right;">>=ShortDateTime(qr['ts'])<</td>
+      <td style="text-align:right;">>.minutes<</td>
+      </tr>>
+     end;
+  finally
+    qr.Free;
+  end;
+  <</table>>
+
+  //TODO: load more
+  //TODO: link to calendar view with totals
+
+  if Session.Journals[i].CanConsult then
+   begin
+    <<p class="buttons"><a href="Journals.xxm?id=[[=Session.Journals[i].ID]]" class="linkbutton">consult...</a></p>>
+   end;
+
+ end;
+
+Context.Include('dFoot.xxmi');

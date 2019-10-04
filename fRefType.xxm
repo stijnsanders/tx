@@ -22,8 +22,8 @@ if Session.IsAdmin('config') then
   <<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetStr('system')]]" class="systemfield" /></dd>>
  end;
 <<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetInt('weight')]]" class="weightfield" /></dd>
-<dt>Icon</dt><dd>[[Context.Include('fIcons.xxmi',['icon',qr.GetInt('icon')]);]]</dd>
-<dt>Select object to refer to from branch</dt><dd>[[Context.Include('dObjSelect.xxmi',['default',qr.GetInt('dft'),0,0,'',true]);]]</dd>
+<dt>Icon</dt><dd>>Context.Include('fIcons.xxmi',['icon',qr.GetInt('icon')]);<</dd>
+<dt>Select object to refer to from branch</dt><dd>>Context.Include('dObjSelect.xxmi',['default',qr.GetInt('dft'),0,0,'',true]);<</dd>
 </dl>
 [[#txFormButton]]
 <a href="Item.xxm?x=rt[[=xid]]">back</a>

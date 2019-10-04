@@ -1,11 +1,11 @@
 [[@txDefs,txSession,DataLank,]][[!
 var
-  i,j,icon:integer;
+  i,j,icon,l:integer;
   qr:TQueryResult;
 const
-  qry:array[0..2] of UTF8String=('ObjType','TokType','RefType');
-  pfx:array[0..2] of string=('ot','tt','rt');
-  lbl:array[0..2] of string=(lblLocation,lblTokens,lblReferences);
+  qry:array[0..3] of UTF8String=('ObjType','TokType','RefType','Jrl');
+  pfx:array[0..3] of string=('ot','tt','rt','j');
+  lbl:array[0..3] of string=(lblLocation,lblTokens,lblReferences,'<span class="date">journal</span>');
 ]][[
 
 CheckCallProtect(Context);
@@ -13,7 +13,8 @@ icon:=Context['icon'].AsInteger;
 
 i:=0;
 j:=0;
-while (i<3) and Context.Connected do
+if Use_Journals then l:=4 else l:=3;
+while (i<l) and Context.Connected do
  begin
   qr:=TQueryResult.Create(Session.DbCon,'SELECT id,name FROM '+qry[i]+' WHERE icon=? ORDER BY name',[icon]);
   try
