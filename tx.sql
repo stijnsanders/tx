@@ -273,27 +273,33 @@ select uid,1,(select max(id) as id from Obx) from Usr;
 create table Jrl (
 id integer primary key autoincrement,
 name varchar(100),
-obj_id int not null,
+granularity int not null,
 root_id int null,
-icon int not null,
 view_expression varchar(200) null,
 edit_expression varchar(200) null,
 limit_expression varchar(200) null,
-granularity int not null,
 c_uid int null,
 c_ts datetime null,
 m_uid int null,
 m_ts datetime null
 );
 
-create table Jre (
+create table Jrt (
 id integer primary key autoincrement,
 jrl_id int not null,
+name varchar(20),
+icon int not null,
+constraint FK_Jrt_Jrl foreign key (jrl_id) references Jrl (id)
+);
+
+create table Jre (
+id integer primary key autoincrement,
+jrt_id int not null,
 obj_id int not null,
 uid int not null,
 ts datetime not null,
 minutes int not null,
-constraint FK_Jre_Jrl foreign key (jrl_id) references Jrl (id),
+constraint FK_Jre_Jrt foreign key (jrt_id) references Jrt (id),
 constraint FK_Jre_Obj foreign key (obj_id) references Obj (id),
 constraint FK_Jre_Obj foreign key (uid) references Obj (id)--not Usr!
 );

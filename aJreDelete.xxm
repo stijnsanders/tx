@@ -9,7 +9,7 @@ Session.CheckJournalPermissions;
 id:=Context['id'].AsInteger;
 qr:=TQueryResult.Create(Session.DbCon,'select jrl_id from Jre where id=? and uid=?',[id,Session.UserID]);
 try
-  jid:=qr.GEtInt('jrl_id');
+  jid:=qr.GetInt('jrl_id');
 finally
   qr.Free;
 end;

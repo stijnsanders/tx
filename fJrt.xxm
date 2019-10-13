@@ -1,0 +1,44 @@
+[[@txSession,txDefs,DataLank,]][[!var
+id,jrl_id:integer;
+qr:TQueryResult;
+]][[
+
+if not(Session.IsAdmin('journals')) then
+  raise Exception.Create('You''re not allowed to modify journals.');
+
+Context.Include('dHead.xxmi',['Journal Entry Type']);
+//assert Use_Journals
+
+id:=Context['id'].AsInteger;
+jrl_id:=Context['jrl'].AsInteger;
+
+if id=0 then
+  qr:=TQueryResult.Create(Session.DbCon,'select (select max(icon) from Jrt where Jrt.jrl_id=Jrl.id)+1 as icon,null as name,id as jrl_id,name as jrl_name from Jrl where id=?',[jrl_id])
+else
+  qr:=TQueryResult.Create(Session.DbCon,'select Jrt.icon,Jrt.name,Jrl.id as jrl_id,Jrl.name as jrl_name from Jrt inner join Jrl on Jrl.id=Jrt.jrl_id where Jrt.id=?',[id]);
+try
+  //if id<>0 then jrl_id:=qr.GetInt('jrl_id');
+  <<h2>Journal Entry Type</h2>
+  [[#txForm('aJrt.xxm',['id',id,'jrl',jrl_id])]]
+  [[#txFormProtect]]
+  <dl>
+  <dt>Journal</dt>
+  <dd>>.jrl_name<</dd>
+  <dt>Name</dt><dd><input type="text" name="name" id="JrtName" value="[[.name]]" class="textfield" /></dd>
+  <dt>Icon</dt><dd>>Context.Include('fIcons.xxmi',['icon',qr.GetInt('icon')]);<</dd>>
+finally
+  qr.Free;
+end;
+<</dd>
+</dl>
+[[#txFormButton]]
+<a href="Journals.xxm">back</a>
+</form>
+<script>$("#JrtName")[0].focus();</script>>
+if id<>0 then
+ begin
+  <<p><a href="fDelete.xxm?x=jet[[=id]]" class="linkbutton">delete</a></p>>
+ end;
+
+
+Context.Include('dFoot.xxmi');

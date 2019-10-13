@@ -1,0 +1,49 @@
+[[@txDefs,txSession,DataLank,Variants,]][[!var
+qr:TQueryResult;
+id,jrl_id:integer;
+rootid:OleVariant;
+url:string;
+]][[
+
+if not(Session.IsAdmin('journals')) then
+  raise Exception.Create('You''re not allowed to modify journals.');
+CheckFormProtect(Context);
+//assert Use_Journals
+
+id:=Context['id'].AsInteger;
+jrl_id:=Context['jrl'].AsInteger;
+
+Session.DbCon.BeginTrans;
+try
+  if id=0 then
+   begin
+    {id:=}Session.DbCon.Insert('Jrt',
+      ['jrl_id',jrl_id
+      ,'name',Context['name'].Value
+      ,'icon',Context['icon'].AsInteger
+      //,'c_ts',VNow
+      //,'c_uid',Session.UserID
+      //,'m_ts',VNow
+      //,'m_uid',Session.UserID
+      ],'id');
+   end
+  else
+   begin
+    Session.DbCon.Update('Jrt',
+      ['id',id
+      ,'name',Context['name'].Value
+      ,'icon',Context['icon'].AsInteger
+      //,'m_ts',VNow
+      //,'m_uid',Session.UserID
+      ]);
+   end;
+
+  Session.DbCon.CommitTrans;
+except
+  Session.DbCon.RollbackTrans;
+  raise;
+end;
+
+url:='Journals.xxm';//?id= ?
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

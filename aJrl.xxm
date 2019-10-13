@@ -1,24 +1,27 @@
 [[@txDefs,txSession,DataLank,Variants,]][[!var
 qr:TQueryResult;
-id,objid:integer;
+id:integer;
 rootid:OleVariant;
 url,v1,v2,e1,e2,l1,l2:string;
 RefreshJournals:boolean;
 ]][[
-id:=Context['id'].AsInteger;
-objid:=Context['obj'].AsInteger;
-RefreshJournals:=false;
+
+if not(Session.IsAdmin('journals')) then
+  raise Exception.Create('You''re not allowed to modify journals.');
 CheckFormProtect(Context);
+
+id:=Context['id'].AsInteger;
+RefreshJournals:=false;
 
 //assert Use_Journals
 
 if id<>0 then
  begin
-  qr:=TQueryResult.Create(Session.DbCon,'SELECT Obj.id,Obj.rlm_id,'+
-    'Jrl.view_expression,Jrl.edit_expression,Jrl.limit_expression'+
-    ' FROM Jrl INNER JOIN Obj ON Obj.id=Jrl.obj_id WHERE Jrl.id=?',[id]);
+  qr:=TQueryResult.Create(Session.DbCon,
+    'SELECT Jrl.view_expression,Jrl.edit_expression,Jrl.limit_expression'+
+    ' FROM Jrl WHERE Jrl.id=?',[id]);
   try
-    Session.HasRealmPermission(qr.GetInt('id'),qr.GetInt('rlm_id'),rpEdit);
+    //Session.HasRealmPermission(qr.GetInt('id'),qr.GetInt('rlm_id'),rpEdit);
     v1:=qr.GetStr('view_expression');
     e1:=qr.GetStr('edit_expression');
     l1:=qr.GetStr('limit_expression');
@@ -27,9 +30,11 @@ if id<>0 then
   end;
  end;
 
+{
 Session.HasRealmPermission(objid,
   DBSingleValue('SELECT rlm_id FROM Obj WHERE id=?',[objid],DefaultRlmID),
   rpEdit);
+}
 
 rootid:=Context['root'].AsInteger;
 if rootid=0 then rootid:=Null;
@@ -45,36 +50,42 @@ if (v1<>v2) or (e1<>e2) or (l1<>l2) then RefreshJournals:=true;
 Session.DbCon.BeginTrans;
 try
   if id=0 then
-    {id:=}Session.DbCon.Insert('Jrl',
+   begin
+    id:=Session.DbCon.Insert('Jrl',
       ['name',Context['name'].Value
-      ,'obj_id',objid
+      ,'granularity',Context['granularity'].AsInteger
       ,'root_id',rootid
-      ,'icon',Context['icon'].AsInteger
       ,'view_expression',v2
       ,'edit_expression',e2
       ,'limit_expression',l2
-      ,'granularity',Context['granularity'].AsInteger
       ,'c_ts',VNow
       ,'c_uid',Session.UserID
       ,'m_ts',VNow
       ,'m_uid',Session.UserID
-      ],'id')
+      ],'id');
+    Session.DbCon.Insert('Jrt',
+      ['jrl_id',id
+      ,'name',Context['jrtname'].Value
+      ,'icon',Context['jrticon'].AsInteger
+      ]);
+   end
   else
+   begin
     Session.DbCon.Update('Jrl',
       ['id',id
       ,'name',Context['name'].Value
-      ,'obj_id',objid
+      ,'granularity',Context['granularity'].AsInteger
       ,'root_id',rootid
-      ,'icon',Context['icon'].AsInteger
       ,'view_expression',v2
       ,'edit_expression',e2
       ,'limit_expression',l2
-      ,'granularity',Context['granularity'].AsInteger
       ,'m_ts',VNow
       ,'m_uid',Session.UserID
       ]);
+   end;
 
-  //Session.AddFilterRecent(itObj,objid);//?
+  if not(VarIsNull(rootid)) then
+    Session.AddFilterRecent(itObj,rootid);
 
   Session.DbCon.CommitTrans;
 except
@@ -84,10 +95,10 @@ end;
 
 if RefreshJournals then
  begin
-  inc(RefreshJournals);
+  inc(JournalsCounter);
   Session.LoadJournalPermissions;
  end;
 
-url:='Journal.xxm';//?id= ?
+url:='Journals.xxm';//?id= ?
 Context.Redirect(url,true);
 <<a href="[[=url]]">>=url<</a>

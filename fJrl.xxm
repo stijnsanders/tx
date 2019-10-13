@@ -6,6 +6,10 @@ begin
   if qr.IsNull(FieldName) then Result:=DefaultValue else Result:=qr[FieldName];
 end;
 ]][[
+
+if not(Session.IsAdmin('journals')) then
+  raise Exception.Create('You''re not allowed to modify journals.');
+
 Context.Include('dHead.xxmi',['Journal']);
 //assert Use_Journals
 id:=Context['id'].AsInteger;
@@ -16,16 +20,19 @@ try
 [[#txFormProtect]]
 <dl>
 <dt>Name</dt><dd><input type="text" name="name" id="JrlName" value="[[=qrGetDefault('name','')]]" class="textfield" /></dd>
-<dt>Attached to object</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',qrGetDefault('obj_id',0)]);<</dd>
-<dt>Icon</dt><dd>>Context.Include('fIcons.xxmi',['icon',qrGetDefault('icon',376)]);<</dd>
-<dt>Available to users (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">child"staff"*</span>)</span></dt>
+<dt>Granularity</dt><dd><input type="text" name="granularity" value="[[=qrGetDefault('granularity',60)]]" /> minutes</dd>>
+if id=0 then
+ begin
+  <<dt>First journal entry type: name</dt><dd><input type="text" name="jrtname" class="textfield" /></dd>
+  <dt>First journal entry type: icon</dt><dd>>Context.Include('fIcons.xxmi',['jrticon',376]);<</dd>>
+ end;
+<<dt>Available to users (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">child"staff"*</span>)</span></dt>
 <dd>>Context.Include('dFltSelect.xxmi',['view',qr.GetStr('view_expression')]);<</dd>
 <dt>Consultable by (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">child"staff"*</span>)</span></dt>
 <dd>>Context.Include('dFltSelect.xxmi',['edit',qr.GetStr('edit_expression')]);<</dd>
 <dt>Limit to branch (optional)</dt><dd>>Context.Include('dObjSelect.xxmi',['root',qrGetDefault('root_id',0),0,0,'',true]);<</dd>
 <dt>Limit to objects (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">ot"task"*</span>)</span></dt>
 <dd>>Context.Include('dFltSelect.xxmi',['limit',qr.GetStr('limit_expression')]);<</dd>
-<dt>Granularity</dt><dd><input type="text" name="granularity" value="[[=qrGetDefault('granularity',60)]]" /> minutes</dd>
 </dl>
 [[#txFormButton]]
 <a href="Journal.xxm">back</a>

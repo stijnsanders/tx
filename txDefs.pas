@@ -14,6 +14,7 @@ type
     itUser,
     itReport,
     itJournal,
+    itJournalEntryType,
     //add new here above
     it_Unknown
   );
@@ -32,7 +33,7 @@ const
   Use_Extra=false;//use prefix "::" on ObjType.system
 
   txItemTypeKey:array[TtxItemType] of string=(
-    'i','ot','t','tt','r','rt','f','rm','u','rp','j',
+    'i','ot','t','tt','r','rt','f','rm','u','rp','j','jet',
     //add new here above (see also procedure txItem below)
     ''
   );
@@ -40,7 +41,7 @@ const
     'object','objecttype',
     'token','tokentype',
     'reference','referencetype',
-    'filter','realm','user','report','journal',
+    'filter','realm','user','report','journal','journalentrytype',
     //add new here above
     'unknown'
   );
@@ -48,7 +49,7 @@ const
     'Obj','ObjType',
     'Tok','TokType',
     'Ref','RefType',
-    'Flt','Rlm','Usr','Rpt','Jrl',
+    'Flt','Rlm','Usr','Rpt','Jrl','Jrt',
     //add new here above
     ''
   );
@@ -57,7 +58,7 @@ const
     'SELECT pid FROM ObjType WHERE id=?',
     '','SELECT pid FROM TokType WHERE id=?',
     '','SELECT pid FROM RefType WHERE id=?',
-    '','','','','',
+    '','','','','','',
     //add new here above
     ''
   );
@@ -66,7 +67,7 @@ const
     'UPDATE ObjType SET pid=? WHERE id=?',
     '','UPDATE TokType SET pid=? WHERE id=?',
     '','UPDATE RefType SET pid=? WHERE id=?',
-    '','','','','',
+    '','','','','','',
     //add new here above
     ''
   );
@@ -134,7 +135,11 @@ begin
         end;
       'f':ItemType:=itFilter;
       'u':ItemType:=itUser;
-      'j':ItemType:=itJournal;
+      'j':
+        if (Key[2]='e') and (Key[3]='t') then
+          ItemType:=itJournalEntryType
+        else
+          ItemType:=itJournal;
       //else raise?
       else ItemType:=it_Unknown;
     end;

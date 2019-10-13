@@ -1,5 +1,6 @@
 [[@txDefs,txSession,DataLank]][[!var
-i,id:integer;
+i,id,jrt_id:integer;
+qr:TQueryResult;
 ]][[
 
 CheckCallProtect(Context);
@@ -7,22 +8,23 @@ CheckCallProtect(Context);
 Session.CheckJournalPermissions;
 id:=Context['id'].AsInteger;
 i:=0;
-while (i<Length(Session.Journals)) and (id<>Session.Journals[i].ID) do inc(i);
+while (i<Length(Session.Journals)) and (id<>Session.Journals[i].jrl_id) do inc(i);
 if i=Length(Session.Journals) then
   Context.SendHTML('&mdash;')
 else
  begin
   id:=Context['x'].AsInteger;
+  jrt_id:=Context['t'].AsInteger;
 
-  if Session.Journals[i].CurrentID<>id then
+  if (Session.Journals[i].obj_id<>id) or (Session.Journals[i].jrt_id<>jrt_id) then
    begin
-    if Session.Journals[i].CurrentID<>0 then
+    if Session.Journals[i].obj_id<>0 then
      begin
       Session.DbCon.BeginTrans;
       try
         Session.DbCon.Insert('Jre',
-          ['jrl_id',Session.Journals[i].ID
-          ,'obj_id',Session.Journals[i].CurrentID
+          ['jrt_id',Session.Journals[i].jrt_id
+          ,'obj_id',Session.Journals[i].obj_id
           ,'uid',Session.UserID
           ,'ts',VNow
           ,'minutes',Round((Now-Session.Journals[i].Start)*1440.0+0.5)
@@ -36,12 +38,49 @@ else
       end;
      end;
 
-    Session.Journals[i].CurrentID:=id;
+    if jrt_id=0 then
+     begin
+      Session.Journals[i].jrt_id:=0;
+      Session.Journals[i].jrt_icon:=0;
+      Session.Journals[i].jrt_name:='';
+     end
+    else
+     begin
+      qr:=TQueryResult.Create(Session.DbCon,'select * from Jrt where id=?',[jrt_id]);
+      try
+        Session.Journals[i].jrt_id:=jrt_id;
+        Session.Journals[i].jrt_icon:=qr.GetInt('icon');
+        Session.Journals[i].jrt_name:=qr.GetStr('name');
+      finally
+        qr.Free;
+      end;
+     end;
+    Session.Journals[i].obj_id:=id;
     Session.Journals[i].Start:=Now;
    end;
 
   if Context['r'].AsInteger=0 then
-    Context.SendHTML(txImg(Session.Journals[i].Icon,Session.Journals[i].Name)+JournalTime(Session.Journals[i].Start))
+    if Session.Journals[i].obj_id=0 then
+     begin
+      id:=Context['xx'].AsInteger;
+      qr:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[Session.Journals[i].jrl_id]) ;
+      try
+        while qr.Read do
+          begin
+          <<span onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+            {id:[[=Session.Journals[i].jrl_id]],t:[[=qr.GetInt('id')]],x:[[=id]],xxx:'[[#Session.SessionCrypt]]'});">>#txImg(qr.GetInt('icon'),qr.GetStr('name'))<</span>>
+          end;
+      finally
+        qr.Free;
+      end;
+     end
+    else
+     begin
+      ]]
+      [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start)]]
+      <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+        {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&nbsp;</a>>
+     end
   else
     Context.Redirect('Journal.xxm',true);
  end;

@@ -38,7 +38,7 @@ if Use_Journals then
 
     qr1:=TQueryResult.Create(Session.DbCon,'select Jrl.root_id, ObjPath.oid, Jrl.limit_expression from Jrl'+
       ' left outer join ObjPath on ObjPath.pid=Jrl.root_id and ObjPath.oid=?'+
-      ' where Jrl.id=?',[id,Session.Journals[i].ID]);
+      ' where Jrl.id=?',[id,Session.Journals[i].jrl_id]);
     try
       b:=qr1.IsNull('root_id') or not(qr1.IsNull('oid'));
       s:=qr1.GetStr('limit_expression');
@@ -71,10 +71,25 @@ if Use_Journals then
      end;
     if b then
      begin
-      <<span id="jre[[=Session.Journals[i].ID]]" class="jrl" onclick="$('#jre[[=Session.Journals[i].ID]]').load('iJre.xxm',{id:[[=Session.Journals[i].ID]],x:[[=id]],xxx:'[[#Session.SessionCrypt]]'});">>
-      Context.SendHTML(txImg(Session.Journals[i].Icon,Session.Journals[i].Name));
-      if Session.Journals[i].CurrentID=id then
+      <<span id="jrl[[=Session.Journals[i].jrl_id]]" class="jrl">>
+      if Session.Journals[i].obj_id=id then
+       begin
+        Context.SendHTML(txImg(Session.Journals[i].jrt_icon,{Session.Journals[i].jrl_name+':'+}Session.Journals[i].jrt_name));
         Context.Send(JournalTime(Session.Journals[i].Start));
+       end
+      else
+       begin
+        qr1:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[Session.Journals[i].jrl_id]) ;
+        try
+          while qr1.Read do
+           begin
+            <<span onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+              {id:[[=Session.Journals[i].jrl_id]],t:[[=qr1.GetInt('id')]],x:[[=id]],xxx:'[[#Session.SessionCrypt]]'});">>#txImg(qr1.GetInt('icon'),qr1.GetStr('name'))<</span>>
+           end;
+        finally
+          qr1.Free;
+        end;
+       end;
       <</span>>
      end;
    end;

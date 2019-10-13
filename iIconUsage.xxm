@@ -3,9 +3,10 @@ var
   i,j,icon,l:integer;
   qr:TQueryResult;
 const
-  qry:array[0..3] of UTF8String=('ObjType','TokType','RefType','Jrl');
-  pfx:array[0..3] of string=('ot','tt','rt','j');
-  lbl:array[0..3] of string=(lblLocation,lblTokens,lblReferences,'<span class="date">journal</span>');
+  qry:array[0..3] of UTF8String=('ObjType','TokType','RefType',
+    '(select Jrt.id,Jrl.name||'':''||Jrt.name as name,Jrt.icon from Jrl inner join Jrt on Jrt.jrl_id=Jrl.id)');
+  pfx:array[0..3] of string=('ot','tt','rt','jet');
+  lbl:array[0..3] of string=(lblLocation,lblTokens,lblReferences,'<span class="date" title="journal entry type">jet</span>');
 ]][[
 
 CheckCallProtect(Context);

@@ -75,8 +75,8 @@ type
     RevertFooterDisplay:string;
     RecentReferences:array[0..FilterRecentCount-1] of record reftype,obj2:integer; end;
     Journals:array of record
-      ID,Icon,CurrentID:integer;
-      Name:string;
+      jrl_id,jrt_id,jrt_icon,obj_id:integer;
+      jrl_name,jrt_name:string;
       Start:TDateTime;
       CanConsult:boolean;
     end;
@@ -676,10 +676,12 @@ begin
         end;
 
         SetLength(Journals,i+1);
-        Journals[i].ID:=qr.GetInt('id');
-        Journals[i].Name:=qr.GetStr('name');
-        Journals[i].Icon:=qr.GetInt('icon');
-        Journals[i].CurrentID:=0;
+        Journals[i].jrl_id:=qr.GetInt('id');
+        Journals[i].jrt_id:=0;
+        Journals[i].jrt_icon:=0;
+        Journals[i].obj_id:=0;
+        Journals[i].jrl_name:=qr.GetStr('name');
+        Journals[i].jrt_name:='';
         Journals[i].Start:=0.0;
         Journals[i].CanConsult:=b2;
         inc(i);
@@ -695,14 +697,16 @@ var
   i:integer;
 begin
   if FJournalsCounter<>JournalsCounter then LoadJournalPermissions;
-  if Length(Journals)=0 then
-    Result:='=0'
-  else
-   begin
-    Result:=' in (';
-    for i:=0 to Length(Journals)-1 do Result:=Result+IntToStrU(Journals[i].ID)+',';
-    Result[Length(Result)]:=')';
-   end;
+  case Length(Journals) of
+    0:Result:='=0';
+    1:Result:='='+IntToStrU(Journals[0].jrl_id);
+    else
+     begin
+      Result:=' in (';
+      for i:=0 to Length(Journals)-1 do Result:=Result+IntToStrU(Journals[i].jrl_id)+',';
+      Result[Length(Result)]:=')';
+     end;
+  end;
 end;
 
 procedure TtxSession.AddFilterRecent(ItemType: TtxItemType; id: integer);

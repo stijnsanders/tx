@@ -33,8 +33,11 @@ if id=0 then
     for i:=0 to Length(Session.Journals)-1 do
      begin
       <<tr>
-      <td><a href="?id=[[=Session.Journals[i].ID]]">>#txImg(Session.Journals[i].Icon)]]&nbsp;[[=Session.Journals[i].Name<</a></td>>
-      qr:=TQueryResult.Create(Session.DbCon,'select count(*) as entries,count(distinct obj_id) as objects,sum(minutes) as minutes from Jre where jrl_id=? and uid=? and ts>=?',[Session.Journals[i].ID,Session.UserID,VarFromDateTime(Date)]);
+      <td><a href="?id=[[=Session.Journals[i].jrl_id]]">>=Session.Journals[i].jrl_name<</a></td>>
+      qr:=TQueryResult.Create(Session.DbCon,'select count(*) as entries,count(distinct Jre.obj_id) as objects,sum(Jre.minutes) as minutes'+
+        ' from Jre inner join Jrt on Jrt.id=Jre.jrt_id'+
+        ' where Jrt.jrl_id=? and Jre.uid=? and Jre.ts>=?',
+        [Session.Journals[i].jrl_id,Session.UserID,VarFromDateTime(Date)]);
       try
         if qr.EOF then
          begin
@@ -52,7 +55,7 @@ if id=0 then
       finally
         qr.Free;
       end;
-      id:=Session.Journals[i].CurrentID;
+      id:=Session.Journals[i].obj_id;
       if id=0 then
        begin
        <<td colspan="2">&mdash;</td>>
@@ -71,7 +74,7 @@ if id=0 then
         <</td>
         <td style="text-align:right;">
         <span class="jrl">>=JournalTime(Session.Journals[i].Start)<</span>
-        <a href="iJre.xxm[[?'id',Session.Journals[i].ID,'x',0,'r',1]][[#txCallProtect]]" class="linkbutton">stop</a>
+        <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'x',0,'r',1]][[#txCallProtect]]" class="linkbutton">stop</a>
         </td>>
        end;
       <</tr>>
@@ -86,29 +89,32 @@ if id=0 then
 else
  begin
   i:=0;
-  while (i<Length(Session.Journals)) and (Session.Journals[i].ID<>id) do inc(i);
+  while (i<Length(Session.Journals)) and (Session.Journals[i].jrl_id<>id) do inc(i);
   if i=Length(Session.Journals) then raise Exception.Create('Unknown journal');
 
-  <<h2>[[#txImg(Session.Journals[i].Icon)]]&nbsp;[[=Session.Journals[i].Name]]</h2>>
+  <<h2>>=Session.Journals[i].jrl_name<</h2>>
 
   <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
   <tr>
   <th>&nbsp;</th>
+  <th>entry</th>
   <th>object</th>
   <th>start</th>
   <th title="minutes">&#x27;</th>
   </tr>>
   qr:=TQueryResult.Create(Session.DbCon,
-    'SELECT Jre.id AS jre_id, Jre.ts, Jre.minutes, Obj.id, Obj.pid, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', Obj.url, Obj.weight, Obj.rlm_id,'+
+    'SELECT Jre.id AS jre_id, Jre.ts, Jre.minutes, Jrt.icon AS jrt_icon, Jrt.name AS jrt_name,'+
+    ' Obj.id, Obj.pid, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', Obj.url, Obj.weight, Obj.rlm_id,'+
     ' Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename,'+
     ' ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
     'FROM Jre '+
+    'INNER JOIN Jrt ON Jrt.id=Jre.jrt_id '+
     'INNER JOIN Obj ON Obj.id=Jre.obj_id '+
     'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
     'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+ //TODO: if Use_ObjTokRefCache
-    'WHERE Jre.jrl_id=? AND Jre.uid=? '+
+    'WHERE Jre.uid=? AND Jrt.jrl_id=? '+
     'ORDER BY Jre.ts DESC LIMIT 100',
-    [id,Session.UserID]);
+    [Session.UserID,id]);
   try
     while qr.Read do
      begin
@@ -117,12 +123,13 @@ else
       <a href="fJre.xxm?id=[[.jre_id]]" class="linkbutton">edit</a>
       <a href="aJreDelete.xxm?id=[[.jre_id]][[#txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to delete this journal entry?');">delete</a>
       </td>
+      <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
       <td>>
       Context.Include('dObjLink.xxmi',[],[qr]);
       Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ',' '],[qr]);
       //Context.Include('d_cmw.xxmi',[],[qr]);
       <</td>
-      <td style="text-align:right;">>=ShortDateTime(qr['ts'])<</td>
+      <td style="text-align:right;">>=NiceDateTime(qr['ts'])<</td>
       <td style="text-align:right;">>.minutes<</td>
       </tr>>
      end;
@@ -136,7 +143,7 @@ else
 
   if Session.Journals[i].CanConsult then
    begin
-    <<p class="buttons"><a href="Journals.xxm?id=[[=Session.Journals[i].ID]]" class="linkbutton">consult...</a></p>>
+    <<p class="buttons"><a href="Journals.xxm?id=[[=Session.Journals[i].jrl_id]]" class="linkbutton">consult...</a></p>>
    end;
 
  end;

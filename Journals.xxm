@@ -1,7 +1,7 @@
 [[@txSession,txDefs,DataLank]][[!var
 qr,qr1:TQueryResult;
 s,t:string;
-id,i:integer;
+id,root_id,i:integer;
 ]][[
 
 if not(Session.IsAdmin('journals')) then
@@ -24,12 +24,12 @@ if id=0 then
       <tr>
       <th>&nbsp;</th>
       <th>name</th>
-      <th>attached to</th>
+      <th title="granularity (minutes)">&#x27;</th>
+      <th>entry types</th>
       <th>available to</th>
       <th>consultable by</th>
       <th>branch</th>
       <th>limited to</th>
-      <th title="granularity (minutes)">&#x27;</th>
       <th>&nbsp;</th>
       </tr>>
   
@@ -41,23 +41,20 @@ if id=0 then
         <a href="fJrl.xxm?id=[[=id]]" class="linkbutton">edit</a>
         <a href="fDelete.xxm?x=j[[=id]]" class="linkbutton">delete</a>
         </td>
-        <td><a href="?id=[[=id]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a></td>
+        <td><a href="?id=[[=id]]">>.name<</a></td>
+        <td class="r">>.granularity<</td>
         <td>>
-        if qr.IsNull('obj_id') then
-          Context.SendHTML('&ndash;')
-        else
-         begin
-          id:=qr.GetInt('obj_id');
-          qr1:=TQueryResult.Create(Session.DbCon,sqlObjByID,[id]);
-          try
-            Context.Include('dObjLink.xxmi',[],[qr1]);
-            Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr1]);
-            //Context.Include('d_cmw.xxmi',[],[qr]);
-          finally
-            qr1.Free;
-          end;
-         end;
-        <</td>
+        qr1:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=?',[id]);
+        try
+          while qr1.Read do
+           begin
+            <<a href="fJrt.xxm[[?'id',qr1['id']]]">>#txImg(qr1.GetInt('icon'))]]&nbsp;[[=qr1['name']<</a> [[
+           end;
+        finally
+          qr1.Free;
+        end;
+        <<a href="fJrt.xxm[[?'jrl',id]]" class="linkbutton">add</a>
+        </td>
         <td style="white-space:nowrap;">>
         s:=qr.GetStr('view_expression');
         if s='' then Context.SendHTML('&ndash;') else
@@ -83,11 +80,11 @@ if id=0 then
           Context.SendHTML('&ndash;')
         else
          begin
-          id:=qr.GetInt('obj_id');
-          qr1:=TQueryResult.Create(Session.DbCon,sqlObjByID,[id]);
+          root_id:=qr.GetInt('root_id');
+          qr1:=TQueryResult.Create(Session.DbCon,sqlObjByID,[root_id]);
           try
             Context.Include('dObjLink.xxmi',[],[qr1]);
-            Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr1]);
+            Context.Include('dObjTokRef.xxmi',[root_id,#13#10' ',' '],[qr1]);
             //Context.Include('d_cmw.xxmi',[],[qr]);
           finally
             qr1.Free;
@@ -104,10 +101,8 @@ if id=0 then
           <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
          end;
         <</td>
-        <td class="r">>.granularity<</td>
         <td>>Context.Include('d_cmw.xxmi',[],[qr,nil]);<</td>
         </tr>>
-        
        end;
   
       <</table>>
@@ -123,7 +118,7 @@ else
  begin
   qr:=TQueryResult.Create(Session.DbCon,'select * from Jrl where id=?',[id]);
   try
-    <<h2>[[#txImg(qr.GetInt('icon'))]]&nbsp;[[.name]]</h2>>
+    <<h2>>.name<</h2>>
   finally
     qr.Free;
   end;
