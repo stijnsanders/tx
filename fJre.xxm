@@ -1,0 +1,58 @@
+[[@txSession,txDefs,DataLank,]][[!var
+id,jrl_id,jrt_id:integer;
+qr,qr1:TQueryResult;
+]][[
+
+Context.Include('dHead.xxmi',['Journal Entry']);
+//assert Use_Journals
+
+id:=Context['id'].AsInteger;
+
+qr:=TQueryResult.Create(Session.DbCon,
+  'select Jre.*, Jrl.id as jrl_id, Jrl.name as jrl_name, Jrl.granularity'+
+  ' from Jre'+
+  ' inner join Jrt on Jrt.id=Jre.jrt_id'+
+  ' inner join Jrl on Jrl.id=Jrt.jrl_id'+
+  ' where Jre.id=? and Jre.uid=?',[id,Session.UserID]);
+try
+  jrl_id:=qr.GetInt('jrl_id');
+  jrt_id:=qr.GetInt('jrt_id');
+  <<h2>Journal Entry</h2>
+  [[#txForm('aJre.xxm',['id',id])]]
+  [[#txFormProtect]]
+  <dl>
+  <dt>Journal</dt>
+  <dd>>.jrl_name<</dd>
+  </dd>
+  <dt>Entry type</dt>
+  <dd>>
+  qr1:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[jrl_id]);
+  try
+    while qr1.Read do
+     begin
+      <<label><input type="radio" name="jrt" value="[[=qr1['id']]]"[[if jrt_id=qr1.GetInt('id') then Context.SendHTML(' checked="1"');]]>
+      [[#txImg(qr1['icon'])]][[=qr1['name']]]
+      </label><br />>
+     end;
+  finally
+    qr1.Free;
+  end;
+  <</dd>
+  <dt>Start</dt>
+  <dd><select name="ts">
+  <option value="">>=NiceDateTime(qr['ts'])<</option>
+  <option>//TODO: query previous</option>
+  </select></dd>
+  <dt>Duration</dt>
+  <dd><input type="text" name="minutes" value="[[=qr['minutes']]]" />&#x27;
+  //TODO: query next
+  </dd>
+  </dl>
+  [[#txFormButton]]
+  <a href="Journal.xxm?id=[[=qr['jrl_id']]]">back</a>
+  </form>>
+finally
+  qr.Free;
+end;
+
+Context.Include('dFoot.xxmi');

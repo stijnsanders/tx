@@ -1,0 +1,56 @@
+[[@txDefs,txSession,DataLank,Variants,]][[!var
+qr:TQueryResult;
+id,jrl_id,jrt_id,new_jrt_id:integer;
+rootid:OleVariant;
+url:string;
+]][[
+
+CheckFormProtect(Context);
+//assert Use_Journals
+
+id:=Context['id'].AsInteger;
+new_jrt_id:=Context['jrt'].AsInteger;
+
+qr:=TQueryResult.Create(Session.DbCon,'select Jre.uid,Jrt.jrl_id,Jre.jrt_id from Jre inner join Jrt on Jrt.id=Jre.jrt_id where Jre.id=?',[id]);
+try
+  if qr.GetInt('uid')<>Session.UserID then
+    raise Exception.Create('Access denied.');
+  jrl_id:=qr.GetInt('jrl_id');
+  jrt_id:=qr.GetInt('jrt_id');
+finally
+  qr.Free;
+end;
+
+if jrt_id<>new_jrt_id then
+ begin
+   qr:=TQueryResult.Create(Session.DbCon,'select jrl_id from Jrt where id=?',[new_jrt_id]);
+   try
+     if qr.GetInt('jrl_id')<>jrl_id then
+       raise Exception.Create('Invalid modification values');
+   finally
+     qr.Free;
+   end;
+ end;
+
+//TODO: check ts,minutes against previous/succeeding entry
+
+Session.DbCon.BeginTrans;
+try
+  Session.DbCon.Update('Jre',
+    ['id',id
+    ,'jrt_id',new_jrt_id
+    //TODO:
+    ,'minutes',Context['minutes'].AsInteger
+    //,'m_ts',VNow
+    //,'m_uid',Session.UserID
+    ]);
+
+  Session.DbCon.CommitTrans;
+except
+  Session.DbCon.RollbackTrans;
+  raise;
+end;
+
+url:='Journal.xxm?id='+IntToStr(jrl_id);
+Context.Redirect(url,true);
+<<a href="[[=url]]">>=url<</a>

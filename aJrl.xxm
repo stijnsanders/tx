@@ -45,7 +45,7 @@ e2:=Context['edit1'].Value;
 if e2='' then e2:=Context['edit2'].Value;
 l2:=Context['limit1'].Value;
 if l2='' then l2:=Context['limit2'].Value;
-if (v1<>v2) or (e1<>e2) or (l1<>l2) then RefreshJournals:=true;
+if (id=0) or (v1<>v2) or (e1<>e2) or (l1<>l2) then RefreshJournals:=true;
 
 Session.DbCon.BeginTrans;
 try

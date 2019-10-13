@@ -44,7 +44,7 @@ if id=0 then
         <td><a href="?id=[[=id]]">>.name<</a></td>
         <td class="r">>.granularity<</td>
         <td>>
-        qr1:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=?',[id]);
+        qr1:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[id]);
         try
           while qr1.Read do
            begin

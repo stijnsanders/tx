@@ -46,7 +46,7 @@ alter table Usr add suspended datetime null;
 
 create table Jrl (
 id integer primary key autoincrement,
-name varchar(100),
+name varchar(100) not null collate nocase,
 granularity int not null,
 root_id int null,
 view_expression varchar(200) null,
@@ -61,7 +61,7 @@ m_ts datetime null
 create table Jrt (
 id integer primary key autoincrement,
 jrl_id int not null,
-name varchar(20),
+name varchar(20) not null collate nocase,
 icon int not null,
 constraint FK_Jrt_Jrl foreign key (jrl_id) references Jrl (id)
 );

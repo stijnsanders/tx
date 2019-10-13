@@ -28,6 +28,7 @@ if id=0 then
     <th title="objects today">o#</th>
     <th title="minutes today">&Sigma;&#x27;</th>
     <th>current</th>
+    <th>entry</th>
     <th>started</th>
     </tr>>
     for i:=0 to Length(Session.Journals)-1 do
@@ -58,7 +59,7 @@ if id=0 then
       id:=Session.Journals[i].obj_id;
       if id=0 then
        begin
-       <<td colspan="2">&mdash;</td>>
+       <<td colspan="3">&mdash;</td>>
        end
       else
        begin
@@ -72,9 +73,10 @@ if id=0 then
           qr.Free;
         end;
         <</td>
+        <td>>#txImg(Session.Journals[i].jrt_icon)]][[=Session.Journals[i].jrt_name<</td>
         <td style="text-align:right;">
         <span class="jrl">>=JournalTime(Session.Journals[i].Start)<</span>
-        <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'x',0,'r',1]][[#txCallProtect]]" class="linkbutton">stop</a>
+        <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'x',0,'r',1]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
         </td>>
        end;
       <</tr>>
@@ -97,8 +99,8 @@ else
   <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
   <tr>
   <th>&nbsp;</th>
-  <th>entry</th>
   <th>object</th>
+  <th>entry</th>
   <th>start</th>
   <th title="minutes">&#x27;</th>
   </tr>>
@@ -123,12 +125,12 @@ else
       <a href="fJre.xxm?id=[[.jre_id]]" class="linkbutton">edit</a>
       <a href="aJreDelete.xxm?id=[[.jre_id]][[#txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to delete this journal entry?');">delete</a>
       </td>
-      <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
       <td>>
       Context.Include('dObjLink.xxmi',[],[qr]);
       Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ',' '],[qr]);
       //Context.Include('d_cmw.xxmi',[],[qr]);
       <</td>
+      <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
       <td style="text-align:right;">>=NiceDateTime(qr['ts'])<</td>
       <td style="text-align:right;">>.minutes<</td>
       </tr>>

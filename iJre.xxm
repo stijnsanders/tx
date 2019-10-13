@@ -27,7 +27,7 @@ else
           ,'obj_id',Session.Journals[i].obj_id
           ,'uid',Session.UserID
           ,'ts',VNow
-          ,'minutes',Round((Now-Session.Journals[i].Start)*1440.0+0.5)
+          ,'minutes',Round((Now-Session.Journals[i].Start)*1440.0)//+0.5)?
           ]);
         //TODO: granularity
       
@@ -79,7 +79,7 @@ else
       ]]
       [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start)]]
       <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-        {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&nbsp;</a>>
+        {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&bullet;</a>>
      end
   else
     Context.Redirect('Journal.xxm',true);
