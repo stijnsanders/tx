@@ -1,5 +1,6 @@
 [[@Variants,txDefs,txSession,DataLank,txFilter,txFilterSql,txTerms,]][[!var
 s,dsp:string;
+sql:UTF8String;
 dspx:array of record
   x,y:integer;
 end;
@@ -35,18 +36,18 @@ while i<l do
 f:=TtxFilter.Create;
 fq:=TtxSqlQueryFragments.Create(itObj);
 try
-  f.FilterExpression:=Values[0];
+  f.FilterExpression:=UTF8Encode(Values[0]);
   if f.parseError<>'' then raise Exception.Create(f.parseError);
   fq.AddFilter(f);
   fq.Where:='Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq.Where+')';
-  s:=fq.SQL;
+  sql:=fq.SQL;
 finally
   f.Free;
   fq.Free;
 end;
 
 //TODO: getdomain? limit in statement!
-qr:=TQueryResult.Create(Session.DbCon,s,[]);
+qr:=TQueryResult.Create(Session.DbCon,sql,[]);
 try
   c:=0;
   while qr.Read and Context.Connected and ((limit=0) or (c<limit)) do
@@ -95,5 +96,3 @@ try
 finally
   qr.Free;
 end;
-
-]]

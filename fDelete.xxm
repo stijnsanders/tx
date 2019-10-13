@@ -20,11 +20,12 @@ txItem(Context['x'].Value,ItemType,ItemID);
     itFilter:Context.Include('fFltDelete.xxmi',[ItemID]);
     //itUser:Context.Include('fUsrDelete.xxmi',[ItemID]);//TODO
     //itJournal:Context.Include('fJrlDelete.xxmi',[ItemID]);
+    //itJournalEntryType:Context.Include('fJrtDelete.xxmi',[ItemID]);
 
     else
-      ]]
-      <p>Delete not supported for [[=txItemTypeName[ItemType]]]</p>
-      [[
+     begin
+      <<p>Delete not supported for [[=txItemTypeName[ItemType]]]</p>>
+     end;
   end;
 
 Context.Include('dFoot.xxmi');

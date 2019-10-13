@@ -5,7 +5,8 @@ qr,qr1,qr2:TQueryResult;
 sl_i,users_i,users_l,limit,id,pid,i,j,l,d,c1,c2:integer;
 f:TtxFilter;
 fq,fq1,fq2:TtxSqlQueryFragments;
-fs,fsu,s,sql1,sql2,msgURL,msgFrom,msgSubject:string;
+fs,fsu,s,msgURL,msgFrom,msgSubject:string;
+sql1,sql2:UTF8String;
 users:array of record
   id,uid:integer;
   email,name:string;
@@ -22,10 +23,10 @@ mm:AnsiString;
 ff:TFileStream;
 
 const
-  Base64Codes:array[0..63] of char=
+  Base64Codes:array[0..63] of AnsiChar=
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-function base64encode(var Data;DataSize:cardinal):string;
+function base64encode(var Data;DataSize:cardinal):AnsiString;
 type
   PByte=^byte;
 var
@@ -75,13 +76,12 @@ end;
 function ProcessImages(const FallbackURL,Body:AnsiString):AnsiString;
 var
   bi,bj,bl,i:integer;
-  newBody:AnsiString;
-  bn1,bn2,fn,fd,fx:string;
+  newBody,fn,fd,fx,bn1,bn2:AnsiString;
   sl:TStringList;
   m:TMemoryStream;
 begin
-  bn1:='txUpdate'+FormatDateTime('yyyymmddhhnnsszzz',Now)+Format('%.4x%.4x%.8x',[GetCurrentProcessID,GetCurrentThreadID,integer(Self)]);
-  bn2:='txBody'+FormatDateTime('yyyymmddhhnnsszzz',Now)+Format('%.4x%.4x%.8x',[GetCurrentProcessID,GetCurrentThreadID,integer(Self)]);
+  bn1:=AnsiString('txUpdate'+FormatDateTime('yyyymmddhhnnsszzz',Now)+Format('%.4x%.4x%.8x',[GetCurrentProcessID,GetCurrentThreadID,integer(Self)]));
+  bn2:=AnsiString('txBody'+FormatDateTime('yyyymmddhhnnsszzz',Now)+Format('%.4x%.4x%.8x',[GetCurrentProcessID,GetCurrentThreadID,integer(Self)]));
   sl:=TStringList.Create;
   m:=TMemoryStream.Create;
   try
@@ -116,10 +116,10 @@ begin
         fx:=fn;
         for i:=1 to Length(fx)-1 do if AnsiChar(fx[i]) in ['.','_','/','\'] then fx[i]:='X';
         newBody:=newBody+'<img src="cid:'+fx;
-        if sl.IndexOf(fn)=-1 then
+        if sl.IndexOf(string(fn))=-1 then
          begin
-          m.LoadFromFile(ModulePath+fd+fn);
-          sl.Add(fn);
+          m.LoadFromFile(ModulePath+string(fd+fn));
+          sl.Add(string(fn));
           //
           Result:=Result+'--'+bn1+
             #13#10'Content-Type: image/png; name="'+fn+'"'+
@@ -200,19 +200,19 @@ try
         fq:=TtxSqlQueryFragments.Create(itObj);//(itUser);
         try
           Context.SendHTML('Users...'#13#10);
-          f.FilterExpression:=sl[sl_i];
+          f.FilterExpression:=UTF8Encode(sl[sl_i]);
           if f.ParseError<>'' then raise Exception.Create('User filter: '+f.ParseError);
           fq.AddFrom('INNER JOIN Usr ON Usr.uid=Obj.id AND Usr.email<>''''');
           fq.AddFilter(f);
           fq.Fields:='Usr.id, Usr.uid, Usr.email, Obj.name';
           fq.OrderBy:='';
           //fq.GroupBy
-          s:=fq.SQL;
+          sql1:=fq.SQL;
         finally
           f.Free;
           fq.Free;
         end;
-        qr:=TQueryResult.Create(Session.DbCon,s,[]);
+        qr:=TQueryResult.Create(Session.DbCon,sql1,[]);
         try
           i:=0;
           l:=0;
@@ -239,7 +239,7 @@ try
         if sl_i=sl.Count then
           raise Exception.Create('Update items filter expression missing');
         fs:=sl[sl_i];
-        fsu:=URLEncode(fs);
+        fsu:=string(URLEncode(fs));
         for users_i:=0 to users_l-1 do
           try
             Context.SendHTML(users[users_i].name+' <'+users[users_i].email+'>...'#13#10);
@@ -255,29 +255,29 @@ try
 
             tc2:=GetTimerIndex;
             rpFilter:=rpView;//?
-            s:='ASC';//?
+            sql1:='ASC';//?
             limit:=100;//?
 
             f:=TtxFilter.Create;
             fq1:=TtxSqlQueryFragments.Create(itObj);
-            fq1.OrderBy:='Obj.c_ts '+s+', Obj.weight, Obj.name';//m_ts?
+            fq1.OrderBy:='Obj.c_ts '+sql1+', Obj.weight, Obj.name';//m_ts?
             if limit<>0 then fq1.Limit:=limit;
             fq2:=TtxSqlQueryFragments.Create(itReport);
-            fq2.OrderBy:='Rpt.ts '+s;
+            fq2.OrderBy:='Rpt.ts '+sql1;
             if limit<>0 then fq2.Limit:=limit;
             try
-              f.FilterExpression:=fs;
+              f.FilterExpression:=UTF8Encode(fs);
               if f.ParseError<>'' then raise Exception.Create('User filter: '+f.ParseError);
 
-              fq1.AddFrom('LEFT OUTER JOIN Umi ON Umi.usr_id='+IntToStr(users[users_i].id)+' AND Umi.obj_id=Obj.id');
+              fq1.AddFrom('LEFT OUTER JOIN Umi ON Umi.usr_id='+IntToStrU(users[users_i].id)+' AND Umi.obj_id=Obj.id');
               fq1.AddFilter(f);
-              fq1.Where:='Umi.id IS NULL AND Obj.c_uid<>'+IntToStr(Session.UserID)+
-                ' AND Obj.m_uid<>'+IntToStr(Session.UserID)+
+              fq1.Where:='Umi.id IS NULL AND Obj.c_uid<>'+IntToStrU(Session.UserID)+
+                ' AND Obj.m_uid<>'+IntToStrU(Session.UserID)+
                 ' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq1.Where+')';
 
-              fq2.AddFrom('LEFT OUTER JOIN Umr ON Umr.usr_id='+IntToStr(users[users_i].id)+' AND Umr.rpt_id=Rpt.id');
+              fq2.AddFrom('LEFT OUTER JOIN Umr ON Umr.usr_id='+IntToStrU(users[users_i].id)+' AND Umr.rpt_id=Rpt.id');
               fq2.AddFilter(f);
-              fq2.Where:='Umr.id IS NULL AND Rpt.uid<>'+IntToStr(Session.UserID)+
+              fq2.Where:='Umr.id IS NULL AND Rpt.uid<>'+IntToStrU(Session.UserID)+
                 ' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq2.Where+')';
 
               sql1:=fq1.SQL;
@@ -406,10 +406,10 @@ try
                     #13#10'</body></html>'#13#10]);
 
                   tc1:=GetTimerIndex;
-                  mm:='Subject: '+msgSubject+
+                  mm:=AnsiString('Subject: '+msgSubject+
                     #13#10'To: "'+users[users_i].name+'" <'+users[users_i].email+'>'+
-                    #13#10'From: '+msgFrom+
-                    ProcessImages(msgURL+'Log.xxm?filter='+fsu,UTF8Encode(msg.Result));
+                    #13#10'From: '+msgFrom)+
+                    ProcessImages(AnsiString(msgURL+'Log.xxm?filter='+fsu),UTF8Encode(msg.Result));
                   if dryrun then
                     Context.SendHTML([' dry-run:',GetTimerIndexMS(tc1),' [bytes] ',Length(mm)])
                   else
