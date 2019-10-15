@@ -39,7 +39,7 @@ try
   Session.DbCon.Update('Jre',
     ['id',id
     ,'jrt_id',new_jrt_id
-    //TODO:
+    ,'ts',jtToDateTime(Context['ts'].Value)
     ,'minutes',Context['minutes'].AsInteger
     //,'m_ts',VNow
     //,'m_uid',Session.UserID

@@ -73,6 +73,8 @@ obj_id int not null,
 uid int not null,
 ts datetime not null,
 minutes int not null,
+c_ts datetime null,
+m_ts datetime null,
 constraint FK_Jre_Jrt foreign key (jrt_id) references Jrt (id),
 constraint FK_Jre_Obj foreign key (obj_id) references Obj (id),
 constraint FK_Jre_Obj foreign key (uid) references Obj (id)--not Usr!

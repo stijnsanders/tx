@@ -1,6 +1,8 @@
-[[@txDefs,txSession,DataLank]][[!var
-i,id,jrt_id:integer;
+[[@txDefs,txSession,Variants,DataLank]][[!var
+i,id,jrt_id,g,m:integer;
 qr:TQueryResult;
+d:TDateTime;
+gf:double;
 ]][[
 
 CheckCallProtect(Context);
@@ -18,6 +20,19 @@ else
 
   if (Session.Journals[i].obj_id<>id) or (Session.Journals[i].jrt_id<>jrt_id) then
    begin
+
+    qr:=TQueryResult.Create(Session.DbCon,'select granularity from Jrl where id=?',[Session.Journals[i].jrl_id]);
+    try
+      g:=qr.GetInt('granularity');
+      if g<=0 then g:=60;
+      gf:=g/1440.0;
+    finally
+      qr.Free;
+    end;
+    d:=Now;
+    m:=Round((d-Session.Journals[i].Start)/gf)*g;
+    d:=d-Frac(d/gf)*gf;
+
     if (Session.Journals[i].obj_id<>0) and (Context['r'].AsInteger<>2) then
      begin
       Session.DbCon.BeginTrans;
@@ -26,11 +41,11 @@ else
           ['jrt_id',Session.Journals[i].jrt_id
           ,'obj_id',Session.Journals[i].obj_id
           ,'uid',Session.UserID
-          ,'ts',VNow
-          ,'minutes',Round((Now-Session.Journals[i].Start)*1440.0)//+0.5)?
+          ,'ts',VarFromDateTime(d)
+          ,'minutes',m
+          ,'c_ts',Session.Journals[i].Start
+          ,'m_ts',VNow
           ]);
-        //TODO: granularity
-      
         Session.DbCon.CommitTrans;
       except
         Session.DbCon.RollbackTrans;
@@ -57,6 +72,7 @@ else
      end;
     Session.Journals[i].obj_id:=id;
     Session.Journals[i].Start:=Now;
+    Session.Journals[i].granularity:=g;
    end;
 
   if Context['r'].AsInteger=0 then
@@ -78,7 +94,7 @@ else
     else
      begin
       ]]
-      [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start)]]
+      [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start,g)]]
       <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
         {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&bullet;</a>
       &nbsp;[[

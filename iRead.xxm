@@ -1,4 +1,4 @@
-[[@txSession,DataLank,]][[!var
+[[@txSession,txDefs,DataLank,]][[!var
 qr:TQueryResult;
 ]][[
 
@@ -16,7 +16,7 @@ qr:=TQueryResult.Create(Session.DbCon,'SELECT ObjPath.pid, '+
   'NULLIF((SELECT COUNT(DISTINCT U1.id) FROM ObjPath U0'+
   ' INNER JOIN Obj U1 ON U1.id=U0.oid AND U1.rlm_id'+Session.Realms[rpView].SQL+
   ' INNER JOIN Obx U2 ON U2.obj_id=U0.oid'+
-  ' LEFT OUTER JOIN Urx U3 ON U3.uid='+IntToStr(Session.UserID)+' AND U2.id BETWEEN U3.id1 AND U3.id2'+
+  ' LEFT OUTER JOIN Urx U3 ON U3.uid='+IntToStrU(Session.UserID)+' AND U2.id BETWEEN U3.id1 AND U3.id2'+
   ' WHERE U0.pid=ObjPath.pid AND U0.pid<>U0.oid AND U3.id IS NULL),0) as r1'+
   ' FROM ObjPath'+
   ' INNER JOIN Obj ON Obj.id=ObjPath.pid'+

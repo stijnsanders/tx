@@ -35,12 +35,14 @@ Context.Include('d_cmw.xxmi',['',id],[qr]);
 if Use_Journals then
   for i:=0 to Length(Session.Journals)-1 do
    begin
-    qr1:=TQueryResult.Create(Session.DbCon,'select Jrl.root_id, ObjPath.oid, Jrl.limit_expression from Jrl'+
+    qr1:=TQueryResult.Create(Session.DbCon,
+      'select Jrl.root_id, ObjPath.oid, Jrl.limit_expression, Jrl.granularity from Jrl'+
       ' left outer join ObjPath on ObjPath.pid=Jrl.root_id and ObjPath.oid=?'+
       ' where Jrl.id=?',[id,Session.Journals[i].jrl_id]);
     try
       b:=qr1.IsNull('root_id') or not(qr1.IsNull('oid'));
       s:=qr1.GetStr('limit_expression');
+      Session.Journals[i].granularity:=qr1.GetInt('granularity');
     finally
       qr1.Free;
     end;
@@ -74,7 +76,7 @@ if Use_Journals then
       if Session.Journals[i].obj_id=id then
        begin
         ]]
-        [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start)]]
+        [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start,Session.Journals[i].granularity)]]
         <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
           {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&bullet;</a>
         &nbsp;[[

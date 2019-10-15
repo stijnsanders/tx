@@ -1,6 +1,10 @@
 [[@txSession,txDefs,DataLank,]][[!var
-id,jrl_id,jrt_id:integer;
+id,jrl_id,jrt_id,g,m1,m2,mm:integer;
 qr,qr1:TQueryResult;
+d0,d1,d2,dd:TDateTime;
+gf:double;
+const
+HalfAMinute=0.5/1440.0;
 ]][[
 
 Context.Include('dHead.xxmi',['Journal Entry']);
@@ -17,6 +21,54 @@ qr:=TQueryResult.Create(Session.DbCon,
 try
   jrl_id:=qr.GetInt('jrl_id');
   jrt_id:=qr.GetInt('jrt_id');
+  g:=qr.GetInt('granularity');
+  if g<=0 then g:=60;
+  gf:=g/1440.0;
+
+  d1:=qr.GetDate('ts');
+  m1:=qr.GetInt('minutes');
+
+  //ts before
+  qr1:=TQueryResult.Create(Session.DbCon,
+    'select Jre.ts+Jre.minutes/1440.0 as ts from Jre inner join Jrt on Jrt.id=Jre.jrt_id'+
+    ' where Jre.id<>? and Jrt.jrl_id=? and Jre.uid=? and Jre.ts+Jre.minutes/1440.0<? order by Jre.ts desc limit 1',[id,jrl_id,Session.UserID,d1]);
+  try
+    dd:=d1-8.0/24.0;//?
+    if qr1.EOF then
+      d0:=dd
+    else
+     begin
+      d0:=qr1.GetDate('ts');
+      if dd>d0 then d0:=dd;
+     end;
+  finally
+    qr1.Free;
+  end;
+
+  //ts after
+  qr1:=TQueryResult.Create(Session.DbCon,
+    'select Jre.ts from Jre inner join Jrt on Jrt.id=Jre.jrt_id'+
+    ' where Jre.id<>? and Jrt.jrl_id=? and Jre.uid=? and Jre.ts>? order by Jre.ts limit 1',[id,jrl_id,Session.UserID,d1]);
+  try
+    dd:=d1+8.0/24.0;//?
+    if dd>Now then dd:=Now;
+    if qr1.EOF then
+      d2:=dd
+    else
+     begin
+      d2:=qr1.GetDate('ts');
+      if dd<d2 then d2:=dd;
+     end;
+  finally
+    qr1.Free;
+  end;
+
+  d0:=d0-Frac(d0/gf)*gf;
+  d1:=d1-Frac(d1/gf)*gf;
+  d2:=d2-Frac(d2/gf)*gf;
+
+  m2:=Trunc((d2-d0)*1440.0);
+
   <<h2>Journal Entry</h2>
   [[#txForm('aJre.xxm',['id',id])]]
   [[#txFormProtect]]
@@ -24,6 +76,17 @@ try
   <dt>Journal</dt>
   <dd>>.jrl_name<</dd>
   </dd>
+  <dt>Object</dt>
+  <dd>>
+  qr1:=TQueryResult.Create(Session.DbCon,sqlObjByID,[qr.GetInt('obj_id')]);
+  try
+    Context.Include('dObjLink.xxmi',[],[qr1]);
+    Context.Include('dObjTokRef.xxmi',[qr1.GetInt('id'),#13#10' ',' '],[qr1]);
+    //Context.Include('d_cmw.xxmi',[],[qr1]);
+  finally
+    qr1.Free;
+  end;
+  <</dd>
   <dt>Entry type</dt>
   <dd>>
   qr1:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[jrl_id]);
@@ -39,14 +102,31 @@ try
   end;
   <</dd>
   <dt>Start</dt>
-  <dd><select name="ts">
-  <option value="">>=NiceDateTime(qr['ts'])<</option>
-  <option>//TODO: query previous</option>
-  </select></dd>
+  <dd><select name="ts">>
+  dd:=d0;
+  while dd<d2+HalfAMinute do
+   begin
+    <<option value="[[=jtFromDateTime(dd)]]"[[
+    if Abs(dd-d1)<HalfAMinute then Context.SendHTML(' selected="1"');
+    ]]>>=JournalDateTime(dd)<</option>>
+    dd:=dd+gf;
+   end;
+  <</select></dd>
   <dt>Duration</dt>
-  <dd><input type="text" name="minutes" value="[[=qr['minutes']]]" />&#x27;
-  //TODO: query next
-  </dd>
+  <dd>>
+  {if false then begin
+  <<input type="text" name="minutes" value="[[=qr['minutes']]]" />&#x27;[[
+  end else} begin
+  <<select name="minutes">>
+  mm:=0;
+  while mm<=m2 do
+   begin
+    <<option value="[[=mm]]"[[if mm=m1 then Context.SendHTML(' selected="1"');]]>>=JournalMinutes(mm)<</option>>
+    inc(mm,g);
+   end;
+  <</select> minutes[[
+  end;
+  <</dd>
   </dl>
   [[#txFormButton]]
   <a href="Journal.xxm?id=[[=qr['jrl_id']]]">back</a>

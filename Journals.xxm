@@ -42,7 +42,7 @@ if id=0 then
         <a href="fDelete.xxm?x=j[[=id]]" class="linkbutton">delete</a>
         </td>
         <td><a href="?id=[[=id]]">>.name<</a></td>
-        <td class="r">>.granularity<</td>
+        <td style="text-align:right;">>.granularity<</td>
         <td>>
         qr1:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[id]);
         try

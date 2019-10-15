@@ -1,7 +1,7 @@
 [[@txSession,txDefs,DataLank,Variants]][[!var
 IsAdmin:boolean;
 qr:TQueryResult;
-i,id,m:integer;
+i,id,g,m:integer;
 ]][[
 
 Context.Include('dHead.xxmi',['Journal']);
@@ -51,7 +51,7 @@ if id=0 then
           m:=qr.GetInt('minutes');
           <<td style="text-align:right;">>.entries<</td>
           <td style="text-align:right;">>.objects<</td>
-          <td style="text-align:right;">>=Format('%d:%.2d',[m div 60,m mod 60])<</td>>
+          <td style="text-align:right;">>=JournalMinutes(m)<</td>>
         end;
       finally
         qr.Free;
@@ -75,7 +75,7 @@ if id=0 then
         <</td>
         <td>>#txImg(Session.Journals[i].jrt_icon)]][[=Session.Journals[i].jrt_name<</td>
         <td style="text-align:right;">
-        <span class="jrl">>=JournalTime(Session.Journals[i].Start)<</span>
+        <span class="jrl">>=JournalTime(Session.Journals[i].Start,Session.Journals[i].granularity)<</span>
         <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',1]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
         <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',2]][[#txCallProtect]]" class="linkbutton">cancel</a>
         </td>>
@@ -134,7 +134,7 @@ else
       <</td>
       <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
       <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
-      <td style="text-align:right;">>.minutes<</td>
+      <td style="text-align:right;">>=JournalMinutes(qr['minutes'])<</td>
       <td style="text-align:right;">>=JournalDateTime(double(qr['ts'])+qr.GetInt('minutes')/1440.0)<</td>
       </tr>>
      end;

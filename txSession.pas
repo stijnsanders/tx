@@ -75,7 +75,7 @@ type
     RevertFooterDisplay:string;
     RecentReferences:array[0..FilterRecentCount-1] of record reftype,obj2:integer; end;
     Journals:array of record
-      jrl_id,jrt_id,jrt_icon,obj_id:integer;
+      jrl_id,jrt_id,jrt_icon,obj_id,granularity:integer;
       jrl_name,jrt_name:string;
       Start:TDateTime;
       CanConsult:boolean;
@@ -677,11 +677,12 @@ begin
 
         SetLength(Journals,i+1);
         Journals[i].jrl_id:=qr.GetInt('id');
+        Journals[i].jrl_name:=qr.GetStr('name');
+        Journals[i].granularity:=qr.GetInt('granularity');
         Journals[i].jrt_id:=0;
         Journals[i].jrt_icon:=0;
-        Journals[i].obj_id:=0;
-        Journals[i].jrl_name:=qr.GetStr('name');
         Journals[i].jrt_name:='';
+        Journals[i].obj_id:=0;
         Journals[i].Start:=0.0;
         Journals[i].CanConsult:=b2;
         inc(i);

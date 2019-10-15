@@ -28,11 +28,11 @@ try
 <dl>
 <dt>Name</dt><dd><input type="text" name="name" id="JrlName" value="[[=qrGetDefault('name','')]]" class="textfield" /></dd>
 <dt>Granularity</dt><dd>>
-if false then begin
+{if false then begin
 <<input type="text" name="granularity" value="[[=qrGetDefault('granularity',60)]]" />>
-end else begin
+end else} begin
 g:=qr.GetInt('granularity');
-if g=0 then g:=60;
+if g<=0 then g:=60;
 <<select name="granularity">>
 gg(1);
 gg(5);
@@ -42,7 +42,7 @@ gg(30);
 gg(60);
 <</select>>
 end;
-]] minutes</dd>>
+]] minute(s)</dd>>
 if id=0 then
  begin
   <<dt>First journal entry type: name</dt><dd><input type="text" name="jrtname" class="textfield" /></dd>

@@ -26,8 +26,8 @@ try
         qr:=TQueryResult.Create(Session.DbCon,'SELECT DISTINCT Obx.id, X.id'+
           ' FROM Obj'+
           ' INNER JOIN Obx ON Obx.obj_id=Obj.id'+
-          ' LEFT OUTER JOIN Urx ON Urx.uid='+IntToStr(Session.UserID)+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
-          ' LEFT OUTER JOIN Urx X ON X.uid='+IntToStr(Session.UserID)+' AND X.id2=Obx.id-1'+
+          ' LEFT OUTER JOIN Urx ON Urx.uid='+IntToStrU(Session.UserID)+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
+          ' LEFT OUTER JOIN Urx X ON X.uid='+IntToStrU(Session.UserID)+' AND X.id2=Obx.id-1'+
           ' WHERE Obj.rlm_id'+Session.Realms[rpView].SQL+' AND Urx.id IS NULL'+
           ' ORDER BY Obx.id',[]);
        end
@@ -38,8 +38,8 @@ try
           ' FROM ObjPath '+
           ' INNER JOIN Obj ON Obj.id=ObjPath.oid AND Obj.rlm_id'+Session.Realms[rpView].SQL+
           ' INNER JOIN Obx ON Obx.obj_id=Obj.id'+
-          ' LEFT OUTER JOIN Urx ON Urx.uid='+IntToStr(Session.UserID)+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
-          ' LEFT OUTER JOIN Urx X ON X.uid='+IntToStr(Session.UserID)+' AND X.id2=Obx.id-1'+
+          ' LEFT OUTER JOIN Urx ON Urx.uid='+IntToStrU(Session.UserID)+' AND Obx.id BETWEEN Urx.id1 AND Urx.id2'+
+          ' LEFT OUTER JOIN Urx X ON X.uid='+IntToStrU(Session.UserID)+' AND X.id2=Obx.id-1'+
           ' WHERE ObjPath.pid=? AND ObjPath.pid<>ObjPath.oid AND Urx.id IS NULL'+
           ' ORDER BY Obx.id',[id]);
        end;
