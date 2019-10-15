@@ -1,9 +1,16 @@
 [[@txSession,txDefs,DataLank,]][[!var
-id:integer;
+id,g:integer;
 qr:TQueryResult;
 function qrGetDefault(const FieldName:string;DefaultValue:OleVariant):OleVariant;
 begin
   if qr.IsNull(FieldName) then Result:=DefaultValue else Result:=qr[FieldName];
+end;
+procedure gg(g1:integer);
+var
+  s:string;
+begin
+  if g1=g then s:=' selected="1"' else s:='';
+  Context.SendHTML('<option value="'+IntToStr(g1)+'"'+s+'>'+IntToStr(g1)+'</option>');
 end;
 ]][[
 
@@ -20,7 +27,22 @@ try
 [[#txFormProtect]]
 <dl>
 <dt>Name</dt><dd><input type="text" name="name" id="JrlName" value="[[=qrGetDefault('name','')]]" class="textfield" /></dd>
-<dt>Granularity</dt><dd><input type="text" name="granularity" value="[[=qrGetDefault('granularity',60)]]" /> minutes</dd>>
+<dt>Granularity</dt><dd>>
+if false then begin
+<<input type="text" name="granularity" value="[[=qrGetDefault('granularity',60)]]" />>
+end else begin
+g:=qr.GetInt('granularity');
+if g=0 then g:=60;
+<<select name="granularity">>
+gg(1);
+gg(5);
+gg(10);
+gg(15);
+gg(30);
+gg(60);
+<</select>>
+end;
+]] minutes</dd>>
 if id=0 then
  begin
   <<dt>First journal entry type: name</dt><dd><input type="text" name="jrtname" class="textfield" /></dd>

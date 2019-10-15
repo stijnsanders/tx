@@ -6,8 +6,6 @@ ImgSafePadding='0.1em 0.4em 0.1em 0.4em';
 <style type="text/css">
 BODY {
 	border: none;
-	font-family: [[#Session.CssPrefs.FontName]];
-	font-size: [[#Session.CssPrefs.BaseSizePt]]pt;
 	color: #000000;
 	margin: 0.4em;
 }
@@ -72,4 +70,4 @@ SPAN.date A {
 </style>
 <base href="[[=Values[0]]]" />
 </head>
-<body style="font-family: Calibri, Verdana, sans-serif;">
+<body style="font-family: Calibri, Verdana, sans-serif; font-size: 11pt;">

@@ -96,7 +96,11 @@ function txForm(const Action:string; const HVals:array of OleVariant;const OnSub
 function DateToXML(d:TDateTime):string;
 function NiceDateTime(const x:OleVariant):string;
 function ShortDateTime(d:TDateTime):string;
+
+function JournalDateTime(d:TDateTime):string;
 function JournalTime(d:TDateTime):string;
+function jtToDateTime(const jt:string):TDateTime;
+function jtFromDateTime(d:TDateTime):string;
 
 function IntToStrU(x:integer):UTF8String;
 
@@ -227,6 +231,11 @@ begin
    end;
 end;
 
+function JournalDateTime(d:TDateTime):string;
+begin
+  Result:=FormatDateTime('ddd d/mm hh:nn',d);
+end;
+
 function JournalTime(d:TDateTime):string;
 var
   d0:TDateTime;
@@ -234,6 +243,22 @@ begin
   d0:=Now;
   if Trunc(d)=Trunc(d0) then Result:=FormatDateTime('hh:nn',d) else Result:=FormatDateTime('ddd d/mm hh:nn',d);
   Result:=Result+' ('+IntToStr(Round((d0-d)*1440.0))+''')';
+end;
+
+const
+  jtDelta=63000000;
+
+function jtToDateTime(const jt:string):TDateTime;
+var
+  i:integer;
+begin
+  if not TryStrToInt(jt,i) then raise Exception.Create('Invalid JournalTime value');
+  Result:=(i+jtDelta)/1440.0;
+end;
+
+function jtFromDateTime(d:TDateTime):string;
+begin
+  Result:=IntToStr(Trunc(d*1440.0)-jtDelta); 
 end;
 
 function IntToStrU(x:integer):UTF8String;

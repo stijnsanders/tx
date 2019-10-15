@@ -18,7 +18,7 @@ else
 
   if (Session.Journals[i].obj_id<>id) or (Session.Journals[i].jrt_id<>jrt_id) then
    begin
-    if Session.Journals[i].obj_id<>0 then
+    if (Session.Journals[i].obj_id<>0) and (Context['r'].AsInteger<>2) then
      begin
       Session.DbCon.BeginTrans;
       try
@@ -73,13 +73,15 @@ else
       finally
         qr.Free;
       end;
+      ]]&nbsp;[[
      end
     else
      begin
       ]]
       [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start)]]
       <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-        {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&bullet;</a>>
+        {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&bullet;</a>
+      &nbsp;[[
      end
   else
     Context.Redirect('Journal.xxm',true);

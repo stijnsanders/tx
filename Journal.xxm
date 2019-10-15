@@ -76,7 +76,8 @@ if id=0 then
         <td>>#txImg(Session.Journals[i].jrt_icon)]][[=Session.Journals[i].jrt_name<</td>
         <td style="text-align:right;">
         <span class="jrl">>=JournalTime(Session.Journals[i].Start)<</span>
-        <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'x',0,'r',1]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
+        <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',1]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
+        <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',2]][[#txCallProtect]]" class="linkbutton">cancel</a>
         </td>>
        end;
       <</tr>>
@@ -103,6 +104,7 @@ else
   <th>entry</th>
   <th>start</th>
   <th title="minutes">&#x27;</th>
+  <th>end</th>
   </tr>>
   qr:=TQueryResult.Create(Session.DbCon,
     'SELECT Jre.id AS jre_id, Jre.ts, Jre.minutes, Jrt.icon AS jrt_icon, Jrt.name AS jrt_name,'+
@@ -131,8 +133,9 @@ else
       //Context.Include('d_cmw.xxmi',[],[qr]);
       <</td>
       <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
-      <td style="text-align:right;">>=NiceDateTime(qr['ts'])<</td>
+      <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
       <td style="text-align:right;">>.minutes<</td>
+      <td style="text-align:right;">>=JournalDateTime(double(qr['ts'])+qr.GetInt('minutes')/1440.0)<</td>
       </tr>>
      end;
   finally
