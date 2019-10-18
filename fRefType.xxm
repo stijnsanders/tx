@@ -19,7 +19,7 @@ try
 <dt>Name</dt><dd><input type="text" name="name" id="RefTypeName" value="[[=qr.GetStr('name')]]" class="textfield" /></dd>>
 if Session.IsAdmin('config') then
  begin
-  <<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetStr('system')]]" class="systemfield" /></dd>>
+  <<dt>System label</dt><dd><input type="text" name="system" value="[[=qr.GetStr('system')]]" class="systemfield" /></dd>>
  end;
 <<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qr.GetInt('weight')]]" class="weightfield" /></dd>
 <dt>Icon</dt><dd>>Context.Include('fIcons.xxmi',['icon',qr.GetInt('icon')]);<</dd>

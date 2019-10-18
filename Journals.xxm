@@ -107,7 +107,7 @@ if id=0 then
   
       <</table>>
   
-      <<p class="buttons"><a href="fRealm.xxm" class="linkbutton">add...</a></p>>
+      <<p class="buttons"><a href="fJrl.xxm" class="linkbutton">add...</a></p>>
         
      end;
   finally

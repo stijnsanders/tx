@@ -1,7 +1,8 @@
 [[@txDefs,txSession,DataLank,]][[!var
-id:integer;
+id,i:integer;
 qr:TQueryResult;
 IsAdmin:boolean;
+s:string;
 ]][[
 Context.Include('dHead.xxmi',['Account']);
 
@@ -34,7 +35,30 @@ Context.Include('dHead.xxmi',['Account']);
     //TODO: confirm e-mail address?
     if IsAdmin then
      begin
-      <<dt>Auto logon</dt><dd><input type="text" name="auth" size="50" value="[[if qr.IsNull('auth') then Context.Send(Context.ContextString(csAuthUser)) else Context.Send(qr['auth']);]]" /></dd>>
+      <<dt>Auto logon</dt><dd><input type="text" name="auth" size="50" value="[[
+      if qr.IsNull('auth') then
+       begin
+        //clip to domain prefix
+        s:=Context.ContextString(csAuthUser);
+        if id<>Session.UserID then
+         begin
+          i:=Length(s);
+          while (i<>0) and (s[i]<>'\') do dec(i);
+          if i<>0 then
+            SetLength(s,i)
+          else
+           begin
+            //clip to "@" domain suffix?
+            i:=1;
+            while (i<=Length(s)) and (s[i]<>'@') do inc(i);
+            s:=Copy(s,1,i);
+           end;
+         end;
+        Context.Send(s);
+       end
+      else
+        Context.Send(qr['auth']);
+        ]]" /></dd>>
      end;
     <</dl>
     [[#txFormButton]]

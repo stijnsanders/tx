@@ -262,19 +262,19 @@ begin
 end;
 
 const
-  jtDelta=63000000;
+  jtDelta=43210.0;
 
 function jtToDateTime(const jt:string):TDateTime;
 var
   i:integer;
 begin
   if not TryStrToInt(jt,i) then raise Exception.Create('Invalid JournalTime value');
-  Result:=(i+jtDelta)/1440.0;
+  Result:=i/1440.0+jtDelta;
 end;
 
 function jtFromDateTime(d:TDateTime):string;
 begin
-  Result:=IntToStr(Trunc(d*1440.0)-jtDelta); 
+  Result:=IntToStr(Trunc((d-jtDelta)*1440.0)); 
 end;
 
 function IntToStrU(x:integer):UTF8String;

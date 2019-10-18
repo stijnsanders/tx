@@ -23,7 +23,7 @@ try
 <dt>Name</dt><dd><input type="text" name="name" id="ObjTypeName" value="[[=qrGetDefault('name','')]]" class="textfield" /></dd>>
 if Session.IsAdmin('config') then
  begin
-  <<dt>System</dt><dd><input type="text" name="system" value="[[=qrGetDefault('system','')]]" class="systemfield" /></dd>>
+  <<dt>System label</dt><dd><input type="text" name="system" value="[[=qrGetDefault('system','')]]" class="systemfield" /></dd>>
  end;
 <<dt>Weight</dt><dd><input type="text" name="weight" value="[[=qrGetDefault('weight',0)]]" class="weightfield" /></dd>
 <dt>Icon</dt><dd>>Context.Include('fIcons.xxmi',['icon',qrGetDefault('icon',0)]);<</dd>

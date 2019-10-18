@@ -15,7 +15,7 @@ try
 <dl>
 <dt>Name</dt><dd><input type="text" name="name" id="RlmName" value="[[=qr.GetStr('name')]]" class="textfield" /></dd>
 <dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc',qr.GetStr('desc')]);<</dd>
-<dt>System</dt><dd><input type="text" name="system" value="[[=qr.GetStr('system')]]" class="systemfield" /></dd>
+<dt>System label</dt><dd><input type="text" name="system" value="[[=qr.GetStr('system')]]" class="systemfield" /></dd>
 <dt>Viewable by <span style="font-weight:normal;">(e.g.: <span class="litref">true1</span>)</span></dt>
 <dd>>Context.Include('dFltSelect.xxmi',['view',qr.GetStr('view_expression')]);<</dd>
 <dt>Editable by <span style="font-weight:normal;">(e.g.: <span class="litref">child"staff"*</span>)</span></dt>
