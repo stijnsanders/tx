@@ -1,7 +1,18 @@
-[[@txSession,txDefs,DataLank]][[!var
+[[@txSession,txDefs,txFilter,txFilterSql,txCache,txNodes,DataLank]][[!var
 qr,qr1:TQueryResult;
 s,t:string;
 id,root_id,i:integer;
+rpFilter:TtxRealmPermission;
+filter:string;
+fs:UTF8String;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+LocationCache:TItemCache;
+ln:TLocationNode;
+mt:array of record
+  jrt_id,jrt_icon,m,c:integer;
+  jrt_name:string;
+end;
 ]][[
 
 if not(Session.IsAdmin('journals')) then
