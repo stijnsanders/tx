@@ -14,6 +14,7 @@ em:=Context['em'].AsInteger;
 ed:=Context['ed'].AsInteger;
 
 v:=Context['view'].Value;
+if (v='') and (Context['all'].AsInteger=1) then v:='all';
 
 if sy=0 then d1:=Null else d1:=VarFromDateTime(EncodeDate(sy,sm,sd));
 if ey=0 then d2:=Null else d2:=VarFromDateTime(EncodeDate(ey,em,ed));

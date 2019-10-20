@@ -104,6 +104,8 @@ begin
     end;
   if (s='tx.ini') or (s='tx.db') or (s='tx.xxl') then
     Result:=XxmFragmentRegistry.GetFragment(Self,'404.xxm','');
+  if s='f' then
+    Result:=XxmFragmentRegistry.GetFragment(Self,'Frame.xxm','');
   if Result=nil then
    begin
     Result:=XxmFragmentRegistry.GetFragment(Self,Address,'');

@@ -1,5 +1,6 @@
 [[@Windows,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,]][[!var
 qr:TQueryResult;
+rpFilter:TtxRealmPermission;
 filter:string;
 fs:UTF8String;
 f:TtxFilter;
@@ -42,6 +43,8 @@ filter:=Context['filter'].Value;
 //--></script>
 <span style="white-space:nowrap;">>
 
+  if Context['all'].AsInteger=1 then rpFilter:=rpAny else rpFilter:=rpView;
+
   f:=TtxFilter.Create;
   fq:=TtxSqlQueryFragments.Create(itObj);
   try
@@ -51,7 +54,7 @@ filter:=Context['filter'].Value;
       <<p style="color:red;">>=f.ParseError<</p>>
      end;
     fq.AddFilter(f);
-    fq.Where:='Obj.rlm_id'+Session.Realms[rpView].SQL+' AND ('+fq.Where+')';
+    fq.Where:='Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq.Where+')';
     fs:=fq.SQL;
   finally
     f.Free;

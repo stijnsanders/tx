@@ -86,8 +86,12 @@ else
     <a class="linkbutton" href="FilterBuild.xxm?filter=[[#fv.filterU]]">edit filter</a>
     <a class="linkbutton" href="FrameTree.xxm?filter=[[#fv.filterU]]" target="TreeFrame">tree</a>
     <a class="linkbutton" href="FrameList.xxm?filter=[[#fv.filterU]]" target="TreeFrame">list</a>
-    <a class="linkbutton" href="Log.xxm?filter=[[#fv.filterU]]">log...</a>
-    <a class="linkbutton" href="Summary.xxm?filter=[[#fv.filterU]]">summary...</a>
+    <a class="linkbutton" href="Log.xxm?filter=[[#fv.filterU]]">log...</a>>
+    if Use_Journals and (Length(Session.Journals)<>0) then 
+     begin
+      ]] <a class="linkbutton" href="Journal.xxm?filter=[[#fv.filterU]]">journal...</a>>
+     end;
+    ]] <a class="linkbutton" href="Summary.xxm?filter=[[#fv.filterU]]">summary...</a>
     <a class="linkbutton" href="Modify.xxm?filter=[[#fv.filterU]]">modify...</a>
     </p>
     <p>

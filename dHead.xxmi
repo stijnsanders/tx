@@ -45,14 +45,26 @@ if not(Session.IsAnonymous) then
 <body bgcolor="#FFFFFF">
 <div id="topnav"><div id="toplogo">>=ApplicationName<</div><div id="topnavbar" style="padding-left:2.3em;">
 
-  <span id="frameLink"><a href="Frame.xxm" onclick="document.location.replace('Frame.xxm?url='+encodeURIComponent(document.location.href));return false;">&raquo; frame</a> | </span>
+  <span id="frameLink"><a href="Frame.xxm" onclick="document.location.replace('f?/'+relativeURL());return false;">&raquo; frame</a> | </span>
 
   <script><!--
+  function txRelativeURL(){
+    var i=0;
+    var j=0;
+    var u1=window.top.document.location.href;
+    var u2=document.location.href;
+    while(u1[i]&&u1[i]==u2[i]){
+      if(u1[i]=="/")j=i+1;
+      i++;
+    }
+    return u2.substr(j);
+  }
   if(window.name=="MainFrame")
   {
     $("#frameLink").hide();
     window.top.document.title=document.title;
-    window.top.window.history.replaceState({},document.title,"Frame.xxm?url="+encodeURI(document.location.href));
+    [[//window.top.window.history.replaceState({},document.title,"Frame.xxm?url="+encodeURIComponent(document.location.href));]]
+    window.top.window.history.replaceState({},document.title,"f?/"+txRelativeURL());
   }
   //--></script>
   <a href="Default.xxm">home</a>

@@ -168,15 +168,15 @@ try
       <span class="date">reported on [[=NiceDateTime(qr2['ts'])]]</span>
       [[
       pid:=qr2.GetInt('pid');
-      s:='';
+      s:=' ';
       while (pid<>0) and Context.Connected do
        begin
         ln:=LocationCache[pid] as TLocationNode;
         if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
         s:=ln.GetHTML([ghLink,ghIcon,ghTitle],pid)+s;
        end;
-      ]][[#s]]
-      <a href="Item.xxm?x=i[[=id]]&amp;hr=[[=qr2['id']]]" title="[[=qr2['typename']]]">>#txImg(qr2.GetInt('icon'))]] [[=qr2['name']<</a>
+      Context.SendHTML(s);
+      <<a href="Item.xxm?x=i[[=id]]&amp;hr=[[=qr2['id']]]" title="[[=qr2['typename']]]">>#txImg(qr2.GetInt('icon'))]] [[=qr2['name']<</a>
       </p>>
       //TODO: path of obj_id?
       if not(qr2.IsNull('tokicon')) then

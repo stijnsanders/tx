@@ -5,7 +5,7 @@ interface
 uses txDefs, txCache;
 
 type
-  TLocationNodeDisplayItem=(ghLink,ghIcon,ghTypeName,ghName,ghTitle,ghListItemSelect);
+  TLocationNodeDisplayItem=(ghLink,ghIcon,ghTypeName,ghName,ghTitle,ghListItemSelect,ghFrameListClass);
   TLocationNodeDisplayItems=set of TLocationNodeDisplayItem;
   TLocationNode=class(TItemCacheNode)
   private
@@ -55,10 +55,15 @@ function TLocationNode.GetHTML(Display:TLocationNodeDisplayItems;
 begin
   ParentID:=pid;
   Result:='';
-  if ghLink in Display then Result:=Result+'<a href="Item.xxm?x='+txItemTypeKey[it]+IntToStr(id)+'"';
-  if ghTitle in Display then Result:=Result+' title="'+HTMLEncode(name)+'"';
-  if ghTypeName in Display then Result:=Result+' title="'+HTMLEncode(typename)+'"';
-  if ghLink in Display then Result:=Result+'>';
+  if ghLink in Display then 
+   begin
+    Result:=Result+'<a href="Item.xxm?x='+txItemTypeKey[it]+IntToStr(id)+'"';
+    if ghListItemSelect in Display then Result:=Result+' onclick="return listitem_select(event,'+IntToStr(id)+');"';
+    if ghTitle in Display then Result:=Result+' title="'+HTMLEncode(name)+'"';
+    if ghTypeName in Display then Result:=Result+' title="'+HTMLEncode(typename)+'"';
+    if ghFrameListClass in Display then Result:=Result+' class="fli fli'+IntToStr(id)+'"';
+    Result:=Result+'>';
+   end;
   if ghIcon in Display then Result:=Result+txImg(icon);
   if ghName in Display then Result:=Result+'&nbsp;'+HTMLEncode(name);
   if ghLink in Display then Result:=Result+'</a>';

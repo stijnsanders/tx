@@ -2,9 +2,23 @@
 url1,url2,url3:string;
 pV,pH:integer;
 ]][[
-url1:=Context['frame'].Value;  if url1='' then url1:='FrameTree.xxm';
-url2:=Context['framex'].Value; if url2='' then url2:='FrameEx.xxm';
-url3:=Context['url'].Value;    if url3='' then url3:='Default.xxm';
+if Context.ContextString(csLocalURL)='f' then
+ begin
+  url1:='';
+  url2:='';
+  url3:=Context.ContextString(csQueryString);
+  if (url3<>'') and (url3[1]<>'/') then raise Exception.Create('Invalid frame locator');
+  url3:=Copy(url3,2,Length(url3));
+ end
+else
+ begin
+  url1:=Context['frame'].Value;
+  url2:=Context['framex'].Value;
+  url3:=Context['url'].Value;
+ end;
+if url1='' then url1:='FrameTree.xxm';
+if url2='' then url2:='FrameEx.xxm';
+if url3='' then url3:='Default.xxm';
 pV:=Context['v'].AsInteger;    if pV=0 then pV:=300;
 pH:=Context['h'].AsInteger;    if pH=0 then pH:=12;
 <<!DOCTYPE html>

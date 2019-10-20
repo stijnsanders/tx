@@ -16,8 +16,8 @@ FormButton:=txFormButton+' <a href="Modify.xxm?filter='+filterU+'">back</a>';
 <<h2>Modify filtered objects</h2>
 
 <p><span class="litref">>=filter<</span>
-  <a class="linkbutton" href="Filter.xxm?filter=[[#filterU]]">filter...</a>
-  <a class="linkbutton" href="FilterBuild.xxm?filter=[[#filterU]]">build...</a>
+  <a class="linkbutton" href="Filter.xxm?filter=[[#filterU]]">filter</a>
+  <a class="linkbutton" href="FilterBuild.xxm?filter=[[#filterU]]">build</a>
   <a class="linkbutton" href="FrameTree.xxm?filter=[[#filterU]]" target="TreeFrame">tree</a>
   <a class="linkbutton" href="FrameList.xxm?filter=[[#filterU]]" target="TreeFrame">list</a>
   <a class="linkbutton" href="Log.xxm?filter=[[#filterU]]">log...</a>

@@ -48,4 +48,3 @@ if DirectoryExists('C:\InetPub\mailroot\PickUp') then
   end;
  end;
 Context.Include('dFoot.xxmi');
-]]

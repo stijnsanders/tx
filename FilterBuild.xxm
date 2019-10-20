@@ -47,7 +47,12 @@ if filter<>'' then
   <a class="linkbutton" href="FrameList.xxm?filter=[[#filterU]]" target="TreeFrame">filter as list</a>
   |
   <a class="linkbutton" href="Log.xxm?filter=[[#filterU]]">log...</a>
-  <a class="linkbutton" href="Summary.xxm?filter=[[#filterU]]">summary...</a>
+  <a class="linkbutton" href="Summary.xxm?filter=[[#filterU]]">summary...</a>>
+  if Use_Journals and (Length(Session.Journals)<>0) then 
+    begin
+    ]] <a class="linkbutton" href="Journal.xxm?filter=[[#filterU]]">journal...</a>>
+    end;
+  ]]
   |
   <a class="linkbutton" href="fFilter.xxm?filter=[[#filterU]]">save</a>
   [[
@@ -224,10 +229,16 @@ if (action='') and (filter<>'') then
   end;
 
   <<p class="buttons">
-  <a class="linkbutton" href="Filter.xxm?filter=[[#filterU]]">filter...</a>
+  <a class="linkbutton" href="Filter.xxm?filter=[[#filterU]]" style="background-color:gold;" >filter objects...</a>
   |
   <a class="linkbutton" href="Log.xxm?filter=[[#filterU]]">log...</a>
-  <a class="linkbutton" href="Summary.xxm?filter=[[#filterU]]">summary...</a>
+  <a class="linkbutton" href="Summary.xxm?filter=[[#filterU]]">summary...</a>>
+  if Use_Journals and (Length(Session.Journals)<>0) then 
+    begin
+    ]] <a class="linkbutton" href="Journal.xxm?filter=[[#filterU]]">journal...</a>>
+    end;
+  ]]
+  |
   <a class="linkbutton" href="FilterCount.xxm?filter=[[#filterU]]">count...</a>
   <a class="linkbutton" href="Modify.xxm?filter=[[#filterU]]">modify...</a>
   </p>>
