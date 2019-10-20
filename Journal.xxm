@@ -79,7 +79,8 @@ if id=0 then
           m:=qr.GetInt('minutes');
           <<td style="text-align:right;">>.entries<</td>
           <td style="text-align:right;">>.objects<</td>
-          <td style="text-align:right;">>=JournalMinutes(m)<</td>>
+          [[#JournalMinutesTD(m)]]
+          [[
         end;
       finally
         qr.Free;
@@ -143,7 +144,7 @@ else
   //if Context['all'].AsInteger=1 then rpFilter:=rpAny else rpFilter:=rpView;
   rpFilter:=rpAny;//?
 
-  fq:=TtxSqlQueryFragments.Create(itObj);
+  fq:=TtxSqlQueryFragments.Create(itObj);//itJournalEntry? see Journals.xxm (with "s")
   try
     fq.Fields:='Jre.id AS jre_id, Jre.jrt_id, Jre.ts, Jre.minutes, Jrt.icon AS jrt_icon, Jrt.name AS jrt_name,'+fq.Fields;
     fq.AddFrom('INNER JOIN Jre ON Jre.obj_id=Obj.id');
@@ -253,7 +254,7 @@ else
         <</td>
         <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
         <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
-        <td style="text-align:right;">>=JournalMinutes(qr['minutes'])<</td>
+        [[#JournalMinutesTD(qr.GetInt('minutes'))]]
         <td style="text-align:right;">>=JournalDateTime(double(qr['ts'])+qr.GetInt('minutes')/1440.0)<</td>
         </tr>>
        end;
@@ -278,7 +279,7 @@ else
           <<tr>
           <td>>#txImg(mt[mj].jrt_icon)]][[=mt[mj].jrt_name<</td>
           <td style="text-align:right;">>=mt[mj].c<</td>
-          <td style="text-align:right;">>=JournalMinutes(mt[mj].m)<</td>
+          [[#JournalMinutesTD(mt[mj].m)]]
           </tr>>
          end;
         <<tr>
@@ -297,7 +298,7 @@ else
   //TODO: load more (see fq.Limit above)
   //TODO: link to calendar view with totals
 
-  if Session.Journals[i].CanConsult then
+  if Session.Journals[i].CanConsult or IsAdmin then
    begin
     <<p class="buttons"><a href="Journals.xxm?id=[[=Session.Journals[i].jrl_id]]" class="linkbutton">consult...</a></p>>
    end;

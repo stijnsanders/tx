@@ -84,6 +84,9 @@ try
       ]);
    end;
 
+  if Session.IsAdmin('config') then
+    Session.DbCon.Update('Jrl',['id',id,'system',Context['system'].Value]);
+
   if not(VarIsNull(rootid)) then
     Session.AddFilterRecent(itObj,rootid);
 

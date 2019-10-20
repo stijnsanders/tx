@@ -5,7 +5,7 @@
   id,exclude,c,limit:integer;
   ic:TItemCache;
 const
-  recentID:array[TtxItemType] of integer=(0,2,3,3,4,4,-1,-1,-1,-1,-1,-1,-1);
+  recentID:array[TtxItemType] of integer=(0,2,3,3,4,4,-1,-1,-1,-1,-1,-1,-1,-1);
 ]][[
 CheckCallProtect(Context);
 name:=Context['name'].Value;

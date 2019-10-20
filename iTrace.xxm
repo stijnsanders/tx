@@ -56,7 +56,7 @@ if qtype in [0,1] then
      begin
       id:=qr.GetInt('id');
       <<span id="[[=name2]]_node_[[=id]]" expandurl="iTrace.xxm[[?'name',name,'id',id,'q',qtype,'l',level]][[=txCallProtect]]">
-      <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+      <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
       <a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name2]]',[[=id]])||(event||window.event||this).ctrlKey;" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
       qrTok:=TQueryResult.Create(Session.DbCon,
         'SELECT TokType.icon, TokType.name'+
@@ -88,8 +88,8 @@ else
    begin
     name2:=name+'C'+level;
     <<span id="[[=name2]]_children_[[=pid]]" expandurl="iTrace.xxm[[?'name',name,'id',pid,'q',0,'l',level]][[=txCallProtect]]">
-    <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_children_[[=pid]]');" />
-    <img src="img_dsc.png" width="16" height="16" alt="children" [[#globalIconAlign]]/>
+    <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_children_[[=pid]]');" />
+    <img src="img_dsc.[[#globalImgExt]]" width="16" height="16" alt="children" [[#globalIconAlign]]/>
     <br />
     </span>>
    end;
@@ -106,8 +106,8 @@ else
        begin
         name2:=name+'P'+level;
         <<span id="[[=name2]]_parent_[[=id]]" expandurl="iTrace.xxm?name=[[=name]]&amp;id=[[=id]]&amp;q=9&amp;l=[[=level]][[=txCallProtect]]" class="backwards">
-        <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_parent_[[=id]]');" />
-        <img src="img_loc.png" width="16" height="16" alt="parent" [[#globalIconAlign]]/>
+        <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_parent_[[=id]]');" />
+        <img src="img_loc.[[#globalImgExt]]" width="16" height="16" alt="parent" [[#globalIconAlign]]/>
         <a id="[[=name2]]_parentlink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="return treenode_select(event,'[[=name2]]',[[=id]])||(event||window.event||this).ctrlKey;" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
         qrTok:=TQueryResult.Create(Session.DbCon,
           'SELECT TokType.icon, TokType.name'+
@@ -145,7 +145,7 @@ else
      begin
       id:=qr.GetInt('id');
       <<span id="[[=name2]]_node_[[=id]]" expandurl="iTrace.xxm[[?'name',name,'id',pid,'rt',id,'q',0,'l',level]][[=txCallProtect]]">
-      <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+      <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
       [[#txImg(qr.GetInt('icon'))]] [[.name]]
       <br />
       </span>>
@@ -167,7 +167,7 @@ else
      begin
       id:=qr.GetInt('id');
       <<span id="[[=name2]]_node_[[=id]]" expandurl="iTrace.xxm?name=[[=name]]&amp;id=[[=pid]]&amp;rt=[[=id]]&amp;q=1&amp;l=[[=level]][[=txCallProtect]]" class="backwards">
-      <img src="img_tr1.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+      <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
       [[#txImg(qr.GetInt('icon'))]] [[.name]]
       <br />
       </span>>

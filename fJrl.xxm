@@ -43,6 +43,10 @@ gg(60);
 <</select>>
 end;
 ]] minute(s)</dd>>
+if Session.IsAdmin('config') then
+ begin
+  <<dt>System label</dt><dd><input type="text" name="system" value="[[=qrGetDefault('system','')]]" class="systemfield" /></dd>>
+ end;
 if id=0 then
  begin
   <<dt>First journal entry type: name</dt><dd><input type="text" name="jrtname" class="textfield" /></dd>

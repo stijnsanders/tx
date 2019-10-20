@@ -108,6 +108,24 @@ begin
       Having:='';
       OrderBy:='Rpt.ts DESC';
      end;
+    itJournalEntry:
+     begin
+      Fields:='Jre.id, Jre.obj_id, Jre.ts, Jre.minutes, Jre.uid,'+
+       ' Jre.jrt_id, Jrt.icon AS jrt_icon, Jrt.name AS jrt_name,'+
+       ' Obj.name, Obj.pid, ObjType.icon, ObjType.name AS typename,'+
+       ' UsrObj.id AS usrid, UsrObj.name AS usrname, UsrObjType.icon AS usricon, UsrObjType.name AS usrtypename';
+      Tables:='Jre'#13#10+
+       'INNER JOIN Jrt ON Jrt.id=Jre.jrt_id'#13#10+
+       //'INNER JOIN Jrl ON Jrl.id=Jrt.jrl_id'#13#10+
+       'INNER JOIN Obj ON Obj.id=Jre.obj_id'#13#10+
+       'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10+
+       'INNER JOIN Obj AS UsrObj ON UsrObj.id=Jre.uid'#13#10+
+       'INNER JOIN ObjType AS UsrObjType ON UsrObjType.id=UsrObj.objtype_id'#13#10;
+      Where:='';
+      GroupBy:='';
+      Having:='';
+      OrderBy:='Jre.ts DESC';
+     end;
     else
      begin
       t:=txItemTypeTable[ItemType];
@@ -119,7 +137,7 @@ begin
       OrderBy:=t+'.weight, '+t+'.name, '+t+'.c_ts';
      end;
   end;
-  if Use_ObjTokRefCache and (FItemType in [itObj,itReport]) then
+  if Use_ObjTokRefCache and (FItemType in [itObj,itReport,itJournalEntry]) then
    begin
       Fields:=Fields+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
       Tables:=Tables+'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id'#13#10;

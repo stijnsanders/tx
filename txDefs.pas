@@ -14,6 +14,7 @@ type
     itUser,
     itReport,
     itJournal,
+    itJournalEntry,
     itJournalEntryType,
     //add new here above
     it_Unknown
@@ -33,7 +34,7 @@ const
   Use_Extra=false;//use prefix "::" on ObjType.system
 
   txItemTypeKey:array[TtxItemType] of string=(
-    'i','ot','t','tt','r','rt','f','rm','u','rp','j','jet',
+    'i','ot','t','tt','r','rt','f','rm','u','rp','j','je','jet',
     //add new here above (see also procedure txItem below)
     ''
   );
@@ -41,7 +42,7 @@ const
     'object','objecttype',
     'token','tokentype',
     'reference','referencetype',
-    'filter','realm','user','report','journal','journalentrytype',
+    'filter','realm','user','report','journal','journalentry','journalentrytype',
     //add new here above
     'unknown'
   );
@@ -49,7 +50,7 @@ const
     'Obj','ObjType',
     'Tok','TokType',
     'Ref','RefType',
-    'Flt','Rlm','Usr','Rpt','Jrl','Jrt',
+    'Flt','Rlm','Usr','Rpt','Jrl','Jre','Jrt',
     //add new here above
     ''
   );
@@ -58,7 +59,7 @@ const
     'SELECT pid FROM ObjType WHERE id=?',
     '','SELECT pid FROM TokType WHERE id=?',
     '','SELECT pid FROM RefType WHERE id=?',
-    '','','','','','',
+    '','','','','','','',
     //add new here above
     ''
   );
@@ -67,21 +68,22 @@ const
     'UPDATE ObjType SET pid=? WHERE id=?',
     '','UPDATE TokType SET pid=? WHERE id=?',
     '','UPDATE RefType SET pid=? WHERE id=?',
-    '','','','','','',
+    '','','','','','','',
     //add new here above
     ''
   );
 
   globalIconAlign='align="top" border="0" ';
+  globalImgExt='svg';//'png';
 
-  lblLocation=   '<img src="img_loc.png" width="16" height="16" alt="location:" '+globalIconAlign+'/>';
-  lblDescendants='<img src="img_dsc.png" width="16" height="16" alt="children:" '+globalIconAlign+'/>';
-  lblTokens=     '<img src="img_tok.png" width="16" height="16" alt="tokens:" '+globalIconAlign+'/>';
-  lblReferences= '<img src="img_ref.png" width="16" height="16" alt="references:" '+globalIconAlign+'/>';
+  lblLocation=   '<img src="img_loc.'+globalImgExt+'" width="16" height="16" alt="location:" '+globalIconAlign+'/>';
+  lblDescendants='<img src="img_dsc.'+globalImgExt+'" width="16" height="16" alt="children:" '+globalIconAlign+'/>';
+  lblTokens=     '<img src="img_tok.'+globalImgExt+'" width="16" height="16" alt="tokens:" '+globalIconAlign+'/>';
+  lblReferences= '<img src="img_ref.'+globalImgExt+'" width="16" height="16" alt="references:" '+globalIconAlign+'/>';
   {
-  lblTreeNone=   '<img src="img_trx.png" width="16" height="16" alt="" '+globalIconAlign+'/>';
-  lblTreeOpen=   '<img src="img_tr0.png" width="16" height="16" alt="[-]" '+globalIconAlign+'/>';
-  lblTreeClosed= '<img src="img_tr1.png" width="16" height="16" alt="[+]" '+globalIconAlign+'/>';
+  lblTreeNone=   '<img src="img_trx.'+globalImgExt+'" width="16" height="16" alt="" '+globalIconAlign+'/>';
+  lblTreeOpen=   '<img src="img_tr0.'+globalImgExt+'" width="16" height="16" alt="[-]" '+globalIconAlign+'/>';
+  lblTreeClosed= '<img src="img_tr1.'+globalImgExt+'" width="16" height="16" alt="[+]" '+globalIconAlign+'/>';
    }
   txFormButton='<input type="submit" value="Apply" id="formsubmitbutton" class="formsubmitbutton" />';
   lblLoading='<i style="color:#CC3300;"><img src="loading.gif" width="16" height="16" alt="" '+globalIconAlign+'/> Loading...</i>';
@@ -100,6 +102,7 @@ function ShortDateTime(d:TDateTime):string;
 function JournalDateTime(d:TDateTime):string;
 function JournalTime(d:TDateTime;granularity:integer):string;
 function JournalMinutes(minutes:integer):string;
+function JournalMinutesTD(minutes:integer):string;
 function jtToDateTime(const jt:string):TDateTime;
 function jtFromDateTime(d:TDateTime):string;
 
@@ -167,7 +170,7 @@ end;
 
 function txImg(IconNr:integer; const Desc:string): string;
 begin
-  Result:='<img src="img/ic'+IntToStr(IconNr)+'.png" width="16" height="16" ';
+  Result:='<img src="img/ic'+IntToStr(IconNr)+'.svg" width="16" height="16" ';
   if Desc<>'' then Result:=Result+'alt="'+HTMLEncode(Desc)+'" title="'+HTMLEncode(Desc)+'" ';
   Result:=Result+globalIconAlign+'/>';
 end;
@@ -259,6 +262,14 @@ end;
 function JournalMinutes(minutes:integer):string; //inline;
 begin
   Result:=Format('%d:%.2d',[minutes div 60,minutes mod 60]);
+end;
+
+function JournalMinutesTD(minutes:integer):string; //inline;
+begin
+  if minutes=0 then
+    Result:='<td style="text-align:center;color:#C0C0C0;">&mdash;</td>'
+  else
+    Result:='<td style="text-align:right;">'+Format('%d:%.2d',[minutes div 60,minutes mod 60])+'</td>';
 end;
 
 const
