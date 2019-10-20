@@ -14,11 +14,11 @@ preExpand:=Values[3];
 highlight:=Values[4];
 if hasChildren then
  begin
-  <<img src="img_tr[[=preExpandImgNr[preExpand]]].png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]_node_[[=id]]');"/>>
+  <<img src="img_tr[[=preExpandImgNr[preExpand]]].[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]_node_[[=id]]');"/>>
  end
 else
  begin
-  <<img src="img_trx.png" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]_node_[[=id]]');"/>>
+  <<img src="img_trx.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]_node_[[=id]]');"/>>
  end;
 if highlight then begin <<span id="[[=name]]_selectScrollTo"></span>> end;
 ]]

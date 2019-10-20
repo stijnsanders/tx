@@ -116,52 +116,52 @@ else if Context['go'].AsInteger=0 then
             <<div class="toprightbox"><span style="background-color:#FFFFFF;">
             <span class="objtypename1"><span class="small">object type name</span></span>
             <span class="tok1">
-                <img src="img/ic54.png" width="16" height="16" border="0" align="top" />
-                <img src="img/ic77.png" width="16" height="16" border="0" align="top" />
+                <img src="img/ic54.[[#globalImgExt]]" width="16" height="16" border="0" align="top" />
+                <img src="img/ic77.[[#globalImgExt]]" width="16" height="16" border="0" align="top" />
             </span>
 
-            <span class="ref1">&nbsp;<img src="img/ic62.png" width="16" height="16" border="0" align="top" /><img src="img/ic0.png" width="16" height="16" border="0" align="top" /></span>
+            <span class="ref1">&nbsp;<img src="img/ic62.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /><img src="img/ic0.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /></span>
 
             </span></div>
             <div class="objectbox">
                 <span class="objpath1">
-                <nobr><img src="img/ic12.png" width="16" height="16" border="0" align="top" /> Main project</nobr><br />
-                <nobr><img src="img/ic10.png" width="16" height="16" border="0" align="top" /> Project [[=i+1]]</nobr><br />
+                <nobr><img src="img/ic12.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /> Main project</nobr><br />
+                <nobr><img src="img/ic10.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /> Project [[=i+1]]</nobr><br />
                 </span>
-                <img src="img/ic[[=i]].png" width="16" height="16" border="0" align="top" />
+                <img src="img/ic[[=i]].[[#globalImgExt]]" width="16" height="16" border="0" align="top" />
                 <span class="objnst0"><b>Object name</b></span><span class="objnst1"><u>Object name</u></span><span class="objnst2"><i>Object name</i></span><span class="objnst3">Object name</span>
             <br />
             <span class="objdesc1">Object description.<br />More information about the object.<br /></span>
 
-            <span class="objpath3">>#lblLocation]] </span><span class="objpath2"><nobr><img src="img/ic12.png" width="16" height="16" border="0" align="top" /> Main project</nobr> &gt; <nobr><img src="img/ic10.png" width="16" height="16" border="0" align="top" /> Project [[=i+1<</nobr>&nbsp;<br /></span>
+            <span class="objpath3">>#lblLocation]] </span><span class="objpath2"><nobr><img src="img/ic12.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /> Main project</nobr> &gt; <nobr><img src="img/ic10.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /> Project [[=i+1<</nobr>&nbsp;<br /></span>
             <span class="objdate1">
                 <span class="date">created: [[=DateTimeToStr(Now)]]</span>
                 <span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">
                 <span class="weight">weight: 0</span></span><span class="brdateweight"><br /></span>
             <span class="tok2">
                 [[#lblTokens]]
-                <img src="img/ic54.png" width="16" height="16" border="0" align="top" />
-                <img src="img/ic77.png" width="16" height="16" border="0" align="top" />
+                <img src="img/ic54.[[#globalImgExt]]" width="16" height="16" border="0" align="top" />
+                <img src="img/ic77.[[#globalImgExt]]" width="16" height="16" border="0" align="top" />
             </span>
             <span class="ref2">
                 [[#lblReferences]]
-                <img src="img/ic62.png" width="16" height="16" border="0" align="top" /><img src="img/ic0.png" width="16" height="16" border="0" align="top" />
+                <img src="img/ic62.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /><img src="img/ic0.[[#globalImgExt]]" width="16" height="16" border="0" align="top" />
                 <br />
             </span>
             <span class="children1">
                 [[#lblDescendants]]
-                <img src="img/ic0.png" width="16" height="16" border="0" align="top" />
-                <img src="img/ic0.png" width="16" height="16" border="0" align="top" />
+                <img src="img/ic0.[[#globalImgExt]]" width="16" height="16" border="0" align="top" />
+                <img src="img/ic0.[[#globalImgExt]]" width="16" height="16" border="0" align="top" />
             </span>
 
             <span class="tok3">
                 <br />
-                <img src="img/ic54.png" width="16" height="16" border="0" align="top" /> token type
+                <img src="img/ic54.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /> token type
                 <span class="objdate1">
                 <span class="date">created: [[=DateTimeToStr(Now)]]</span>
                 <span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">
                 <span class="weight">weight: 0</span></span><br />
-                <img src="img/ic77.png" width="16" height="16" border="0" align="top" /> token type
+                <img src="img/ic77.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /> token type
                 <span class="objdate1">
                 <span class="date">created: [[=DateTimeToStr(Now)]]</span>
                 <span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">
@@ -170,7 +170,7 @@ else if Context['go'].AsInteger=0 then
             </span>
             <span class="ref3">
                 <br />
-                <img src="img/ic62.png" width="16" height="16" border="0" align="top" /><img src="img/ic0.png" width="16" height="16" border="0" align="top" />
+                <img src="img/ic62.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /><img src="img/ic0.[[#globalImgExt]]" width="16" height="16" border="0" align="top" />
                 reference type Object referred to
                 <span class="objdate1">
                 <span class="date">created: [[=DateTimeToStr(Now)]]</span>
@@ -180,12 +180,12 @@ else if Context['go'].AsInteger=0 then
 
             <span class="children2">
                 <br />
-                <img src="img/ic0.png" width="16" height="16" border="0" align="top" /> Child object one
+                <img src="img/ic0.[[#globalImgExt]]" width="16" height="16" border="0" align="top" /> Child object one
                 <span class="objdate1">
                 <span class="date">created: [[=DateTimeToStr(Now)]]</span>
                 <span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">
                 <span class="weight">weight: 0</span></span><br />
-                <img src="img/ic0.png" width="16" height="16" border="0" align="top" />  Child object two
+                <img src="img/ic0.[[#globalImgExt]]" width="16" height="16" border="0" align="top" />  Child object two
                 <span class="objdate1">
                 <span class="date">created: [[=DateTimeToStr(Now)]]</span>
                 <span class="date">modified: [[=DateTimeToStr(Now)]]</span></span><span class="objweight1">

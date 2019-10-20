@@ -196,7 +196,7 @@ function treenode_expand(x,url,after)
 	var xx=$("#"+x);
 	if(xx.length==1)
 	{
-		xx[0].childNodes[0].src="img_tr0.png";
+		xx[0].childNodes[0].src="img_tr0.[[#globalImgExt]]";
 		var xy=$("#"+x+"_dsc");
 		var ltext='<div class="treelist" id="'+x+'_dsc">>#StringReplace(lblLoading,'''','\''',[rfReplaceAll])<</div>';
 		if(xy.length==1)
@@ -218,12 +218,12 @@ function treenode_toggle(x)
 	var xy=$("#"+x+"_dsc");
 	if(xy.length==1)[[//&& !xy.is(":hidden")]]
 	{
-		xx[0].childNodes[0].src="img_tr1.png";
+		xx[0].childNodes[0].src="img_tr1.[[#globalImgExt]]";
 		xy.remove();
 	}
 	else
 	{
-		xx[0].childNodes[0].src="img_tr0.png";
+		xx[0].childNodes[0].src="img_tr0.[[#globalImgExt]]";
 		xx.after('<div class="treelist" id="'+x+'_dsc">>#StringReplace(lblLoading,'''','\''',[rfReplaceAll])<</div>');
 		$("#"+x+"_dsc").load(xx[0].getAttribute("expandurl"),null,function(){var xx=$("#"+x+"_dsc");if(xx[0].childNodes.length==0)xx.remove();});
 	}

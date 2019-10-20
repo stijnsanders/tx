@@ -8,12 +8,12 @@ if Length(Values)>1 then i:=Values[1] else i:=-1;
 function seticon[[=fname]](x)
 {
 	$("#[[=fname]]_value")[0].value=x;
-	$("#[[=fname]]_icon")[0].src="img/ic"+x+".png";
+	$("#[[=fname]]_icon")[0].src="img/ic"+x+".[[#globalImgExt]]";
 	$("#[[=fname]]_usage").html("...").load("iIconUsage.xxm",{icon:x,xxx:"[[#Session.SessionCrypt]]"});//TODO: plain GET params
 }
 //--></script>
 <input type="hidden" name="[[=fname]]" id="[[=fname]]_value" value="[[=i]]" />
-<img id="[[=fname]]_icon" width="16" height="16" border="0" vspace="4" src="img_trx.png" align="left" />
+<img id="[[=fname]]_icon" width="16" height="16" border="0" vspace="4" src="img_trx.[[#globalImgExt]]" align="left" />
 <div style="border: 2px inset; margin-left:24px; margin-bottom: 0.2em; margin-top:0em; margin-right: 0em; padding: 4px;" id="[[=fname]]_usage">
 <i style="color:#999999;">select an icon below, here is shown if it's in use.</i>
 </div>>
@@ -24,9 +24,9 @@ d:=ModulePath+'img\';
 fn:=d+'ic'+IntToStr(i)+'.png';
 while FileExists(fn) do
  begin
-  <<img src="img/ic[[=i]].png" width="16" height="16" border="0" onclick="seticon[[=fname]]([[=i]]);" />>
+  <<img src="img/ic[[=i]].[[#globalImgExt]]" width="16" height="16" border="0" onclick="seticon[[=fname]]([[=i]]);" />>
   ]] [[
   inc(i);
-  fn:=d+'ic'+IntToStr(i)+'.png';
+  fn:=d+'ic'+IntToStr(i)+'.'+globalImgExt;
  end;
 <</div>
