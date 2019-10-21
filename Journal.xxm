@@ -300,7 +300,9 @@ else
 
   if Session.Journals[i].CanConsult or IsAdmin then
    begin
-    <<p class="buttons"><a href="Journals.xxm?id=[[=Session.Journals[i].jrl_id]]" class="linkbutton">consult...</a></p>>
+    <<p class="buttons"><a href="Journals.xxm?id=[[=Session.Journals[i].jrl_id]][[
+    if filter<>'' then Context.Send('&filter='+URLEncode(filter));
+    ]]" class="linkbutton">consult...</a></p>>
    end;
 
  end;

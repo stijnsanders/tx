@@ -285,7 +285,7 @@ end;
 
 function jtFromDateTime(d:TDateTime):string;
 begin
-  Result:=IntToStr(Trunc((d-jtDelta)*1440.0)); 
+  Result:=IntToStr(Round((d-jtDelta)*1440.0)); 
 end;
 
 function IntToStrU(x:integer):UTF8String;

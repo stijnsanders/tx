@@ -29,8 +29,8 @@ else
     finally
       qr.Free;
     end;
-    d:=Now;
-    m:=Round((d-Session.Journals[i].Start)/gf)*g;
+    d:=Session.Journals[i].Start;
+    m:=Round((Now-d)/gf)*g;
     d:=d-Frac(d/gf)*gf;
 
     if (Session.Journals[i].obj_id<>0) and (Context['r'].AsInteger<>2) then
