@@ -1,5 +1,5 @@
 [[@txSession,txDefs,DataLank,]][[!var
-id,jrl_id,jrt_id,g,m1,m2,mm:integer;
+id,jrl_id,jrt_id,g,m0,m1,m2,mm:integer;
 qr,qr1:TQueryResult;
 d0,d1,d2,dd:TDateTime;
 gf:double;

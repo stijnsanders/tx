@@ -17,6 +17,7 @@ else
  begin
   id:=Context['x'].AsInteger;
   jrt_id:=Context['t'].AsInteger;
+  g:=60;//counter warning
 
   if (Session.Journals[i].obj_id<>id) or (Session.Journals[i].jrt_id<>jrt_id) then
    begin
@@ -75,30 +76,34 @@ else
     Session.Journals[i].granularity:=g;
    end;
 
-  if Context['r'].AsInteger=0 then
-    if Session.Journals[i].obj_id=0 then
-     begin
-      id:=Context['xx'].AsInteger;
-      qr:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[Session.Journals[i].jrl_id]) ;
-      try
-        while qr.Read do
-          begin
-          <<span onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-            {id:[[=Session.Journals[i].jrl_id]],t:[[=qr.GetInt('id')]],x:[[=id]],xxx:'[[#Session.SessionCrypt]]'});">>#txImg(qr.GetInt('icon'),qr.GetStr('name'))<</span>>
-          end;
-      finally
-        qr.Free;
-      end;
-      ]]&nbsp;[[
-     end
+  case Context['r'].AsInteger of
+    0:
+      if Session.Journals[i].obj_id=0 then
+       begin
+        id:=Context['xx'].AsInteger;
+        qr:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[Session.Journals[i].jrl_id]) ;
+        try
+          while qr.Read do
+            begin
+            <<span onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+              {id:[[=Session.Journals[i].jrl_id]],t:[[=qr.GetInt('id')]],x:[[=id]],xxx:'[[#Session.SessionCrypt]]'});">>#txImg(qr.GetInt('icon'),qr.GetStr('name'))<</span>>
+            end;
+        finally
+          qr.Free;
+        end;
+        ]]&nbsp;[[
+       end
+      else
+       begin
+        ]]
+        [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start,g)]]
+        <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+          {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&bullet;</a>
+        &nbsp;[[
+       end;
+    1:Context.Redirect('Journal.xxm',true);
+    2:Context.Redirect('FrameJrl.xxm',true);
     else
-     begin
-      ]]
-      [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start,g)]]
-      <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-        {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&bullet;</a>
-      &nbsp;[[
-     end
-  else
-    Context.Redirect('Journal.xxm',true);
+      raise Exception.Create('Unsupported "r" value');
+  end;
  end;

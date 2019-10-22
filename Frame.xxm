@@ -1,6 +1,6 @@
-[[!var
+[[@txDefs,txSession]][[!var
 url1,url2,url3:string;
-pV,pH:integer;
+pV,pH,pJ:integer;
 ]][[
 if Context.ContextString(csLocalURL)='f' then
  begin
@@ -32,7 +32,15 @@ IFRAME {background-color:white;border:1px inset;user-select:none;-webkit-user-se
 <link rel="icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body>
-<iframe src="[[=url1]]" id="f1" name="TreeFrame">Your browser doesn't support &lt;iframe&gt;</iframe>
+<iframe src="[[=url1]]" id="f1" name="TreeFrame">Your browser doesn&#x27;t support &lt;iframe&gt;</iframe>
+[[
+pJ:=0;
+if Use_Journals and (Length(Session.Journals)<>0) then
+ begin
+  pJ:=40+Length(Session.Journals)*25;
+  <<iframe src="FrameJrl.xxm" id="j1" name="TreeFrameJrl"></iframe>>
+ end;
+]]
 <div id="rH" style="cursor:ns-resize;"></div>
 <iframe src="[[=url2]]" id="f2" name="TreeFrameEx"></iframe>
 <div id="rV" style="cursor:ew-resize;"></div>
@@ -42,6 +50,7 @@ IFRAME {background-color:white;border:1px inset;user-select:none;-webkit-user-se
 var f1=document.getElementById("f1");
 var f2=document.getElementById("f2");
 var f3=document.getElementById("f3");
+var j1=document.getElementById("j1");//
 var rH=document.getElementById("rH");
 var rV=document.getElementById("rV");
 var rR=document.getElementById("rR");
@@ -54,7 +63,15 @@ function updateDims(){
   f1.style.top="0px";
   f1.style.left="0px";
   f1.style.width=(pV)+"px";
-  f1.style.height=(y-pH-8)+"px";
+  f1.style.height=(y-pH-[[=pJ+8]])+"px";
+
+  if(j1){
+    j1.style.position="absolute";
+    j1.style.top=(y-pH-[[=pJ+8]])+"px";
+    j1.style.left="0px";
+    j1.style.width=(pV)+"px";
+    j1.style.height="[[=pJ  ]]px";
+  }
 
   rH.style.position="absolute";
   rH.style.top=(y-pH-8)+"px";
