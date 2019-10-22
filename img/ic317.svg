@@ -1,19 +1,19 @@
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-<circle cx="1.5" cy="5.5" r="0.6" stroke="none" fill="#999"/>
-<circle cx="3.75" cy="4.5" r="0.6" stroke="none" fill="#999"/>
-<circle cx="4.75" cy="6.75" r="0.6" stroke="none" fill="#999"/>
-<circle cx="5.375" cy="5.125" r="0.6" stroke="none" fill="#999"/>
-<circle cx="7" cy="5.75" r="0.6" stroke="none" fill="#999"/>
-<circle cx="9.25" cy="4.75" r="0.6" stroke="none" fill="#999"/>
-<circle cx="11.5" cy="3.75" r="0.6" stroke="none" fill="#999"/>
-<circle cx="12.5" cy="6" r="0.6" stroke="none" fill="#999"/>
-<circle cx="13.5" cy="8.25" r="0.6" stroke="none" fill="#999"/>
-<circle cx="14.5" cy="10.5" r="0.6" stroke="none" fill="#999"/>
-<circle cx="12.25" cy="11.5" r="0.6" stroke="none" fill="#999"/>
-<circle cx="10" cy="12.5" r="0.6" stroke="none" fill="#999"/>
-<circle cx="7.75" cy="13.5" r="0.6" stroke="none" fill="#999"/>
-<circle cx="5.5" cy="14.5" r="0.6" stroke="none" fill="#999"/>
-<circle cx="4.5" cy="12.25" r="0.6" stroke="none" fill="#999"/>
-<circle cx="3.5" cy="10" r="0.6" stroke="none" fill="#999"/>
-<circle cx="2.5" cy="7.75" r="0.6" stroke="none" fill="#999"/>
+<circle cx="1.5" cy="5.5" r="0.6" stroke="none" fill="#666"/>
+<circle cx="3.75" cy="4.5" r="0.6" stroke="none" fill="#666"/>
+<circle cx="4.75" cy="6.75" r="0.6" stroke="none" fill="#666"/>
+<circle cx="5.375" cy="5.125" r="0.6" stroke="none" fill="#666"/>
+<circle cx="7" cy="5.75" r="0.6" stroke="none" fill="#666"/>
+<circle cx="9.25" cy="4.75" r="0.6" stroke="none" fill="#666"/>
+<circle cx="11.5" cy="3.75" r="0.6" stroke="none" fill="#666"/>
+<circle cx="12.5" cy="6" r="0.6" stroke="none" fill="#666"/>
+<circle cx="13.5" cy="8.25" r="0.6" stroke="none" fill="#666"/>
+<circle cx="14.5" cy="10.5" r="0.6" stroke="none" fill="#666"/>
+<circle cx="12.25" cy="11.5" r="0.6" stroke="none" fill="#666"/>
+<circle cx="10" cy="12.5" r="0.6" stroke="none" fill="#666"/>
+<circle cx="7.75" cy="13.5" r="0.6" stroke="none" fill="#666"/>
+<circle cx="5.5" cy="14.5" r="0.6" stroke="none" fill="#666"/>
+<circle cx="4.5" cy="12.25" r="0.6" stroke="none" fill="#666"/>
+<circle cx="3.5" cy="10" r="0.6" stroke="none" fill="#666"/>
+<circle cx="2.5" cy="7.75" r="0.6" stroke="none" fill="#666"/>
 </svg>

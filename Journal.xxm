@@ -240,7 +240,7 @@ else
         </td>
         <td>>
         pid:=qr.GetInt('pid');
-        s:='';
+        s:=' ';
         while (pid<>0) and Context.Connected do
         begin
           ln:=LocationCache[pid] as TLocationNode;

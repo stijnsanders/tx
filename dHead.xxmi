@@ -20,7 +20,7 @@ if (s='filter.xxm') or (s='import.xxm') or (s='trace.xxm') or (s='fcount.xxm') t
  end;
 <<meta name="viewport" content="width=device-width, initial-scale=1" />
 <script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
-<script type="text/javascript" src="tx.js.xxm?uid=[[=Session.UserID]][[=txCallProtect]]"></script>
+<script type="text/javascript" src="tx.js.xxm?uid=[[=Session.UserID]]&amp;v=1[[=txCallProtect]]"></script>
 <link rel="stylesheet" type="text/css" href="tx.css.xxm?uid=[[=Session.UserID]]" />
 <link rel="alternate" type="application/rss+xml" title="tx items" href="Rss.xxm[[
 if Length(Values)>1 then
