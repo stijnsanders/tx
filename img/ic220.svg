@@ -1,11 +1,11 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
 <defs>
-<linearGradient id="g1" x2="1" y2="0"><stop offset="0%" stop-color="#FFC"/><stop offset="100%" stop-color="#996"/></linearGradient>
-<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFC"/><stop offset="100%" stop-color="#996"/></linearGradient>
+<linearGradient id="g1.5" x2="1.5" y2="0.5"><stop offset="0.5%" stop-color="#FFC"/><stop offset="100.5%" stop-color="#996"/></linearGradient>
+<linearGradient id="g2.5" x1="0.5" y1="0.5" x2="0.5" y2="1.5"><stop offset="0.5%" stop-color="#FFC"/><stop offset="100.5%" stop-color="#996"/></linearGradient>
 </defs>
-<path d="M2,4C2,3 5,2 7.5,2C10,2 13,3 13,4V11C13,12 10,13 7.5,13C5,13 2,12 2,11Z" stroke="#066" fill="url(#g1)"/>
-<path d="M2,4C2,3 5,2 7.5,2C10,2 13,3 13,4C13,5 10,6 7.5,6C5,6 2,5 2,4Z" stroke="#066" fill="url(#g2)" stroke-width="0.7" />
-<path d="M10,7H14V12H10Z" stroke="#999" fill="#FFF"/>
-<path d="M8,8H12V13H8Z" stroke="#666" fill="#FFF"/>
-<path d="M6,9H10V14H6Z" stroke="#000" fill="#FFF"/>
+<path d="M2.5,4.5C2.5,3.5 5.5,2.5 8,2.5C10.5,2.5 13.5,3.5 13.5,4.5V11.5C13.5,12.5 10.5,13.5 8,13.5C5.5,13.5 2.5,12.5 2.5,11.5Z" stroke="#066" fill="url(#g1.5)"/>
+<path d="M2.5,4.5C2.5,3.5 5.5,2.5 8,2.5C10.5,2.5 13.5,3.5 13.5,4.5C13.5,5.5 10.5,6.5 8,6.5C5.5,6.5 2.5,5.5 2.5,4.5Z" stroke="#066" fill="url(#g2.5)" stroke-width="1.2" />
+<path d="M10.5,7.5H14.5V12.5H10.5Z" stroke="#999" fill="#FFF"/>
+<path d="M8.5,8.5H12.5V13.5H8.5Z" stroke="#666" fill="#FFF"/>
+<path d="M6.5,9.5H10.5V14.5H6.5Z" stroke="#000" fill="#FFF"/>
 </svg>

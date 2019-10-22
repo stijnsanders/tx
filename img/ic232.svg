@@ -1,16 +1,16 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
-<path d="M0.5,5.5H3V7.5H0.5Z" fill="#CC9"/>
-<path d="M12,5.5H14.5V7.5H12Z" fill="#CC9"/>
-<path d="M2,5.5H0.5V7Z" fill="#FFC"/>
-<path d="M1.5,7.5H3V6Z" fill="#996"/>
-<path d="M13.2,5.5H12V6.6Z" fill="#FFC"/>
-<path d="M14.5,5.8V7.5H12.5Z" fill="#996"/>
-<path d="M3,5H0C0,7 1,8 3,8M12,5H15C15,7 14,8 12,8" stroke="#066" fill="none"/>
-<path d="M5.5,10.5C5.5,14 1.5,10 1.5,14H13.5C13.5,10 9.5,14 9.5,10.5" fill="#CC9"/>
-<path d="M1.5,13.5V12.5L3,11.8L5,11.8L5.5,10H9.5L10,11.8C5,9 8,13.5 3,13.5Z" fill="#FFC"/>
-<path d="M3.5,4H11.5V10H3.5Z" stroke="#066" fill="#CC9"/>
-<path d="M4,4.5H11L9.5,5.5H5V8L4,9.5Z" fill="#FFC"/>
-<path d="M4,9.5H11V4.5L10,6V8.5H5.5Z" fill="#996"/>
-<path d="M4,13.5H13V12.6Z" fill="#996"/>
-<path d="M5.5,10.5C5.5,14 1.5,10 1.5,14H13.5C13.5,10 9.5,14 9.5,10.5" stroke="#066" fill="none"/>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M0.5,5H3V7H1Z" fill="#CC9"/>
+<path d="M13,5H15.5V7H13Z" fill="#CC9"/>
+<path d="M2,5H0.5V6.5Z" fill="#FFC"/>
+<path d="M1.5,7H3V5.5Z" fill="#996"/>
+<path d="M14.2,5H13V6.1Z" fill="#FFC"/>
+<path d="M15.5,5.3V7H13.5Z" fill="#996"/>
+<path d="M3,4.5H0C0,6.5 1,7.5 3,7.5M13,4.5H16C16,6.5 15,7.5 13,7.5" stroke="#066" fill="none"/>
+<path d="M5.5,10C5.5,13.5 1.5,9.5 1.5,13.5H14.5C14.5,9.5 10.5,13.5 10.5,10" fill="#CC9"/>
+<path d="M1.5,13V12.5L3.5,11.3L5,11.3L5.5,9.5H10.5L11,11.3C5,8.5 8,13 3,13Z" fill="#FFC"/>
+<path d="M3.5,3.5H12.5V9.5H3.5Z" stroke="#000" fill="#CC9"/>
+<path d="M4,4H12L10.5,5	H5V7.5L4,9Z" fill="#FFC"/>
+<path d="M4,9H12V4L11,5.5V8H5.5Z" fill="#996"/>
+<path d="M4,13H14V12.1Z" fill="#996"/>
+<path d="M5.5,10C5.5,12.5 3.5,9.5 1.5,13.5H14.5C12.5,9.5 10.5,12.5 10.5,10" stroke="#066" fill="none"/>
 </svg>

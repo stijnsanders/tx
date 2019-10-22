@@ -1,11 +1,11 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
-<path d="M3,5L6,2H12V13H3Z" stroke="#000" fill="#FFF"/>
-<path d="M3.5,5.2L6.2,2.5H8.5V7.5H3.5Z" fill="#CCC"/>
-<path d="M3.5,6H7V2.5" stroke="#000" fill="none"/>
-<path d="M4,6.5V12H11.5" stroke="#909" fill="none"/>
-<path d="M3.5,5.5H6.5V4Z" fill="#909"/>
-<path d="M7.5,4H8.5ZM7.5,6H8.5Z" stroke="#C90" fill="none"/>
-<path d="M8.5,4H10.5ZM8.5,6H10.5ZM5.5,8H10.5ZM5.5,10H10.5Z" stroke="#FC0" fill="none"/>
-<path d="M7,7H9.5L11,9H14V14H7Z" stroke="#000" fill="#FC0"/>
-<path d="M8,10H13V13H8Z" stroke="#C90" fill="#FC0"/>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M3.5,5.5L6.5,2.5H12.5V13.5H3.5Z" stroke="#000" fill="#FFF"/>
+<path d="M4,5.7L6.7,3H9V8H4Z" fill="#CCC"/>
+<path d="M4,6.5H7.5V3" stroke="#000" fill="none"/>
+<path d="M4.5,7V12.5H12" stroke="#909" fill="none"/>
+<path d="M4,6H7V4.5Z" fill="#909"/>
+<path d="M8,4.5H9ZM8,6.5H9Z" stroke="#C90" fill="none"/>
+<path d="M9,4.5H11ZM9,6.5H11ZM6,8.5H11ZM6,10.5H11Z" stroke="#FC0" fill="none"/>
+<path d="M7.5,7.5H10L11.5,9.5H14.5V14.5H7.5Z" stroke="#000" fill="#FC0"/>
+<path d="M8.5,10.5H13.5V13.5H8.5Z" stroke="#C90" fill="#FC0"/>
 </svg>

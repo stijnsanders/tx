@@ -1,11 +1,11 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
-<path d="M1,5L10,1L14,10L5,14Z" stroke="#666" fill="#FFF"/>
-<path d="M1,5L10,1L10.45,2L1.45,6Z" stroke="#00C" fill="#00C"/>
-<path d="M5.25,13.35L13.35,9.75L10.2,2.65L10.2,4.5L12.25,9.25L6.25,12Z" fill="#999"/>
-<circle cx="2.25" cy="5.5" r="0.8" fill="#FC0"/>
-<circle cx="9.5" cy="2.25" r="0.8" fill="#999"/>
-<path d="M2.1,6.25L10.2,2.65C9.85,4 9.85,4 9,4.35L4,6.55C3.2,6.8 3.2,6.8 2.1,6.25Z" fill="#999"/>
-<path d="M7,6H14V14H7Z" stroke="#000" fill="#FFF"/>
-<path d="M11.5,8H12.5M11.5,10H12.5M8.5,12H12.5" stroke="#000"/>
-<path d="M8.5,7.5H10.5V10.5H8.5Z" fill="#F00"/>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M1.5,5.5L10.5,1.5L14.5,10.5L5.5,14.5Z" stroke="#666" fill="#FFF"/>
+<path d="M1.5,5.5L10.5,1.5L10.95,2.5L1.95,6.5Z" stroke="#00C" fill="#00C"/>
+<path d="M5.75,13.85L13.85,10.25L10.7,3.15L10.7,5L12.75,9.75L6.75,12.5Z" fill="#999"/>
+<circle cx="2.75" cy="6" r="0.8" fill="#FC0"/>
+<circle cx="10" cy="2.75" r="0.8" fill="#999"/>
+<path d="M2.6,6.75L10.7,3.15C10.35,4.5 10.35,4.5 9.5,4.85L4.5,7.05C3.7,7.3 3.7,7.3 2.6,6.75Z" fill="#999"/>
+<path d="M7.5,6.5H14.5V14.5H7.5Z" stroke="#000" fill="#FFF"/>
+<path d="M12,8.5H13M12,10.5H13M9,12.5H13" stroke="#000"/>
+<path d="M9,8H11V11H9Z" fill="#F00"/>
 </svg>

@@ -1,10 +1,10 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
-<circle cx="7.7" cy="7" r="5.6" stroke="#000" fill="#FFF"/>
-<circle cx="7.5" cy="7.5" r="3.3" fill="#F00"/>
-<path d="M0.3,7.5L7.3,4.5L10.3,11.5L3.3,14.5Z" stroke="#666" fill="#FFF"/>
-<path d="M0.3,7.5L7.3,4.5L7.7,5.5L0.75,8.5Z" stroke="#00C" fill="#00C"/>
-<circle cx="1.55" cy="8" r="0.8" fill="#FC0"/>
-<circle cx="6.8" cy="5.75" r="0.8" fill="#999"/>
-<path d="M3.55,13.85L9.65,11.25L7.5,6.15L7.5,8L8.55,10.72L4.55,12.5Z" fill="#999"/>
-<path d="M1.4,8.75L7.5,6.12C7.15,7.5 7.15,7.5 6.3,7.85L3.3,9.15C2.5,9.3 2.5,9.3 1.4,8.75Z" fill="#999"/>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<circle cx="8.2" cy="7.5" r="5.6" stroke="#000" fill="#FFF"/>
+<circle cx="8" cy="8" r="3.3" fill="#F00"/>
+<path d="M0.8,8L7.8,5L10.8,12L3.8,15Z" stroke="#666" fill="#FFF"/>
+<path d="M0.8,8L7.8,5L8.2,6L1.25,9Z" stroke="#00C" fill="#00C"/>
+<circle cx="2.05" cy="8.5" r="0.8" fill="#FC0"/>
+<circle cx="7.3" cy="6.25" r="0.8" fill="#999"/>
+<path d="M4.05,14.35L10.15,11.75L8,6.65L8,8.5L9.05,11.22L5.05,13Z" fill="#999"/>
+<path d="M1.9,9.25L8,6.62C7.65,8 7.65,8 6.8,8.35L3.8,9.65C3,9.8 3,9.8 1.9,9.25Z" fill="#999"/>
 </svg>

@@ -1,9 +1,9 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
-<path d="M2,2H13V13H2Z" stroke="#000" fill="#CCC"/>
-<path d="M2.5,2.5H12.5L11,3.5H3.5V11L2.5,12.5Z" fill="#FFF"/>
-<path d="M2.5,12.5H12.5V2.5L11.5,4V11.5H4Z" fill="#999"/>
-<circle cx="4.5" cy="4.5" r="1.2" fill="#F00"/>
-<path d="M7,7H14V14H7Z" stroke="#F00" fill="#FF0"/>
-<path d="M9.2,9.2C9.7,8.2 11.8,8 12,9.2C12.2,10 11,10 10.8,11.2" stroke="#000" stroke-width="1.4" fill="none"/>
-<circle cx="10.3" cy="12.5" r="0.8" fill="#000"/>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M2.5,2.5H13.5V13.5H2.5Z" stroke="#000" fill="#CCC"/>
+<path d="M3,3H13L11.5,4H4V11.5L3,13Z" fill="#FFF"/>
+<path d="M3,13H13V3L12,4.5V12H4.5Z" fill="#999"/>
+<circle cx="5" cy="5" r="1.2" fill="#F00"/>
+<path d="M7.5,7.5H14.5V14.5H7.5Z" stroke="#F00" fill="#FF0"/>
+<path d="M9.7,9.7C10.2,8.7 12.3,8.5 12.5,9.7C12.7,10.5 11.5,10.5 11.3,11.7" stroke="#000" stroke-width="1.9" fill="none"/>
+<circle cx="10.8" cy="13" r="0.8" fill="#000"/>
 </svg>

@@ -1,7 +1,7 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
-<path d="M1,5L10,1L14,10L5,14Z" stroke="#000" fill="#FFF"/>
-<path d="M1.65,5.25L9.75,1.65L7.5,7.5Z" fill="#F00"/>
-<path d="M9.75,1.65L13.35,9.75L7.5,7.5Z" fill="#090"/>
-<path d="M13.35,9.75L5.25,13.35L7.5,7.5Z" fill="#00F"/>
-<path d="M5.25,13.35L1.65,5.25L7.5,7.5Z" fill="#FC0"/>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M1.5,5.5L10.5,1.5L14.5,10.5L5.5,14.5Z" stroke="#000" fill="#FFF"/>
+<path d="M2.15,5.75L10.25,2.15L8,8Z" fill="#F00"/>
+<path d="M10.25,2.15L13.85,10.25L8,8Z" fill="#090"/>
+<path d="M13.85,10.25L5.75,13.85L8,8Z" fill="#00F"/>
+<path d="M5.75,13.85L2.15,5.75L8,8Z" fill="#FC0"/>
 </svg>

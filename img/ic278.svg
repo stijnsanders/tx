@@ -1,12 +1,12 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
-<path d="M1,2V11L5,15H14V6H5Z" stroke="#000" fill="#909"/>
-<path d="M6,11H12.5V13.5H6Z" fill="#CCC"/>
-<path d="M6,4L12,2V11L6,13Z" stroke="#666" fill="#FFF"/>  
-<path d="M1.6,1.9L3,0.5L6.3,3.8" stroke="#666" fill="none"/>
-<path d="M1.9,2.25L3,1.2L5.5,3.7V11L1.9,7.4Z" fill="#CCC"/>
-<path d="M1.9,2.25V10.2L5.5,13.7V11L3.5,9Z" fill="#FFF"/>
-<path d="M8.5,6L9.5,5.75ZM10.4,5.5L11.4,5.25Z" stroke="#FC0" fill="none"/>
-<path d="M7,6H14V14H7Z" stroke="#000" fill="#FFF"/>
-<path d="M11.5,8H12.5M11.5,10H12.5M8.5,12H12.5" stroke="#000"/>
-<path d="M8.5,7.5H10.5V10.5H8.5Z" fill="#F00"/>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M1.5,2.5V11.5L5.5,15.5H14.5V6.5H5.5Z" stroke="#000" fill="#909"/>
+<path d="M6.5,11.5H13V14H6.5Z" fill="#CCC"/>
+<path d="M6.5,4.5L12.5,2.5V11.5L6.5,13.5Z" stroke="#666" fill="#FFF"/>  
+<path d="M2.1,2.4L3.5,1L6.8,4.3" stroke="#666" fill="none"/>
+<path d="M2.4,2.75L3.5,1.7L6,4.2V11.5L2.4,7.9Z" fill="#CCC"/>
+<path d="M2.4,2.75V10.7L6,14.2V11.5L4,9.5Z" fill="#FFF"/>
+<path d="M9,6.5L10,6.25ZM10.9,6L11.9,5.75Z" stroke="#FC0" fill="none"/>
+<path d="M7.5,6.5H14.5V14.5H7.5Z" stroke="#000" fill="#FFF"/>
+<path d="M12,8.5H13M12,10.5H13M9,12.5H13" stroke="#000"/>
+<path d="M9,8H11V11H9Z" fill="#F00"/>
 </svg>

@@ -1,8 +1,8 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
-<circle cx="7.5" cy="7.5" r="5.6" stroke="#000" fill="#FFF"/>
-<path d="M8,9L10,7H15V15H8Z" stroke="#000" fill="#FFF"/>
-<path d="M8,10H11V7" stroke="#000" fill="none"/>
-<path d="M9,14.5V10.5Z" stroke="#909"/>
-<path d="M8.5,9.5H10.5V8.5Z" fill="#909"/>
-<path d="M11.5,9H13.5ZM10.5,11H13.5ZM10.5,13H13.5Z" stroke="#FC0" fill="none"/>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<circle cx="8" cy="8" r="5.6" stroke="#000" fill="#FFF"/>
+<path d="M8.5,9.5L10.5,7.5H15.5V15.5H8.5Z" stroke="#000" fill="#FFF"/>
+<path d="M8.5,10.5H11.5V7.5" stroke="#000" fill="none"/>
+<path d="M9.5,15V11Z" stroke="#909"/>
+<path d="M9,10H11V9Z" fill="#909"/>
+<path d="M12,9.5H14ZM11,11.5H14ZM11,13.5H14Z" stroke="#FC0" fill="none"/>
 </svg>

@@ -1,9 +1,9 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
 <defs>
-<linearGradient id="g1" x2="1" y2="0"><stop offset="50%" stop-color="#0F0"/><stop offset="75%" stop-color="#0C0"/></linearGradient>
-<linearGradient id="g2" x2="1" y2="0"><stop offset="0%" stop-color="#999"/><stop offset="100%" stop-color="#000"/></linearGradient>
+<linearGradient id="g1.5" x2="1.5" y2="0.5"><stop offset="50.5%" stop-color="#0F0"/><stop offset="75.5%" stop-color="#0C0"/></linearGradient>
+<linearGradient id="g2.5" x2="1.5" y2="0.5"><stop offset="0.5%" stop-color="#999"/><stop offset="100.5%" stop-color="#000"/></linearGradient>
 </defs>
-<path d="M3,14C3,12.5 4.5,11 6,11V5C5.5,5 5,4.5 5,3.5C5,2.5 6.5,1 7.5,1C8.5,1 10,2.5 10,3.5C10,4 9.5,5 9,5V11C10.5,11 12,12.5 12,14Z" stroke="url(#g2)" fill="url(#g1)"/>
-<path d="M4.5,5.5H10.5V6.5H4.5Z" fill="url(#g2)"/>
-<path d="M4.5,10.5H10.5V11.5H4.5Z" fill="url(#g2)"/>
+<path d="M3.5,14.5C3.5,13 5,11.5 6.5,11.5V5.5C6,5.5 5.5,5 5.5,4C5.5,3 7,1.5 8,1.5C9,1.5 10.5,3 10.5,4C10.5,4.5 10,5.5 9.5,5.5V11.5C11,11.5 12.5,13 12.5,14.5Z" stroke="url(#g2.5)" fill="url(#g1.5)"/>
+<path d="M5,6H11V7H5Z" fill="url(#g2.5)"/>
+<path d="M5,11H11V12H5Z" fill="url(#g2.5)"/>
 </svg>
