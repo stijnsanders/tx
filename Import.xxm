@@ -208,7 +208,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
           <a href="javascript:import_select('[[=name]]',{x:30});" class="linkbutton">select</a>
       </div>
       <div id="[[=name]]" expandurl="[[=ActionURL]]?x=20" class="col1">
-          <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />
+          <img src="img_tr1.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />
           <i>new items parent</i>
       </div>
       </div>>
@@ -238,7 +238,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
         <a href="javascript:import_select('[[=name]]',{x:[[=30+q]]});" class="linkbutton">select</a>
     </div>
     <div id="[[=name]]" expandurl="[[=ActionURL]]?x=[[=20+q]]" class="col1">
-        <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />
+        <img src="img_tr1.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />
         <i>new items parent</i>
     </div>
     </div>>
@@ -291,11 +291,11 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
       <div id="[[=name]]" expandurl="[[=ActionURL]]?x=20&amp;pid=[[=id1]]" class="col1">>
       if im.Doc.documentElement.selectSingleNode('Obj[@pid="'+IntToStr(id1)+'"]')=nil then
        begin
-        <<img src="img_trx.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]/>>
+        <<img src="img_trx.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]/>>
        end
       else
        begin
-        <<img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />>
+        <<img src="img_tr1.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />>
        end;
       ]]
       [[#txImg(icon)]]
@@ -352,11 +352,11 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
       <div id="[[=name]]" expandurl="[[=ActionURL]]?x=[[=20+q]]&amp;pid=[[=id1]]" class="col1">>
       if im.Doc.documentElement.selectSingleNode(UTF8ToWideString(QName[q])+'[@pid="'+IntToStr(id1)+'"]')=nil then
        begin
-        <<img src="img_trx.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]/>>
+        <<img src="img_trx.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]/>>
        end
       else
        begin
-        <<img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />>
+        <<img src="img_tr1.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name]]');" />>
        end;
       ]]
       [[#txImg(DefAttr(x,'icon',-1))]]

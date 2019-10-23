@@ -13,7 +13,7 @@ function seticon[[=fname]](x)
 }
 //--></script>
 <input type="hidden" name="[[=fname]]" id="[[=fname]]_value" value="[[=i]]" />
-<img id="[[=fname]]_icon" width="16" height="16" border="0" vspace="4" src="img_trx.[[#globalImgExt]]" align="left" />
+<img id="[[=fname]]_icon" width="16" height="16" border="0" vspace="4" src="img_trx.[[#globalImgExt+globalImgVer]]" align="left" />
 <div style="border: 2px inset; margin-left:24px; margin-bottom: 0.2em; margin-top:0em; margin-right: 0em; padding: 4px;" id="[[=fname]]_usage">
 <i style="color:#999999;">select an icon below, here is shown if it's in use.</i>
 </div>>
@@ -24,7 +24,7 @@ d:=ModulePath+'img\';
 fn:=d+'ic'+IntToStr(i)+'.png';
 while FileExists(fn) do
  begin
-  <<img src="img/ic[[=i]].[[#globalImgExt]]" width="16" height="16" border="0" onclick="seticon[[=fname]]([[=i]]);" />>
+  <<img src="img/ic[[=i]].[[#globalImgExt+globalImgVer]]" width="16" height="16" border="0" onclick="seticon[[=fname]]([[=i]]);" />>
   ]] [[
   inc(i);
   fn:=d+'ic'+IntToStr(i)+'.'+globalImgExt;

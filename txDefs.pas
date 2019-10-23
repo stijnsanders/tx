@@ -75,15 +75,16 @@ const
 
   globalIconAlign='align="top" border="0" ';
   globalImgExt='svg';//'png';
+  globalImgVer='?v=1';
 
-  lblLocation=   '<img src="img_loc.'+globalImgExt+'" width="16" height="16" alt="location:" '+globalIconAlign+'/>';
-  lblDescendants='<img src="img_dsc.'+globalImgExt+'" width="16" height="16" alt="children:" '+globalIconAlign+'/>';
-  lblTokens=     '<img src="img_tok.'+globalImgExt+'" width="16" height="16" alt="tokens:" '+globalIconAlign+'/>';
-  lblReferences= '<img src="img_ref.'+globalImgExt+'" width="16" height="16" alt="references:" '+globalIconAlign+'/>';
+  lblLocation=   '<img src="img_loc.'+globalImgExt+globalImgVer+'" width="16" height="16" alt="location:" '+globalIconAlign+'/>';
+  lblDescendants='<img src="img_dsc.'+globalImgExt+globalImgVer+'" width="16" height="16" alt="children:" '+globalIconAlign+'/>';
+  lblTokens=     '<img src="img_tok.'+globalImgExt+globalImgVer+'" width="16" height="16" alt="tokens:" '+globalIconAlign+'/>';
+  lblReferences= '<img src="img_ref.'+globalImgExt+globalImgVer+'" width="16" height="16" alt="references:" '+globalIconAlign+'/>';
   {
-  lblTreeNone=   '<img src="img_trx.'+globalImgExt+'" width="16" height="16" alt="" '+globalIconAlign+'/>';
-  lblTreeOpen=   '<img src="img_tr0.'+globalImgExt+'" width="16" height="16" alt="[-]" '+globalIconAlign+'/>';
-  lblTreeClosed= '<img src="img_tr1.'+globalImgExt+'" width="16" height="16" alt="[+]" '+globalIconAlign+'/>';
+  lblTreeNone=   '<img src="img_trx.'+globalImgExt+globalImgVer+'" width="16" height="16" alt="" '+globalIconAlign+'/>';
+  lblTreeOpen=   '<img src="img_tr0.'+globalImgExt+globalImgVer+'" width="16" height="16" alt="[-]" '+globalIconAlign+'/>';
+  lblTreeClosed= '<img src="img_tr1.'+globalImgExt+globalImgVer+'" width="16" height="16" alt="[+]" '+globalIconAlign+'/>';
    }
   txFormButton='<input type="submit" value="Apply" id="formsubmitbutton" class="formsubmitbutton" />';
   lblLoading='<i style="color:#CC3300;"><img src="loading.gif" width="16" height="16" alt="" '+globalIconAlign+'/> Loading...</i>';
@@ -170,7 +171,7 @@ end;
 
 function txImg(IconNr:integer; const Desc:string): string;
 begin
-  Result:='<img src="img/ic'+IntToStr(IconNr)+'.svg" width="16" height="16" ';
+  Result:='<img src="img/ic'+IntToStr(IconNr)+'.'+globalImgExt+globalImgVer+'" width="16" height="16" ';
   if Desc<>'' then Result:=Result+'alt="'+HTMLEncode(Desc)+'" title="'+HTMLEncode(Desc)+'" ';
   Result:=Result+globalIconAlign+'/>';
 end;

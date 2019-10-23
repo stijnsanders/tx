@@ -89,15 +89,15 @@ try
     if IsAdmin or InControl then
      begin
       <<td onclick="document.getElementById('toggle[[=id]]').click();">
-      <a href="[[=USelf]][[=SetClear[InView]]][[=id]]" id="toggle[[=id]]"><img src="img_check[[=ImgSuffix[InView]]].[[#globalImgExt]]" width="16" height="16" [[#globalIconAlign]]/></a>>
+      <a href="[[=USelf]][[=SetClear[InView]]][[=id]]" id="toggle[[=id]]"><img src="img_check[[#ImgSuffix[InView]+'.'+globalImgExt+globalImgVer]]" width="16" height="16" [[#globalIconAlign]]/></a>>
      end
     else
      begin
       <<td>
-      <img src="img_trx.[[#globalImgExt]]" width="16" height="16" [[#globalIconAlign]]/>>
+      <img src="img_trx.[[#globalImgExt+globalImgVer]]" width="16" height="16" [[#globalIconAlign]]/>>
      end;
     ]] [[.name<<br />
-    <img src="img_trx.[[#globalImgExt]]" width="16" height="16" [[#globalIconAlign]]/>
+    <img src="img_trx.[[#globalImgExt+globalImgVer]]" width="16" height="16" [[#globalIconAlign]]/>
     #[[=id]]
     </td>
     <td>>#TermStore.TermLinks(itRealm,id,0,qr.GetStr('desc'))]]&nbsp;</td>
@@ -164,9 +164,9 @@ try
     <<th>&nbsp;</th>>
    end;
   <<th style="text-align:left;">
-    <a href="[[=USelf]][[=SetClear[InView]]][[=id]]"><img src="img_check[[=ImgSuffix[InView]]].[[#globalImgExt]]" width="16" height="16" [[#globalIconAlign]]/></a>
+    <a href="[[=USelf]][[=SetClear[InView]]][[=id]]"><img src="img_check[[#ImgSuffix[InView]+'.'+globalImgExt+globalImgVer]]" width="16" height="16" [[#globalIconAlign]]/></a>
     Default realm<br />
-    <img src="img_trx.[[#globalImgExt]]" width="16" height="16" [[#globalIconAlign]]/>
+    <img src="img_trx.[[#globalImgExt+globalImgVer]]" width="16" height="16" [[#globalIconAlign]]/>
     #0
   </th>
   <th style="text-align:left;font-weight:normal;">

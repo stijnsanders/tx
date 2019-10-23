@@ -57,7 +57,7 @@ case qtype of
                 id:=ItemID;//qr.GetInt('id');
                 ]]
                 <span id="[[=name2]]_node_[[=id]]">
-                <img src="img_trx.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]/>
+                <img src="img_trx.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]/>
                 <a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="treenode_select(event,'[[=name2]]','x','i[[=id]]');return(event||window.event||this).ctrlKey;" title="i[[=id]]">
                 [[#txImg(qr.GetInt('icon'))]] [[.name]]
                 </a><br /></span>
@@ -76,7 +76,7 @@ case qtype of
              begin
               ]]
               <span id="[[=name2]]_node_[[=id]]" expandurl="iTraceTerm.xxm?name=[[=name]]&amp;x=i[[=ItemID]]&amp;d=[[=d1]]&amp;q=2&amp;l=[[=level]][[=txCallProtect]]">
-              <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+              <img src="img_tr1.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
               [[#lblDescendants]]
               <br /></span>
               [[
@@ -95,7 +95,7 @@ case qtype of
               d:=qr.GetInt('domain_id');
               ]]
               <span id="[[=name2]]_node_[[=id]]" expandurl="iTraceTerm.xxm?name=[[=name]]&amp;n=[[=n]]&amp;d=[[=d]]&amp;q=0&amp;l=[[=level]][[=txCallProtect]]" class="backwards">
-              <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+              <img src="img_tr1.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
               <a id="[[=name2]]_nodelink_[[=id]]" href="Term.xxm?n=[[=n]]&amp;d=[[=d]]" onclick="treenode_select(event,'[[=name2]]','n','[[=n]]');return(event||window.event||this).ctrlKey;">
               [[=n]]</a>
               [[if not(d=d1) then begin <<span style="color:red;">*</span>> end;]]
@@ -124,7 +124,7 @@ case qtype of
           n:=qr.GetStr('term');
           ]]
           <span id="[[=name2]]_node_[[=id]]" expandurl="iTraceTerm.xxm?name=[[=name]]&amp;n=[[=n]]&amp;d=[[=d]]&amp;q=0&amp;l=[[=level]][[=txCallProtect]]">
-          <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+          <img src="img_tr1.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
           <a id="[[=name2]]_nodelink_[[=id]]" href="Term.xxm?n=[[=n]]" onclick="treenode_select(event,'[[=name2]]','n','[[=n]]');return(event||window.event||this).ctrlKey;">
           <b>>=n<</b>
           </a>
@@ -157,7 +157,7 @@ case qtype of
           d:=qr.GetInt('domain_id');
           ]]
           <span id="[[=name2]]_node_[[=id]]" expandurl="iTraceTerm.xxm?name=[[=name]]&amp;x=i[[=id]]&amp;d=[[=d]]&amp;q=0&amp;l=[[=level]][[=txCallProtect]]">
-          <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+          <img src="img_tr1.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
           <a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="treenode_select(event,'[[=name2]]','x','i[[=id]]');return(event||window.event||this).ctrlKey;" title="i[[=id]]">
           [[#txImg(qr.GetInt('icon'))]] [[.name]]
           </a>
@@ -179,7 +179,7 @@ case qtype of
           x1:=qr.GetStr('source');
           ]]
           <span id="[[=name2]]_node_[[=id]]" expandurl="iTraceTerm.xxm?name=[[=name]]&amp;x=[[=x1]]&amp;d=[[=d]]&amp;q=1&amp;l=[[=level]][[=txCallProtect]]" class="backwards">
-          <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+          <img src="img_tr1.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
           <a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=[[=x1]]" onclick="treenode_select(event,'[[=name2]]','x','[[=x1]]');return(event||window.event||this).ctrlKey;">
           [[=x1]]
           </a>
@@ -207,7 +207,7 @@ case qtype of
             id:=qr.GetInt('id');
             ]]
             <span id="[[=name2]]_node_[[=id]]" expandurl="iTraceTerm.xxm?name=[[=name]]&amp;x=i[[=id]]&amp;d=[[=d1]]&amp;q=0&amp;l=[[=level]][[=txCallProtect]]">
-            <img src="img_tr1.[[#globalImgExt]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
+            <img src="img_tr1.[[#globalImgExt+globalImgVer]]" width="16" height="16" alt="" [[#globalIconAlign]]onclick="treenode_toggle('[[=name2]]_node_[[=id]]');" />
             <a id="[[=name2]]_nodelink_[[=id]]" href="Item.xxm?x=i[[=id]]" onclick="treenode_select(event,'[[=name2]]','x','i[[=id]]');return(event||window.event||this).ctrlKey;" title="i[[=id]]">
             [[#txImg(qr.GetInt('icon'))]] [[.name]]
             </a><br /></span>

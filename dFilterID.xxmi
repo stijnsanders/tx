@@ -63,7 +63,7 @@ ID:=string(Values[2]);
             except
               on ERealmNotEditableByUser do InView:=false;
             end;
-            <<img src="img_check[[=ImgSuffix[InView]]].[[#globalImgExt]]" width="16" height="16"   [[#globalIconAlign]]/>>
+            <<img src="img_check[[#ImgSuffix[InView]+'.'+globalImgExt+globalImgVer]]" width="16" height="16"   [[#globalIconAlign]]/>>
             if (ID='') or (ID='0') then
               Context.SendHTML(' <i>default realm</i>')
             else
