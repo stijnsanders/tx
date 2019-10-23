@@ -98,7 +98,7 @@ ID:=string(Values[2]);
      end;
     dtSubQuery:
      begin
-      <<i>by sub-query</i> <span class="litref">>=ID<</span>
+      <<i>objects by sub-query</i> <span class="litref">>=ID<</span>
       <a href="Filter.xxm?filter=[[=URLEncode(ID)]]" class="linkbutton">filter</a>
       <a href="FilterBuild.xxm?filter=[[=URLEncode(ID)]]" class="linkbutton">build</a>
       [[

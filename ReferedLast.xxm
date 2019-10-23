@@ -42,9 +42,9 @@ while not(i=FilterRecentCount) and not(Session.RecentReferences[i].obj2=0) and C
  end;
 
 <<p>
-<a href="Search.xxm">search...</a>
-| <a href="Filter.xxm">filter objects...</a>
-| <a href="SelectedLast.xxm">selected recently...</a>
+<a class="linkbutton" href="Search.xxm">search...</a>
+<a class="linkbutton" href="Filter.xxm">filter objects...</a>
+<a class="linkbutton" href="SelectedLast.xxm">selected recently...</a>
 </p>>
 
 Context.Include('dFoot.xxmi');
