@@ -101,6 +101,7 @@ function NiceDateTime(const x:OleVariant):string;
 function ShortDateTime(d:TDateTime):string;
 
 function JournalDateTime(d:TDateTime):string;
+function JournalGranulate(d:TDateTime;granularity:integer):TDateTime;
 function JournalTime(d:TDateTime;granularity:integer):string;
 function JournalMinutes(minutes:integer):string;
 function JournalMinutesTD(minutes:integer):string;
@@ -241,18 +242,21 @@ begin
   Result:=FormatDateTime('ddd d/mm hh:nn',d);
 end;
 
+function JournalGranulate(d:TDateTime;granularity:integer):TDateTime;
+begin
+  //Round? Trunc(+constant)? Tunc(+(g/2))?
+  Result:=Trunc(d*1440.0/granularity)*granularity/1440.0;
+end;
+
 function JournalTime(d:TDateTime;granularity:integer):string;
 var
   d0:TDateTime;
-  gf:double;
   m:integer;
 begin
   if granularity<=0 then granularity:=60;
-  gf:=granularity/1440.0;
-  d0:=Now;
-  m:=Round((d0-d)/gf)*granularity;
-  d0:=d0-Frac(d0/gf)*gf;
-  d:=d-Frac(d/gf)*gf;
+  d0:=JournalGranulate(Now,granularity);
+  d:=JournalGranulate(d,granularity);
+  m:=Round((d0-d)*1440.0);
   if Trunc(d)=Trunc(d0) then Result:=FormatDateTime('hh:nn',d) else Result:=FormatDateTime('ddd d/mm hh:nn',d);
   if m>60 then
     Result:=Result+Format(' (%d:%.2d'')',[m div 60,m mod 60])

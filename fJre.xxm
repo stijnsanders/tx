@@ -2,7 +2,6 @@
 id,jrl_id,jrt_id,g,m0,m1,m2,mm:integer;
 qr,qr1:TQueryResult;
 d0,d1,d2,dd:TDateTime;
-gf:double;
 const
 HalfAMinute=0.5/1440.0;
 ]][[
@@ -23,7 +22,6 @@ try
   jrt_id:=qr.GetInt('jrt_id');
   g:=qr.GetInt('granularity');
   if g<=0 then g:=60;
-  gf:=g/1440.0;
 
   d1:=qr.GetDate('ts');
   m1:=qr.GetInt('minutes');
@@ -63,9 +61,9 @@ try
     qr1.Free;
   end;
 
-  d0:=d0-Frac(d0/gf)*gf;
-  d1:=d1-Frac(d1/gf)*gf;
-  d2:=d2-Frac(d2/gf)*gf;
+  d0:=JournalGranulate(d0,g);
+  d1:=JournalGranulate(d1,g);
+  d2:=JournalGranulate(d2,g);
 
   m2:=Trunc((d2-d0)*1440.0);
 
@@ -109,7 +107,7 @@ try
     <<option value="[[=jtFromDateTime(dd)]]"[[
     if Abs(dd-d1)<HalfAMinute then Context.SendHTML(' selected="1"');
     ]]>>=JournalDateTime(dd)<</option>>
-    dd:=dd+gf;
+    dd:=dd+g/1440.0;
    end;
   <</select></dd>
   <dt>Duration</dt>

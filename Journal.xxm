@@ -106,7 +106,7 @@ if id=0 then
         <td style="text-align:right;">
         <span class="jrl">>=JournalTime(Session.Journals[i].Start,Session.Journals[i].granularity)<</span>
         <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',1]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
-        <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',1]][[#txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to cancel this journal entry?');">cancel</a>
+        <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',2]][[#txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to cancel this journal entry?');">cancel</a>
         </td>>
        end;
       <</tr>>

@@ -35,9 +35,9 @@ IFRAME {background-color:white;border:1px inset;user-select:none;-webkit-user-se
 <iframe src="[[=url1]]" id="f1" name="TreeFrame">Your browser doesn&#x27;t support &lt;iframe&gt;</iframe>
 [[
 pJ:=0;
-if Use_Journals and (Length(Session.Journals)<>0) then
+if Use_Journals and (Session.JournalsUsed) then
  begin
-  pJ:=40+Length(Session.Journals)*25;
+  pJ:=50+Length(Session.Journals)*25;
   <<iframe src="FrameJrl.xxm" id="j1" name="TreeFrameJrl"></iframe>>
  end;
 ]]
@@ -70,7 +70,7 @@ function updateDims(){
     j1.style.top=(y-pH-[[=pJ+8]])+"px";
     j1.style.left="0px";
     j1.style.width=(pV)+"px";
-    j1.style.height="[[=pJ  ]]px";
+    j1.style.height="[[=pJ]]px";
   }
 
   rH.style.position="absolute";

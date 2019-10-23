@@ -54,7 +54,7 @@ type
 
     //TODO: properties
     UserID,UpdateID,DeleteID:integer;
-    JsLoaded,QryUnread,Stealth:boolean;
+    JsLoaded,QryUnread,Stealth,JournalsUsed:boolean;
     Realms:array[TtxRealmPermission] of record
       Ids:array of integer;
       Count,Size:integer;
@@ -296,6 +296,7 @@ begin
   JsModSince:=RFC822DateGMT(Now);
   QryUnread:=false;//see LoadUser
   Stealth:=false;
+  JournalsUsed:=false;
 
   //start session
   UserID:=0;

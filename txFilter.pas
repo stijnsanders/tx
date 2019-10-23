@@ -21,6 +21,8 @@ type
     faSearch,faSearchReports,faSearchName,faName,faDesc,faTerm,faModified,faFrom,faTill,
     faAlwaysTrue,faAlwaysFalse,faExtra,faSQL,faUser,faRealm,faUnread,
 
+    faJournal,faJournalUser,faJournalEntry,faJournalEntryUser,
+
     //add new here above
     fa_Unknown
   );
@@ -36,6 +38,8 @@ const
     itObj,itObj,itObj,itObj,itObj,itObj,it_Unknown,it_Unknown,it_Unknown,
     it_Unknown,it_Unknown,it_Unknown,it_Unknown,itUser,itRealm,itUser,
 
+    itJournal,itJournal,itObj,itObj,
+
     //add new here above
     it_Unknown
   );
@@ -43,7 +47,7 @@ const
   txFilterOperatorChar:array[TtxFilterOperator] of AnsiChar=('+','.','/',',',#0);
   txFilterOperatorSQL:array[TtxFilterOperator] of UTF8String=('AND','OR','AND NOT','OR NOT','');
 
-  txFilterActionNameCount=100;
+  txFilterActionNameCount=109;
   txFilterActionName:array[0..txFilterActionNameCount-1] of record
     a:TtxFilterAction;
     n:UTF8String;
@@ -84,6 +88,15 @@ const
     (a:faPathRefType         ;n:'pr'),
     (a:faPathRefType         ;n:'prt'),
 
+    (a:faRealm               ;n:'rlm'),
+    (a:faUser                ;n:'u'),
+    (a:faUnread              ;n:'uu'),
+    (a:faJournal             ;n:'j'),
+    (a:faJournalUser         ;n:'ju'),
+    (a:faJournalEntry        ;n:'je'),
+    (a:faJournalEntryUser    ;n:'jx'),
+    (a:faJournalEntryUser    ;n:'jeu'),
+
     (a:faSearch              ;n:'search'),
     (a:faSearchReports       ;n:'rsearch'),
     (a:faSearchName          ;n:'nsearch'),
@@ -93,9 +106,7 @@ const
     (a:faAlwaysTrue          ;n:'true'),
     (a:faAlwaysFalse         ;n:'false'),
     (a:faFilter              ;n:'filter'),
-    (a:faRealm               ;n:'rlm'),
-    (a:faUser                ;n:'u'),
-    (a:faUnread              ;n:'uu'),
+
     (a:faModified            ;n:'age'),
     (a:faModified            ;n:'mod'),
     (a:faSQL                 ;n:'sql'),
@@ -152,6 +163,10 @@ const
     (a:faSearchReports       ;n:'reportssearch'),
     (a:faSearchReports       ;n:'searchreport'),
     (a:faSearchReports       ;n:'searchreports'),
+    (a:faJournal             ;n:'journal'),
+    (a:faJournalUser         ;n:'journaluser'),
+    (a:faJournalEntry        ;n:'journalentry'),
+    (a:faJournalEntryUser    ;n:'journalentryuser'),
 
     //add new here above
 

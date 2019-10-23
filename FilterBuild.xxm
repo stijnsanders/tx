@@ -122,9 +122,13 @@ if (action='') and (filter<>'') then
             '<i>always false</i>',//faAlwaysFalse
             '<i>publish parameter</i>',//faExtra
             '<i>publish SQL</i>',//faSQL
-            'is user',//faUser
+            'is a user',//faUser
             'is in realm',//faRealm
             'is unread',//faUnread
+            'is on journal',//jaJournal
+            'is a user with a journal',//jaJournalUser
+            'is on the journal of',//faJournalEntry
+            'is a user with on their journal',//faJournalEntryUser
             '<i style="color:red;">unknown action</i>'//fa_Unknown
           );
       ]][[
@@ -164,6 +168,30 @@ if (action='') and (filter<>'') then
                   Context.Send(', modified till '+ID)
                 else
                   raise Exception.Create('Unexpected rx parameter at position '+IntToStr(Idx1));
+              end;
+          except
+            on e:Exception do
+             begin
+              <<span style="color:red;">Error in rx parameter:[[=e.Message]]</span> [[
+             end;
+          end;
+          txFilterP.Free;
+         end;
+        faJournal,faJournalUser,faJournalEntry,faJournalEntryUser:
+         begin
+          txFilterP:=TtxFilter.Create;
+          try
+            txFilterP.FilterExpression:=Parameters;
+            for j:=0 to txFilterP.Count-1 do with txFilterP[j] do
+              case Action of
+                faJournal:
+                 begin
+                  Context.SendHTML(' in journal');
+                  Context.Include('dFilterID.xxmi',[txFilterActionItemType[Action],IDType,ID]);
+                  //if Prefetch then Context.SendHTML('<sub title="prefetched"><i>p</i></sub>');
+                 end;
+                else
+                  raise Exception.Create('Unexpected j parameter at position '+IntToStr(Idx1));
               end;
           except
             on e:Exception do

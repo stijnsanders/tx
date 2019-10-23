@@ -1,8 +1,10 @@
 [[@txDefs,txSession,Variants,DataLank]][[!var
 i,id,jrt_id,g,m:integer;
 qr:TQueryResult;
-d:TDateTime;
-gf:double;
+d,d0:TDateTime;
+CanReverseDate:boolean;
+const
+HalfAMinute=0.5/1440.0;
 ]][[
 
 CheckCallProtect(Context);
@@ -17,22 +19,21 @@ else
  begin
   id:=Context['x'].AsInteger;
   jrt_id:=Context['t'].AsInteger;
-  g:=60;//counter warning
 
   if (Session.Journals[i].obj_id<>id) or (Session.Journals[i].jrt_id<>jrt_id) then
    begin
 
+    //refresh granularity
     qr:=TQueryResult.Create(Session.DbCon,'select granularity from Jrl where id=?',[Session.Journals[i].jrl_id]);
     try
       g:=qr.GetInt('granularity');
       if g<=0 then g:=60;
-      gf:=g/1440.0;
     finally
       qr.Free;
     end;
-    d:=Session.Journals[i].Start;
-    m:=Round((Now-d)/gf)*g;
-    d:=d-Frac(d/gf)*gf;
+    d0:=JournalGranulate(Now,g);
+    d:=JournalGranulate(Session.Journals[i].Start,g);
+    m:=Round((d0-d)*1440.0);
 
     if (Session.Journals[i].obj_id<>0) and (Context['r'].AsInteger<>2) then
      begin
@@ -74,10 +75,13 @@ else
     Session.Journals[i].obj_id:=id;
     Session.Journals[i].Start:=Now;
     Session.Journals[i].granularity:=g;
+    if id<>0 then Session.JournalsUsed:=true;
    end;
 
   case Context['r'].AsInteger of
     0:
+     begin
+      g:=Session.Journals[i].granularity;
       if Session.Journals[i].obj_id=0 then
        begin
         id:=Context['xx'].AsInteger;
@@ -95,14 +99,39 @@ else
        end
       else
        begin
-        ]]
-        [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start,g)]]
-        <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+        CanReverseDate:=false;//default
+        d:=Session.Journals[i].Start;
+        if Now<d+2.0/24.0 then
+         begin
+          qr:=TQueryResult.Create(Session.DbCon,
+            'select Jre.ts+Jre.minutes/1440.0 as ts from Jre inner join Jrt on Jrt.id=Jre.jrt_id'+
+            ' where Jre.id<>? and Jrt.jrl_id=? and Jre.uid=? and Jre.ts+Jre.minutes/1440.0<=? order by Jre.ts desc limit 1',[id,Session.Journals[i].jrl_id,Session.UserID,d]);
+          try
+            if (Context['rd'].AsInteger=1) and (qr.EOF or (qr.GetDate('ts')+HalfAMinute<d-g/1440.0)) then
+             begin
+              d:=d-g/1440.0;
+              Session.Journals[i].Start:=d;
+             end;
+            if qr.EOF or (qr.GetDate('ts')+HalfAMinute<d-g/1440.0) then
+              CanReverseDate:=true;
+          finally
+            qr.Free;
+          end;
+         end;
+
+        Context.SendHTML(txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)+JournalTime(Session.Journals[i].Start,g));
+        if CanReverseDate then
+         begin
+          ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+            {id:[[=Session.Journals[i].jrl_id]],rd:1,x:[[=Session.Journals[i].obj_id]],t:[[=Session.Journals[i].jrt_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&larr;</a>>
+         end;
+        ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
           {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&bullet;</a>
         &nbsp;[[
        end;
-    1:Context.Redirect('Journal.xxm',true);
-    2:Context.Redirect('FrameJrl.xxm',true);
+     end;
+    1,2:Context.Redirect('Journal.xxm',true);
+    3:Context.Redirect('FrameJrl.xxm',true);
     else
       raise Exception.Create('Unsupported "r" value');
   end;

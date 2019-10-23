@@ -231,35 +231,42 @@ var
   qr:TQueryResult;
   fx:TtxFilter;
   fq:TtxSqlQueryFragments;
-  procedure LocalPrefetch;
+  procedure AddWhereQuery(const Field,Query:UTF8String);
+  var
+    ids:TIdList;
   begin
-    with TIdList.Create do
+    if f[i].Prefetch then
+     begin
+      ids:=TIdList.Create;
       try
         qr:=TQueryResult.Create(Session.DbCon,s,[]);
         try
-          while qr.Read do Add(qr.GetInt(0));
+          while qr.Read do ids.Add(qr.GetInt(0));
         finally
           qr.Free;
         end;
-        s:=List;
+        AddWhere(Field+' in ('+ids.List+')');
       finally
-        Free;
+        ids.Free;
       end;
+     end
+    else
+      AddWhere(Field+' in ('+Query+')');
   end;
 const
   RefBSel:array[boolean] of UTF8String=('1','2');
 begin
   //TODO: when FItemType<>itObj
 
-  for i:=0 to f.Count-1 do with f[i] do
+  for i:=0 to f.Count-1 do
    begin
 
     //check global para count?
-    for j:=1 to ParaOpen do Where:=Where+'(';
+    for j:=1 to f[i].ParaOpen do Where:=Where+'(';
 
     //no para's when not AddedWhere?
     AddedWhere:=false;
-    case Action of
+    case f[i].Action of
       faChild:
         //dummy check:
         if (f[i].IDType=dtNumber) and (f[i].ID='0') and (f[i].Descending) then
@@ -286,11 +293,11 @@ begin
           t:='ttSQ'+IntToStrU(AliasCount);
           s:='SELECT DISTINCT Tok.obj_id FROM Tok WHERE Tok.toktype_id'+Criterium(f[i],
             'DISTINCT '+t+'.toktype_id','RIGHT JOIN Tok AS '+t+' ON '+t+'.obj_id=Obj.id',false,false);
-          if Parameters<>'' then
+          if f[i].Parameters<>'' then
            begin
             fx:=TtxFilter.Create;
             try
-              fx.FilterExpression:=Parameters;
+              fx.FilterExpression:=f[i].Parameters;
               for j:=0 to fx.Count-1 do
                 case fx[j].Action of
                   faModified:
@@ -307,8 +314,7 @@ begin
               fx.Free;
             end;
            end;
-          if Prefetch then LocalPrefetch;
-          AddWhere('Obj.id IN ('+s+')');
+          AddWhereQuery('Obj.id',s);
          end;
       faRefType:
         //dummy check:
@@ -320,11 +326,11 @@ begin
           t:='rtSQ'+IntToStrU(AliasCount);
           s:='SELECT DISTINCT Ref.obj1_id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
             'DISTINCT '+t+'.reftype_id','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj1_id=Obj.id',false,false);
-          if Parameters<>'' then
+          if f[i].Parameters<>'' then
            begin
             fx:=TtxFilter.Create;
             try
-              fx.FilterExpression:=Parameters;
+              fx.FilterExpression:=f[i].Parameters;
               for j:=0 to fx.Count-1 do
                 case fx[j].Action of
                   faModified:
@@ -341,17 +347,16 @@ begin
               fx.Free;
             end;
            end;
-          if Prefetch then LocalPrefetch;
-          AddWhere('Obj.id IN ('+s+')');
+          AddWhereQuery('Obj.id',s);
          end;
       faRef,faBackRef:
        begin
         s:='';
-        if Parameters<>'' then
+        if f[i].Parameters<>'' then
          begin
           fx:=TtxFilter.Create;
           try
-            fx.FilterExpression:=Parameters;
+            fx.FilterExpression:=f[i].Parameters;
             for j:=0 to fx.Count-1 do
               case fx[j].Action of
                 faRefType:
@@ -359,7 +364,7 @@ begin
                   inc(AliasCount);
                   t:='rxSQ'+IntToStrU(AliasCount);
                   s:=s+' AND Ref.reftype_id'+Criterium(fx[j],
-                    'DISTINCT '+t+'.id','RIGHT JOIN Ref AS '+t+' ON '+t+'.ref_obj'+RefBSel[Action=faBackRef]+'_id=Obj.id',false,false);
+                    'DISTINCT '+t+'.id','RIGHT JOIN Ref AS '+t+' ON '+t+'.ref_obj'+RefBSel[f[i].Action=faBackRef]+'_id=Obj.id',false,false);
                  end;
                 faModified:
                   s:=s+' AND Ref.m_ts<'+CritDate(fx[j]);
@@ -368,26 +373,26 @@ begin
                 faTill:
                   s:=s+' AND Ref.m_ts<='+CritTime(fx[j]);
                 else
-                  raise EtxSqlQueryError.Create('Unexpected rx parameter at position '+IntToStr(Idx1));
+                  raise EtxSqlQueryError.Create('Unexpected rx parameter at position '+IntToStr(f[i].Idx1));
               end;
             //TODO: fx[j].Operator
           finally
             fx.Free;
           end;
          end;
-        AddWhere('Obj.id IN (SELECT Ref.obj'+RefBSel[Action=faRef]+'_id FROM Ref WHERE Ref.obj'+RefBSel[Action=faBackRef]+'_id'+Criterium(f[i],
+        AddWhere('Obj.id IN (SELECT Ref.obj'+RefBSel[f[i].Action=faRef]+'_id FROM Ref WHERE Ref.obj'+RefBSel[f[i].Action=faBackRef]+'_id'+Criterium(f[i],
           'Obj.id','',false,false)+s+')');
        end;
 
       faParent:
-        case IDType of
-          dtNumber:FParentID:=StrToInt(string(ID));
+        case f[i].IDType of
+          dtNumber:FParentID:=StrToInt(string(f[i].ID));
           //TODO
           //dtSystem:;
           //dtSubQuery:;
           //dtEnvironment:;
           else
-            raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(Idx1));
+            raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(f[i].Idx1));
         end;
 
       faModified:
@@ -399,29 +404,27 @@ begin
 
       faFilter:
        begin
-        if Descending then raise EtxSqlQueryError.Create('Descending into filter not supported');
+        if f[i].Descending then raise EtxSqlQueryError.Create('Descending into filter not supported');
         fx:=TtxFilter.Create;
         try
           //TODO: detect loops?
           qr:=TQueryResult.Create(Session.DbCon,'SELECT Flt.expression FROM Flt WHERE Flt.id'+Criterium(f[i],'','',false,false)+' LIMIT 1',[]);
           try
-            if qr.EOF then raise EtxSqlQueryError.Create('Filter not found at position '+IntToStr(Idx1));
+            if qr.EOF then raise EtxSqlQueryError.Create('Filter not found at position '+IntToStr(f[i].Idx1));
               fx.FilterExpression:=UTF8Encode(qr.GetStr(0));
           finally
             qr.Free;
           end;
           if fx.ParseError<>'' then raise EtxSqlQueryError.Create(
-            'Invalid filter at position '+IntToStr(Idx1)+': '+fx.ParseError);
-          if Prefetch then
+            'Invalid filter at position '+IntToStr(f[i].Idx1)+': '+fx.ParseError);
+          if f[i].Prefetch then
            begin
             fq:=TtxSqlQueryFragments.Create(FItemType);
             try
               fq.AddFilter(fx);
               fq.Fields:='Obj.id';
               fq.OrderBy:='';
-              s:=fq.SQL;
-              LocalPrefetch;
-              AddWhere('Obj.id IN ('+s+')');
+              AddWhereQuery('Obj.id',fq.SQL);
             finally
               fq.Free;
             end;
@@ -434,17 +437,17 @@ begin
        end;
       faName:
        begin
-        AddWhere('Obj.name='+SqlStr(ID));
+        AddWhere('Obj.name='+SqlStr(f[i].ID));
         OrderBy:='Obj.m_ts, Obj.weight, Obj.name';
        end;
       faDesc:
        begin
-        AddWhere('Obj.'+sqlDesc+' LIKE '+SqlStr(ID));
+        AddWhere('Obj.'+sqlDesc+' LIKE '+SqlStr(f[i].ID));
         OrderBy:='Obj.m_ts, Obj.weight, Obj.name';
        end;
       faSearchName:
        begin
-        AddWhere('Obj.name LIKE '+SqlStr(ID));//parentheses?
+        AddWhere('Obj.name LIKE '+SqlStr(f[i].ID));//parentheses?
         OrderBy:='Obj.m_ts, Obj.weight, Obj.name';
        end;
       faSearch:
@@ -452,14 +455,15 @@ begin
         //parameters?
         k:=1;
         s:='';
-        while k<=Length(ID) do
+        t:=f[i].ID;
+        while k<=Length(t) do
          begin
           j:=k;
-          while (k<=Length(ID)) and not(AnsiChar(ID[k]) in [#0..#32]) do inc(k);
+          while (k<=Length(t)) and not(AnsiChar(t[k]) in [#0..#32]) do inc(k);
           if k-j<>0 then
            begin
             if s<>'' then s:=s+' AND ';
-            s:=s+'(Obj.name LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%')+' OR Obj.'+sqlDesc+' LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%')+')';
+            s:=s+'(Obj.name LIKE '+SqlStr('%'+Copy(t,j,k-j)+'%')+' OR Obj.'+sqlDesc+' LIKE '+SqlStr('%'+Copy(t,j,k-j)+'%')+')';
            end;
           inc(k);
          end;
@@ -473,14 +477,15 @@ begin
         //parameters?
         k:=1;
         s:='';
-        while k<=Length(ID) do
+        t:=f[i].ID;
+        while k<=Length(t) do
          begin
           j:=k;
-          while (k<=Length(ID)) and not(AnsiChar(ID[k]) in [#0..#32]) do inc(k);
-          if k-j<>1 then
+          while (k<=Length(t)) and not(AnsiChar(t[k]) in [#0..#32]) do inc(k);
+          if k-j<>0 then
            begin
             if s<>'' then s:=s+' AND ';
-            s:=s+'Rpt.'+sqlDesc+' LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%');
+            s:=s+'Rpt.'+sqlDesc+' LIKE '+SqlStr('%'+Copy(t,j,k-j)+'%');
            end;
           inc(k);
          end;
@@ -494,15 +499,16 @@ begin
         //parameters?
         k:=1;
         s:='';
-        while k<=Length(ID) do
+        t:=f[i].ID;
+        while k<=Length(t) do
          begin
           j:=k;
-          while (k<=Length(ID)) and not(AnsiChar(ID[k]) in [#0..#32]) do inc(k);
+          while (k<=Length(t)) and not(AnsiChar(t[k]) in [#0..#32]) do inc(k);
           if k-j<>1 then
            begin
             if s<>'' then s:=s+' OR ';//AND?
-            //s:=s+'Trm.term LIKE '+SqlStr('%'+Copy(ID,j,k-j)+'%');
-            s:=s+'Trm.term='+SqlStr(Copy(ID,j,k-j));
+            //s:=s+'Trm.term LIKE '+SqlStr('%'+Copy(t,j,k-j)+'%');
+            s:=s+'Trm.term='+SqlStr(Copy(t,j,k-j));
            end;
           inc(k);
          end;
@@ -511,16 +517,16 @@ begin
        end;
 
       faAlwaysTrue:
-        if (ParaClose=0) and (i<>f.Count-1) then
-          case Operator of
+        if (f[i].ParaClose=0) and (i<>f.Count-1) then
+          case f[i].Operator of
             foAnd:;//skip
             foAndNot:Where:=Where+'NOT ';
             else AddWhere('1=1');
           end
         else AddWhere('1=1');
       faAlwaysFalse:
-        if (ParaClose=0) and (i<>f.Count-1) then
-          case Operator of
+        if (f[i].ParaClose=0) and (i<>f.Count-1) then
+          case f[i].Operator of
             foOr:;//skip
             foOrNot:Where:=Where+'NOT ';
             else AddWhere('0=1');
@@ -528,8 +534,8 @@ begin
         else AddWhere('0=1');
       faSQL:
        begin
-        AddWhereSafe(ID);
-        AddWhereSafe(Parameters);
+        AddWhereSafe(f[i].ID);
+        AddWhereSafe(f[i].Parameters);
        end;
       faExtra:;//TODO: filterparameters
 
@@ -542,19 +548,15 @@ begin
        begin
         inc(AliasCount);
         t:='ptSQ'+IntToStrU(AliasCount);
-        s:='SELECT DISTINCT Tok.obj_id FROM Tok WHERE Tok.toktype_id'+Criterium(f[i],
-          'DISTINCT '+t+'.toktype_pid','RIGHT JOIN Tok AS '+t+' ON '+t+'.obj_id=Obj.id',false,true);
-        if Prefetch then LocalPrefetch;
-        AddWhere('Obj.id IN ('+s+')');
+        AddWhereQuery('Obj.id','SELECT DISTINCT Tok.obj_id FROM Tok WHERE Tok.toktype_id'+Criterium(f[i],
+          'DISTINCT '+t+'.toktype_pid','RIGHT JOIN Tok AS '+t+' ON '+t+'.obj_id=Obj.id',false,true));
        end;
       faPathRefType:
        begin
         inc(AliasCount);
         t:='prSQ'+IntToStrU(AliasCount);
-        s:='SELECT DISTINCT Ref.obj1_id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
-          'DISTINCT '+t+'.reftype_pid','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj1_id=Obj.id',false,true);
-        if Prefetch then LocalPrefetch;
-        AddWhere('Obj.id IN ('+s+')');
+        AddWhereQuery('Obj.id','SELECT DISTINCT Ref.obj1_id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
+          'DISTINCT '+t+'.reftype_pid','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj1_id=Obj.id',false,true));
        end;
 
       faCreated:
@@ -562,11 +564,11 @@ begin
       faTokCreated:
        begin
         s:='SELECT DISTINCT Tok.obj_id FROM Tok WHERE Tok.c_uid'+Criterium(f[i],'Obj.id','',false,false);
-        if Parameters<>'' then
+        if f[i].Parameters<>'' then
          begin
           fx:=TtxFilter.Create;
           try
-            fx.FilterExpression:=Parameters;
+            fx.FilterExpression:=f[i].Parameters;
             for j:=0 to fx.Count-1 do
               case fx[j].Action of
                 faModified:
@@ -583,17 +585,16 @@ begin
             fx.Free;
           end;
          end;
-        if Prefetch then LocalPrefetch;
-        AddWhere('Obj.id IN ('+s+')');
+        AddWhereQuery('Obj.id',s);
        end;
       faRefCreated,faBackRefCreated:
        begin
         s:='';
-        if Parameters<>'' then
+        if f[i].Parameters<>'' then
          begin
           fx:=TtxFilter.Create;
           try
-            fx.FilterExpression:=Parameters;
+            fx.FilterExpression:=f[i].Parameters;
             for j:=0 to fx.Count-1 do
               case fx[j].Action of
                 faRefType:
@@ -617,10 +618,8 @@ begin
             fx.Free;
           end;
          end;
-        s:='SELECT DISTINCT Ref.obj'+RefBSel[Action=faBackRefCreated]+'_id FROM Ref WHERE Ref.c_uid'+
-          Criterium(f[i],'Obj.id','',false,false)+s;
-        if Prefetch then LocalPrefetch;
-        AddWhere('Obj.id IN ('+s+')');
+        AddWhereQuery('Obj.id','SELECT DISTINCT Ref.obj'+RefBSel[f[i].Action=faBackRefCreated]+'_id FROM Ref WHERE Ref.c_uid'+
+          Criterium(f[i],'Obj.id','',false,false)+s);
        end;
 
       faRecentObj:
@@ -634,35 +633,27 @@ begin
         AddOrderBy('Tok.m_ts DESC');
         inc(AliasCount);
         t:='ttSQ'+IntToStrU(AliasCount);
-        if Prefetch then
-         begin
-          s:='SELECT DISTINCT Tok.id FROM Tok WHERE Tok.toktype_id'+Criterium(f[i],
-            'DISTINCT '+t+'toktype_id','RIGHT JOIN Tok AS '+t+' ON '+t+'.obj_id=Obj.id',false,false);
-          LocalPrefetch;
-          AddWhere('Tok.ID IN ('+s+')');
-         end
+        if f[i].Prefetch then
+          AddWhereQuery('Tok.id','SELECT DISTINCT Tok.id FROM Tok WHERE Tok.toktype_id'+Criterium(f[i],
+            'DISTINCT '+t+'toktype_id','RIGHT JOIN Tok AS '+t+' ON '+t+'.obj_id=Obj.id',false,false))
         else
           AddWhere('Tok.toktype_id'+Criterium(f[i],
             'DISTINCT '+t+'toktype_id','RIGHT JOIN Tok AS '+t+' ON '+t+'.obj_id=Obj.id',false,false));
        end;
       faRecentRef,faRecentBackRef:
        begin
-        AddFrom('INNER JOIN Ref ON Ref.obj'+RefBSel[Action=faRecentBackRef]+'_id=Obj.id');
+        AddFrom('INNER JOIN Ref ON Ref.obj'+RefBSel[f[i].Action=faRecentBackRef]+'_id=Obj.id');
         AddOrderBy('Ref.m_ts DESC');
         inc(AliasCount);
         t:='rtSQ'+IntToStrU(AliasCount);
-        if Prefetch then
-         begin
-           s:='SELECT DISTINCT Ref.id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
+        if f[i].Prefetch then
+          AddWhereQuery('Ref.id','SELECT DISTINCT Ref.id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
              'DISTINCT '+t+'reftype_id','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj'+
-             RefBSel[Action=faRecentBackRef]+'_id=Obj.id',false,false);
-          LocalPrefetch;
-          AddWhere('Ref.ID IN ('+s+')');
-         end
+             RefBSel[f[i].Action=faRecentBackRef]+'_id=Obj.id',false,false))
         else
           AddWhere('Ref.reftype_id'+Criterium(f[i],
             'DISTINCT '+t+'.reftype_id','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj'+
-            RefBSel[Action=faRecentBackRef]+'_id=Obj.id',false,false));
+            RefBSel[f[i].Action=faRecentBackRef]+'_id=Obj.id',false,false));
        end;
       faUser:
        begin
@@ -683,15 +674,75 @@ begin
           ' WHERE Obx.obj_id=Obj.id AND Urx.id IS NULL)');
        end;
 
+      faJournal,faJournalUser,faJournalEntry,faJournalEntryUser:
+       begin
+        if Session.IsAdmin('journals') then s:='' else
+         begin
+          s:='';
+          k:=0;
+          for j:=0 to Length(Session.Journals)-1 do
+            if Session.Journals[j].CanConsult then 
+             begin
+              s:=s+','+IntToStrU(Session.Journals[j].jrl_id);
+              inc(k);
+             end;
+          case k of
+            0:raise Exception.Create('You currently have no consult permissions on any journals.');//s:=' AND 0=1';//?
+            1:s[1]:='=';
+            else
+             begin
+              s[1]:='(';
+              s:='IN '+s+')';
+             end;
+          end;
+          s:='Jrt.jrl_id'+s;
+         end;
+        if f[i].Parameters<>'' then
+         begin
+          fx:=TtxFilter.Create;
+          try
+            fx.FilterExpression:=f[i].Parameters;
+            for j:=0 to fx.Count-1 do
+              case fx[j].Action of
+                faJournal:
+                 begin
+                  if s<>'' then s:=s+' AND ';
+                  s:=s+'Jrt.jrl_id'+Criterium(fx[j],'Jrl.id','',false,false);
+                 end;
+                else
+                  raise EtxSqlQueryError.Create('Unexpected j parameter at position '+IntToStr(fx[j].Idx1));
+              end;
+            //TODO: fx[j].Operator
+          finally
+            fx.Free;
+          end;
+         end;
+        if s<>'' then s:=s+' AND ';
+        case f[i].Action of
+          faJournal:
+            AddWhereQuery('Obj.id','SELECT DISTINCT Jre.obj_id FROM Jre INNER JOIN Jrt ON Jrt.id=Jre.jrt_id WHERE '+s+
+              'Jrt.jrl_id'+Criterium(f[i],'Jrl.id','',false,false));
+          faJournalUser:
+            AddWhereQuery('Obj.id','SELECT DISTINCT Jre.uid FROM Jre INNER JOIN Jrt ON Jrt.id=Jre.jrt_id WHERE '+s+
+              'Jrt.jrl_id'+Criterium(f[i],'Jrl.id','',false,false));
+          faJournalEntry:
+            AddWhereQuery('Obj.id','SELECT DISTINCT Jre.obj_id FROM Jre INNER JOIN Jrt ON Jrt.id=Jre.jrt_id WHERE '+s+
+              'Jre.uid'+Criterium(f[i],'Obj.id','',false,false));
+          faJournalEntryUser:
+            AddWhereQuery('Obj.id','SELECT DISTINCT Jre.uid FROM Jre INNER JOIN Jrt ON Jrt.id=Jre.jrt_id WHERE '+s+
+              'Jre.obj_id'+Criterium(f[i],'Obj.id','',false,false));
+        end;
+       end;
+
       else
-        raise EtxSqlQueryError.Create('Unsupported filter action at position '+IntToStr(Idx1));
+        raise EtxSqlQueryError.Create('Unsupported filter action at position '+IntToStr(f[i].Idx1));
     end;
 
     //check global para count?
-    for j:=1 to ParaClose do Where:=Where+')';
+    for j:=1 to f[i].ParaClose do Where:=Where+')';
 
     if (i<>f.Count-1) and AddedWhere then
-      Where:=Where+' '+txFilterOperatorSQL[Operator]+' ';
+      Where:=Where+' '+txFilterOperatorSQL[f[i].Operator]+' ';
    end;
 end;
 
@@ -843,6 +894,8 @@ begin
             idSQL:='SELECT Flt.id FROM Flt WHERE Flt.name='+SqlStr(El.ID);
           itUser:
             idSQL:='SELECT Usr.uid FROM Usr WHERE Usr.login='+SqlStr(El.ID);
+          itJournal:
+            idSQL:='SELECT Jrl.id FROM Jrl WHERE Jrl.system='+SqlStr(El.ID);
           else
             raise EtxSqlQueryError.Create('String search on '+txItemTypeName[ItemType]+' is not allowed');
         end;
