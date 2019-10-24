@@ -19,11 +19,16 @@ else
     id:=Session.Journals[i].obj_id;
     if id=0 then
      begin
-      <<td colspan="3" title="[[=Session.Journals[i].jrl_name]]">&mdash;</td>>
+      <<td colspan="3"><a class="linkbutton" target="MainFrame" href="Journal.xxm?id=[[=Session.Journals[i].jrl_id]]" title="[[=Session.Journals[i].jrl_name]]">...</a></td>>
      end
     else
      begin
-      <<td style="white-space:nowrap;">>
+      <<td style="white-space:nowrap;">>#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrl_name+': '+Session.Journals[i].jrt_name)<</td>
+      <td style="white-space:nowrap;text-align:right;">
+      <span class="jrl">>=JournalTime(Session.Journals[i].Start,Session.Journals[i].granularity)<</span>
+      <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',3]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
+      </td>
+      <td style="white-space:nowrap;">>
       qr:=TQueryResult.Create(Session.DbCon,sqlObjById,[id]);
       try
         //Context.Include('dObjLink.xxmi',[],[qr]);
@@ -33,12 +38,7 @@ else
       finally
         qr.Free;
       end;
-      <</td>
-      <td style="white-space:nowrap;">>#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrl_name)]][[=Session.Journals[i].jrt_name<</td>
-      <td style="white-space:nowrap;text-align:right;">
-      <span class="jrl">>=JournalTime(Session.Journals[i].Start,Session.Journals[i].granularity)<</span>
-      <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',3]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
-      </td>>
+      <</td>>
      end;
     <</tr>>
    end;

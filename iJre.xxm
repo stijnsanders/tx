@@ -3,6 +3,7 @@ i,id,jrt_id,g,m:integer;
 qr:TQueryResult;
 d,d0:TDateTime;
 CanReverseDate:boolean;
+r:string;
 const
 HalfAMinute=0.5/1440.0;
 ]][[
@@ -19,6 +20,7 @@ else
  begin
   id:=Context['x'].AsInteger;
   jrt_id:=Context['t'].AsInteger;
+  r:='';
 
   if (Session.Journals[i].obj_id<>id) or (Session.Journals[i].jrt_id<>jrt_id) then
    begin
@@ -48,6 +50,7 @@ else
           ,'c_ts',Session.Journals[i].Start
           ,'m_ts',VNow
           ]);
+        r:=JournalMinutes(m);
         Session.DbCon.CommitTrans;
       except
         Session.DbCon.RollbackTrans;
@@ -123,15 +126,21 @@ else
         if CanReverseDate then
          begin
           ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-            {id:[[=Session.Journals[i].jrl_id]],rd:1,x:[[=Session.Journals[i].obj_id]],t:[[=Session.Journals[i].jrt_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&larr;</a>>
+            {id:[[=Session.Journals[i].jrl_id]],rd:1,x:[[=Session.Journals[i].obj_id]],t:[[=Session.Journals[i].jrt_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">-[[=g]]&#x27;</a>>
          end;
         ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
           {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&bullet;</a>
         &nbsp;[[
        end;
+      if r<>'' then
+       begin
+        <<span class="small" style="color:silver;">&rsaquo;[[=r<</span>>
+       end;
      end;
-    1,2:Context.Redirect('Journal.xxm',true);
-    3:Context.Redirect('FrameJrl.xxm',true);
+    1,2:
+      Context.Redirect('Journal.xxm',true);
+    3:
+      Context.Redirect('FrameJrl.xxm',true);
     else
       raise Exception.Create('Unsupported "r" value');
   end;

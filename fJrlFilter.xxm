@@ -1,0 +1,69 @@
+[[@txDefs,txSession,DataLank]][[!var
+IsAdmin:boolean;
+qr:TQueryResult;
+i:integer;
+s:string;
+]][[
+  
+Context.Include('dHead.xxmi',['Filter Journal Entries']);
+
+<<h2>Filter journal entries</h2>>
+
+s:='';
+IsAdmin:=Session.IsAdmin('journals');
+if IsAdmin then
+ begin
+  qr:=TQueryResult.Create(Session.DbCon,'select * from Jrl order by 1',[]);
+  try
+    while qr.Read do
+      s:=s+'<option value="'+IntToStr(qr.GetInt('id'))+'">'+HTMLEncode(qr.GetStr('name'))+'</option>';
+  finally
+    qr.Free;
+  end;
+ end
+else
+  for i:=0 to Length(Session.Journals)-1 do
+    if Session.Journals[i].CanConsult then
+      s:=s+'<option value="'+IntToStr(Session.Journals[i].jrl_id)+'">'+HTMLEncode(Session.Journals[i].jrl_name)+'</option>';
+
+if s='' then
+ begin
+
+  if IsAdmin then
+   begin
+    <<p class="information">No journals.<br /><a href="fJrl.xxm">Click here</a> to create a journal.</p>>
+   end
+  else
+   begin
+    <<p class="information">You currently have no consultable journals.</p>>
+   end;
+
+ end
+else
+ begin
+
+  if Session.FilterCache.Count=0 then
+   begin
+    <<p class="information">You haven&#x27;t used any filters yet. <a href="FilterBuild.xxm">Create one</a>, use it, then return here to select them from the lists.</p>>
+   end;
+  
+  ]]
+  
+  [[#txForm('aJrlFilter.xxm',[],'')]]
+  [[#txFormProtect]]
+  <dl>
+  <dt>Journal</dt>
+  <dd><select name="id">>#s<</select></dd>
+  <dt>Entry by users <span style="font-weight:normal;">(e.g.: <span class="litref">child"staff"*</span>)</span></dt>
+  <dd>>Context.Include('dFltSelect.xxmi',['users','']);<</dd>
+  <dt>Entry objects <span style="font-weight:normal;">(e.g.: <span class="litref">objtype"wf.task"*</span>)</span></dt>
+  <dd>>Context.Include('dFltSelect.xxmi',['filter','']);<</dd>
+  
+  </dl>
+  
+  [[#txFormButton]]
+  </form>>
+
+ end;
+
+Context.Include('dFoot.xxmi');

@@ -8,5 +8,5 @@ Context.Include('dObjLocation.xxmi',Values,Objects);
 ]]
 <p class="objecttitle"><a href="Item.xxm?x=i[[.id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a></p>
 [[
-Context.Include('dObjTokRef.xxmi',[id,'',' ','<p class="objectinfo">','</p>'],[qr]);
+Context.Include('dObjTokRef.xxmi',[id,'','&nbsp;','<p class="objectinfo">','</p>'],[qr]);
 ]]

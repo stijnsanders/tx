@@ -25,7 +25,7 @@ while not(i=ViewedLastCount) and not(Session.ViewedLast[i]=0) and Context.Connec
   qr:=TQueryResult.Create(Session.DbCon,sqlObjByID,[id]);
   try
     Context.Include('dObjLink.xxmi',[],[qr]);
-    Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
+    Context.Include('dObjTokRef.xxmi',[id,#13#10' ','&nbsp;'],[qr]);
     Context.Include('d_cmw.xxmi',[],[qr]);
     <<br />>
   finally

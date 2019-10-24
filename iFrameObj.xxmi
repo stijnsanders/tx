@@ -34,5 +34,5 @@ if Session.QryUnread then
     ]] <span id="unread[[=id]]" class="nc">>.r1<</span>>
    end;
  end;
-Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' ','','','Item.xxm?x=i','" onclick="return treenode_select(event,'''+name+''',this.href.split(''?x=i'')[1]);'],[qr]);
+Context.Include('dObjTokRef.xxmi',[id,#13#10' ','&nbsp;','','','Item.xxm?x=i','" onclick="return treenode_select(event,'''+name+''',this.href.split(''?x=i'')[1]);'],[qr]);
 <<br />

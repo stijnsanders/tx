@@ -4,10 +4,10 @@ qr,qr1:TQueryResult;
 s,t:string;
 id,root_id,i,m,c,mi,mj,mk,ml,pid,jrt_id:integer;
 rpFilter:TtxRealmPermission;
-filter:string;
+filter,fusers:string;
 fs:UTF8String;
-f:TtxFilter;
-fq:TtxSqlQueryFragments;
+f,f1:TtxFilter;
+fq,fq1:TtxSqlQueryFragments;
 LocationCache:TItemCache;
 ln:TLocationNode;
 mt:array of record
@@ -21,9 +21,10 @@ IsAdmin:=Session.IsAdmin('journals');
 //assert Use_Journals
 id:=Context['id'].AsInteger;
 filter:=Context['filter'].Value;
+fusers:=Context['users'].Value;
 
 //only one journal? use that one by default
-if not(IsAdmin) and (filter<>'') and (id=0) and (Length(Session.Journals)=1) then id:=Session.Journals[0].jrl_id;
+if not(IsAdmin) and ((filter<>'') or (fusers<>'')) and (id=0) and (Length(Session.Journals)=1) then id:=Session.Journals[0].jrl_id;
 
 if id=0 then
  begin
@@ -65,13 +66,24 @@ if id=0 then
      end
     else
      begin
-      if filter<>'' then
+      if (filter<>'') or (fusers<>'') then
        begin
-        <<p>
-        <span class="litref">>=filter<</span>
-        <a class="linkbutton" href="Filter.xxm?filter=[[=URLEncode(filter)]]">filter</a>
-        <a class="linkbutton" href="FilterBuild.xxm?filter=[[=URLEncode(filter)]]">build</a>
-        </p>
+        <<p>>
+        if fusers<>'' then
+         begin
+          ]] Users:
+          <span class="litref">>=fusers<</span>
+          <a class="linkbutton" href="Filter.xxm?filter=[[=URLEncode(fusers)]]">filter</a>
+          <a class="linkbutton" href="FilterBuild.xxm?filter=[[=URLEncode(fusers)]]">build</a>>
+         end;
+        if filter<>'' then
+         begin
+          ]] Objects:
+          <span class="litref">>=filter<</span>
+          <a class="linkbutton" href="Filter.xxm?filter=[[=URLEncode(filter)]]">filter</a>
+          <a class="linkbutton" href="FilterBuild.xxm?filter=[[=URLEncode(filter)]]">build</a>>
+         end;
+        <</p>
         <p>Please select journal to apply filter to journal entries:</p>>
        end
       else
@@ -110,6 +122,7 @@ if id=0 then
         if s='' then s:='#'+IntToStr(id);
         <<td><a href="?id=[[=id]][[
         if filter<>'' then Context.Send('&filter='+URLEncode(filter));
+        if fusers<>'' then Context.Send('&user='+URLEncode(fusers));
         ]]">>=s<</a></td>
         <td style="text-align:right;">>.granularity<</td>
         <td>>
@@ -156,7 +169,7 @@ if id=0 then
           qr1:=TQueryResult.Create(Session.DbCon,sqlObjByID,[root_id]);
           try
             Context.Include('dObjLink.xxmi',[],[qr1]);
-            Context.Include('dObjTokRef.xxmi',[root_id,#13#10' ',' '],[qr1]);
+            Context.Include('dObjTokRef.xxmi',[root_id,#13#10' ','&nbsp;'],[qr1]);
             //Context.Include('d_cmw.xxmi',[],[qr]);
           finally
             qr1.Free;
@@ -177,11 +190,15 @@ if id=0 then
         </tr>>
        end;
   
-      <</table>>
+      <</table>
+      <p class="buttons">>
       if IsAdmin then
        begin
-        <<p class="buttons"><a href="fJrl.xxm" class="linkbutton">add...</a></p>>
+        <<a href="fJrl.xxm" class="linkbutton">add...</a>>
        end;
+      ]]
+      <a href="fJrlFilter.xxm" class="linkbutton">filter entries...</a>
+      </p>>
         
      end;
   finally
@@ -206,13 +223,26 @@ else
     qr.Free;
   end;
 
-  if filter<>'' then
+  if (filter<>'') or (fusers<>'') then
    begin
-    <<p>
-    <span class="litref">>=filter<</span>
-    <a class="linkbutton" href="Filter.xxm?filter=[[=URLEncode(filter)]]">filter</a>
-    <a class="linkbutton" href="FilterBuild.xxm?filter=[[=URLEncode(filter)]]">build</a>
-    </p>>
+    <<p>>
+    <</p>>
+    if fusers<>'' then
+     begin
+      ]] Users:
+      <span class="litref">>=fusers<</span>
+      <a class="linkbutton" href="Filter.xxm?filter=[[=URLEncode(fusers)]]">filter</a>
+      <a class="linkbutton" href="FilterBuild.xxm?filter=[[=URLEncode(fusers)]]">build</a>
+      </p>>
+     end;
+    if filter<>'' then
+     begin
+      ]] Objects:
+      <span class="litref">>=filter<</span>
+      <a class="linkbutton" href="Filter.xxm?filter=[[=URLEncode(filter)]]">filter</a>
+      <a class="linkbutton" href="FilterBuild.xxm?filter=[[=URLEncode(filter)]]">build</a>>
+     end;
+    <</p>>
    end;
 
   //if Context['all'].AsInteger=1 then rpFilter:=rpAny else rpFilter:=rpView;
@@ -236,6 +266,35 @@ else
      end; 
     if fq.Where<>'' then fq.Where:=' AND ('+fq.Where+')';
     fq.Where:='Jrt.jrl_id=? AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+fq.Where;
+
+    if fusers<>'' then
+     begin
+      fq1:=TtxSqlQueryFragments.Create(itObj);
+      try
+        fq1.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+        f1:=TtxFilter.Create;
+        try
+          f1.FilterExpression:=UTF8Encode(fusers);
+          if f1.ParseError<>'' then
+           begin
+            <<p style="color:red;">>=f.ParseError<</p>>
+           end;
+          fq1.AddFilter(f1);
+        finally
+          f1.Free;
+        end;
+
+        fq1.Fields:='Obj.id';
+        if fq1.Where<>'' then fq1.Where:=' AND ('+fq1.Where+')';
+        fq1.Where:='Obj.rlm_id'+Session.Realms[rpFilter].SQL+fq1.Where;//?
+        fq1.OrderBy:='';
+        fq.Where:=fq.Where+#13#10'AND Jre.uid in ('+fq1.SQL+')';
+
+      finally
+        fq1.Free;
+      end;
+     end;
+
     if Context['limit'].Value<>'' then
       fq.Limit:=Context['limit'].AsInteger
     else
@@ -319,7 +378,7 @@ else
         end;
         Context.SendHTML(s);
         Context.Include('dObjLink.xxmi',[],[qr]);
-        Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ',' '],[qr]);
+        Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
         //Context.Include('d_cmw.xxmi',[],[qr]);
         <</td>
         <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>

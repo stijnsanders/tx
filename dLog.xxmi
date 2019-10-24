@@ -144,7 +144,7 @@ try
       Context.SendHTML('<p>');
       Context.Include('d_cmw.xxmi',[],[qr1]);
       Context.SendHTML('</p>');
-      Context.Include('dObjTokRef.xxmi',[id,'','','<p class="objectinfo">','</p>'],[qr1]);
+      Context.Include('dObjTokRef.xxmi',[id,'','&nbsp;','<p class="objectinfo">','</p>'],[qr1]);
       <</div>>
 
       inc(c1);

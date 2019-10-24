@@ -977,6 +977,16 @@
 			"path": "FrameJrl.xxm",
 			"unitName": "framejrl_xxm1",
 			"unitPath": ""
+		},
+		"fjrlfilter_xxm": {
+			"path": "fJrlFilter.xxm",
+			"unitName": "fjrlfilter_xxm1",
+			"unitPath": ""
+		},
+		"ajrlfilter_xxm": {
+			"path": "aJrlFilter.xxm",
+			"unitName": "ajrlfilter_xxm1",
+			"unitPath": ""
 		}
 	},
 	"units": {

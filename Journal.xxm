@@ -96,7 +96,7 @@ if id=0 then
         qr:=TQueryResult.Create(Session.DbCon,sqlObjById,[id]);
         try
           Context.Include('dObjLink.xxmi',[],[qr]);
-          Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
+          Context.Include('dObjTokRef.xxmi',[id,#13#10' ','&nbsp;'],[qr]);
           //Context.Include('d_cmw.xxmi',[],[qr]);
         finally
           qr.Free;
@@ -249,7 +249,7 @@ else
         end;
         Context.SendHTML(s);
         Context.Include('dObjLink.xxmi',[],[qr]);
-        Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ',' '],[qr]);
+        Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
         //Context.Include('d_cmw.xxmi',[],[qr]);
         <</td>
         <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>

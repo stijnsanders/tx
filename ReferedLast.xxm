@@ -32,7 +32,7 @@ while not(i=FilterRecentCount) and not(Session.RecentReferences[i].obj2=0) and C
   qr:=TQueryResult.Create(Session.DbCon,sqlObjByID,[id]);
   try
     Context.Include('dObjLink.xxmi',[],[qr]);
-    Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
+    Context.Include('dObjTokRef.xxmi',[id,#13#10' ','&nbsp;'],[qr]);
     Context.Include('d_cmw.xxmi',[],[qr]);
     <<br />>
   finally
