@@ -76,7 +76,7 @@ end;
 function ProcessImages(const FallbackURL,Body:AnsiString):AnsiString;
 var
   bi,bj,bl,i:integer;
-  newBody,fn,fd,fx,bn1,bn2:AnsiString;
+  newBody,fn,fd,fx,fn1,bn1,bn2:AnsiString;
   sl:TStringList;
   m:TMemoryStream;
 begin
@@ -114,16 +114,21 @@ begin
           fn:='img'+Copy(Body,bj,bi-bj);
          end;
         fx:=fn;
-        for i:=1 to Length(fx)-1 do if AnsiChar(fx[i]) in ['.','_','/','\'] then fx[i]:='X';
+        for i:=1 to Length(fx)-1 do if AnsiChar(fx[i]) in ['.','_','/','\','?'] then fx[i]:='X';
         newBody:=newBody+'<img src="cid:'+fx;
         if sl.IndexOf(string(fn))=-1 then
          begin
-          m.LoadFromFile(ModulePath+string(fd+fn));
+          i:=Length(globalImgExt+globalImgVer);
+          if Copy(fn,Length(fn)-i+1,i)=globalImgExt+globalImgVer then
+            fn1:=Copy(fn,1,Length(fn)-i-1)+'.png'
+          else
+            fn1:=fn;//raise? skip?
+          m.LoadFromFile(ModulePath+string(fd+fn1));
           sl.Add(string(fn));
           //
           Result:=Result+'--'+bn1+
-            #13#10'Content-Type: image/png; name="'+fn+'"'+
-            #13#10'Content-Disposition: inline; filename="'+fn+'"'+
+            #13#10'Content-Type: image/png; name="'+fn1+'"'+
+            #13#10'Content-Disposition: inline; filename="'+fn1+'"'+
             #13#10'Content-Transfer-Encoding: base64'+
             #13#10'Content-ID: <'+fx+'>'+
             #13#10'X-Attachment-Id: '+fx+

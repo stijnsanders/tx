@@ -1,5 +1,5 @@
 [[@txSession,txDefs,txFilter,txFilterSql,txCache,txNodes,DataLank,Variants]][[!var
-IsAdmin:boolean;
+IsAdmin,b:boolean;
 qr:TQueryResult;
 i,id:integer;
 ]][[
@@ -10,8 +10,17 @@ if Length(Session.Journals)=0 then
  begin
   <<p class="information">No journals available to you.</p>>
  end
+else if Context['suspend'].AsInteger=1 then
+ begin
+  Session.JournalsUsed:=false;
+  <<p>
+  <a class="linkbutton" href="#" onclick="top.document.location.reload();return false;">full refresh to remove</a>
+  <a class="linkbutton" href="?">resume</a>
+  </p>>
+ end
 else
  begin
+  b:=true;
   <<table cellspacing="2" cellpadding="2" border="0" class="listtable">>
   for i:=0 to Length(Session.Journals)-1 do
    begin
@@ -23,6 +32,7 @@ else
      end
     else
      begin
+      b:=false;
       <<td style="white-space:nowrap;">>#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrl_name+': '+Session.Journals[i].jrt_name)<</td>
       <td style="white-space:nowrap;text-align:right;">
       <span class="jrl">>=JournalTime(Session.Journals[i].Start,Session.Journals[i].granularity)<</span>
@@ -42,9 +52,13 @@ else
      end;
     <</tr>>
    end;
-  <</table>>
+  <</table>
+  <script>window.setTimeout(function(){document.location.reload();},60000);</script>>
+  if b then
+   begin
+    <<p><a href="?suspend=1" class="linkbutton">hide</p>>
+   end;
  end;
 
-<<script>window.setTimeout(function(){document.location.reload();},60000);</script>>
 
 Context.Include('dFrameFoot.xxmi');

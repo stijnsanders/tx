@@ -29,7 +29,7 @@ if Use_ObjTokRefCache then
     s:=qr.GetStr('tokHTML');
     if s<>'' then
      begin
-      if not(b) and (Length(Values)>4) then
+      if not(b) and (Length(Values)>3) then
        begin
         b:=true;
         Context.SendHTML(Values[3]);
@@ -63,7 +63,7 @@ if not(b) then
   try
     if not qr.EOF then
      begin
-      if not(b) and (Length(Values)>4) then
+      if not(b) and (Length(Values)>3) then
        begin
         b:=true;
         Context.SendHTML(Values[3]);

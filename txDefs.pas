@@ -245,7 +245,7 @@ end;
 function JournalGranulate(d:TDateTime;granularity:integer):TDateTime;
 begin
   //Round? Trunc(+constant)? Tunc(+(g/2))?
-  Result:=Trunc(d*1440.0/granularity)*granularity/1440.0;
+  Result:=Trunc((d*1440.0+(1/60))/granularity)*granularity/1440.0;
 end;
 
 function JournalTime(d:TDateTime;granularity:integer):string;
@@ -278,19 +278,19 @@ begin
 end;
 
 const
-  jtDelta=43210.0;
+  jtDelta=63000000;
 
 function jtToDateTime(const jt:string):TDateTime;
 var
   i:integer;
 begin
   if not TryStrToInt(jt,i) then raise Exception.Create('Invalid JournalTime value');
-  Result:=i/1440.0+jtDelta;
+  Result:=(i+jtDelta)/1440.0;
 end;
 
 function jtFromDateTime(d:TDateTime):string;
 begin
-  Result:=IntToStr(Round((d-jtDelta)*1440.0)); 
+  Result:=IntToStr(Round(d*1440.0)-jtDelta); 
 end;
 
 function IntToStrU(x:integer):UTF8String;

@@ -64,7 +64,6 @@ try
   d0:=JournalGranulate(d0,g);
   d1:=JournalGranulate(d1,g);
   d2:=JournalGranulate(d2,g);
-
   m2:=Trunc((d2-d0)*1440.0);
 
   <<h2>Journal Entry</h2>

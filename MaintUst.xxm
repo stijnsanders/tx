@@ -1,0 +1,28 @@
+[[@txDefs,DataLank,txSession]][[!var
+i:integer;
+d:TDateTime;
+]][[
+
+Context.ContentType:='text/plain';
+Context.BufferSize:=0;
+CheckMaintProtect(Context);
+
+Session.DbCon.BeginTrans;
+try
+  i:=Context['days'].AsInteger;
+  if i=0 then i:=365;
+  d:=Date-i;
+  Context.SendHTML('Clean-up "Ust"...');
+  i:=Session.DbCon.Execute('DELETE FROM Ust WHERE c_ts<?',[d]);
+
+  Context.SendHTML(#13#10#13#10+IntToStr(i)+' records dropped');
+
+  Session.DbCon.CommitTrans;
+except
+  Session.DbCon.RollbackTrans;
+  raise;
+end;
+
+]]
+
+-- done
