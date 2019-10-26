@@ -49,7 +49,6 @@ if id=0 then
         fs:=' in '+fs+')';
        end;
     end;
-    <<p>>=fs<</p>>
     qr:=TQueryResult.Create(Session.DbCon,'select * from Jrl where Jrl.id'+fs+' order by id',[]);
    end;
   try

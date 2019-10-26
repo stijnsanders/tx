@@ -1,5 +1,5 @@
 [[@txSession,txDefs,txFilter,txFilterSql,txCache,txNodes,DataLank,Variants]][[!var
-IsAdmin:boolean;
+IsAdmin,AnyConsultable:boolean;
 qr:TQueryResult;
 i,id,pid,g,m,c,mi,mj,mk,ml,jrt_id:integer;
 rpFilter:TtxRealmPermission;
@@ -57,8 +57,10 @@ if id=0 then
     <th>entry</th>
     <th>started</th>
     </tr>>
+    AnyConsultable:=false;//default
     for i:=0 to Length(Session.Journals)-1 do
      begin
+      if Session.Journals[i].CanConsult then AnyConsultable:=true;
       <<tr>
       <td><a href="?id=[[=Session.Journals[i].jrl_id]][[
       if filter<>'' then Context.Send('&filter='+URLEncode(filter));
@@ -111,13 +113,15 @@ if id=0 then
        end;
       <</tr>>
      end;
-    <</table>>
-    if IsAdmin then
+    <</table>
+    <p class="buttons">>
+    if IsAdmin or AnyConsultable then
      begin
-      <<p class="buttons"><a href="Journals.xxm[[
+      ]] <a href="Journals.xxm[[
       if filter<>'' then Context.SendHTML('?filter='+URLEncode(filter));
-      ]]" class="linkbutton">journals...</a></p>>
+      ]]" class="linkbutton">journals...</a>>
      end;
+    <</p>>
   end;
  end
 else

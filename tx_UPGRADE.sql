@@ -80,3 +80,5 @@ constraint FK_Jre_Jrt foreign key (jrt_id) references Jrt (id),
 constraint FK_Jre_Obj foreign key (obj_id) references Obj (id),
 constraint FK_Jre_Obj foreign key (uid) references Obj (id)--not Usr!
 );
+
+insert into TokType (id,pid,icon,name,system,weight) values (7,1,27,'administrator journals','auth.journals',0);
