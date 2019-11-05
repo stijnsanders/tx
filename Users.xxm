@@ -143,10 +143,10 @@ if IsAdmin then
 if Use_Unread then
  begin
   <<dt>Unread</dt><dd>
-  <input type="checkbox" name="Unread" id="unread1" value="1"[[#csel[Session.QryUnread]]]/>
-  <label for="unread1">Show unread<label><br />
-  <input type="checkbox" name="Stealth" id="stealth1" value="1"[[#csel[Session.Stealth]]]/>
-  <label for="stealth1">Stealth edits</label>
+  <label><input type="checkbox" name="Unread" value="1"[[#csel[Session.QryUnread]]]/>
+  Show unread<label><br />
+  <label><input type="checkbox" name="Stealth" value="1"[[#csel[Session.Stealth]]]/>
+  Stealth edits</label>
   </dd>>
   //Todo: stealth only for admins
  end;

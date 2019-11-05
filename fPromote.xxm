@@ -36,8 +36,8 @@ ObjTypeID:=DBSingleValue('SELECT ObjType.dft FROM ObjType INNER JOIN Obj ON Obj.
 <dt>Name</dt><dd><input type="text" name="name" id="ObjName" value="" class="textfield" /></dd>
 <dt>Object type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itObjType,'objtype',ObjTypeID]);<</dd>
 <dt>Promoted report</dt><dd>
-<input type="checkbox" name="delrpt" id="delrpt1" value="1" checked="1" />
-<label for="delrpt1">Delete report</label>
+<label><input type="checkbox" name="delrpt" value="1" checked="1" />
+Delete report</label>
 </dd>
 <dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc',qr.GetStr('desc')]);<</dd>
 <dt>URL</dt><dd><input type="text" name="url" value="" class="textfield" /></dd>

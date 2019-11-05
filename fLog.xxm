@@ -1,8 +1,10 @@
 [[@txDefs,txSession,]][[!var
 i:integer;
-]][[Context.Include('dHead.xxmi',['Advanced log']);]]
+]][[
+  
+Context.Include('dHead.xxmi',['Advanced log']);
 
-<h2>Advanced Log View</h2>
+<<h2>Advanced Log View</h2>
 
 [[#StringReplace(txForm('Log.xxm',[]),'"post"','"get"',[])]]
 <dl>
@@ -10,15 +12,12 @@ i:integer;
 <dd>
 [[if Session.FilterCache.Count<>0 then begin]]
 <select name="filter1" id="LogFilterList" onchange="if(this.value=='') $('#LogFilter').show(); else $('#LogFilter').hide();">
-<option value=""></option>
-[[
+<option value=""></option>>
 for i:=0 to Session.FilterCache.Count-1 do
  begin
-  ]]<option value="[[=Session.FilterCache[i]]]">>=Session.FilterCache[i]<</option>
-  [[
+  <<option value="[[=Session.FilterCache[i]]]">>=Session.FilterCache[i]<</option>>
  end;
-]]
-</select>
+<</select>
 <br />
 [[end;]]
 <input type="text" name="filter" id="Logfilter" value="[[=Context['f'].Value]]" class="textfield" />
@@ -29,9 +28,9 @@ for i:=0 to Session.FilterCache.Count-1 do
 </dd>
 <dt>Sort</dt>
 <dd>
-<input type="radio" name="sort" value="0" id="sortDesc" checked="1" /><label for="sortDesc">descending</label>
+<label><input type="radio" name="sort" value="0" checked="1" /> descending</label>
 <br />
-<input type="radio" name="sort" value="1" id="sortAsc" /><label for="sortAsc">ascending</label>
+<label><input type="radio" name="sort" value="1" /> ascending</label>
 </dd>
 <dt>Start date (leave year empty for none)</dt>
 <dd>
@@ -47,10 +46,10 @@ for i:=0 to Session.FilterCache.Count-1 do
 </dd>
 <dt>Realms</dt>
 <dd>
-<input type="checkbox" name="view" value="both" id="viewBoth" /><label for="viewBoth">query editable realms also</label>
+<label><input type="checkbox" name="view" value="both" /> query editable realms also</label>
 </dd>
 </dl>
 [[#txFormButton]]
-</txForm>
+</txForm>>
 
-[[Context.Include('dFoot.xxmi');]]
+Context.Include('dFoot.xxmi');

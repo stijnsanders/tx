@@ -88,12 +88,12 @@ case act of
       for q:=0 to 3 do
        begin
         <<span style="width:10em;">>=QDesc[q]<</span>
-        <input type="radio" name="propo[[=q]]" id="XPropo[[=q]]A" value="0" />
-        <label for="XPropo[[=q]]A">none</label>
-        <input type="radio" name="propo[[=q]]" id="XPropo[[=q]]B" value="1" checked="1" />
-        <label for="XPropo[[=q]]B">proposed</label>
-        <input type="radio" name="propo[[=q]]" id="XPropo[[=q]]C" value="2" />
-        <label for="XPropo[[=q]]C">reset default only</label>
+        <label><input type="radio" name="propo[[=q]]" value="0" />
+        none</label>
+        <label><input type="radio" name="propo[[=q]]" value="1" checked="1" />
+        proposed</label>
+        <label><input type="radio" name="propo[[=q]]" value="2" />
+        reset default only</label>
         <br />>
        end;
       <</dd>

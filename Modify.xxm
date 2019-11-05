@@ -4,8 +4,8 @@
   qr:TQueryResult;
 const
   FormConfirm='confirm(''Are you sure to modify these objects?'')';
-  FormAllRealm='<br /><input type="checkbox" name="all" value="1" id="allRealm1" />'#13#10+
-    '<label for="allRealm1">Also modify objects in a realm you can control but don''t view.</label>';
+  FormAllRealm='<br /><label><input type="checkbox" name="all" value="1" />'#13#10+
+    'Also modify objects in a realm you can control but don''t view.</label>';
 ]][[
 Context.Include('dHead.xxmi',['Modify']);
 
@@ -85,8 +85,8 @@ case x of
     <dl>
     <dt>Token type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itTokType,'toktype']);<</dd>
     <dt>Descendance</dt><dd>
-      <input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only tokens of this token type</label> <br />
-      <input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">Tokens of this and descendant token types</label> <br />
+      <label><input type="radio" name="flags" value="" /> Only tokens of this token type</label> <br />
+      <label><input type="radio" name="flags" value="*" checked="1" /> Tokens of this and descendant token types</label> <br />
     </dd>
     </dl>
     //TODO[[/#FormButton]]
@@ -101,8 +101,8 @@ case x of
     <dl>
     <dt>Reference type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'reftype']);<</dd>
     <dt>Descendance</dt><dd>
-      <input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only references of this reference type</label> <br />
-      <input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">References of this and descendant reference types</label> <br />
+      <label><input type="radio" name="flags" value="" /> Only references of this reference type</label> <br />
+      <label><input type="radio" name="flags" value="*" checked="1" /> References of this and descendant reference types</label> <br />
     </dd>
     </dl>
     //TODO[[/#FormButton]]
@@ -129,16 +129,16 @@ case x of
     <input type="hidden" name="x" value="4" />
     <input type="hidden" name="filter" value="[[=filter]]" />
     <p>
-      <input type="radio" name="realm" value="0" id="realm0" checked="1" />
-      <label for="realm0"><i>default realm</i></label>
+      <label><input type="radio" name="realm" value="0" checked="1" />
+      <i>default realm</i></label>
       <br />>
         qr:=TQueryResult.Create(Session.DbCon,'SELECT id, name FROM Rlm WHERE id>0 ORDER BY id',[]);
         try
           while qr.Read and Context.Connected do
            begin
             id:=qr.GetInt('id');
-            <<input type="radio" name="realm" value="[[=id]]" id="realm[[=id]]" />
-            <label for="realm[[=id]]">>.name<</label>
+            <<label><input type="radio" name="realm" value="[[=id]]" />
+            [[.name<</label>
             <br />>
            end;
         finally
@@ -157,8 +157,8 @@ case x of
     [[#txFormProtect]]
     <dl>
     <dt>Move type</dt>
-    <dd><input type="radio" name="mtype" id="mtype1" value="flat" checked /><label for="mtype1">Same parent</label></dd>
-    <dd><input type="radio" name="mtype" id="mtype2" value="tree" /><label for="mtype2">Replicate structure</label></dd>
+    <dd><label><input type="radio" name="mtype" value="flat" checked /> Same parent</label></dd>
+    <dd><label><input type="radio" name="mtype" value="tree" /> Replicate structure</label></dd>
     </dl>
     //TODO[[/#FormButton]]
     [[#FormAllRealm]]
@@ -184,4 +184,3 @@ case x of
 end;
 
 Context.Include('dFoot.xxmi');
-]]

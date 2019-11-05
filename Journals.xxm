@@ -181,8 +181,8 @@ if id=0 then
          begin
           t:='?filter='+string(URLEncode(s));
           <<span class="litref">>=s<</span><br />
-          <a href="Filter.xxm[[=t]]" class="linkbutton">filter</a>
-          <a href="FilterBuild.xxm[[=t]]" class="linkbutton">build</a>>
+          <a class="linkbutton" href="Filter.xxm[[=t]]">filter</a>
+          <a class="linkbutton" href="FilterBuild.xxm[[=t]]">build</a>>
          end;
         <</td>
         <td>>Context.Include('d_cmw.xxmi',[],[qr,nil]);<</td>
@@ -193,10 +193,11 @@ if id=0 then
       <p class="buttons">>
       if IsAdmin then
        begin
-        <<a href="fJrl.xxm" class="linkbutton">add...</a>>
+        <<a class="linkbutton" href="fJrl.xxm">add...</a>>
        end;
       ]]
-      <a href="fJrlFilter.xxm" class="linkbutton">filter entries...</a>
+      <a class="linkbutton" href="JrlTotals.xxm">totals...</a>
+      <a class="linkbutton" href="fJrlFilter.xxm">filter entries...</a>
       </p>>
         
      end;
@@ -276,7 +277,7 @@ else
           f1.FilterExpression:=UTF8Encode(fusers);
           if f1.ParseError<>'' then
            begin
-            <<p style="color:red;">>=f.ParseError<</p>>
+            <<p style="color:red;">>=f1.ParseError<</p>>
            end;
           fq1.AddFilter(f1);
         finally

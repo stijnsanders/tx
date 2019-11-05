@@ -18,7 +18,7 @@ if root=0 then
   <dt>Sub-node(s) name format</dt>
   <dd><input type="text" name="fmt" value="yyyy\yyyy-mm" /> <span class="small">use "\" to define multiple levels of sub-nodes</span></dd>
   <dt>Options</dt>
-  <dd><input type="checkbox" name="ac" id="ac1" value="1" checked="1" /> <label for="ac1">Create nodes when needed (else don't move reports)</label></dd>
+  <dd><label><input type="checkbox" name="ac" value="1" checked="1" /> Create nodes when needed (else don&#x27;t move reports)</label></dd>
   </dl>
   [[#txFormButton]]
   </form>>

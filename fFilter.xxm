@@ -23,8 +23,8 @@ try
   <dt>Attached to object</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',qrGetDefault('obj_id',Session.UserID),0,0,'',true]);<</dd>
   <dt>Description</dt><dd>>Context.Include('dTextField.xxmi',['desc',qrGetDefault('desc','')]);<</dd>
   <dt>Filter Graphs</dt><dd>
-  <input type="checkbox" name="g" id="g1" value="1"[[if qr.GetInt('showgraph')<>0 then begin ]] checked="1"[[end;]]>
-  <label for="g1">Available for filter graphs</label>
+  <label><input type="checkbox" name="g" value="1"[[if qr.GetInt('showgraph')<>0 then begin ]] checked="1"[[end;]]>
+  Available for filter graphs</label>
   </dd>
   </dl>
   [[#txFormButton]]
@@ -35,4 +35,3 @@ finally
   qr.Free;
 end;
 Context.Include('dFoot.xxmi');
-]]

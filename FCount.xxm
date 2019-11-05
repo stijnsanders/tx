@@ -118,19 +118,13 @@ if not(imgonly) then
      begin
 
 <<p>
-<input type="radio" id="timedelta0" name="timedelta" value="0" [[=RadioBool[timedelta=0]]] />
-<label for="timedelta0">daily</label>
-<input type="radio" id="timedelta1" name="timedelta" value="1" [[=RadioBool[timedelta=1]]] />
-<label for="timedelta1">weekly</label>
-<input type="radio" id="timedelta2" name="timedelta" value="2" [[=RadioBool[timedelta=2]]] />
-<label for="timedelta2">monthly</label>
-<input type="radio" id="timedelta3" name="timedelta" value="3" [[=RadioBool[timedelta=3]]] />
-<label for="timedelta3">quarterly</label>
+<label><input type="radio" name="timedelta" value="0" [[=RadioBool[timedelta=0]]] /> daily</label>
+<label><input type="radio" name="timedelta" value="1" [[=RadioBool[timedelta=1]]] /> weekly</label>
+<label><input type="radio" name="timedelta" value="2" [[=RadioBool[timedelta=2]]] /> monthly</label>
+<label><input type="radio" name="timedelta" value="3" [[=RadioBool[timedelta=3]]] /> quarterly</label>
 <br />
-<input type="radio" id="itemcount0" name="items" value="0" [[=RadioBool[itemcount]]] />
-<label for="itemcount0">item count</label>
-<input type="radio" id="itemcount1" name="items" value="1" [[=RadioBool[not(itemcount)]]] />
-<label for="itemcount1">total weight</label>
+<label><input type="radio" name="items" value="0" [[=RadioBool[itemcount]]] /> item count</label>
+<label><input type="radio" name="items" value="1" [[=RadioBool[not(itemcount)]]] /> total weight</label>
 <br />
 <input type="text" name="sizex" value="[[=x]]" size="8" />
 x <input type="text" name="sizey" value="[[=y]]" size="8" />,
@@ -141,8 +135,7 @@ x <input type="text" name="sizey" value="[[=y]]" size="8" />,
 <input type="text" name="starty" value="[[=integer(dy)]]" size="8" />
 - <input type="text" name="startm" value="[[=integer(dm)]]" size="4" />
 - <input type="text" name="startd" value="[[=integer(dd)]]" size="4" />
-<input type="checkbox" name="legend" id="legend1" value="1" [[=RadioBool[legend]]] />
-<label for="legend1">legend in image</label>
+<label><input type="checkbox" name="legend" value="1" [[=RadioBool[legend]]] /> legend in image</label>
 </p>
 <script><!--
 function doClr()

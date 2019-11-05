@@ -289,9 +289,9 @@ if ((action='') and (filter='')) or (action='add') then
    <li><a href="[[#Address]]x=ur">reference created</a>: objects with a <b>reference created</b> by &lt;user&gt;</li>
    <li><a href="[[#Address]]x=urx">backreference created</a>: objects <b>referred to</b> by a reference <b>created</b> by &lt;user&gt;</li>
    <br />
-   <li><a href="[[#Address]]x=ttr">recent token</a>: objects with <b>token</b> of type &lt;tokentype&gt;, sorted descending by the token's modified date</li>
-   <li><a href="[[#Address]]x=rtr">referencetype</a>: objects with <b>reference</b> of type &lt;referencetype&gt;, sorted descending by the reference's modified date</li>
-   <li><a href="[[#Address]]x=rxr">backreference</a>: objects <b>referred to</b> by a reference of type &lt;referencetype&gt;, sorted descending by the reference's modified date</li>
+   <li><a href="[[#Address]]x=ttr">recent token</a>: objects with <b>token</b> of type &lt;tokentype&gt;, sorted descending by the token&#x27;s modified date</li>
+   <li><a href="[[#Address]]x=rtr">referencetype</a>: objects with <b>reference</b> of type &lt;referencetype&gt;, sorted descending by the reference&#x27;s modified date</li>
+   <li><a href="[[#Address]]x=rxr">backreference</a>: objects <b>referred to</b> by a reference of type &lt;referencetype&gt;, sorted descending by the reference&#x27;s modified date</li>
   </ul>
 
   //TODO: more/all
@@ -328,8 +328,8 @@ if action='c' then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Child of object</dt><dd>>Context.Include('dObjSelect.xxmi',['item'+action,0,0,0,'',true]);<</dd>
   <dt>Descendance</dt><dd>
-    <input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only direct descendants of this object</label><br />
-    <input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">All descendants of this object</label><br />
+    <label><input type="radio" name="flags" value="" /> Only direct descendants of this object</label><br />
+    <label><input type="radio" name="flags" value="*" checked="1" /> All descendants of this object</label><br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -344,8 +344,8 @@ if action='ot' then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Object type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itObjType,'item'+action]);<</dd>
   <dt>Descendance</dt><dd>
-    <input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only objects of this object type</label> <br />
-    <input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">Objects of this and descendant object types</label> <br />
+    <label><input type="radio" name="flags" value="" /> Only objects of this object type</label> <br />
+    <label><input type="radio" name="flags" value="*" checked="1" /> Objects of this and descendant object types</label> <br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -360,8 +360,8 @@ if (action='tt') or (action='ttr') then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Token type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itTokType,'item'+action]);<</dd>
   <dt>Descendance</dt><dd>
-    <input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only tokens of this token type</label> <br />
-    <input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">Tokens of this and descendant token types</label> <br />
+    <label><input type="radio" name="flags" value="" /> Only tokens of this token type</label> <br />
+    <label><input type="radio" name="flags" value="*" checked="1" /> Tokens of this and descendant token types</label> <br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -376,8 +376,8 @@ if (action='rt') or (action='rtr') then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Reference type</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'item'+action]);<</dd>
   <dt>Descendance</dt><dd>
-    <input type="radio" name="flags" value="" id="desc0" /> <label for="desc0">Only references of this reference type</label> <br />
-    <input type="radio" name="flags" value="*" id="desc1" checked="1" /> <label for="desc1">References of this and descendant reference types</label> <br />
+    <label><input type="radio" name="flags" value="" /> Only references of this reference type</label> <br />
+    <label><input type="radio" name="flags" value="*" checked="1" /> References of this and descendant reference types</label> <br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -392,13 +392,13 @@ if (action='r') or (action='rr') then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Object referring</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',Context['id'].AsInteger,0,0,'',true]);<</dd>
   <dt>Descendance</dt><dd>
-    <input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object</label> <br />
-    <input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label> <br />
+    <label><input type="radio" name="flags" value="" checked="1" /> Only this object</label> <br />
+    <label><input type="radio" name="flags" value="*" /> This object or one of its descendants</label> <br />
   </dd>
   <dt>With reference of type (optional)</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'reftype']);<</dd>
   <dt>Descendance</dt><dd>
-    <input type="radio" name="tflags" value="" id="tdesc0" /> <label for="tdesc0">Only references of this reference type</label> <br />
-    <input type="radio" name="tflags" value="*" id="tdesc1" checked="1" /> <label for="tdesc1">References of this and descendant reference types</label> <br />
+    <label><input type="radio" name="tflags" value="" /> Only references of this reference type</label> <br />
+    <label><input type="radio" name="tflags" value="*" checked="1" /> References of this and descendant reference types</label> <br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -413,13 +413,13 @@ if (action='rx') or (action='rxr') then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>Object referred to</dt><dd>>Context.Include('dObjSelect.xxmi',['obj',Context['id'].AsInteger,0,0,'',true]);<</dd>
   <dt>Descendance</dt><dd>
-    <input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object</label> <br />
-    <input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label> <br />
+    <label><input type="radio" name="flags" value="" id="desc0" checked="1" /> Only this object</label> <br />
+    <label><input type="radio" name="flags" value="*" id="desc1" /> This object or one of its descendants</label> <br />
   </dd>
   <dt>With reference of type (optional)</dt><dd>>Context.Include('dTypeSelect.xxmi',[itRefType,'reftype']);<</dd>
   <dt>Descendance</dt><dd>
-    <input type="radio" name="tflags" value="" id="tdesc0" /> <label for="tdesc0">Only references of this reference type</label> <br />
-    <input type="radio" name="tflags" value="*" id="tdesc1" checked="1" /> <label for="tdesc1">References of this and descendant reference types</label> <br />
+    <label><input type="radio" name="tflags" value="" /> Only references of this reference type</label> <br />
+    <label><input type="radio" name="tflags" value="*" checked="1" /> References of this and descendant reference types</label> <br />
   </dd>
   </dl>
   [[#txFormButton]]
@@ -435,8 +435,8 @@ if (action='uc') or (action='ut') or (action='ur') or (action='urx') then
   [[Context.Include('fOperators.xxmi',[filter]);]]
   <dt>User object</dt><dd>>Context.Include('dObjSelect.xxmi',['item'+action]);<</dd>
   <dt>Descendance</dt><dd>
-    <input type="radio" name="flags" value="" id="desc0" checked="1" /> <label for="desc0">Only this object</label><br />
-    <input type="radio" name="flags" value="*" id="desc1" /> <label for="desc1">This object or one of its descendants</label><br />
+    <label><input type="radio" name="flags" value="" checked="1" /> Only this object</label><br />
+    <label><input type="radio" name="flags" value="*" /> This object or one of its descendants</label><br />
   </dd>
   </dl>
   [[#txFormButton]]

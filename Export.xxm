@@ -33,39 +33,39 @@ if Context['x'].AsInteger=0 then
 
     <b>Include:</b><br />
 
-    <input type="checkbox" id="XPath1" name="path" value="1" checked="1" />
-    <label for="XPath1">Objects in path of filtered objects</label>
+    <label><input type="checkbox" name="path" value="1" checked="1" />
+    Objects in path of filtered objects</label>
     <br />
 
-    <input type="checkbox" id="XChildren1" name="children" value="1" />
-    <label for="XChildren1">Children of filtered objects,
+    <label><input type="checkbox" name="children" value="1" />
+    Children of filtered objects,
         <b>Attention:</b> don&#x27;t select this option if the filter expression already includes all children of filtered objects
     </label>
     <br />
 
-    <input type="checkbox" id="XRefered1" name="refered" value="1" />
-    <label for="XRefered1">Referred objects outside of primary selection</label>
+    <label><input type="checkbox" name="refered" value="1" />
+    Referred objects outside of primary selection</label>
     <br />
 
     <div style="margin-top: 0em; margin-right: 0em; margin-bottom: 0em; margin-left: 2em;">
-        <input type="checkbox" id="XRefPath1" name="refpath" value="1" checked="1" />
-        <label for="XRefPath1">Objects in path of referred objects</label>
+        <label><input type="checkbox" name="refpath" value="1" checked="1" />
+        Objects in path of referred objects</label>
         <br />
 
-        <input type="checkbox" id="XRefChildren1" name="refchildren" value="1" />
-        <label for="XRefChildren1">Children of refered objects</label>
+        <label><input type="checkbox" name="refchildren" value="1" />
+        Children of refered objects</label>
         <br />
     </div>
 
-    <input type="checkbox" id="XReports1" name="reports" value="1" />
-    <label for="XReports1">Reports</label>
+    <label><input type="checkbox" name="reports" value="1" />
+    Reports</label>
     <br />
 
     [[//TODO: filters, c/m userID, realm]]
 
     [[//
-    <input type="checkbox" id="" name="" value="1" />
-    <label for=""></label>
+    <label><input type="checkbox" name="..." value="1" />
+    ...</label>
     <br />
     ]]
 

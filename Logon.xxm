@@ -137,8 +137,8 @@ else
     </dl>
     <input type="hidden" name="url" value="[[=url]]" />
     <p>
-    <input type="checkbox" name="autologon" value="1" id="autologon1" />
-    <label for="autologon1">log on automatically on this computer</label>
+    <label><input type="checkbox" name="autologon" value="1" />
+    log on automatically on this computer</label>
     <br />
     [[#txFormButton]]
     </p>

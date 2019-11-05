@@ -1,14 +1,11 @@
 [[@Variants,]][[
 if (Length(Values)=0) or not(VarToStr(Values[0])='') then
-begin
-]]
+ begin
 
-<dt>Operator</dt><dd>
-	<input type="radio" name="oper" value="+" id="oper0" checked="1" /> <label for="oper0">AND</label> <br />
-	<input type="radio" name="oper" value="." id="oper1" /> <label for="oper1">OR</label> <br />
-	<input type="radio" name="oper" value="/" id="oper2" /> <label for="oper2">AND NOT</label> <br />
-</dd>
+<<dt>Operator</dt><dd>
+<label><input type="radio" name="oper" value="+" checked="1" /> AND</label> <br />
+<label><input type="radio" name="oper" value="." /> OR</label> <br />
+<label><input type="radio" name="oper" value="/" /> AND NOT</label> <br />
+</dd>>
 
-[[
-end;
-]]
+ end;

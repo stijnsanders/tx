@@ -8,21 +8,21 @@ id:=Values[0];
 <dl>
 <dt>Children</dt>
 <dd>
-    <input type="radio" name="children" value="0" id="children0" checked="1" />
-    <label for="children0">Delete children <b>(!)</b></label>
+    <label><input type="radio" name="children" value="0" checked="1" />
+    Delete children <b>(!)</b></label>
     <br />
-    <input type="radio" name="children" value="1" id="children1" />
-    <label for="children1">Move children to:</b></label>
+    <label><input type="radio" name="children" value="1" />
+    Move children to:</b></label>
     <br />
     [[Context.Include('dTypeSelect.xxmi',[itObjType,'movechto',0]);<</dd>
 </dd>
 <dt>Objects</dt>
 <dd>
-    <input type="radio" name="objects" value="0" id="objects0" checked="1" />
-    <label for="objects0">Delete objects <b>(!)</b></label>
+    <label><input type="radio" name="objects" value="0" checked="1" />
+    Delete objects <b>(!)</b></label>
     <br />
-    <input type="radio" name="objects" value="1" id="objects1" />
-    <label for="objects1">Change object type to:</b></label>
+    <label><input type="radio" name="objects" value="1" />
+    Change object type to:</b></label>
     <br />
     [[Context.Include('dTypeSelect.xxmi',[itObjType,'moveobjto',0]);<</dd>
 </dd>

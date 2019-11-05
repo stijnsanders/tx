@@ -264,108 +264,108 @@ else if Context['go'].AsInteger=0 then
             <dd><input type="text" name="summarytitle" size="40" value="" /></dd>
             <dt>
                 <!--
-                <input type="checkbox" name="objname" id="objname1" value="1" onclick="DoCheckBox(this);" checked="1" />
-                <label for="objname1">Object name (and icon)</label>
+                <label><input type="checkbox" name="objname" value="1" onclick="DoCheckBox(this);" checked="1" />
+                Object name (and icon)</label>
                 -->
                 Object name
             </dt>
             <dd>
-                <input type="radio" name="objnst" id="objnst0" value="0" onclick="DoRadioObjNSt(this);" checked="1" />
-                <label for="objnst0">Bold</label>
+                <label><input type="radio" name="objnst" value="0" onclick="DoRadioObjNSt(this);" checked="1" />
+                Bold</label>
                 <br />
 
-                <input type="radio" name="objnst" id="objnst1" value="1" onclick="DoRadioObjNSt(this);" />
-                <label for="objnst1">Underlined</label>
+                <label><input type="radio" name="objnst" value="1" onclick="DoRadioObjNSt(this);" />
+                Underlined</label>
                 <br />
 
-                <input type="radio" name="objnst" id="objnst2" value="2" onclick="DoRadioObjNSt(this);" />
-                <label for="objnst2">Italic</label>
+                <label><input type="radio" name="objnst" value="2" onclick="DoRadioObjNSt(this);" />
+                Italic</label>
                 <br />
 
-                <input type="radio" name="objnst" id="objnst3" value="3" onclick="DoRadioObjNSt(this);" />
-                <label for="objnst3">Normal</label>
+                <label><input type="radio" name="objnst" value="3" onclick="DoRadioObjNSt(this);" />
+                Normal</label>
                 <br />
             </dd>
             <dt>
-                <input type="checkbox" name="objdesc" id="objdesc1" value="1" onclick="DoCheckBox(this);" />
-                <label for="objdesc1">Object description</label>
+                <label><input type="checkbox" name="objdesc" value="1" onclick="DoCheckBox(this);" />
+                Object description</label>
             </dt>
             <dt>
                 Object location
             </dt>
             <dd>
-                <input type="radio" name="objpath" id="objpath1" value="1" onclick="DoRadioObjPath(this);" />
-                <label for="objpath1">Don't display</label>
+                <label><input type="radio" name="objpath" value="1" onclick="DoRadioObjPath(this);" />
+                Don&#x27;t display</label>
                 <br />
 
-                <input type="radio" name="objpath" id="objpath2" value="2" onclick="DoRadioObjPath(this);" />
-                <label for="objpath2">Above object name</label>
+                <label><input type="radio" name="objpath" value="2" onclick="DoRadioObjPath(this);" />
+                Above object name</label>
                 <br />
                 [[//TODO: above, but when not under parent already ]]
 
-                <input type="radio" name="objpath" id="objpath3" value="3" onclick="DoRadioObjPath(this);" />
-                <label for="objpath3">Below object name</label>
+                <label><input type="radio" name="objpath" value="3" onclick="DoRadioObjPath(this);" />
+                Below object name</label>
                 <br />
 
-                <input type="radio" name="objpath" id="objpath4" value="4" onclick="DoRadioObjPath(this);" checked="1" />
-                <label for="objpath4">Below object name with location icon</label>
+                <label><input type="radio" name="objpath" value="4" onclick="DoRadioObjPath(this);" checked="1" />
+                Below object name with location icon</label>
                 <br />
             </dd>
             <dt>
-                <input type="checkbox" name="treestructure" id="treestructure" value="1" onclick="DoCheckBoxClass(this);" />
-                <label for="treestructure">Display by tree structure</label>
+                <label><input type="checkbox" name="treestructure" value="1" onclick="DoCheckBoxClass(this);" />
+                Display by tree structure</label>
             </dt>
             <dt>Object information</dt>
             <dd>
-                <input type="checkbox" name="objtypename" id="objtypename1" onclick="DoCheckBox(this);" value="1" />
-                <label for="objtypename1">Object type name (top right)</label>
+                <label><input type="checkbox" name="objtypename" onclick="DoCheckBox(this);" value="1" />
+                Object type name (top right)</label>
             </dd>
             <dd>
-                <input type="checkbox" name="objdate" id="objdate1" value="1" onclick="DoCheckBox(this);" checked="1" />
-                <label for="objdate1">Object's created and modified date</label>
+                <label><input type="checkbox" name="objdate" value="1" onclick="DoCheckBox(this);" checked="1" />
+                Object&#x27;s created and modified date</label>
             </dd>
             <dd>
-                <input type="checkbox" name="objweight" id="objweight1" value="1" onclick="DoCheckBox(this);" checked="1" />
-                <label for="objweight1">Object's weight</label>
+                <label><input type="checkbox" name="objweight" value="1" onclick="DoCheckBox(this);" checked="1" />
+                Object&#x27;s weight</label>
             </dd>
             <dt>Tokens &amp; References</dt>
             <dd>
-                <input type="radio" name="tokref" id="tokref0" value="0" onclick="DoRadioTokRef(this);" />
-                <label for="tokref0">Don't display</label>
+                <label><input type="radio" name="tokref" value="0" onclick="DoRadioTokRef(this);" />
+                Don&#x27;t display</label>
                 <br />
 
-                <input type="radio" name="tokref" id="tokref1" value="1" onclick="DoRadioTokRef(this);" checked="1" />
-                <label for="tokref1">Icons only, tokens only (top right)</label>
+                <label><input type="radio" name="tokref" value="1" onclick="DoRadioTokRef(this);" checked="1" />
+                Icons only, tokens only (top right)</label>
                 <br />
 
-                <input type="radio" name="tokref" id="tokref2" value="2" onclick="DoRadioTokRef(this);" checked="1" />
-                <label for="tokref2">Icons only, tokens and references (top right)</label>
+                <label><input type="radio" name="tokref" value="2" onclick="DoRadioTokRef(this);" checked="1" />
+                Icons only, tokens and references (top right)</label>
                 <br />
 
-                <input type="radio" name="tokref" id="tokref3" value="3" onclick="DoRadioTokRef(this);" checked="1" />
-                <label for="tokref3">Small list (one line, icons)</label>
+                <label><input type="radio" name="tokref" value="3" onclick="DoRadioTokRef(this);" checked="1" />
+                Small list (one line, icons)</label>
                 <br />
 
-                <input type="radio" name="tokref" id="tokref4" value="4" onclick="DoRadioTokRef(this);" />
-                <label for="tokref4">Full list, tokens only</label>
+                <label><input type="radio" name="tokref" value="4" onclick="DoRadioTokRef(this);" />
+                Full list, tokens only</label>
                 <br />
 
-                <input type="radio" name="tokref" id="tokref5" value="5" onclick="DoRadioTokRef(this);" />
-                <label for="tokref5">Full list, tokens and references</label>
+                <label><input type="radio" name="tokref" value="5" onclick="DoRadioTokRef(this);" />
+                Full list, tokens and references</label>
                 <br />
             </dd>
             <dt>Children</dt>
             <dd>
-                <input type="radio" name="children" id="children0" value="0" onclick="DoRadioChildren(this);" checked="1" />
-                <label for="children0">Don&#x27;t display</label>
+                <label><input type="radio" name="children" value="0" onclick="DoRadioChildren(this);" checked="1" />
+                Don&#x27;t display</label>
                 <br />
 
-                <input type="radio" name="children" id="children1" value="1" onclick="DoRadioChildren(this);" />
-                <label for="children1">Small list (one line, label, icons)</label>
+                <label><input type="radio" name="children" value="1" onclick="DoRadioChildren(this);" />
+                Small list (one line, label, icons)</label>
                 <br />
 
-                <input type="radio" name="children" id="children2" value="2" onclick="DoRadioChildren(this);" />
-                <label for="children2">Full list</label>
+                <label><input type="radio" name="children" value="2" onclick="DoRadioChildren(this);" />
+                Full list</label>
                 <br />
             </dd>
         </dl>

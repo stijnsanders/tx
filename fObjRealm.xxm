@@ -14,7 +14,7 @@ if ItemType<>itObj then raise Exception.Create('Realm change only supported on o
 
 IsAdmin:=Session.IsAdmin('realms');
 
-<<h2>Object's Realm</h2>
+<<h2>Object&#x27;s Realm</h2>
 [[#txForm('aObjRealm.xxm',[])]]
 [[#txFormProtect]]
 [[
@@ -27,8 +27,8 @@ finally
 end;
 <<input type="hidden" name="x" value="[[=x]]" />
 <p>
-<input type="radio" name="rlm" value="0" id="Rlm0" [[if RlmID=0 then Context.SendHTML('checked="1"');]] />
-<label for="Rlm0"><i>Default realm</i> #0</label>
+<label><input type="radio" name="rlm" value="0" [[if RlmID=0 then Context.SendHTML('checked="1"');]] />
+<i>Default realm</i> #0</label>
 </p>>
 qr:=TQueryResult.Create(Session.DbCon,'SELECT id,name,'+sqlDesc+' FROM Rlm WHERE id>0 ORDER BY id',[]);
 try
@@ -44,8 +44,8 @@ try
     if InControl then
      begin
       <<p>
-      <input type="radio" name="rlm" value="[[=id]]" id="Rlm[[=id]]" [[if RlmID=id then Context.SendHTML('checked="1"');]] />
-      <label for="Rlm[[=id]]"><b>>.name<</b> #[[=id<</label>
+      <label><input type="radio" name="rlm" value="[[=id]]" [[if RlmID=id then Context.SendHTML('checked="1"');]] />
+      <b>>.name<</b> #[[=id<</label>
       </p>
       <div style="margin-left:2em;">>#qr['desc']<</div>>
       //TODO: SafeHTML
@@ -56,12 +56,12 @@ finally
 end;
 <<p class="midnav">change realm on descendants</p>
 <p>
-<input type="radio" name="d" value="0" id="d0" checked="1" />
-<label for="d0">this item only</label><br />
-<input type="radio" name="d" value="1" id="d1" />
-<label for="d1">this and any descendant items within the current realm</label><br />
-<input type="radio" name="d" value="2" id="d2" />
-<label for="d2">this and all descendant items, overriding realm</label><br />
+<label><input type="radio" name="d" value="0" checked="1" />
+this item only</label><br />
+<label><input type="radio" name="d" value="1" />
+this and any descendant items within the current realm</label><br />
+<label><input type="radio" name="d" value="2" />
+this and all descendant items, overriding realm</label><br />
 </p>
 <p>[[#txFormButton]] <a href="Item.xxm?x=[[=x]]">back</a></p>
 </form>>

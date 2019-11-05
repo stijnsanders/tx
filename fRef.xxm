@@ -33,15 +33,14 @@ if rid<>0 then id:=qrGetDefault('obj1_id',0);//reference move not supported
 [[#txFormButton]]
 <a href="Item.xxm?x=i[[=id]]">back</a>
 <br />
-<input type="radio" name="x" id="x0" value="0" checked="1" />
-<label for="x0">return to item</label>
-<input type="radio" name="x" id="x1" value="1" />
-<label for="x1">add a token</label>
-<input type="radio" name="x" id="x2" value="2" />
-<label for="x2">add another reference</label>
+<label><input type="radio" name="x" value="0" checked="1" />
+return to item</label>
+<label><input type="radio" name="x" value="1" />
+add a token</label>
+<label><input type="radio" name="x" value="2" />
+add another reference</label>
 </form>>
 finally
   qr.Free;
 end;
 Context.Include('dFoot.xxmi');
-]]
