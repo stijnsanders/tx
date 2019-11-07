@@ -28,7 +28,28 @@ else
     id:=Session.Journals[i].obj_id;
     if id=0 then
      begin
-      <<td colspan="3"><a class="linkbutton" target="MainFrame" href="Journal.xxm?id=[[=Session.Journals[i].jrl_id]]" title="[[=Session.Journals[i].jrl_name]]">...</a></td>>
+      <<td colspan="3">
+      <a class="linkbutton" target="MainFrame" href="Journal.xxm?id=[[=Session.Journals[i].jrl_id]]" title="[[=Session.Journals[i].jrl_name]]">...</a>
+      &nbsp;
+      [[
+      qr:=TQueryResult.Create(Session.DbCon,'select Obj.id, Obj.name, ObjType.icon'
+        +' from Jre'
+        +' inner join Jrt on Jrt.id=Jre.jrt_id'
+        +' inner join Obj on Obj.id=Jre.obj_id'
+        +' inner join ObjType on ObjType.id=Obj.objtype_id'
+        +' where Jrt.jrl_id=? and Jre.ts>?'
+        +' group by Obj.id, Obj.name, ObjType.icon'
+        +' order by sum(Jre.minutes) desc'
+        +' limit 5',[Session.Journals[i].jrl_id,Now-1.0]);
+      try
+        while qr.Read do
+         begin
+          <<a target="MainFrame" href="Item.xxm?x=i[[.id]]" title="[[.name]]">>#txImg(qr.GetInt('icon'))<</a>>
+         end;
+      finally
+        qr.Free;
+      end;
+      <</td>>
      end
     else
      begin
