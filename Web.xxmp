@@ -992,6 +992,11 @@
 			"path": "MaintUst.xxm",
 			"unitName": "maintust_xxm1",
 			"unitPath": ""
+		},
+		"jrltotals_xxm": {
+			"path": "JrlTotals.xxm",
+			"unitName": "jrltotals_xxm1",
+			"unitPath": ""
 		}
 	},
 	"units": {

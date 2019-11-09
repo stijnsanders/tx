@@ -1,0 +1,372 @@
+[[@txSession,txDefs,txFilter,txFilterSql,txCache,txNodes,DataLank]][[!var
+IsAdmin:boolean;
+qr:TQueryResult;
+i,id,c,pid:integer;
+fs0,fs1,fs2,fp,fr:UTF8String;
+jrt,csv:boolean;
+fusers,fitems:string;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+LocationCache:TItemCache;
+ln:TLocationNode;
+]][[
+
+csv:=Context['csv'].AsInteger=1;
+if not(csv) then
+  Context.Include('dHead.xxmi',['Journals: Totals']);
+IsAdmin:=Session.IsAdmin('journals');
+//assert Use_Journals
+id:=Context['id'].AsInteger;
+
+
+if id=0 then
+ begin
+
+  if IsAdmin then
+    qr:=TQueryResult.Create(Session.DbCon,'select * from Jrl order by id',[])
+  else
+   begin
+    fs0:='';
+    c:=0;
+    for i:=0 to Length(Session.Journals)-1 do
+      if Session.Journals[i].CanConsult then
+       begin
+        fs0:=fs0+','+IntToStrU(Session.Journals[i].jrl_id);
+        inc(c);
+       end;
+    case c of
+      0:fs0:='=0';//assert no Jrl.id=0
+      1:fs0[1]:='=';
+      else
+       begin
+        fs0[1]:='(';
+        fs0:=' in '+fs0+')';
+       end;
+    end;
+    qr:=TQueryResult.Create(Session.DbCon,'select * from Jrl where Jrl.id'+fs0+' order by id',[]);
+   end;
+  try
+    <<h2>Journal totals</h2>>
+    if qr.EOF then
+     begin
+      if IsAdmin then
+       begin
+        <<p class="information">No journals.<br /><a href="fJrl.xxm">Click here</a> to create a journal.</p>>
+       end
+      else
+       begin
+        <<p class="information">You currently have no consultable journals.</p>>
+       end;
+     end
+    else
+     begin
+      <<p>Select a journal to total entries:</p>
+      <ul>>
+      while qr.Read do
+       begin
+        <<li><a href="[[?'id',qr['id']]]">>.name<</a></li>>
+       end;
+      <</ul>>
+     end;
+  finally
+    qr.Free;
+  end;
+ 
+ end
+else
+ begin
+  if not IsAdmin then
+   begin
+    i:=0;
+    while (i<Length(Session.Journals)) and (Session.Journals[i].jrl_id<>id) do inc(i);
+    if not((i<Length(Session.Journals)) and Session.Journals[i].CanConsult) then
+      raise Exception.Create('Access denied');
+   end;
+
+  if not(csv) then
+   begin
+    qr:=TQueryResult.Create(Session.DbCon,'select * from Jrl where id=?',[id]);
+    try
+      <<h2>>.name<</h2>>
+      //TODO: granularity
+    finally
+      qr.Free;
+    end;
+   end;
+
+  if Context['p'].Value='' then //TODO:
+   begin
+
+    <<form method="get">
+    <input type="hidden" name="id" value="[[=id]]" />
+    <dl>
+    <dt>Totals by period</dt>
+    <dd>
+    <label><input type="radio" name="p" value="0" /> <i>by journal granularity</i></label><br />
+    <label><input type="radio" name="p" value="1" /> hourly</label><br />
+    <label><input type="radio" name="p" value="2" /> daily</label><br />
+    <label><input type="radio" name="p" value="3" /> weekly</label><br />
+    <label><input type="radio" name="p" value="4" checked="1" /> monthly</label><br />
+    <label><input type="radio" name="p" value="5" /> quarterly</label><br />
+    <label><input type="radio" name="p" value="6" /> yearly</label><br />
+    </dd>
+    <dt>Options</dt>
+    <dd>
+    <label><input type="checkbox" name="t" value="1" checked="1" />
+    Totals by entry types</label><br />
+    <label><input type="checkbox" name="z" value="1" />
+    Ignore entries of zero length</label><br />
+    </dd>
+    [[//assert Use_ObjPath]]
+    <dt>Filter  ects in path of user (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">ot"usergroup"*</span>)</span></dt>
+    <dd>
+    [[Context.Include('dFltSelect.xxmi',['u','']);]]
+    <label><input type="radio" name="ur" value="0" /> highest</label><br />
+    <label><input type="radio" name="ur" value="1" checked="1" /> lowest</label><br />
+    </dd>
+    <dt>Filter objects in path of entry (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">ot"project"*</span>)</span></dt>
+    <dd>
+    [[Context.Include('dFltSelect.xxmi',['i','']);]]
+    <label><input type="radio" name="ir" value="0" /> highest</label><br />
+    <label><input type="radio" name="ir" value="1" checked="1" /> lowest</label><br />
+    </dd>
+    </dl>
+    <p>>#txFormButton<</p>
+    </form>>
+
+    //TODO
+
+   end
+  else
+   begin
+
+    jrt:=Context['t'].AsInteger=1;
+
+    fs0:='select Jre.id,Jre.obj_id,Jre.uid'
+      +',Jre.ts+2415018.5 as ets' //,datetime('1900-01-01',(Jre.ts-2.0)||' day') as ets
+      +',Jre.minutes';
+    if jrt then fs0:=fs0+',Jre.jrt_id';
+    fs0:=fs0
+      +#13#10'from Jre inner join Jrt on Jrt.id=Jre.jrt_id'
+      +' where Jrt.jrl_id=?';
+    if Context['z'].AsInteger=1 then fs0:=fs0+' and Jre.minutes<>0';
+
+    fusers:=Context['u1'].Value;
+    if fusers='' then fusers:=Context['u2'].Value;
+
+    if fusers<>'' then
+     begin
+      fq:=TtxSqlQueryFragments.Create(itObj);
+      try
+        fq.Fields:='X0.*';
+        fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10
+          +'INNER JOIN ('#13#10+fs0+#13#10') X0 on X0.uid=Obj.id'#13#10;
+        f:=TtxFilter.Create;
+        try
+          f.FilterExpression:=UTF8Encode(fusers);
+          if f.ParseError<>'' then
+           begin
+            <<p style="color:red;">>=f.ParseError<</p>>
+           end;
+          fq.AddFilter(f);
+        finally
+          f.Free;
+        end;
+
+        //TODO:
+        //if fq.Where<>'' then fq.Where:=' AND ('+fq.Where+')';
+        //fq.Where:='Obj.rlm_id'+Session.Realms[rpFilter].SQL+fq.Where;//?
+        fq.OrderBy:='';
+
+        fs0:=fq.SQL;
+      finally
+        fq.Free;
+      end;
+     end;
+
+    case Context['ur'].AsInteger of
+      0:fr:='P1.lvl desc';
+      1:fr:='P1.lvl';//asc
+      //else raise?
+    end;
+    fs1:='select Y1.id,Y1.obj_id,Y1.uid,Y1.ets,Y1.minutes';
+    if jrt then fs1:=fs1+',Y1.jrt_id';
+    fs1:=fs1
+      +' from ('#13#10
+      +'select X1.id,X1.obj_id,P1.pid as uid,X1.ets,X1.minutes';
+    if jrt then fs1:=fs1+',X1.jrt_id';
+    fs1:=fs1
+      +',rank()over(partition by X1.id order by '+fr+') as R1'
+      +' from ('#13#10+fs0+#13#10') X1'
+      +' inner join ObjPath P1 on P1.oid=X1.uid'
+      +#13#10') Y1 where Y1.R1=1';
+
+    fitems:=Context['i1'].Value;
+    if fitems='' then fitems:=Context['i2'].Value;
+
+    if fitems<>'' then
+     begin
+      fq:=TtxSqlQueryFragments.Create(itObj);
+      try
+        fq.Fields:='Z.*';
+        fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10
+          +'INNER JOIN ('#13#10+fs1+#13#10') Z on Z.obj_id=Obj.id'#13#10;
+        f:=TtxFilter.Create;
+        try
+          f.FilterExpression:=UTF8Encode(fitems);
+          if f.ParseError<>'' then
+           begin
+            <<p style="color:red;">>=f.ParseError<</p>>
+           end;
+          fq.AddFilter(f);
+        finally
+          f.Free;
+        end;
+
+        //TODO:
+        //if fq.Where<>'' then fq.Where:=' AND ('+fq.Where+')';
+        //fq.Where:='Obj.rlm_id'+Session.Realms[rpFilter].SQL+fq.Where;//?
+        fq.OrderBy:='';
+
+        fs1:=fq.SQL;
+      finally
+        fq.Free;
+      end;
+     end;
+
+    case Context['ir'].AsInteger of
+      0:fr:='P2.lvl desc';
+      1:fr:='P2.lvl';//asc
+      //else raise?
+    end;
+    fs2:='select Y2.id,Y2.obj_id,Y2.uid,Y2.ets,Y2.minutes';
+    if jrt then fs2:=fs2+',Y2.jrt_id';
+    fs2:=fs2
+      +' from ('#13#10
+      +'select X2.id,P2.pid as obj_id,X2.uid,X2.ets,X2.minutes';
+    if jrt then fs2:=fs2+',X2.jrt_id';
+    fs2:=fs2
+      +',rank()over(partition by X2.id order by '+fr+') as R2'
+      +' from ('#13#10+fs1+#13#10') X2'
+      +' inner join ObjPath P2 on P2.oid=X2.obj_id'
+      +#13#10') Y2 where Y2.R2=1';
+
+    case Context['p'].AsInteger of
+      0://by journal granularity
+        fp:='strftime(''%Y-%m-%d %H:%M'',ets)';
+      1://hourly
+        fp:='strftime(''%Y-%m-%d %H'',ets)';
+      2://daily
+        fp:='strftime(''%Y-%m-%d'',ets)';
+      3://weekly
+        fp:='strftime(''%Y:%W'',ets)';
+        //iso-week? (strftime('%j',date('1900-01-01','+'||(Jre.ts-5.0)||' day','weekday 4'))-1)/7+1
+      4://monthly
+        fp:='strftime(''%Y-%m'',ets)';
+      5://quarterly
+        fp:='strftime(''%Y'',ets)'+'||'' Q''||((cast(strftime(''%m'',ets) as int)-1)/3+1)';
+      6://yearly
+        fp:='strftime(''%Y'',ets)';
+      else
+        fp:='"invalid period"';//raise?
+    end;
+
+    fs0:='select '+fp+' as period,XX.obj_id,XX.uid';
+    if jrt then fs0:=fs0+',XX.jrt_id';
+    fs0:=fs0
+      +',sum(XX.minutes) as minutes,count(*) as entries';
+    if jrt then fs0:=fs0
+      +',Jrt.icon as jrt_icon,Jrt.name as jrt_name';
+    if csv then fs0:=fs0 
+      +',O1.name as usr_name,O2.name as obj_name';
+    fs0:=fs0
+      +' from ('#13#10+fs2+#13#10') XX';
+    if jrt then fs0:=fs0
+      +' inner join Jrt on Jrt.id=XX.jrt_id';
+    if csv then fs0:=fs0
+      +' inner join Obj O1 on O1.id=XX.uid'
+      +' inner join Obj O2 on O2.id=XX.obj_id';
+    fs0:=fs0
+      +' group by '+fp;
+    if jrt then fs0:=fs0+',jrt_id';
+    fs0:=fs0
+      +' order by 1 desc';//obj_weight,u_weight?
+
+    LocationCache:=TItemCache.Create;
+    qr:=TQueryResult.Create(Session.DbCon,fs0,[id]);
+    try
+      if qr.EOF then
+       begin
+        <<p><i>No journal entries found.</i></p>>
+       end
+      else
+      if csv then
+       begin
+        Context.ContentType:='text/csv';
+        Context.DispositionAttach('JrtTotals'+FormatDateTime('yyyymmddhhnnss',Now)+'.csv');
+        Context.SendHTML('Period;UserID;User;ObjectID;Object;');
+        if jrt then Context.SendHTML('EntryID;Entry;');
+        Context.SendHTML('Minutes;Entries'#13#10);
+        while qr.Read do
+         begin
+          Context.SendHTML([qr['period'],';',qr['uid'],';',qr['usr_name'],';',qr['obj_id'],';',qr['obj_name'],';']);
+          if jrt then Context.SendHTML([qr['jrt_id'],';',qr['jrt_name'],';']);
+          Context.SendHTML([qr['minutes'],';',qr['entries'],#13#10]);
+         end;
+       end
+      else
+       begin
+        <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+        <tr>
+        <th>period</th>
+        <th>user</th>
+        <th>object</th>>
+        if jrt then
+         begin
+          <<th>entry</th>>
+         end;
+        <<th title="minutes">&#x27;</th>
+        <th title="count">#</th>
+        </tr>>
+
+        while qr.Read do
+         begin
+           
+          <<tr>
+          <td>>.period<</td>>
+
+          pid:=qr.GetInt('uid');
+          ln:=LocationCache[pid] as TLocationNode;
+          if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+          <<td>>#ln.GetHTML([ghLink,ghIcon,ghName,ghTitle,ghFrameListClass],pid)<</td>>
+
+          pid:=qr.GetInt('obj_id');
+          ln:=LocationCache[pid] as TLocationNode;
+          if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+          <<td>>#ln.GetHTML([ghLink,ghIcon,ghName,ghTitle,ghFrameListClass],pid)<</td>>
+
+          if jrt then
+           begin
+            <<td>[[#txImg(qr.GetInt('jrt_icon'))]] [[.jrt_name]]</td>>
+           end;
+
+          <<td style="text-align:right;">>.minutes<</td>
+          <td style="text-align:right;">>.entries<</td>
+          </tr>>
+         end;
+
+        <</table>
+        <p><a class="linkbutton" href="?[[=Context.ContextString(csQueryString)]]&csv=1">CSV...</a></p>>
+      end;
+    finally
+      qr.Free;
+      LocationCache.Free;
+    end;
+
+   end;
+
+
+ end;
+
+if not(csv) then
+  Context.Include('dFoot.xxmi');

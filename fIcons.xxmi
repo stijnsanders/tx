@@ -18,7 +18,7 @@ function seticon[[=fname]](x)
 <i style="color:#999999;">select an icon below, here is shown if it's in use.</i>
 </div>>
 if i<>-1 then begin <<script>seticon[[=fname]]([[=i]]);</script>> end;
-<<div style="overflow-y:scroll;border:1px solid silver;padding:4px;">>
+<<div style="max-height:8em;overflow-y:scroll;border:1px solid silver;padding:4px;">>
 i:=0;
 d:=ModulePath+'img\';
 fn:=d+'ic'+IntToStr(i)+'.png';

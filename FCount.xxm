@@ -216,7 +216,7 @@ try
     1://weekly
      begin
       i:=Trunc(d1);
-      d1:=d1-((i-2)  mod 7);
+      d1:=d1-((i-2) mod 7);
       d2:=d1+7;
      end;
     2://monthly
@@ -245,7 +245,7 @@ try
       0:s:=IntToStr(dd);//daily
       1:s:=IntToStr(dd);//weekly
       2:s:=IntToStr(dm);//monthly
-      3:s:=IntToStr(((dm-1)div 3)+1);//quarterly
+      3:s:=IntToStr(((dm-1) div 3)+1);//quarterly
     end;
     run:=fg.StartPosition(s);
     if run then
@@ -254,7 +254,7 @@ try
         0://daily
          begin
           if dd=1 then if dm=1 then fg.SecondLabel(IntToStr(dy)+'-'+IntToStr(dm)) else fg.SecondLabel(IntToStr(dm));
-          if ((Trunc(d1)-2)  mod 7)=0 then fg.VerticalIncrement;
+          if ((Trunc(d1)-2) mod 7)=0 then fg.VerticalIncrement;
          end;
         1://weekly
           if dd<=7 then

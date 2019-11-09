@@ -371,11 +371,11 @@ else
         pid:=qr.GetInt('pid');
         s:=' ';
         while (pid<>0) and Context.Connected do
-        begin
+         begin
           ln:=LocationCache[pid] as TLocationNode;
           if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
           s:=ln.GetHTML([ghLink,ghIcon,ghTitle,ghFrameListClass],pid)+s;
-        end;
+         end;
         Context.SendHTML(s);
         Context.Include('dObjLink.xxmi',[],[qr]);
         Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
