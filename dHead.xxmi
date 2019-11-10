@@ -45,7 +45,7 @@ if not(Session.IsAnonymous) then
 <body bgcolor="#FFFFFF">
 <div id="topnav"><div id="toplogo">>=ApplicationName<</div><div id="topnavbar" style="padding-left:2.3em;">
 
-  <span id="frameLink"><a href="Frame.xxm" onclick="document.location.replace('f?/'+relativeURL());return false;">&raquo; frame</a> | </span>
+  <span id="frameLink"><a href="Frame.xxm" onclick="document.location.replace('f?/'+txRelativeURL());return false;">&raquo; frame</a> | </span>
 
   <script><!--
   function txRelativeURL(){
