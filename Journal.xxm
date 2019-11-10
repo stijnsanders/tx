@@ -122,6 +122,15 @@ if id=0 then
       ]]" class="linkbutton">journals...</a>>
      end;
     <</p>>
+
+    s:=Context.ContextString(csReferer);
+    if LowerCase(Copy(s,Length(s)-11,12))='/journal.xxm' then
+     begin
+      <<script><!--
+      jrl_update();
+      //--></script>>
+     end;
+
   end;
  end
 else

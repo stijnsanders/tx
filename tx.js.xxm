@@ -308,4 +308,11 @@ function default_form_submit(x)
 	else
 		return false;
 }
-[[end;
+function jrl_update()
+{
+	var f=window.parent.frames["TreeFrameJrl"];
+	if(f)f.location.reload();
+}
+
+[[
+end;

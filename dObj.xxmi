@@ -78,7 +78,8 @@ if Use_Journals then
         ]]
         [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start,Session.Journals[i].granularity)]]
         <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-          {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'});return false;">&bullet;</a>
+          {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'},
+          jrl_update);return false;">&bullet;</a>
         &nbsp;[[
        end
       else
@@ -88,7 +89,8 @@ if Use_Journals then
           while qr1.Read do
            begin
             <<span onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-              {id:[[=Session.Journals[i].jrl_id]],t:[[=qr1.GetInt('id')]],x:[[=id]],xxx:'[[#Session.SessionCrypt]]'});">>#txImg(qr1.GetInt('icon'),qr1.GetStr('name'))<</span>>
+              {id:[[=Session.Journals[i].jrl_id]],t:[[=qr1.GetInt('id')]],x:[[=id]],xxx:'[[#Session.SessionCrypt]]'},
+              jrl_update);">>#txImg(qr1.GetInt('icon'),qr1.GetStr('name'))<</span>>
            end;
         finally
           qr1.Free;
