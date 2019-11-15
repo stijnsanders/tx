@@ -93,7 +93,7 @@ if (action='') and (filter<>'') then
             'is of object type',//faObjType
             'has a token of type',//faTokType
             'has a reference of type',//faRefType
-            'referred to by',//faRef
+            'is referred to by',//faRef
             'refers to',//faBackRef
             'is created by',//faCreated
             'has a token created by',//faTokCreated

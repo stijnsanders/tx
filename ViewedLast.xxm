@@ -1,6 +1,9 @@
-[[@txDefs,DataLank,txSession,]][[!var
-  qr:TQueryResult;
-  i,id:integer;
+[[@txDefs,DataLank,txSession,txCache,txNodes]][[!var
+qr:TQueryResult;
+i,id,pid:integer;
+LocationCache:TItemCache;
+ln:TLocationNode;
+s:string;
 ]][[
 
 Context.Include('dHead.xxmi',['Viewed recently']);
@@ -16,22 +19,48 @@ if (ViewedLastCount=0) or (Session.ViewedLast[0]=0) then
   <a href="Search.xxm">search...</a>,
   <a href="Log.xxm">log...</a>
   </p>>
- end;
-
-i:=0;
-while not(i=ViewedLastCount) and not(Session.ViewedLast[i]=0) and Context.Connected do
+ end
+else
  begin
-  id:=Session.ViewedLast[i];
-  qr:=TQueryResult.Create(Session.DbCon,sqlObjByID,[id]);
+  
+  LocationCache:=TItemCache.Create;
   try
-    Context.Include('dObjLink.xxmi',[],[qr]);
-    Context.Include('dObjTokRef.xxmi',[id,#13#10' ','&nbsp;'],[qr]);
-    Context.Include('d_cmw.xxmi',[],[qr]);
-    <<br />>
+    <<p id="vliTitle" class="highlight1" style="position:absolute;margin:0em;font-weight:bold;"></p>
+    <p>>
+    i:=0;
+    while not(i=ViewedLastCount) and not(Session.ViewedLast[i]=0) and Context.Connected do
+     begin
+      id:=Session.ViewedLast[i];
+      qr:=TQueryResult.Create(Session.DbCon,sqlObjByID,[id]);
+      try
+        s:=' ';
+        pid:=qr.GetInt('pid');
+        while (pid<>0) and Context.Connected do
+         begin
+          ln:=LocationCache[pid] as TLocationNode;
+          if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+          s:=ln.GetHTML([ghLink,ghIcon,ghTitle,ghFrameListClass],pid)+s;
+         end;
+        Context.SendHTML(s);
+        Context.Include('dObjLink.xxmi',[],[qr]);
+        Context.Include('dObjTokRef.xxmi',[id,#13#10' ','&nbsp;'],[qr]);
+        Context.Include('d_cmw.xxmi',[],[qr]);
+        <<br />>
+      finally
+        qr.Free;
+      end;
+      inc(i);
+     end;
+    <</p>
+    <script><!--
+    $(".fli")
+    .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#vliTitle").text(this.title);})
+    .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#vliTitle").text("");});
+    //--></script>>
   finally
-    qr.Free;
+    LocationCache.Free;
   end;
-  inc(i);
+
  end;
 
 <<p>

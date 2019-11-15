@@ -19,7 +19,7 @@ if (keywords='') then
   <<div style="margin:0em;">
   <input type="text" id="searchText_[[=name]]" name="keywords" value="[[=Context['dss'].Value]]" size="50"
   onfocus="search_typeEnter('[[=name]]','[[=txItemTypeKey[ItemType]]]',[[=exclude]],this);" onblur="search_typeLeave(this);" />
-  <label><input type="checkbox" name="wholename" value="1" /> match whole name</label>
+  <label><input type="checkbox" id="searchTextName_[[=name]]" name="wholename" value="1" /> match whole name</label>
   <br />
   <button id="searchButton_[[=name]]" onclick="return search_typeSubmit('[[=name]]','[[=txItemTypeKey[ItemType]]]',[[=exclude]]);">Search</button>
   |

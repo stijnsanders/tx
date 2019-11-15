@@ -140,6 +140,7 @@ else
   if i=Length(Session.Journals) then raise Exception.Create('Unknown journal');
 
   <<h2>>=Session.Journals[i].jrl_name<</h2>>
+  Context.Flush;
 
   if filter<>'' then
    begin

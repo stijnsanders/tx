@@ -1,41 +1,69 @@
-[[@txDefs,txSession,DataLank,]][[!
-var
-  id:integer;
-  qrRef:TQueryResult;
+[[@txDefs,txSession,DataLank,txCache,txNodes]][[!var
+id,pid:integer;
+qrRef:TQueryResult;
+LocationCache:TItemCache;
+ln:TLocationNode;
+s:string;
 ]][[
 
 CheckCallProtect(Context);
 id:=Context['id'].AsInteger;
 
 qrRef:=TQueryResult.Create(Session.DbCon,
-  'SELECT Ref.id, Ref.obj1_id, Ref.obj2_id, Ref.'+sqlDesc+', Ref.weight, Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts, RefType.icon, RefType.name AS typename, Obj.name, ObjType.icon AS objicon, ObjType.name AS objtypename '+
+  'SELECT Ref.id, Ref.obj1_id, Ref.obj2_id, Ref.'+sqlDesc+', Ref.weight, Ref.c_uid, Ref.c_ts, Ref.m_uid, Ref.m_ts, RefType.icon, RefType.name AS typename'+
+  ', Obj.pid, Obj.name, ObjType.icon AS objicon, ObjType.name AS objtypename '+
   'FROM Ref '+
   'INNER JOIN RefType ON RefType.id=Ref.reftype_id '+
   'INNER JOIN Obj ON Obj.id=Ref.obj1_id '+
   'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
   'WHERE Ref.obj2_id=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' ORDER BY Ref.weight, Obj.weight',[id]);
-<<p class="midnav">[[/#lblReferences]]references to object
-  <a href="Filter.xxm?filter=rx[[#id]]" class="linkbutton">filter...</a>
-  <a href="FilterBuild.xxm?x=rx&amp;id=[[#id]]" class="linkbutton">build...</a>
-  <a href="FrameTrace.xxm?id=[[#id]]" class="linkbutton" target="TreeFrame">trace...</a>
-</p>>
-if qrRef.EOF then
- begin
-  <<p class="information">
-  No items found in your current viewable realms.
-  <a href="Filter.xxm?filter=rx[[#id]]&amp;view=any">Click here</a>
-  to search both viewable or editable realms.
+try
+  <<p id="rxiTitle" class="highlight1" style="position:absolute;margin:0em;font-weight:bold;"></p>
+  <p class="midnav">[[/#lblReferences]]references to object
+    <a href="Filter.xxm?filter=rx[[#id]]" class="linkbutton">filter...</a>
+    <a href="FilterBuild.xxm[[?'x','rx','id',id]]" class="linkbutton">build...</a>
+    <a href="FrameTrace.xxm[[?'id',id]]" class="linkbutton" target="TreeFrame">trace...</a>
   </p>>
- end
-else
-  while qrRef.Read and Context.Connected do
+  if qrRef.EOF then
    begin
-    <<p><a href="Item.xxm?x=i[[=qrRef['obj1_id']]]" title="[[=qrRef['objtypename']]]">
-    [[#txImg(qrRef['objicon'])]]
-    [[=qrRef['name']]]</a>
-    [[#txImg(qrRef['icon'])]] [[=qrRef['typename']]]</p>
-    [[#qrRef['desc']]]
-    <p>>Context.Include('d_cmw.xxmi',[],[qrRef]);<</p>>
-    //TODO: SafeHTML
+    <<p class="information">
+    No items found in your current viewable realms.
+    <a href="Filter.xxm?filter=rx[[#id]]&amp;view=any">Click here</a>
+    to search both viewable or editable realms.
+    </p>>
+   end
+  else
+   begin
+    LocationCache:=TItemCache.Create;
+    try
+      while qrRef.Read and Context.Connected do
+       begin
+        pid:=qrRef.GetInt('pid');
+        s:=' ';
+        while (pid<>0) and Context.Connected do
+         begin
+          ln:=LocationCache[pid] as TLocationNode;
+          if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+          s:=ln.GetHTML([ghLink,ghIcon,ghTitle,ghFrameListClass],pid)+s;
+         end;
+        <<p>>#s<<a href="Item.xxm?x=i[[=qrRef['obj1_id']]]" title="[[=qrRef['objtypename']]]">
+        [[#txImg(qrRef['objicon'])]]
+        [[=qrRef['name']]]</a>
+        [[#txImg(qrRef['icon'])]] [[=qrRef['typename']]]</p>
+        [[#qrRef['desc']]]
+        <p>>Context.Include('d_cmw.xxmi',[],[qrRef]);<</p>>
+        //TODO: SafeHTML
+       end;
+      <<script><!--
+      $(".fli")
+      .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#rxiTitle").text(this.title);})
+      .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#rxiTitle").text("");});
+      //--></script>>
+    finally
+      LocationCache.Free;
+    end;
    end;
-qrRef.Free;
+finally
+  qrRef.Free;
+end;
+  

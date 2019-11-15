@@ -1,6 +1,7 @@
 [[Context.Include('dHead.xxmi',['System Status']);]]
 
 <h1>diagnostic</h1>
+[[Context.Flush;]]
 <dl>
 <dt>url</dt><dd>>=Context.URL<</dd>
 <dt>sessionID</dt><dd>>=Context.SessionID<</dd>
@@ -24,6 +25,7 @@
 </dl>
 
 <h1>parameters</h1>
+[[Context.Flush;]]
 <dl>>
 for i:=0 to Context.ParameterCount-1 do
  begin
@@ -32,6 +34,7 @@ for i:=0 to Context.ParameterCount-1 do
 <</dl>
 
 <h1>headers</h1>
+[[Context.Flush;]]
 [[@xxmHeaders]][[!var
 d1:IXxmDictionaryEx;
 di:integer;
@@ -46,6 +49,7 @@ for di:=0 to d1.Count-1 do
 
 
 <h1>realm permissions</h1>
+[[Context.Flush;]]
 [[@Windows,txDefs,txSession,DataLank,txFilter,txFilterSql]][[!var
   qr,qr1:TQueryResult;
   fx,fr,s:string;

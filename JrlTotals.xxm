@@ -118,7 +118,7 @@ else
     Ignore entries of zero length</label><br />
     </dd>
     [[//assert Use_ObjPath]]
-    <dt>Filter  ects in path of user (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">ot"usergroup"*</span>)</span></dt>
+    <dt>Filter objects in path of user (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">ot"usergroup"*</span>)</span></dt>
     <dd>
     [[Context.Include('dFltSelect.xxmi',['u','']);]]
     <label><input type="radio" name="ur" value="0" /> highest</label><br />
@@ -350,7 +350,8 @@ else
             <<td>[[#txImg(qr.GetInt('jrt_icon'))]] [[.jrt_name]]</td>>
            end;
 
-          <<td style="text-align:right;">>.minutes<</td>
+          ]]
+          [[#JournalMinutesTD(qr.GetInt('minutes'))]]
           <td style="text-align:right;">>.entries<</td>
           </tr>>
          end;

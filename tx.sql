@@ -296,16 +296,18 @@ constraint FK_Jrt_Jrl foreign key (jrl_id) references Jrl (id)
 create table Jre (
 id integer primary key autoincrement,
 jrt_id int not null,
-obj_id int not null,
 uid int not null,
+obj_id int not null,
 ts datetime not null,
 minutes int not null,
 c_ts datetime null,
 m_ts datetime null,
 constraint FK_Jre_Jrt foreign key (jrt_id) references Jrt (id),
-constraint FK_Jre_Obj foreign key (obj_id) references Obj (id),
 constraint FK_Jre_Obj foreign key (uid) references Obj (id)--not Usr!
+constraint FK_Jre_Obj foreign key (obj_id) references Obj (id),
 );
+
+create index IX_Jre on Jre (jrt_id,uid);
 
 
 -- MaintMail.xxm
