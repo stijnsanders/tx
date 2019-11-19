@@ -287,10 +287,10 @@ else
       +' inner join Obj O1 on O1.id=XX.uid'
       +' inner join Obj O2 on O2.id=XX.obj_id';
     fs0:=fs0
-      +' group by '+fp;
-    if jrt then fs0:=fs0+',jrt_id';
+      +#13#10'group by '+fp+',XX.obj_id,XX.uid';
+    if jrt then fs0:=fs0+',XX.jrt_id,Jrt.icon,Jrt.name';
     fs0:=fs0
-      +' order by 1 desc';//obj_weight,u_weight?
+      +#13#10'order by 1 desc';//obj_weight,u_weight?
 
     LocationCache:=TItemCache.Create;
     qr:=TQueryResult.Create(Session.DbCon,fs0,[id]);
