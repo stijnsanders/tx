@@ -40,7 +40,7 @@ else
         +' where Jrt.jrl_id=? and Jre.ts>?'
         +' group by Obj.id, Obj.name, ObjType.icon'
         +' order by sum(Jre.minutes) desc'
-        +' limit 5',[Session.Journals[i].jrl_id,Now-1.0]);
+        +' limit 5',[Session.Journals[i].jrl_id,Now-3.0]);
       try
         while qr.Read do
          begin

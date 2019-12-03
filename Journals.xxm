@@ -378,7 +378,7 @@ else
           s:=ln.GetHTML([ghLink,ghIcon,ghTitle,ghFrameListClass],pid)+s;
          end;
         Context.SendHTML(s);
-        <<a href="Item.xxm?x=i[[.obj_id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>
+        <<a href="Item.xxm?x=i[[.obj_id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
         Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
         //Context.Include('d_cmw.xxmi',[],[qr]);
         <</td>

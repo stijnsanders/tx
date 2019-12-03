@@ -148,27 +148,34 @@ qr:=nil;//counter warning
           'ORDER BY Rpt.ts',[ItemID]);
         try
           <<p class="midnav">reports</p>>
-          while qr.Read and Context.Connected do Context.Include('dReport.xxmi',[d,IsAdminReports],[qr]);
-          <<p class="buttons">>
-          InControl:=true;
-          try
-            Session.HasRealmPermission(ItemID,RlmID,rpEdit);
-          except
-            on ERealmNotEditableByUser do InControl:=false;
-          end;
-          if InControl then
-           begin
-            <<a href="fReport.xxm?id=[[=ItemID]]" class="linkbutton">report...</a> [[
-           end
-          else if Session.IsAnonymous then
-           begin
-            <<a href="fLogon.xxm" class="linkbutton" rel="nofollow">report...</a> [[
-           end;
-          <<a href="Log.xxm?filter=i[[=ItemID]]*" class="linkbutton" rel="nofollow">full log</a>
-          </p>>
+          while qr.Read and Context.Connected do
+            Context.Include('dReport.xxmi',[d,IsAdminReports],[qr]);
         finally
           qr.Free;
         end;
+
+        <<p class="buttons">>
+        InControl:=true;
+        try
+          Session.HasRealmPermission(ItemID,RlmID,rpEdit);
+        except
+          on ERealmNotEditableByUser do InControl:=false;
+        end;
+        if InControl then
+         begin
+          <<a href="fReport.xxm?id=[[=ItemID]]" class="linkbutton">report...</a> [[
+         end
+        else if Session.IsAnonymous then
+         begin
+          <<a href="fLogon.xxm" class="linkbutton" rel="nofollow">report...</a> [[
+         end;
+        <<a href="Log.xxm?filter=i[[=ItemID]]*" class="linkbutton" rel="nofollow">full log</a> [[
+        if Use_Journals and (Session.JournalsUsed) then
+         begin
+          //TODO: if any .CanConsult or isadmin(journals)
+          <<a href="JrlItem.xxm[[?'id',ItemID]]" class="linkbutton" rel="nofollow">journals</a> [[
+         end;
+        <</p>>
 
         //terms
         qr:=TQueryResult.Create(Session.DbCon,'SELECT Trm.id, Trm.domain_id, Trm.term FROM Trm WHERE Trm.obj_id=? ORDER BY Trm.term',[ItemID]);
