@@ -173,7 +173,7 @@ qr:=nil;//counter warning
         if Use_Journals and (Session.JournalsUsed) then
          begin
           //TODO: if any .CanConsult or isadmin(journals)
-          <<a href="JrlItem.xxm[[?'id',ItemID]]" class="linkbutton" rel="nofollow">journals</a> [[
+          <<a href="JrlItem.xxm[[?'id',ItemID]]" class="linkbutton" rel="nofollow">journal entries</a> [[
          end;
         <</p>>
 

@@ -1,0 +1,167 @@
+[[@DataLank,txDefs,txSession]][[!var
+id,i,c,m,mi,mj,mk,ml,jrt_id:integer;
+qr:TQueryResult;
+mt:array of record
+  jrt_id,jrt_icon,m,c:integer;
+  jrt_name,jrl_name:string;
+end;
+fs0,fs1:UTF8String;
+IsAdmin,AnyConsultable:boolean;
+]][[
+
+Context.Include('dHead.xxmi',['Object journal entries']);
+//assert Use_Journals
+
+//TODO: dObjLink something?
+
+//TODO: mt totals per user?
+
+id:=Context['id'].AsInteger;
+
+IsAdmin:=Session.IsAdmin('journals');
+AnyConsultable:=false;
+fs0:='';
+fs1:='';
+for i:=0 to Length(Session.Journals)-1 do
+ begin
+  if IsAdmin or Session.Journals[i].CanConsult then
+   begin
+    AnyConsultable:=true;
+    fs0:=fs0+','+IntToStrU(Session.Journals[i].jrl_id);
+   end
+  else
+    fs1:=fs1+','+IntToStrU(Session.Journals[i].jrl_id);
+ end;
+
+if fs0<>'' then
+ begin
+  fs0[1]:='(';
+  fs0:='Jrl.id IN '+fs0+')';
+ end;
+if fs1<>'' then
+ begin
+  fs1[1]:='(';
+  fs1:='(Jrl.id IN '+fs1+') AND Jre.uid='+IntToStrU(Session.UserID)+')';
+ end;
+if fs0='' then fs1:=' AND '+fs1 else
+  if fs1='' then fs1:=' AND '+fs0 else
+    fs1:=' AND ('+fs0+' OR '+fs1+')';
+
+fs0:='select Jre.id AS jre_id, Jre.jrt_id, Jre.ts, Jre.minutes, Jrt.icon AS jrt_icon, Jrt.name AS jrt_name,jrl.name AS jrl_name';
+if AnyConsultable then fs0:=fs0+',Jre.uid,Obj.name as usrname,ObjType.name as usrtypename,ObjType.icon as usricon';
+fs0:=fs0
+  +' from Jre'
+  +' inner join Jrt on Jrt.id=Jre.jrt_id'
+  +' inner join Jrl on Jrl.id=Jrt.jrl_id';
+if AnyConsultable then fs0:=fs0+' inner join Obj on Obj.id=Jre.uid inner join ObjType on ObjType.id=Obj.objtype_id';
+fs0:=fs0
+  +' where Jre.obj_id=?'+fs1+' order by Jre.ts'
+  ;
+
+qr:=TQueryResult.Create(Session.DbCon,fs0,[id]);
+try
+  <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+  <tr>>
+  if AnyConsultable then
+   begin
+    <<th>user</th>>
+   end;
+  if Length(Session.Journals)>1 then
+   begin
+    <<th>journal</th>>
+   end;
+  <<th>entry</th>
+  <th>start</th>
+  <th title="minutes">&#x27;</th>
+  <th>end</th>
+  </tr>>
+  m:=0;
+  mi:=0;
+  ml:=0;
+  c:=0;
+  while qr.Read do
+   begin
+
+    inc(m,qr.GetInt('minutes'));
+    inc(c);
+    jrt_id:=qr.GetInt('jrt_id');
+    mj:=0;
+    while (mj<mi) and (mt[mj].jrt_id<jrt_id) do inc(mj);
+    if (mj=mi) or (mt[mj].jrt_id<>jrt_id) then
+     begin
+      if mi=ml then
+       begin
+        inc(ml,$20);//grow
+        SetLength(mt,ml);
+       end;
+      mk:=mi;
+      inc(mi);
+      while (mk>mj) do
+       begin
+        mt[mk]:=mt[mk-1];
+        dec(mk);
+       end;
+      mt[mj].jrt_id:=jrt_id;
+      mt[mj].jrt_icon:=qr.GetInt('jrt_icon');
+      mt[mj].jrt_name:=qr.GetStr('jrt_name');
+      mt[mj].jrl_name:=qr.GetStr('jrl_name');
+      mt[mj].m:=qr.GetInt('minutes');
+      mt[mj].c:=1;
+     end
+    else
+     begin
+      inc(mt[mj].m,qr.GetInt('minutes'));
+      inc(mt[mj].c);
+     end;
+
+    <<tr>>
+    if AnyConsultable then
+     begin
+      <<td>
+      <a href="Item.xxm?x=i[[.uid]]" title="[[.usrtypename]]">>#txImg(qr.GetInt('usricon'))]] [[.usrname<</a>
+      </td>>
+     end;
+    if Length(Session.Journals)>1 then
+     begin
+      <<td>>.jrl_name<</td>>
+     end;
+    <<td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
+    <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
+    [[#JournalMinutesTD(qr.GetInt('minutes'))]]
+    <td style="text-align:right;">>=JournalDateTime(double(qr['ts'])+qr.GetInt('minutes')/1440.0)<</td>
+    </tr>>
+   end;
+  <</table>>
+finally
+  qr.Free;
+end;
+
+if mi<>0 then
+ begin
+  <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+  <tr>
+  <th>journal</th>
+  <th>entries</th>
+  <th>#</th>
+  <th>&Sigma;&#x27;</th>
+  </tr>>
+  //TODO: sort by jrt_name?jrt_id?
+  for mj:=0 to mi-1 do
+   begin
+    <<tr>
+    <td>>=mt[mj].jrl_name<</td>
+    <td>>#txImg(mt[mj].jrt_icon)]][[=mt[mj].jrt_name<</td>
+    <td style="text-align:right;">>=mt[mj].c<</td>
+    [[#JournalMinutesTD(mt[mj].m)]]
+    </tr>>
+   end;
+  <<tr>
+  <th colspan="2">&nbsp;</th>
+  <th style="text-align:right;">>=c<</th>
+  <th style="text-align:right;">>=JournalMinutes(m)<</th>
+  </tr>
+  </table>>
+ end;
+
+
+Context.Include('dFoot.xxmi');
