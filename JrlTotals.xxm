@@ -2,13 +2,31 @@
 IsAdmin:boolean;
 qr:TQueryResult;
 i,id,c,pid:integer;
-fs0,fs1,fs2,fp,fr:UTF8String;
-jrt,csv:boolean;
-fusers,fitems:string;
+fs0,fs1,fs2,fp,fr,t:UTF8String;
+jrt,csv,dd:boolean;
+fusers,fitems,s:string;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
 LocationCache:TItemCache;
 ln:TLocationNode;
+m,mi,mj,mk,ml,jrt_id:integer;
+mt:array of record
+  jrt_id,jrt_icon,m,c:integer;
+  jrt_name:string;
+end;
+
+function csvStr(const x:string):string;
+var
+  i:integer;
+begin
+  i:=1;
+  while (i<=Length(x)) and (x[i]<>';') and (x[i]<>'"') do inc(i);
+  if i<=Length(x) then
+    Result:='"'+StringReplace(x,'"','""',[rfReplaceAll])+'"'
+  else
+    Result:=x;
+end;
+
 ]][[
 
 csv:=Context['csv'].AsInteger=1;
@@ -141,6 +159,7 @@ else
    begin
 
     jrt:=Context['t'].AsInteger=1;
+    dd:=Context['q'].Value<>'';//drill-down
 
     fs0:='select Jre.id,Jre.obj_id,Jre.uid'
       +',Jre.ts+2415018.5 as ets' //,datetime('1900-01-01',(Jre.ts-2.0)||' day') as ets
@@ -271,98 +290,270 @@ else
         fp:='"invalid period"';//raise?
     end;
 
-    fs0:='select '+fp+' as period,XX.obj_id,XX.uid';
-    if jrt then fs0:=fs0+',XX.jrt_id';
-    fs0:=fs0
-      +',sum(XX.minutes) as minutes,count(*) as entries';
-    if jrt then fs0:=fs0
-      +',Jrt.icon as jrt_icon,Jrt.name as jrt_name';
-    if csv then fs0:=fs0 
-      +',O1.name as usr_name,O2.name as obj_name';
-    fs0:=fs0
-      +' from ('#13#10+fs2+#13#10') XX';
-    if jrt then fs0:=fs0
-      +' inner join Jrt on Jrt.id=XX.jrt_id';
-    if csv then fs0:=fs0
-      +' inner join Obj O1 on O1.id=XX.uid'
-      +' inner join Obj O2 on O2.id=XX.obj_id';
-    fs0:=fs0
-      +#13#10'group by '+fp+',XX.obj_id,XX.uid';
-    if jrt then fs0:=fs0+',XX.jrt_id,Jrt.icon,Jrt.name';
-    fs0:=fs0
-      +#13#10'order by 1 desc';//obj_weight,u_weight?
-
-    LocationCache:=TItemCache.Create;
-    qr:=TQueryResult.Create(Session.DbCon,fs0,[id]);
-    try
-      if qr.EOF then
-       begin
-        <<p><i>No journal entries found.</i></p>>
-       end
-      else
-      if csv then
-       begin
-        Context.ContentType:='text/csv';
-        Context.DispositionAttach('JrtTotals'+FormatDateTime('yyyymmddhhnnss',Now)+'.csv');
-        Context.SendHTML('Period;UserID;User;ObjectID;Object;');
-        if jrt then Context.SendHTML('EntryID;Entry;');
-        Context.SendHTML('Minutes;Entries'#13#10);
-        while qr.Read do
+    if not(dd) then
+     begin
+      fs0:='select '+fp+' as period,XX.obj_id,XX.uid';
+      if jrt then fs0:=fs0+',XX.jrt_id';
+      fs0:=fs0
+        +',sum(XX.minutes) as minutes,count(*) as entries';
+      if jrt then fs0:=fs0
+        +',Jrt.icon as jrt_icon,Jrt.name as jrt_name';
+      if csv then fs0:=fs0 
+        +',O1.name as usr_name,O2.name as obj_name';
+      fs0:=fs0
+        +' from ('#13#10+fs2+#13#10') XX';
+      if jrt then fs0:=fs0
+        +' inner join Jrt on Jrt.id=XX.jrt_id';
+      if csv then fs0:=fs0
+        +' inner join Obj O1 on O1.id=XX.uid'
+        +' inner join Obj O2 on O2.id=XX.obj_id';
+      fs0:=fs0
+        +#13#10'group by '+fp+',XX.obj_id,XX.uid';
+      if jrt then fs0:=fs0+',XX.jrt_id,Jrt.icon,Jrt.name';
+      fs0:=fs0
+        +#13#10'order by 1 desc';//obj_weight,u_weight?
+  
+      LocationCache:=TItemCache.Create;
+      qr:=TQueryResult.Create(Session.DbCon,fs0,[id]);
+      try
+        if qr.EOF then
          begin
-          Context.SendHTML([qr['period'],';',qr['uid'],';',qr['usr_name'],';',qr['obj_id'],';',qr['obj_name'],';']);
-          if jrt then Context.SendHTML([qr['jrt_id'],';',qr['jrt_name'],';']);
-          Context.SendHTML([qr['minutes'],';',qr['entries'],#13#10]);
-         end;
-       end
-      else
-       begin
-        <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
-        <tr>
-        <th>period</th>
-        <th>user</th>
-        <th>object</th>>
-        if jrt then
+          <<p><i>No journal entries found.</i></p>>
+         end
+        else
+        if csv then
          begin
-          <<th>entry</th>>
-         end;
-        <<th title="minutes">&#x27;</th>
-        <th title="count">#</th>
-        </tr>>
-
-        while qr.Read do
+          Context.ContentType:='text/csv';
+          Context.DispositionAttach('JrtTotals'+FormatDateTime('yyyymmddhhnnss',Now)+'.csv');
+          Context.SendHTML('Period;UserID;User;ObjectID;Object;');
+          if jrt then Context.SendHTML('EntryID;Entry;');
+          Context.SendHTML('Minutes;Entries'#13#10);
+          while qr.Read do
+           begin
+            Context.SendHTML([qr['period'],';',qr['uid'],';',csvStr(qr.GetStr('usr_name')),';',qr['obj_id'],';',csvStr(qr.GetStr('obj_name')),';']);
+            if jrt then Context.SendHTML([qr['jrt_id'],';',csvStr(qr.GetStr('jrt_name')),';']);
+            Context.SendHTML([qr['minutes'],';',qr['entries'],#13#10]);
+           end;
+         end
+        else
          begin
-           
-          <<tr>
-          <td>>.period<</td>>
-
-          pid:=qr.GetInt('uid');
-          ln:=LocationCache[pid] as TLocationNode;
-          if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
-          <<td>>#ln.GetHTML([ghLink,ghIcon,ghName,ghTitle,ghFrameListClass],pid)<</td>>
-
-          pid:=qr.GetInt('obj_id');
-          ln:=LocationCache[pid] as TLocationNode;
-          if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
-          <<td>>#ln.GetHTML([ghLink,ghIcon,ghName,ghTitle,ghFrameListClass],pid)<</td>>
-
+          <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+          <tr>
+          <th>period</th>
+          <th>user</th>
+          <th>object</th>>
           if jrt then
            begin
-            <<td>[[#txImg(qr.GetInt('jrt_icon'))]] [[.jrt_name]]</td>>
+            <<th>entry</th>>
+           end;
+          <<th title="minutes">&#x27;</th>
+          <th title="count">#</th>
+          </tr>>
+  
+          while qr.Read do
+           begin
+  
+            t:='?'+UTF8Encode(Context.ContextString(csQueryString));
+             
+            <<tr>
+            <td>>.period<</td>>
+            t:=t+'&q='+UTF8Encode(URLEncode(qr.GetStr('period')));
+  
+            pid:=qr.GetInt('uid');
+            t:=t+'&ux='+IntToStrU(pid);
+            ln:=LocationCache[pid] as TLocationNode;
+            if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+            <<td>>#ln.GetHTML([ghLink,ghIcon,ghName,ghTitle,ghFrameListClass],pid)<</td>>
+  
+            pid:=qr.GetInt('obj_id');
+            t:=t+'&ix='+IntToStrU(pid);
+            ln:=LocationCache[pid] as TLocationNode;
+            if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+            <<td>>#ln.GetHTML([ghLink,ghIcon,ghName,ghTitle,ghFrameListClass],pid)<</td>>
+  
+            if jrt then
+             begin
+              <<td>[[#txImg(qr.GetInt('jrt_icon'))]] [[.jrt_name]]</td>>
+              t:=t+'&tx='+IntToStrU(qr.GetInt('jrt_id'));
+             end;
+  
+            ]]
+            [[#JournalMinutesTD(qr.GetInt('minutes'))]]
+            <td style="text-align:right;"><a href="[[=t]]">>.entries<</a></td>
+            </tr>>
+           end;
+  
+          <</table>
+          <p><a class="linkbutton" href="?[[=Context.ContextString(csQueryString)]]&csv=1">CSV...</a></p>>
+        end;
+      finally
+        qr.Free;
+        LocationCache.Free;
+      end;
+     end
+    else
+     begin
+      //drill-down
+
+      fs0:='select Jre.id, Jre.obj_id, Jre.ts, Jre.minutes, Jre.uid,'+
+       ' Jre.jrt_id, Jrt.icon AS jrt_icon, Jrt.name AS jrt_name,'+
+       ' Obj.name, Obj.pid, ObjType.icon, ObjType.name AS typename,'+
+       ' UsrObj.id AS usrid, UsrObj.name AS usrname, UsrObjType.icon AS usricon, UsrObjType.name AS usrtypename';
+      if Use_ObjTokRefCache then fs0:=fs0+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
+      fs0:=fs0
+        +#13#10'from ('#13#10+fs2+#13#10') XX'
+        +#13#10'inner join Jre on Jre.id=XX.id'
+        +' inner join Jrt on Jrt.id=Jre.jrt_id'
+        +#13#10'inner join Obj as UsrObj on UsrObj.id=Jre.uid'
+        +' inner join ObjType on ObjType.id=Obj.objtype_id'
+        +#13#10'inner join Obj on Obj.id=Jre.obj_id'
+        +' inner join ObjType as UsrObjType on UsrObjType.id=UsrObj.objtype_id';
+      if Use_ObjTokRefCache then fs0:=fs0
+        +#13#10'left outer join ObjTokRefCache on ObjTokRefCache.id=Obj.id';
+      fs0:=fs0
+        +#13#10'where '+fp+'=? and XX.obj_id=? and XX.uid=?';
+      if jrt then fs0:=fs0+' and XX.jrt_id='+IntToStrU(Context['tx'].AsInteger);
+      fs0:=fs0
+        +#13#10'order by Jre.ts,Jre.minutes,Jre.id';//obj_weight,u_weight?
+
+      LocationCache:=TItemCache.Create;
+      qr:=TQueryResult.Create(Session.DbCon,fs0,[id,Context['q'].Value,Context['ix'].AsInteger,Context['ux'].AsInteger]);
+      try
+        if qr.EOF then
+         begin
+          <<p><i>No journal entries found.</i></p>>
+         end
+        else
+        if csv then
+         begin
+          Context.ContentType:='text/csv';
+          Context.DispositionAttach('JrtTotals'+FormatDateTime('yyyymmddhhnnss',Now)+'D.csv');
+          Context.SendHTML('UserID;User;ObjectID;Object;');
+          if jrt then Context.SendHTML('EntryID;Entry;');
+          Context.SendHTML('Start;Minutes;End'#13#10);
+          while qr.Read do
+           begin
+            Context.SendHTML([qr['uid'],';',csvStr(qr.GetStr('usrname')),';',qr['obj_id'],';',csvStr(qr.GetStr('name')),';']);
+            if jrt then Context.SendHTML([qr['jrt_id'],';',csvStr(qr.GetStr('jrt_name')),';']);
+            Context.SendHTML([FormatDateTime('yyyy-mm-dd hh:nn',qr.GetDate('ts')),';',qr['minutes'],';',
+              FormatDateTime('yyyy-mm-dd hh:nn',qr.GetDate('ts')+qr.GetInt('minutes')/1440.0),#13#10]);
+           end;
+         end
+        else
+         begin
+          <<p id="fliTitle" class="highlight1" style="position:absolute;margin:0em;font-weight:bold;"></p>
+          <table cellspacing="2" cellpadding="2" border="0" class="listtable">
+          <tr>
+          <th>user</th>
+          <th>object</th>
+          <th>entry</th>
+          <th>start</th>
+          <th title="minutes">&#x27;</th>
+          <th>end</th>
+          </tr>>
+          m:=0;
+          mi:=0;
+          ml:=0;
+          c:=0;
+          while qr.Read do
+           begin
+            if jrt then
+             begin
+              inc(m,qr.GetInt('minutes'));
+              inc(c);
+              jrt_id:=qr.GetInt('jrt_id');
+              mj:=0;
+              while (mj<mi) and (mt[mj].jrt_id<jrt_id) do inc(mj);
+              if (mj=mi) or (mt[mj].jrt_id<>jrt_id) then
+               begin
+                if mi=ml then
+                 begin
+                  inc(ml,$20);//grow
+                  SetLength(mt,ml);
+                 end;
+                mk:=mi;
+                inc(mi);
+                while (mk>mj) do
+                 begin
+                  mt[mk]:=mt[mk-1];
+                  dec(mk);
+                 end;
+                mt[mj].jrt_id:=jrt_id;
+                mt[mj].jrt_icon:=qr.GetInt('jrt_icon');
+                mt[mj].jrt_name:=qr.GetStr('jrt_name');
+                mt[mj].m:=qr.GetInt('minutes');
+                mt[mj].c:=1;
+               end
+              else
+               begin
+                inc(mt[mj].m,qr.GetInt('minutes'));
+                inc(mt[mj].c);
+               end;
+             end;
+            <<tr>
+            <td>
+            <a href="Item.xxm?x=i[[.uid]]" title="[[.usrtypename]]">>#txImg(qr.GetInt('usricon'))]] [[.usrname<</a>
+            [[//TODO: IsAdmin fJre, delete?]]
+            </td>
+            <td>>
+            pid:=qr.GetInt('pid');
+            s:=' ';
+            while (pid<>0) and Context.Connected do
+            begin
+              ln:=LocationCache[pid] as TLocationNode;
+              if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+              s:=ln.GetHTML([ghLink,ghIcon,ghTitle,ghFrameListClass],pid)+s;
+            end;
+            Context.SendHTML(s);
+            <<a href="Item.xxm?x=i[[.obj_id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
+            Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
+            //Context.Include('d_cmw.xxmi',[],[qr]);
+            <</td>
+            <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
+            <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
+            [[#JournalMinutesTD(qr.GetInt('minutes'))]]
+            <td style="text-align:right;">>=JournalDateTime(double(qr['ts'])+qr.GetInt('minutes')/1440.0)<</td>
+            </tr>>
+           end;
+          <</table>
+          <script><!--
+          $(".fli")
+          .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#fliTitle").text(this.title);})
+          .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#fliTitle").text("");});
+          //--></script>>
+
+          if jrt and (mi<>0) then
+           begin
+            <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+            <tr>
+            <th>entries</th>
+            <th>#</th>
+            <th>&Sigma;&#x27;</th>
+            </tr>>
+            //TODO: sort by jrt_name?jrt_id?
+            for mj:=0 to mi-1 do
+             begin
+              <<tr>
+              <td>>#txImg(mt[mj].jrt_icon)]][[=mt[mj].jrt_name<</td>
+              <td style="text-align:right;">>=mt[mj].c<</td>
+              [[#JournalMinutesTD(mt[mj].m)]]
+              </tr>>
+             end;
+            <<tr>
+            <th>&nbsp;</th>
+            <th style="text-align:right;">>=c<</th>
+            <th style="text-align:right;">>=JournalMinutes(m)<</th>
+            </tr>
+            </table>>
            end;
 
-          ]]
-          [[#JournalMinutesTD(qr.GetInt('minutes'))]]
-          <td style="text-align:right;">>.entries<</td>
-          </tr>>
-         end;
-
-        <</table>
-        <p><a class="linkbutton" href="?[[=Context.ContextString(csQueryString)]]&csv=1">CSV...</a></p>>
+          <<p><a class="linkbutton" href="?[[=Context.ContextString(csQueryString)]]&csv=1">CSV...</a></p>>
+        end;
+      finally
+        qr.Free;
+        LocationCache.Free;
       end;
-    finally
-      qr.Free;
-      LocationCache.Free;
-    end;
+     end;
 
    end;
 

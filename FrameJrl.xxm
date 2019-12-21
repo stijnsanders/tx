@@ -14,7 +14,7 @@ else if Context['suspend'].AsInteger=1 then
  begin
   Session.JournalsUsed:=false;
   <<p>
-  <a class="linkbutton" href="#" onclick="top.document.location.reload();return false;">full refresh to remove</a>
+  <a class="linkbutton" href="#" onclick="top.document.location.reload();return false;">full refresh to close frame</a>
   <a class="linkbutton" href="?">resume</a>
   </p>>
  end
