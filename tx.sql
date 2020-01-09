@@ -293,6 +293,19 @@ icon int not null,
 constraint FK_Jrt_Jrl foreign key (jrl_id) references Jrl (id)
 );
 
+create table Jrx (
+id integer primary key autoincrement,
+jrt_id int not null,
+uid int not null,
+obj_id int not null,
+ts datetime not null,
+constraint FK_Jrx_Jrt foreign key (jrt_id) references Jrt (id),
+constraint FK_Jrx_UsrObj foreign key (uid) references Obj (id),--not Usr!
+constraint FK_Jrx_Obj foreign key (obj_id) references Obj (id)
+);
+
+create unique index IX_Jrx on Jrx (jrt_id,uid);--actually (jrl_id,uid) but that's indirect over Jrt.jrl.id
+
 create table Jre (
 id integer primary key autoincrement,
 jrt_id int not null,
@@ -303,7 +316,7 @@ minutes int not null,
 c_ts datetime null,
 m_ts datetime null,
 constraint FK_Jre_Jrt foreign key (jrt_id) references Jrt (id),
-constraint FK_Jre_Obj foreign key (uid) references Obj (id)--not Usr!
+constraint FK_Jre_UsrObj foreign key (uid) references Obj (id)--not Usr!
 constraint FK_Jre_Obj foreign key (obj_id) references Obj (id),
 );
 

@@ -1,9 +1,10 @@
 [[@txDefs,txSession,Variants,DataLank]][[!var
-i,id,jrt_id,g,m:integer;
+i,id,jrt_id,id1,jrt_id1,jrx_id,g,m:integer;
 qr:TQueryResult;
-d,d0:TDateTime;
+d,d0,d1:TDateTime;
 CanReverseDate:boolean;
 r:string;
+b:boolean;
 const
 HalfAMinute=0.5/1440.0;
 ]][[
@@ -11,6 +12,7 @@ HalfAMinute=0.5/1440.0;
 CheckCallProtect(Context);
 //assert Use_Journals
 Session.CheckJournalPermissions;
+b:=false;
 id:=Context['id'].AsInteger;
 i:=0;
 while (i<Length(Session.Journals)) and (id<>Session.Journals[i].jrl_id) do inc(i);
@@ -22,32 +24,43 @@ else
   jrt_id:=Context['t'].AsInteger;
   r:='';
 
-  if (Session.Journals[i].obj_id<>id) or (Session.Journals[i].jrt_id<>jrt_id) then
-   begin
-
+  qr:=TQueryResult.Create(Session.DbCon,
+    'select Jrl.granularity, Jrx.id as jrx_id, Jrx.obj_id, Jrx.jrt_id, Jrx.ts'+
+    ' from Jrl left outer join (Jrx inner join Jrt on Jrt.id=Jrx.jrt_id) on Jrx.uid=? and Jrt.jrl_id=Jrl.id'+
+    ' where Jrl.id=?',
+    [Session.UserID,Session.Journals[i].jrl_id]);
+  try
+    jrx_id:=qr.GetInt('jrx_id');
+    id1:=qr.GetInt('obj_id');
+    jrt_id1:=qr.GetInt('jrt_id');
     //refresh granularity
-    qr:=TQueryResult.Create(Session.DbCon,'select granularity from Jrl where id=?',[Session.Journals[i].jrl_id]);
-    try
-      g:=qr.GetInt('granularity');
-      if g<=0 then g:=60;
-    finally
-      qr.Free;
-    end;
+    g:=qr.GetInt('granularity');
+    if g<=0 then g:=60;
+    d1:=qr.GetDate('ts');
     d0:=JournalGranulate(Now,g);
-    d:=JournalGranulate(Session.Journals[i].Start,g);
-    m:=Round((d0-d)*1440.0);
+    if (id1<>id) or (jrt_id1<>jrt_id) then b:=true;
+  finally
+    qr.Free;
+  end;
 
-    if (Session.Journals[i].obj_id<>0) and (Context['r'].AsInteger<>2) then
+  if b then
+   begin  
+
+    if (id1<>0) and (Context['r'].AsInteger<>2) then
      begin
+      d:=JournalGranulate(d1,g);
+      m:=Round((d0-d)*1440.0);
       Session.DbCon.BeginTrans;
       try
+        if jrx_id<>0 then
+          Session.DbCon.Execute('delete from Jrx where id=?',[jrx_id]);
         Session.DbCon.Insert('Jre',
-          ['jrt_id',Session.Journals[i].jrt_id
-          ,'obj_id',Session.Journals[i].obj_id
+          ['jrt_id',jrt_id1
+          ,'obj_id',id1
           ,'uid',Session.UserID
           ,'ts',VarFromDateTime(d)
           ,'minutes',m
-          ,'c_ts',Session.Journals[i].Start
+          ,'c_ts',VarFromDateTime(d1)
           ,'m_ts',VNow
           ]);
         r:=JournalMinutes(m);
@@ -58,34 +71,34 @@ else
       end;
      end;
 
-    if jrt_id=0 then
-     begin
-      Session.Journals[i].jrt_id:=0;
-      Session.Journals[i].jrt_icon:=0;
-      Session.Journals[i].jrt_name:='';
-     end
-    else
-     begin
-      qr:=TQueryResult.Create(Session.DbCon,'select * from Jrt where id=?',[jrt_id]);
-      try
-        Session.Journals[i].jrt_id:=jrt_id;
-        Session.Journals[i].jrt_icon:=qr.GetInt('icon');
-        Session.Journals[i].jrt_name:=qr.GetStr('name');
-      finally
-        qr.Free;
-      end;
-     end;
-    Session.Journals[i].obj_id:=id;
-    Session.Journals[i].Start:=Now;
-    Session.Journals[i].granularity:=g;
-    if id<>0 then Session.JournalsUsed:=true;
+    Session.DbCon.BeginTrans;
+    try
+      d1:=Now;
+      if jrt_id=0 then
+        Session.DbCon.Execute(
+          'delete from Jrx where id in (select Jrx.id from Jrx inner join Jrt on Jrt.id=Jrx.jrt_id where Jrx.uid=? and Jrt.jrl_id=?)',
+          [Session.UserID,Session.Journals[i].jrl_id])
+      else
+        Session.DbCon.Insert('Jrx',
+          ['jrt_id',jrt_id
+          ,'uid',Session.UserID
+          ,'obj_id',id
+          ,'ts',VarFromDateTime(d1)
+          ]);
+      if id<>0 then Session.JournalsUsed:=true;
+      Session.DbCon.CommitTrans;
+    except
+      Session.DbCon.RollbackTrans;
+      raise;
+    end;
+
    end;
 
   case Context['r'].AsInteger of
     0:
      begin
       g:=Session.Journals[i].granularity;
-      if Session.Journals[i].obj_id=0 then
+      if id=0 then
        begin
         id:=Context['xx'].AsInteger;
         qr:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[Session.Journals[i].jrl_id]) ;
@@ -104,34 +117,52 @@ else
       else
        begin
         CanReverseDate:=false;//default
-        d:=Session.Journals[i].Start;
-        if Now<d+2.0/24.0 then
+        if Now<d1+2.0/24.0 then
          begin
+          b:=false;
           qr:=TQueryResult.Create(Session.DbCon,
             'select Jre.ts+Jre.minutes/1440.0 as ts from Jre inner join Jrt on Jrt.id=Jre.jrt_id'+
-            ' where Jre.id<>? and Jrt.jrl_id=? and Jre.uid=? and Jre.ts+Jre.minutes/1440.0<=? order by Jre.ts desc limit 1',[id,Session.Journals[i].jrl_id,Session.UserID,d]);
+            ' where Jre.id<>? and Jrt.jrl_id=? and Jre.uid=? and Jre.ts+Jre.minutes/1440.0<=? order by Jre.ts desc limit 1',
+            [id,Session.Journals[i].jrl_id,Session.UserID,d1]);
           try
-            if (Context['rd'].AsInteger=1) and (qr.EOF or (qr.GetDate('ts')+HalfAMinute<d-g/1440.0)) then
+            if (Context['rd'].AsInteger=1) and (qr.EOF or (qr.GetDate('ts')+HalfAMinute<d1-g/1440.0)) then
              begin
-              d:=d-g/1440.0;
-              Session.Journals[i].Start:=d;
+              d1:=d1-g/1440.0;
+              b:=true;
              end;
-            if qr.EOF or (qr.GetDate('ts')+HalfAMinute<d-g/1440.0) then
+            if qr.EOF or (qr.GetDate('ts')+HalfAMinute<d1-g/1440.0) then
               CanReverseDate:=true;
           finally
             qr.Free;
           end;
+          if b then
+           begin
+            Session.DbCon.BeginTrans;
+            try
+              Session.DbCon.Execute('update Jrx set ts=? where id=?',[d1,jrx_id]);
+              Session.DbCon.CommitTrans;
+            except
+              Session.DbCon.RollbackTrans;
+              raise;
+            end;
+           end;
          end;
 
-        Context.SendHTML(txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)+JournalTime(Session.Journals[i].Start,g));
+        qr:=TQueryResult.Create(Session.DbCon,'select * from Jrt where id=?',[jrt_id]);
+        try
+          Context.SendHTML(txImg(qr.GetInt('icon'),qr.GetStr('name'))+JournalTime(d1,g));
+        finally
+          qr.Free;
+        end;
+
         if CanReverseDate then
          begin
           ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-            {id:[[=Session.Journals[i].jrl_id]],rd:1,x:[[=Session.Journals[i].obj_id]],t:[[=Session.Journals[i].jrt_id]],xxx:'[[#Session.SessionCrypt]]'},
+            {id:[[=Session.Journals[i].jrl_id]],rd:1,x:[[=id]],t:[[=jrt_id]],xxx:'[[#Session.SessionCrypt]]'},
             jrl_update);return false;">-[[=g]]&#x27;</a>>
          end;
         ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-          {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'},
+          {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=id]],xxx:'[[#Session.SessionCrypt]]'},
           jrl_update);return false;">&bullet;</a>
         &nbsp;[[
        end;

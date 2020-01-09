@@ -87,30 +87,38 @@ if id=0 then
       finally
         qr.Free;
       end;
-      id:=Session.Journals[i].obj_id;
-      if id=0 then
-       begin
-        <<td colspan="3">&mdash;</td>>
-       end
-      else
-       begin
-        <<td>>
-        qr:=TQueryResult.Create(Session.DbCon,sqlObjById,[id]);
-        try
+      qr:=TQueryResult.Create(Session.DbCon,
+        'select Obj.id, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', ObjType.icon, ObjType.name as typename,'+
+        ' Jrx.ts, Jrt.icon as jrt_icon, Jrt.name as jrt_name,'+
+        ' ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML'+
+        ' from Jrx inner join Jrt on Jrt.id=Jrx.jrt_id'+
+        ' inner join Obj on Obj.id=Jrx.obj_id'+
+        ' inner join ObjType on ObjType.id=Obj.objtype_id'+
+        ' left outer join ObjTokRefCache on ObjTokRefCache.id=Obj.id'+
+        ' where Jrx.uid=? and Jrt.jrl_id=?',
+        [Session.UserID,Session.Journals[i].jrl_id]);
+      try
+        if qr.Read then
+         begin
+          <<td>>
           Context.Include('dObjLink.xxmi',[],[qr]);
-          Context.Include('dObjTokRef.xxmi',[id,#13#10' ','&nbsp;'],[qr]);
+          Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
           //Context.Include('d_cmw.xxmi',[],[qr]);
-        finally
-          qr.Free;
-        end;
-        <</td>
-        <td>>#txImg(Session.Journals[i].jrt_icon)]][[=Session.Journals[i].jrt_name<</td>
-        <td style="text-align:right;">
-        <span class="jrl">>=JournalTime(Session.Journals[i].Start,Session.Journals[i].granularity)<</span>
-        <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',1]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
-        <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',2]][[#txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to cancel this journal entry?');">cancel</a>
-        </td>>
-       end;
+          <</td>
+          <td>>#txImg(qr.GetInt('jrt_icon'))]][[=qr.GetStr('jrt_name')<</td>
+          <td style="text-align:right;">
+          <span class="jrl">>=JournalTime(qr.GetDate('ts'),Session.Journals[i].granularity)<</span>
+          <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',1]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
+          <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',2]][[#txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to cancel this journal entry?');">cancel</a>
+          </td>>
+         end
+        else
+         begin
+          <<td colspan="3">&mdash;</td>>
+         end;
+      finally
+        qr.Free;
+      end;
       <</tr>>
      end;
     <</table>

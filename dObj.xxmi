@@ -36,7 +36,8 @@ if Use_Journals then
   for i:=0 to Length(Session.Journals)-1 do
    begin
     qr1:=TQueryResult.Create(Session.DbCon,
-      'select Jrl.root_id, ObjPath.oid, Jrl.limit_expression, Jrl.granularity from Jrl'+
+      'select Jrl.root_id, ObjPath.oid, Jrl.limit_expression, Jrl.granularity'+
+      ' from Jrl'+
       ' left outer join ObjPath on ObjPath.pid=Jrl.root_id and ObjPath.oid=?'+
       ' where Jrl.id=?',[id,Session.Journals[i].jrl_id]);
     try
@@ -73,16 +74,27 @@ if Use_Journals then
     if b then
      begin
       <<span id="jrl[[=Session.Journals[i].jrl_id]]" class="jrl">>
-      if Session.Journals[i].obj_id=id then
-       begin
-        ]]
-        [[#txImg(Session.Journals[i].jrt_icon,Session.Journals[i].jrt_name)]][[=JournalTime(Session.Journals[i].Start,Session.Journals[i].granularity)]]
-        <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-          {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=Session.Journals[i].obj_id]],xxx:'[[#Session.SessionCrypt]]'},
-          jrl_update);return false;">&bullet;</a>
-        &nbsp;[[
-       end
-      else
+      qr1:=TQueryResult.Create(Session.DbCon,
+        'select Jrx.obj_id, Jrx.jrt_id, Jrt.icon, Jrt.name, Jrx.ts'+
+        ' from Jrx inner join Jrt on Jrt.id=Jrx.jrt_id'+
+        ' where Jrx.uid=? and Jrx.obj_id=? and Jrt.jrl_id=?',
+        [Session.UserID,id,Session.Journals[i].jrl_id]);
+      try
+        if qr1.Read then
+         begin
+          ]]
+          [[#txImg(qr1.GetInt('icon'),qr1.GetStr('name'))]][[=JournalTime(qr1.GetDate('ts'),Session.Journals[i].granularity)]]
+          <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+            {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=id]],xxx:'[[#Session.SessionCrypt]]'},
+            jrl_update);return false;">&bullet;</a>
+          &nbsp;[[
+         end
+        else
+          b:=false;
+      finally
+        qr1.Free;
+      end;
+      if not(b) then
        begin
         qr1:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[Session.Journals[i].jrl_id]) ;
         try
