@@ -1,8 +1,12 @@
-[[@txDefs,txSession,DataLank,Variants,]][[!var
+[[@txDefs,txSession,DataLank,Variants,txFilter,txFilterSql]][[!var
 qr:TQueryResult;
-id,jrl_id,jrt_id,new_jrt_id:integer;
+id,jrl_id,jrt_id,new_jrt_id,obj_id,new_obj_id:integer;
+d1:TDateTime;
 rootid:OleVariant;
-url:string;
+url,s:string;
+b:boolean;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
 ]][[
 
 CheckFormProtect(Context);
@@ -10,27 +14,76 @@ CheckFormProtect(Context);
 
 id:=Context['id'].AsInteger;
 new_jrt_id:=Context['jrt'].AsInteger;
+new_obj_id:=Context['obj'].AsInteger;
 
-qr:=TQueryResult.Create(Session.DbCon,'select Jre.uid,Jrt.jrl_id,Jre.jrt_id from Jre inner join Jrt on Jrt.id=Jre.jrt_id where Jre.id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'select Jre.uid,Jre.ts,Jrt.jrl_id,Jre.jrt_id,Jre.obj_id from Jre inner join Jrt on Jrt.id=Jre.jrt_id where Jre.id=?',[id]);
 try
   if qr.GetInt('uid')<>Session.UserID then
     raise Exception.Create('Access denied.');
+  d1:=qr.GetDate('ts');
   jrl_id:=qr.GetInt('jrl_id');
   jrt_id:=qr.GetInt('jrt_id');
+  obj_id:=qr.GetInt('obj_id');
 finally
   qr.Free;
 end;
 
 if jrt_id<>new_jrt_id then
  begin
-   qr:=TQueryResult.Create(Session.DbCon,'select jrl_id from Jrt where id=?',[new_jrt_id]);
-   try
-     if qr.GetInt('jrl_id')<>jrl_id then
-       raise Exception.Create('Invalid modification values');
-   finally
-     qr.Free;
-   end;
+  qr:=TQueryResult.Create(Session.DbCon,'select jrl_id from Jrt where id=?',[new_jrt_id]);
+  try
+    if qr.GetInt('jrl_id')<>jrl_id then
+      raise Exception.Create('Invalid modification values');
+  finally
+    qr.Free;
+  end;
  end;
+
+if (d1>Now-1.0) and (new_obj_id<>0) and (new_obj_id<>obj_id) then
+ begin
+  //check other obj_id is allowed
+
+  qr:=TQueryResult.Create(Session.DbCon,
+    'select Jrl.root_id, ObjPath.oid, Jrl.limit_expression'+
+    ' from Jrl'+
+    ' left outer join ObjPath on ObjPath.pid=Jrl.root_id and ObjPath.oid=?'+
+    ' where Jrl.id=?',[new_obj_id,jrl_id]);
+  try
+    b:=qr.IsNull('root_id') or not(qr.IsNull('oid'));
+    s:=qr.GetStr('limit_expression');
+    //Session.Journals[i].granularity:=qr1.GetInt('granularity');
+  finally
+    qr.Free;
+  end;
+  if b and (s<>'') then
+   begin
+    f:=TtxFilter.Create;
+    fq:=TtxSqlQueryFragments.Create(itObj);
+    try
+      fq.Fields:='Obj.id';
+      fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+      fq.Where:='Obj.id='+IntToStrU(new_obj_id)+' AND ';
+      fq.GroupBy:='';
+      fq.Having:='';
+      fq.OrderBy:='';
+      f.FilterExpression:=UTF8Encode(s);
+      fq.AddFilter(f);
+      qr:=TQueryResult.Create(Session.DbCon,fq.Sql,[]);
+      try
+        b:=not(qr.EOF);
+      finally
+        qr.Free;
+      end;
+    finally
+      f.Free;
+      fq.Free;
+    end;
+   end;
+  if not b then
+    raise Exception.Create('Selected object is not allowed by Jrl.root_id or Jrl.limit_expression');
+ end
+else
+  new_obj_id:=obj_id;//don't modify
 
 //TODO: check ts,minutes against previous/succeeding entry
 
@@ -39,6 +92,7 @@ try
   Session.DbCon.Update('Jre',
     ['id',id
     ,'jrt_id',new_jrt_id
+    ,'obj_id',new_obj_id
     ,'ts',jtToDateTime(Context['ts'].Value)
     ,'minutes',Context['minutes'].AsInteger
     //,'m_ts',VNow

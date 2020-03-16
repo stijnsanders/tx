@@ -5,15 +5,13 @@
 <script src="tx.js.xxm?uid=[[=Session.UserID]]&amp;v=1[[=txCallProtect]]" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="tx.css.xxm?uid=[[=Session.UserID]]" />
 </head>
-<body bgcolor="#FFFFFF">
-<div id="topnav"><div id="topnavbar">
-<a href="Default.xxm" target="_top" onclick="window.parent.location.replace(window.parent.frames['MainFrame'].location.href);return false;">&laquo; close</a>
-[[
+<body bgcolor="#FFFFFF">>
 if Length(Values)<2 then
  begin
-  <<a href="FrameSelect.xxm">select</a>>
+  <<div id="topnav"><div id="topnavbar">
+  <a href="Default.xxm" target="_top" onclick="window.parent.location.replace(window.parent.frames['MainFrame'].location.href);return false;">&laquo; close</a>
+  <a href="FrameSelect.xxm">select</a>
+  |
+  <a href="[[=Context.ContextString(csURL)]]">refresh</a>
+  </div></div>>
  end;
-]]
-|
-<a href="[[=Context.ContextString(csURL)]]">refresh</a>
-</div></div>

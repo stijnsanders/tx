@@ -97,6 +97,7 @@ if id=0 then
         <<th>&nbsp;</th>>
        end;
       <<th>name</th>
+      <th>&nbsp;</th>
       <th title="granularity (minutes)">&#x27;</th>
       <th>entry types</th>
       <th>available to</th>
@@ -123,6 +124,10 @@ if id=0 then
         if filter<>'' then Context.Send('&filter='+URLEncode(filter));
         if fusers<>'' then Context.Send('&user='+URLEncode(fusers));
         ]]">>=s<</a></td>
+        <td><a href="?id=[[=id]][[
+        if filter<>'' then Context.Send('&filter='+URLEncode(filter));
+        if fusers<>'' then Context.Send('&user='+URLEncode(fusers));
+        ]]" class="linkbutton">entries...</a></td>
         <td style="text-align:right;">>.granularity<</td>
         <td>>
         qr1:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[id]);

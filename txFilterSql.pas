@@ -139,8 +139,8 @@ begin
   end;
   if Use_ObjTokRefCache and (FItemType in [itObj,itReport,itJournalEntry]) then
    begin
-      Fields:=Fields+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
-      Tables:=Tables+'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id'#13#10;
+    Fields:=Fields+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
+    Tables:=Tables+'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id'#13#10;
    end;
   for fe:=TtxFilterEnvVar(0) to fe_Unknown do EnvVars[feMe]:=0;
   EnvVars[feMe]:=Session.UserID;

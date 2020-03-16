@@ -1,5 +1,5 @@
 [[@txSession,txDefs,txFilter,txFilterSql,txCache,txNodes,DataLank,Variants]][[!var
-IsAdmin,b:boolean;
+b:boolean;
 qr:TQueryResult;
 i,id:integer;
 ]][[
@@ -10,9 +10,8 @@ if Length(Session.Journals)=0 then
  begin
   <<p class="information">No journals available to you.</p>>
  end
-else if Context['suspend'].AsInteger=1 then
+else if not Session.JournalsUsed then
  begin
-  Session.JournalsUsed:=false;
   <<p>
   <a class="linkbutton" href="#" onclick="top.document.location.reload();return false;">full refresh to close frame</a>
   <a class="linkbutton" href="?">resume</a>
@@ -78,6 +77,11 @@ else
       finally
         qr.Free;
       end;
+      if Session.Journals[i].fDisplay<>'' then
+       begin
+        <<span class="small" style="color:silver;">&nbsp;&rsaquo;[[=Session.Journals[i].fDisplay<</span>>
+        Session.Journals[i].fDisplay:='';
+       end;
       <</td>>
      end;
     <</tr>>
@@ -86,7 +90,7 @@ else
   <script>window.setTimeout(function(){document.location.reload();},60000);</script>>
   if b then
    begin
-    <<p><a href="?suspend=1" class="linkbutton">hide</p>>
+    <<p><a href="aFrmJrlSus.xxm" class="linkbutton">hide</p>>
    end;
  end;
 

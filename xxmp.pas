@@ -61,12 +61,13 @@ begin
             Session.DbCon.BeginTrans;
             try
               id:=qr.GetInt('usl_id');
-              if qr.GetInt('seq')=0 then
+              //if qr.GetInt('seq')=0 then
                begin
                 Session.DbCon.Execute('UPDATE Ust SET seq=seq+1 WHERE usl_id=?',[id]);
                 Session.DbCon.Execute('DELETE FROM Ust WHERE usl_id=? and c_ts<?',[id,VNow-AutoLogonCookieTimeoutDays]);
                 NewAutoLogonToken(Context,id);
                end
+              ;{
               else
                begin
                 //TODO: raise? log?
@@ -76,6 +77,7 @@ begin
                 FreeAndNil(qr);
                 ClearAutoLogonToken(Context);
                end;
+              }
               Session.DbCon.CommitTrans;
             except
               Session.DbCon.RollbackTrans;

@@ -172,9 +172,14 @@ else
        end;
      end;
     1,2:
+     begin
       Context.Redirect('Journal.xxm',true);
+     end;
     3:
+     begin
+      Session.Journals[i].fDisplay:=r;
       Context.Redirect('FrameJrl.xxm',true);
+     end;
     else
       raise Exception.Create('Unsupported "r" value');
   end;

@@ -76,7 +76,7 @@ type
     RecentReferences:array[0..FilterRecentCount-1] of record reftype,obj2:integer; end;
     Journals:array of record
       jrl_id,granularity:integer;
-      jrl_name:string;
+      jrl_name,fDisplay:string;
       CanConsult:boolean;
     end;
 
@@ -680,6 +680,7 @@ begin
         Journals[i].jrl_name:=qr.GetStr('name');
         Journals[i].granularity:=qr.GetInt('granularity');
         Journals[i].CanConsult:=b2;
+        Journals[i].fDisplay:='';
         inc(i);
        end;
      end;

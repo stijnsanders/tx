@@ -1002,6 +1002,11 @@
 			"path": "JrlItem.xxm",
 			"unitName": "jrlitem_xxm1",
 			"unitPath": ""
+		},
+		"afrmjrlsus_xxm": {
+			"path": "aFrmJrlSus.xxm",
+			"unitName": "afrmjrlsus_xxm1",
+			"unitPath": ""
 		}
 	},
 	"units": {

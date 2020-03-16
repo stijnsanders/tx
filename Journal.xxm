@@ -50,6 +50,7 @@ if id=0 then
     <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
     <tr>
     <th>journal</th>
+    <th>&nbsp;</th>
     <th title="entries today">#</th>
     <th title="objects today">o#</th>
     <th title="minutes today">&Sigma;&#x27;</th>
@@ -64,7 +65,10 @@ if id=0 then
       <<tr>
       <td><a href="?id=[[=Session.Journals[i].jrl_id]][[
       if filter<>'' then Context.Send('&filter='+URLEncode(filter));
-      ]]">>=Session.Journals[i].jrl_name<</a></td>>
+      ]]">>=Session.Journals[i].jrl_name<</a></td>
+      <td><a href="?id=[[=Session.Journals[i].jrl_id]][[
+      if filter<>'' then Context.Send('&filter='+URLEncode(filter));
+      ]]" class="linkbutton">entries...</a></td>>
       qr:=TQueryResult.Create(Session.DbCon,'select count(*) as entries,count(distinct Jre.obj_id) as objects,sum(Jre.minutes) as minutes'+
         ' from Jre inner join Jrt on Jrt.id=Jre.jrt_id'+
         ' where Jrt.jrl_id=? and Jre.uid=? and Jre.ts>=?',

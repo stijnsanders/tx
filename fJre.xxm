@@ -75,14 +75,21 @@ try
   </dd>
   <dt>Object</dt>
   <dd>>
-  qr1:=TQueryResult.Create(Session.DbCon,sqlObjByID,[qr.GetInt('obj_id')]);
-  try
-    Context.Include('dObjLink.xxmi',[],[qr1]);
-    Context.Include('dObjTokRef.xxmi',[qr1.GetInt('id'),#13#10' ','&nbsp;'],[qr1]);
-    //Context.Include('d_cmw.xxmi',[],[qr1]);
-  finally
-    qr1.Free;
-  end;
+
+  if d1>Now-1.0 then
+    Context.Include('dObjSelect.xxmi',['obj',qr.GetInt('obj_id')])
+  else
+   begin
+    qr1:=TQueryResult.Create(Session.DbCon,sqlObjByID,[qr.GetInt('obj_id')]);
+    try
+      Context.Include('dObjLink.xxmi',[],[qr1]);
+      Context.Include('dObjTokRef.xxmi',[qr1.GetInt('id'),#13#10' ','&nbsp;'],[qr1]);
+      //Context.Include('d_cmw.xxmi',[],[qr1]);
+    finally
+      qr1.Free;
+    end;
+   end;
+
   <</dd>
   <dt>Entry type</dt>
   <dd>>
