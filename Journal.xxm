@@ -1,7 +1,7 @@
 [[@txSession,txDefs,txFilter,txFilterSql,txCache,txNodes,DataLank,Variants]][[!var
 IsAdmin,AnyConsultable:boolean;
 qr:TQueryResult;
-i,id,pid,g,m,c,mi,mj,mk,ml,jrt_id:integer;
+i,id,pid,d,d1,g,m,c,mi,mj,mk,ml,jrt_id:integer;
 rpFilter:TtxRealmPermission;
 filter,s:string;
 fs:UTF8String;
@@ -224,6 +224,7 @@ else
       mi:=0;
       ml:=0;
       c:=0;
+      d:=0;
       while qr.Read do
        begin
         if filter<>'' then
@@ -258,6 +259,16 @@ else
             inc(mt[mj].m,qr.GetInt('minutes'));
             inc(mt[mj].c);
            end;
+         end;
+        d1:=Trunc(qr.GetDate('ts'));
+        if d<>d1 then
+         begin
+          <<tr>
+          <td>&nbsp;</td>
+          <td style="font-weight:bold;">>=NiceDateTime(d1)<</td>
+          <td colspan="4">&nbsp;</td>
+          </tr>>
+          d:=d1;
          end;
         <<tr>
         <td>

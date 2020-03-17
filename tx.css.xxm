@@ -411,7 +411,11 @@ A.domainlink {
 	font-weight: bold;
 }
 
+A.maillink {
+	color: #006699;
+}
 
+ 
 @media print {
 	#toplogo {display: none;}
 	#topnav {display: none;}

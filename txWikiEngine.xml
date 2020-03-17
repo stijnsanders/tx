@@ -44,7 +44,10 @@
 		Term links
 		<replace><pattern>@@w%</pattern><with>Term.xxm?d=&amp;amp;n=</with></replace>
 		<replace><pattern>@@e%</pattern><with>fTerm.xxm?d=&amp;amp;n=</with></replace>
--->		
+-->	
+
+		<jump>PickUpEmailAddresses</jump>
+
 		Raw HTML postponed to here to not disturb original layout
 		<replace><pattern>@@h(.+?)%</pattern><with>&lt;$1&gt;</with></replace>
 		Unescape escaped existing escapes
@@ -181,5 +184,17 @@
 			</match>
 		</split>		
     </group>
+
+		Display e-mail addressed enclosed in angled brackets as a link
+		<extract id="PickUpEmailAddresses">
+			<pattern>&amp;lt;([^@]+?@[^@]+?\.[^@]+?)&amp;gt;</pattern>
+			<prefix>%G%</prefix>
+			<match>
+				<replace>
+					<pattern>&amp;lt;([^@]+?@[^@]+?\.[^@]+?)&amp;gt;</pattern>
+					<with>&amp;lsaquo;&lt;a href="mailto:$1" class="maillink"&gt;$1&lt;/a&gt;&amp;rsaquo;</with>
+				</replace>
+			</match>
+		</extract>
 
 </wikiparse>
