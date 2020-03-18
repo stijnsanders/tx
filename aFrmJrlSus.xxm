@@ -1,4 +1,4 @@
 [[@txSession]][[
-Session.JournalsUsed:=false;
+Session.JournalsUsed:=Context['resume'].AsInteger<>0;
 Context.Redirect('FrameJrl.xxm?',true);
 <<a href="FrameJrl.xxm?">continue...</a>

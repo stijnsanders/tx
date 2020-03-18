@@ -14,7 +14,7 @@ else if not Session.JournalsUsed then
  begin
   <<p>
   <a class="linkbutton" href="#" onclick="top.document.location.reload();return false;">full refresh to close frame</a>
-  <a class="linkbutton" href="?">resume</a>
+  <a class="linkbutton" href="aFrmJrlSus.xxm?resume=1">resume</a>
   </p>>
  end
 else
