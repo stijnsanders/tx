@@ -35,7 +35,7 @@ filter:=Context['filter'].Value;
 	function listitem_select(e,id)
 	{
 		if(window.parent.frames["MainFrame"].window.catchTreeClick)
-			window.parent.frames["MainFrame"].window.catchTreeClick(id,$("#listitem_"+id)[0]);
+			window.parent.frames["MainFrame"].window.catchTreeClick(id,$("#listlink_"+id)[0]);
 		else
 			window.parent.frames["MainFrame"].location.replace("Item.xxm?x=i"+id);
 		return (e||window.event||this).shiftKey;

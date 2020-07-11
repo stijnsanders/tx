@@ -249,7 +249,7 @@ if Use_Journals then
         <a href="Item.xxm?x=i[[,obj2_id]]" title="[[,objtypename]]">
         [[#txImg(qr1['objicon'])]]
         [[,name]]</a>>
-        Context.Include('dObjTokRef.xxmi',[qr1.GetInt('obj2_id')],[qr1]);
+        Context.Include('dObjTokRef.xxmi',[qr1.GetInt('obj2_id'),'&nbsp;','&nbsp;'],[qr1]);
         <</p>>#TermStore.TermLinks(itRef,qid,d,qr1.GetStr('desc'))<<p>>
         //TODO: show obj2's toks, refs?
         Context.Include('d_cmw.xxmi',[],[qr1]);

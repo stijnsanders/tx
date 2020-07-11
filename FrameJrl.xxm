@@ -6,6 +6,17 @@ i,id:integer;
 
 Context.Include('dFrameHead.xxmi',['Journal',false]);
 
+<<script><!--
+	function listitem_select(e,id)
+	{
+		if(window.parent.frames["MainFrame"].window.catchTreeClick)
+			window.parent.frames["MainFrame"].window.catchTreeClick(id,$("#jrllink_"+id)[0]);
+		else
+			window.parent.frames["MainFrame"].location.replace("Item.xxm?x=i"+id);
+		return (e||window.event||this).shiftKey;
+	}
+//--></script>>
+
 if Length(Session.Journals)=0 then
  begin
   <<p class="information">No journals available to you.</p>>
@@ -46,7 +57,7 @@ else
         </td>
         <td style="white-space:nowrap;">>
         //Context.Include('dObjLink.xxmi',[],[qr]);
-        <<a href="Item.xxm?x=i[[.id]]" target="MainFrame" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
+        <<a href="Item.xxm?x=i[[.id]]" target="MainFrame" title="[[.typename]]" id="jrllink_[[=id]]" onclick="return listitem_select(event,[[=id]]);">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
         //Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
         //Context.Include('d_cmw.xxmi',[],[qr]);
         <</td>>

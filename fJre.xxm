@@ -77,7 +77,7 @@ try
   <dd>>
 
   if d1>Now-1.0 then
-    Context.Include('dObjSelect.xxmi',['obj',qr.GetInt('obj_id')])
+    Context.Include('dObjSelect.xxmi',['obj',qr.GetInt('obj_id'),0,0,'',true])
   else
    begin
     qr1:=TQueryResult.Create(Session.DbCon,sqlObjByID,[qr.GetInt('obj_id')]);

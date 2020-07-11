@@ -160,6 +160,12 @@ else
           ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
             {id:[[=Session.Journals[i].jrl_id]],rd:1,x:[[=id]],t:[[=jrt_id]],xxx:'[[#Session.SessionCrypt]]'},
             jrl_update);return false;">-[[=g]]&#x27;</a>>
+         end
+        else
+        if Context['rd'].AsInteger=1 then
+         begin
+          //show something here to catch repeat-clicking the reverse date button
+          <<span style="user-select:none;">&emsp;&ensp;</span>>
          end;
         ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
           {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=id]],xxx:'[[#Session.SessionCrypt]]'},
