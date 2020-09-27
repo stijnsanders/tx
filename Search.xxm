@@ -15,8 +15,13 @@ if xf<>'' then
 <<h2>Search</h2>
 [[#txForm('aSearch.xxm',['f',xf])]]
 [[if pid<>0 then begin <<input type="hidden" name="pid" value="[[=pid]]" />> end;
-<<dl>
-<dt>Keywords</dt>
+<<dl>>
+if pid<>0 then
+ begin
+  <<dt>Limit to branch</dt>
+  <dd>>Context.Include('iObjLink.xxmi',[pid]);<</dd>>
+ end;
+<<dt>Keywords</dt>
 <dd><input type="text" id="searchText" name="keywords" value="" class="textfield" /></dd>
 <dt>Items</dt>
 <dd>
