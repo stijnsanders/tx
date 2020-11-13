@@ -90,7 +90,7 @@ const
   lblLoading='<i style="color:#CC3300;"><img src="loading.gif" width="16" height="16" alt="" '+globalIconAlign+'/> Loading...</i>';
 
   DefaultRlmID=0;//do not change
-  EmailCheckRegEx='^[-_\.a-z0-9]+?@[-\.a-z0-9]+?\.[a-z][a-z]+$';//TODO: unicode?
+  EmailCheckRegEx='^[-\+_\.a-z0-9]+?@[-\.a-z0-9]+?\.[a-z][a-z]+$';//TODO: unicode?
 
 procedure txItem(const KeyX:string;var ItemType:TtxItemType;var ItemID:integer);
 function txImg(IconNr:integer; const Desc:string=''):string;

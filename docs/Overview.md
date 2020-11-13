@@ -150,10 +150,14 @@ Every object is stored in only one realm. By default all objects are stored in t
 
 Permission to view or edit objects in a realm is determined by a filter, and if you user object is listed by the filter.
 
-When the total number of objects increases, and some objects have becone less relevant, but are still on the right place in the structure, move them to a separate realm, that is not visible by default. (e.g.: 'done items': tasks that have a 'done' token for some time)
+When the total number of objects increases, and some objects have become less relevant, but are still on the right place in the structure, move them to a separate realm, that is not visible by default. (e.g.: 'done items': tasks that have a 'done' token for some time)
 
 ## Terms
 
 The content entered into text fields is searched for terms written in a certain caps style, much like [WikiWikiWeb](http://c2.com/cgi/wiki/wiki?WikiWikiWeb) pages. (The actual pattern used is configured in the `txWikiEngine.xml` file.)
 
 Terms are shown as links in green, and you can link terms to one or more items.
+
+## Journals
+
+To keep track of how much effort goes into which items by which team members, use a journal. Select an item, mark when you start work, and close the journal entry when you're done. View totals per journal, per items, or per filter.

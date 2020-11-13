@@ -7,7 +7,7 @@ Context.Include('dHead.xxmi',['Realm']);
 
 id:=Context['id'].AsInteger;
 
-qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id=?',[id]);
+qr:=TQueryResult.Create(Session.DbCon,'SELECT * FROM Rlm WHERE id=? AND id<>0',[id]);
 try
 <<h2>Realm</h2>
 [[#txForm('aRealm.xxm',['id',id])]]
