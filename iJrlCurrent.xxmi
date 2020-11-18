@@ -1,0 +1,47 @@
+[[@txSession,txDefs,DataLank]][[!var
+i,granularity:integer;
+qr:TQueryResult;
+d,d0:TDateTime;
+m:integer;
+]][[
+  i:=Values[0];//Session.Journals[]
+
+  granularity:=Session.Journals[i].granularity;
+
+  if granularity<=0 then granularity:=60;
+  d0:=JournalGranulate(Now,granularity);
+
+  qr:=TQueryResult.Create(Session.DbCon,
+    'select Obj.id, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', ObjType.icon, ObjType.name as typename,'+
+    ' Jrx.ts, Jrt.icon as jrt_icon, Jrt.name as jrt_name,'+
+    ' ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML'+
+    ' from Jrx inner join Jrt on Jrt.id=Jrx.jrt_id'+
+    ' inner join Obj on Obj.id=Jrx.obj_id'+
+    ' inner join ObjType on ObjType.id=Obj.objtype_id'+
+    ' left outer join ObjTokRefCache on ObjTokRefCache.id=Obj.id'+
+    ' where Jrx.uid=? and Jrt.jrl_id=?',
+    [Session.UserID,Session.Journals[i].jrl_id]);
+  try
+    if qr.Read then
+     begin
+      d:=JournalGranulate(qr.GetDate('ts'),granularity);
+      m:=Round((d0-d)*1440.0);
+      <<tr>
+      <td>&nbsp;</td>>
+      <<td>>
+      Context.Include('dObjLink.xxmi',[],[qr]);
+      Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
+      //Context.Include('d_cmw.xxmi',[],[qr]);
+      <</td>
+      <td>>#txImg(qr.GetInt('jrt_icon'))]][[=qr.GetStr('jrt_name')<</td>
+      <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
+      [[#JournalMinutesTD(m)]]
+      <td>
+      <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',1]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
+      <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',2]][[#txCallProtect]]" class="linkbutton" onclick="return confirm('Are you sure to cancel this journal entry?');">cancel</a>
+      </td>
+      </tr>>
+     end;
+  finally
+    qr.Free;
+  end;

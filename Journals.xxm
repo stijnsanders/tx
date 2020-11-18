@@ -202,6 +202,7 @@ if id=0 then
        end;
       ]]
       <a class="linkbutton" href="JrlTotals.xxm">totals...</a>
+      <a class="linkbutton" href="JrlStarted.xxm">started...</a>
       <a class="linkbutton" href="fJrlFilter.xxm">filter entries...</a>
       </p>>
         
