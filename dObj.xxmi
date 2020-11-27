@@ -96,13 +96,19 @@ if Use_Journals then
       end;
       if not(b) then
        begin
-        qr1:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[Session.Journals[i].jrl_id]) ;
+        qr1:=TQueryResult.Create(Session.DbCon,
+          'select *, (select count(*) from Jrx where Jrx.jrt_id=Jrt.id and Jrx.obj_id=?) as started from Jrt where jrl_id=? order by 1',
+          [id,Session.Journals[i].jrl_id]) ;
         try
           while qr1.Read do
            begin
             <<span onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
               {id:[[=Session.Journals[i].jrl_id]],t:[[=qr1.GetInt('id')]],x:[[=id]],xxx:'[[#Session.SessionCrypt]]'},
               jrl_update);">>#txImg(qr1.GetInt('icon'),qr1.GetStr('name'))<</span>>
+            if qr1.GetInt('started')<>0 then
+             begin
+              <<span class="nc">>=qr1['started']<</span>>
+             end;
            end;
         finally
           qr1.Free;
