@@ -76,6 +76,7 @@ if Use_Journals then
       <<span id="jrl[[=Session.Journals[i].jrl_id]]" class="jrl">>
       qr1:=TQueryResult.Create(Session.DbCon,
         'select Jrx.obj_id, Jrx.jrt_id, Jrt.icon, Jrt.name, Jrx.ts'+
+        ', (select count(*) from Jrx J1 inner join Jrt J2 on J2.id=J1.jrt_id where J2.jrl_id=Jrt.jrl_id and J1.obj_id=Jrx.obj_id and J1.uid<>Jrx.uid) as started'+
         ' from Jrx inner join Jrt on Jrt.id=Jrx.jrt_id'+
         ' where Jrx.uid=? and Jrx.obj_id=? and Jrt.jrl_id=?',
         [Session.UserID,id,Session.Journals[i].jrl_id]);
@@ -87,6 +88,12 @@ if Use_Journals then
           <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
             {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=id]],xxx:'[[#Session.SessionCrypt]]'},
             jrl_update);return false;">&bullet;</a>
+          [[
+          if qr1.GetInt('started')<>0 then
+           begin
+            <<span class="nc">>=qr1['started']<</span>>
+           end;
+          ]]
           &nbsp;[[
          end
         else

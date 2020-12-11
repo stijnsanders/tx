@@ -101,14 +101,20 @@ else
       if id=0 then
        begin
         id:=Context['xx'].AsInteger;
-        qr:=TQueryResult.Create(Session.DbCon,'select * from Jrt where jrl_id=? order by 1',[Session.Journals[i].jrl_id]) ;
+        qr:=TQueryResult.Create(Session.DbCon,
+          'select *, (select count(*) from Jrx where Jrx.jrt_id=Jrt.id and Jrx.obj_id=?) as started from Jrt where jrl_id=? order by 1',
+          [id,Session.Journals[i].jrl_id]) ;
         try
           while qr.Read do
-            begin
+           begin
             <<span onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
               {id:[[=Session.Journals[i].jrl_id]],t:[[=qr.GetInt('id')]],x:[[=id]],xxx:'[[#Session.SessionCrypt]]'},
               jrl_update);">>#txImg(qr.GetInt('icon'),qr.GetStr('name'))<</span>>
-            end;
+            if qr.GetInt('started')<>0 then
+             begin
+              <<span class="nc">>=qr['started']<</span>>
+             end;
+           end;
         finally
           qr.Free;
         end;
@@ -172,6 +178,19 @@ else
           jrl_update);return false;">&bullet;</a>
         &nbsp;[[
        end;
+      //TODO: fetch in query above?
+      qr:=TQueryResult.Create(Session.DbCon,
+        'select count(*) as started'+
+        ' from Jrx inner join Jrt on Jrt.id=Jrx.jrt_id'+
+        ' where Jrt.jrl_id=? and Jrx.obj_id=? and Jrx.uid<>?',[Session.Journals[i].jrl_id,id,Session.UserID]);
+      try
+        if qr.Read and (qr.GetInt('started')<>0) then
+         begin
+          <<span class="nc">>=qr['started']<</span>>
+         end;
+      finally
+        qr.Free;
+      end;
       if r<>'' then
        begin
         <<span class="small" style="color:silver;">&rsaquo;[[=r<</span>>
