@@ -34,7 +34,7 @@ m:integer;
       //Context.Include('d_cmw.xxmi',[],[qr]);
       <</td>
       <td>>#txImg(qr.GetInt('jrt_icon'))]][[=qr.GetStr('jrt_name')<</td>
-      <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
+      <td style="text-align:right;">>=JournalDateTime(d)<</td>
       [[#JournalMinutesTD(m)]]
       <td>
       <a href="iJre.xxm[[?'id',Session.Journals[i].jrl_id,'r',1]][[#txCallProtect]]" class="linkbutton">&bullet;</a>
