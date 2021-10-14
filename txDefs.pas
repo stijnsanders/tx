@@ -239,6 +239,7 @@ end;
 
 function JournalDateTime(d:TDateTime):string;
 begin
+  //TODO: JournalGranulate here? 
   Result:=FormatDateTime('ddd d/mm hh:nn',d);
 end;
 

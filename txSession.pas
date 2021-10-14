@@ -853,7 +853,7 @@ begin
     LeaveCriticalSection(SessionStoreLock);
   end;
   FreeAndNil(SessionStore);
-  FreeAndNil(SessionStoreLock);
+  DeleteCriticalSection(SessionStoreLock);
 end;
 
 function DBSingleValue(const SQL:UTF8String;Parameters:array of OleVariant;Default:OleVariant):OleVariant;

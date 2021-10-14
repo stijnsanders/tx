@@ -4,7 +4,7 @@ qr:TQueryResult;
 i,id,c,pid:integer;
 fs0,fs1,fs2,fp,fr,t:UTF8String;
 jrt,csv,dd:boolean;
-fusers,fitems,s:string;
+fx,s:string;
 f:TtxFilter;
 fq:TtxSqlQueryFragments;
 LocationCache:TItemCache;
@@ -136,15 +136,23 @@ else
     Ignore entries of zero length</label><br />
     </dd>
     [[//assert Use_ObjPath]]
-    <dt>Filter objects in path of user (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">ot"usergroup"*</span>)</span></dt>
+    <dt>Filter user objects (optional) <span style="font-weight:normal;">(e.g. <span class="litref">ot"user"*</span>)</span></dt>
     <dd>
-    [[Context.Include('dFltSelect.xxmi',['u','']);]]
+    [[Context.Include('dFltSelect.xxmi',['uf','']);]]
+    </dd>
+    <dt>Group by object in path of user (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">ot"usergroup"*</span>)</span></dt>
+    <dd>
+    [[Context.Include('dFltSelect.xxmi',['ug','']);]]
     <label><input type="radio" name="ur" value="0" /> highest</label><br />
     <label><input type="radio" name="ur" value="1" checked="1" /> lowest</label><br />
     </dd>
-    <dt>Filter objects in path of entry (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">ot"project"*</span>)</span></dt>
+    <dt>Filter entry objects (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">ot"project"*</span>)</span></dt>
     <dd>
-    [[Context.Include('dFltSelect.xxmi',['i','']);]]
+    [[Context.Include('dFltSelect.xxmi',['if','']);]]
+    </dd>
+    <dt>Group by object in path of entry object (optional) <span style="font-weight:normal;">(e.g.: <span class="litref">ot"project"*</span>)</span></dt>
+    <dd>
+    [[Context.Include('dFltSelect.xxmi',['ig','']);]]
     <label><input type="radio" name="ir" value="0" /> highest</label><br />
     <label><input type="radio" name="ir" value="1" checked="1" /> lowest</label><br />
     </dd>
@@ -161,6 +169,7 @@ else
     jrt:=Context['t'].AsInteger=1;
     dd:=Context['q'].Value<>'';//drill-down
 
+    //base for query over Jre
     fs0:='select Jre.id,Jre.obj_id,Jre.uid'
       +',Jre.ts+2415018.5 as ets' //,datetime('1900-01-01',(Jre.ts-2.0)||' day') as ets
       +',Jre.minutes';
@@ -170,19 +179,19 @@ else
       +' where Jrt.jrl_id=?';
     if Context['z'].AsInteger=1 then fs0:=fs0+' and Jre.minutes<>0';
 
-    fusers:=Context['u1'].Value;
-    if fusers='' then fusers:=Context['u2'].Value;
-
-    if fusers<>'' then
+    //filter over entry user objects
+    fx:=Context['uf1'].Value;
+    if fx='' then fx:=Context['uf2'].Value;
+    if fx<>'' then
      begin
       fq:=TtxSqlQueryFragments.Create(itObj);
       try
         fq.Fields:='X0.*';
-        fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10
-          +'INNER JOIN ('#13#10+fs0+#13#10') X0 on X0.uid=Obj.id'#13#10;
+        fq.Tables:='Obj left join ObjType on ObjType.id=Obj.objtype_id'#13#10
+          +'inner join ('#13#10+fs0+#13#10') X0 on X0.uid=Obj.id'#13#10;
         f:=TtxFilter.Create;
         try
-          f.FilterExpression:=UTF8Encode(fusers);
+          f.FilterExpression:=UTF8Encode(fx);
           if f.ParseError<>'' then
            begin
             <<p style="color:red;">>=f.ParseError<</p>>
@@ -193,7 +202,7 @@ else
         end;
 
         //TODO:
-        //if fq.Where<>'' then fq.Where:=' AND ('+fq.Where+')';
+        //if fq.Where<>'' then fq.Where:=' and ('+fq.Where+')';
         //fq.Where:='Obj.rlm_id'+Session.Realms[rpFilter].SQL+fq.Where;//?
         fq.OrderBy:='';
 
@@ -203,36 +212,62 @@ else
       end;
      end;
 
+    //group over user objects 
+    fx:=Context['ug1'].Value;
+    if fx='' then fx:=Context['ug2'].Value;
     case Context['ur'].AsInteger of
       0:fr:='P1.lvl desc';
       1:fr:='P1.lvl';//asc
       //else raise?
     end;
-    fs1:='select Y1.id,Y1.obj_id,Y1.uid,Y1.ets,Y1.minutes';
-    if jrt then fs1:=fs1+',Y1.jrt_id';
-    fs1:=fs1
-      +' from ('#13#10
-      +'select X1.id,X1.obj_id,P1.pid as uid,X1.ets,X1.minutes';
-    if jrt then fs1:=fs1+',X1.jrt_id';
-    fs1:=fs1
-      +',rank()over(partition by X1.id order by '+fr+') as R1'
-      +' from ('#13#10+fs0+#13#10') X1'
-      +' inner join ObjPath P1 on P1.oid=X1.uid'
-      +#13#10') Y1 where Y1.R1=1';
+    fq:=TtxSqlQueryFragments.Create(itObj);
+    try
+      fq.Fields:='X1.id,X1.obj_id,P1.pid as uid,X1.ets,X1.minutes';
+      if jrt then fq.Fields:=fq.Fields+',X1.jrt_id';
+      fq.Fields:=fq.Fields
+        +',rank()over(partition by X1.id order by '+fr+') as R1';
+      fq.Tables:='('#13#10+fs0+#13#10') X1'
+        +#13#10'inner join ObjPath P1 on P1.oid=X1.uid';//TODO: left outer join?
+      if fx<>'' then
+       begin
+        fq.Tables:=fq.Tables
+          +#13#10'inner join Obj on Obj.id=P1.pid'
+          +#13#10'inner join ObjType on ObjType.id=Obj.objtype_id'
+          +#13#10;
+        f:=TtxFilter.Create;
+        try
+          f.FilterExpression:=UTF8Encode(fx);
+          if f.ParseError<>'' then
+           begin
+            <<p style="color:red;">>=f.ParseError<</p>>
+           end;
+          fq.AddFilter(f);
+        finally
+          f.Free;
+        end;
+       end;
+      fq.OrderBy:='';
+      fs1:='select Y1.id,Y1.obj_id,Y1.uid,Y1.ets,Y1.minutes';
+      if jrt then fs1:=fs1+',Y1.jrt_id';
+      fs1:=fs1
+        +' from ('#13#10+fq.SQL+') Y1 where Y1.R1=1';
+    finally
+      fq.Free;
+    end;
 
-    fitems:=Context['i1'].Value;
-    if fitems='' then fitems:=Context['i2'].Value;
-
-    if fitems<>'' then
+    //filter over entry objects
+    fx:=Context['i1'].Value;
+    if fx='' then fx:=Context['i2'].Value;
+    if fx<>'' then
      begin
       fq:=TtxSqlQueryFragments.Create(itObj);
       try
         fq.Fields:='Z.*';
-        fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10
-          +'INNER JOIN ('#13#10+fs1+#13#10') Z on Z.obj_id=Obj.id'#13#10;
+        fq.Tables:='Obj left join ObjType on ObjType.id=Obj.objtype_id'#13#10
+          +'inner join ('#13#10+fs1+#13#10') Z on Z.obj_id=Obj.id'#13#10;
         f:=TtxFilter.Create;
         try
-          f.FilterExpression:=UTF8Encode(fitems);
+          f.FilterExpression:=UTF8Encode(fx);
           if f.ParseError<>'' then
            begin
             <<p style="color:red;">>=f.ParseError<</p>>
@@ -253,23 +288,50 @@ else
       end;
      end;
 
+    //group over entry objects
+    fx:=Context['ig1'].Value;
+    if fx='' then fx:=Context['ig2'].Value;
     case Context['ir'].AsInteger of
       0:fr:='P2.lvl desc';
       1:fr:='P2.lvl';//asc
       //else raise?
     end;
-    fs2:='select Y2.id,Y2.obj_id,Y2.uid,Y2.ets,Y2.minutes';
-    if jrt then fs2:=fs2+',Y2.jrt_id';
-    fs2:=fs2
-      +' from ('#13#10
-      +'select X2.id,P2.pid as obj_id,X2.uid,X2.ets,X2.minutes';
-    if jrt then fs2:=fs2+',X2.jrt_id';
-    fs2:=fs2
-      +',rank()over(partition by X2.id order by '+fr+') as R2'
-      +' from ('#13#10+fs1+#13#10') X2'
-      +' inner join ObjPath P2 on P2.oid=X2.obj_id'
-      +#13#10') Y2 where Y2.R2=1';
+    fq:=TtxSqlQueryFragments.Create(itObj);
+    try
+      fq.Fields:='X2.id,P2.pid as obj_id,X2.uid,X2.ets,X2.minutes';
+      if jrt then fq.Fields:=fq.Fields+',X2.jrt_id';
+      fq.Fields:=fq.Fields
+        +',rank()over(partition by X2.id order by '+fr+') as R2';
+      fq.Tables:='('#13#10+fs1+#13#10') X2'
+        +#13#10'inner join ObjPath P2 on P2.oid=X2.obj_id';//TODO: left outer join?
+      if fx<>'' then
+       begin
+        fq.Tables:=fq.Tables
+          +#13#10'inner join Obj on Obj.id=P2.pid'
+          +#13#10'inner join ObjType on ObjType.id=Obj.objtype_id'
+          +#13#10;
+        f:=TtxFilter.Create;
+        try
+          f.FilterExpression:=UTF8Encode(fx);
+          if f.ParseError<>'' then
+           begin
+            <<p style="color:red;">>=f.ParseError<</p>>
+           end;
+          fq.AddFilter(f);
+        finally
+          f.Free;
+        end;
+       end;
+      fq.OrderBy:='';
+      fs2:='select Y2.id,Y2.obj_id,Y2.uid,Y2.ets,Y2.minutes';
+      if jrt then fs2:=fs2+',Y2.jrt_id';
+      fs2:=fs2
+        +' from ('#13#10+fq.SQL+') Y2 where Y2.R2=1';
+    finally
+      fq.Free;
+    end;
 
+    //group by time interval
     case Context['p'].AsInteger of
       0://by journal granularity
         fp:='strftime(''%Y-%m-%d %H:%M'',ets)';
@@ -302,7 +364,7 @@ else
         +',O1.name as usr_name,O2.name as obj_name';
       fs0:=fs0
         +' from ('#13#10+fs2+#13#10') XX';
-      if jrt then fs0:=fs0
+      if jrt then fs0:=fs0  
         +' inner join Jrt on Jrt.id=XX.jrt_id';
       if csv then fs0:=fs0
         +' inner join Obj O1 on O1.id=XX.uid'
