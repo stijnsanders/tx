@@ -2,7 +2,7 @@
 IsAdmin:boolean;
 qr:TQueryResult;
 i,id,c,pid:integer;
-fs0,fs1,fs2,fp,fr,t:UTF8String;
+fs0,fs1,fs2,fp,fr,t,t0:UTF8String;
 jrt,csv,dd:boolean;
 fx,s:string;
 f:TtxFilter;
@@ -411,11 +411,51 @@ else
           <<th title="minutes">&#x27;</th>
           <th title="count">#</th>
           </tr>>
+
+          t0:='?'+UTF8Encode(Context.ContextString(csQueryString));
   
+          m:=0;
+          mi:=0;
+          ml:=0;
+          c:=0;
           while qr.Read do
            begin
   
-            t:='?'+UTF8Encode(Context.ContextString(csQueryString));
+            inc(m,qr.GetInt('minutes'));
+            inc(c);
+            if jrt then
+             begin
+              jrt_id:=qr.GetInt('jrt_id');
+              mj:=0;
+              while (mj<mi) and (mt[mj].jrt_id<jrt_id) do inc(mj);
+              if (mj=mi) or (mt[mj].jrt_id<>jrt_id) then
+               begin
+                if mi=ml then
+                 begin
+                  inc(ml,$20);//grow
+                  SetLength(mt,ml);
+                 end;
+                mk:=mi;
+                inc(mi);
+                while (mk>mj) do
+                 begin
+                  mt[mk]:=mt[mk-1];
+                  dec(mk);
+                 end;
+                mt[mj].jrt_id:=jrt_id;
+                mt[mj].jrt_icon:=qr.GetInt('jrt_icon');
+                mt[mj].jrt_name:=qr.GetStr('jrt_name');
+                mt[mj].m:=qr.GetInt('minutes');
+                mt[mj].c:=qr.GetInt('entries');
+               end
+              else
+               begin
+                inc(mt[mj].m,qr.GetInt('minutes'));
+                inc(mt[mj].c,qr.GetInt('entries'));
+               end;
+             end;
+
+            t:=t0;
              
             <<tr>
             <td>>.period<</td>>
@@ -445,8 +485,47 @@ else
             </tr>>
            end;
   
-          <</table>
-          <p><a class="linkbutton" href="?[[=Context.ContextString(csQueryString)]]&csv=1">CSV...</a></p>>
+          <</table>>
+
+          if jrt and (mi<>0) then
+           begin
+            <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+            <tr>
+            <th>entries</th>
+            <th>#</th>
+            <th>&Sigma;&#x27;</th>
+            </tr>>
+            //TODO: sort by jrt_name?jrt_id?
+            for mj:=0 to mi-1 do
+             begin
+              <<tr>
+              <td>>#txImg(mt[mj].jrt_icon)]][[=mt[mj].jrt_name<</td>
+              <td style="text-align:right;">>=mt[mj].c<</td>
+              [[#JournalMinutesTD(mt[mj].m)]]
+              </tr>>
+             end;
+            <<tr>
+            <th>&nbsp;</th>
+            <th style="text-align:right;">>=c<</th>
+            <th style="text-align:right;">>=JournalMinutes(m)<</th>
+            </tr>
+            </table>>
+           end
+          else
+           begin
+            <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+            <tr>
+            <th>#</th>
+            <th>&Sigma;&#x27;</th>
+            </tr>
+            <tr>
+            <th style="text-align:right;">>=c<</th>
+            <th style="text-align:right;">>=JournalMinutes(m)<</th>
+            </tr>
+            </table>>
+           end;
+
+          <<p><a class="linkbutton" href="?[[=Context.ContextString(csQueryString)]]&csv=1">CSV...</a></p>>
         end;
       finally
         qr.Free;
