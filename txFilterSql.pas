@@ -832,7 +832,7 @@ begin
     j:=2;
     while i<=Length(s) do
      begin
-      if s='''' then
+      if s[i]='''' then
        begin
         Result[j]:='''';
         inc(j);
