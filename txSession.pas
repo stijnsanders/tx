@@ -340,6 +340,7 @@ begin
    begin
     ThreadDBCon:=TDataConnection.Create(UTF8Encode(DbFilePath));
     ThreadDBCon.BusyTimeout:=5000;
+    ThreadDBCon.Execute('pragma journal_mode=persist');
    end;
   Result:=ThreadDbCon;
 end;

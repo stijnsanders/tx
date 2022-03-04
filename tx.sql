@@ -188,7 +188,7 @@ create table Trm (
 id integer primary key autoincrement,
 domain_id int not null,
 obj_id int not null,
-term varchar(100) not null
+term varchar(100) not null collate nocase
 );
 
 create table Trl (
