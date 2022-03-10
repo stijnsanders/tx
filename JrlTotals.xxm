@@ -256,8 +256,8 @@ else
     end;
 
     //filter over entry objects
-    fx:=Context['i1'].Value;
-    if fx='' then fx:=Context['i2'].Value;
+    fx:=Context['if1'].Value;
+    if fx='' then fx:=Context['if2'].Value;
     if fx<>'' then
      begin
       fq:=TtxSqlQueryFragments.Create(itObj);
