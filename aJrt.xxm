@@ -1,7 +1,5 @@
 [[@txDefs,txSession,DataLank,Variants,]][[!var
-qr:TQueryResult;
 id,jrl_id:integer;
-rootid:OleVariant;
 url:string;
 ]][[
 

@@ -316,8 +316,8 @@ minutes int not null,
 c_ts datetime null,
 m_ts datetime null,
 constraint FK_Jre_Jrt foreign key (jrt_id) references Jrt (id),
-constraint FK_Jre_UsrObj foreign key (uid) references Obj (id)--not Usr!
-constraint FK_Jre_Obj foreign key (obj_id) references Obj (id),
+constraint FK_Jre_UsrObj foreign key (uid) references Obj (id),--not Usr!
+constraint FK_Jre_Obj foreign key (obj_id) references Obj (id)
 );
 
 create index IX_Jre on Jre (jrt_id,uid);

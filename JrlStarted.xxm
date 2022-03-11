@@ -6,7 +6,6 @@ LocationCache:TItemCache;
 ln:TLocationNode;
 i,c,pid:integer;
 s:string;
-d:TDateTime;
 ]][[
 
 //TODO: TtxItemType itJournalEntryStart
@@ -38,7 +37,6 @@ IsAdmin:=Session.IsAdmin('journals');
     end;
    end;
 
-  d:=Now;
   LocationCache:=TItemCache.Create;
   qr:=TQueryResult.Create(Session.DbCon,
     'select Jrl.id as jrl_id, Jrl.name as jrl_name, Jrl.granularity,'

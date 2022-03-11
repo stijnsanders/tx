@@ -7,10 +7,10 @@ url:='Journals.xxm?id='+IntToStr(Context['id'].AsInteger);
 
 s:=Context['filter1'].Value;
 if s='' then s:=Context['filter2'].Value;
-if s<>'' then url:=url+'&filter='+URLEncode(s);
+if s<>'' then url:=url+'&filter='+string(URLEncode(s));
 
 s:=Context['users1'].Value;
 if s='' then s:=Context['users2'].Value;
-if s<>'' then url:=url+'&users='+URLEncode(s);
+if s<>'' then url:=url+'&users='+string(URLEncode(s));
 
 Context.Redirect(url,true);

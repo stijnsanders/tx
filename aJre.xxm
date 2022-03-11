@@ -2,7 +2,6 @@
 qr:TQueryResult;
 id,jrl_id,jrt_id,new_jrt_id,obj_id,new_obj_id:integer;
 d1:TDateTime;
-rootid:OleVariant;
 url,s:string;
 b:boolean;
 f:TtxFilter;
