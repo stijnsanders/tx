@@ -1,5 +1,5 @@
 [[@txDefs,DataLank,txSession,]][[!var
-root,id,rid,nid,i,j,l,ObjTypeID,RlmID,dweight:integer;
+root,id,rid,nid,pid,i,j,l,ii,ObjTypeID,RlmID,dweight:integer;
 fmt,n,n1:string;
 d:TDateTime;
 autoCreate:boolean;
@@ -76,6 +76,7 @@ else
           id:=DbSingleValue('SELECT id FROM Obj WHERE pid=? AND name=?',[id,n],0);
           if id=0 then
             if autoCreate then
+             begin
               id:=Session.DbCon.Insert('Obj',
                 ['pid',nid
                 ,'objtype_id',ObjTypeID
@@ -88,7 +89,20 @@ else
                 ,'c_uid',Session.UserID
                 ,'m_ts',VNow
                 ,'m_uid',Session.UserID
-                ],'id')
+                ],'id');
+              if Use_ObjPath then
+               begin
+                pid:=nid;
+                ii:=0;
+                Session.DbCon.Insert('ObjPath',['pid',id,'oid',id,'lvl',ii]);
+                while pid<>0 do
+                begin
+                  inc(ii);
+                  Session.DbCon.Insert('ObjPath',['pid',pid,'oid',id,'lvl',ii]);
+                  pid:=DBSingleValue('SELECT pid FROM Obj WHERE id=?',[pid],0);
+                end;
+               end;
+             end
             else
              begin
               //skip!
