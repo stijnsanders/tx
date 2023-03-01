@@ -40,8 +40,19 @@ filter:=Context['filter'].Value;
 			window.parent.frames["MainFrame"].location.replace("Item.xxm?x=i"+id);
 		return (e||window.event||this).shiftKey;
 	}
+  function listitem_highlight(e)
+  {
+    var n=e.target;
+    while(n&&!n.id.startsWith("listitemfull_"))n=n.parentElement;
+    if(n){
+      if(highlightedItem)highlightedItem.className="";
+      n.className="highlight";
+      highlightedItem=n;
+    }
+  }
+  var highlightedItem=null;
 //--></script>
-<span style="white-space:nowrap;">>
+<span style="white-space:nowrap;" onclick="listitem_highlight(event);">>
 
   if Context['all'].AsInteger=1 then rpFilter:=rpAny else rpFilter:=rpView;
 

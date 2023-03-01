@@ -35,6 +35,7 @@ try
           p.Add(sl[si]);
           inc(si);
          end;
+        Context.Flush;
         Context.Include('dLog.xxmi',[
           p.Values['filter'],
           p.Values['anyrealm']='1',//view 'view realms' and 'control realms'? (or only 'views realms')
@@ -64,6 +65,7 @@ try
           s:=s+sl[si]+#13#10;
           inc(si);
          end;
+        Context.Flush;
         Context.Include('dListFilter.xxmi',[
           p.Values['filter'],
           s,
@@ -91,6 +93,7 @@ try
         t:=t+sl[si]+#13#10;
         inc(si);
        end;
+      Context.Flush;
       Context.Include('dListQuery.xxmi',[s,t]);
      end
     else

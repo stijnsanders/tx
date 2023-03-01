@@ -2,7 +2,7 @@
 i,id,jrt_id,id1,jrt_id1,jrx_id,g,m:integer;
 qr:TQueryResult;
 d,d0,d1:TDateTime;
-CanReverseDate:boolean;
+CanReverseDate,rd:integer;
 r:string;
 b:boolean;
 const
@@ -122,7 +122,7 @@ else
        end
       else
        begin
-        CanReverseDate:=false;//default
+        CanReverseDate:=0;//default
         if Now<d1+2.0/24.0 then
          begin
           b:=false;
@@ -131,13 +131,21 @@ else
             ' where Jre.id<>? and Jrt.jrl_id=? and Jre.uid=? and Jre.ts+Jre.minutes/1440.0<=? order by Jre.ts desc limit 1',
             [id,Session.Journals[i].jrl_id,Session.UserID,d1]);
           try
-            if (Context['rd'].AsInteger=1) and (qr.EOF or (qr.GetDate('ts')+HalfAMinute<d1-g/1440.0)) then
+            rd:=Context['rd'].AsInteger;
+            if (rd=1) and (qr.EOF or (qr.GetDate('ts')+HalfAMinute<d1-g/1440.0)) then
              begin
               d1:=d1-g/1440.0;
               b:=true;
+             end
+            else if (rd=2) and not(qr.EOF) then
+             begin
+              d1:=qr.GetDate('ts');
+              b:=true;
              end;
-            if qr.EOF or (qr.GetDate('ts')+HalfAMinute<d1-g/1440.0) then
-              CanReverseDate:=true;
+            if qr.EOF then
+              CanReverseDate:=1
+            else if qr.GetDate('ts')+HalfAMinute<d1-g/1440.0 then
+              CanReverseDate:=2;
           finally
             qr.Free;
           end;
@@ -161,11 +169,17 @@ else
           qr.Free;
         end;
 
-        if CanReverseDate then
+        if CanReverseDate<>0 then
          begin
           ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
             {id:[[=Session.Journals[i].jrl_id]],rd:1,x:[[=id]],t:[[=jrt_id]],xxx:'[[#Session.SessionCrypt]]'},
             jrl_update);return false;">-[[=g]]&#x27;</a>>
+          if CanReverseDate=2 then
+           begin
+            ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+              {id:[[=Session.Journals[i].jrl_id]],rd:2,x:[[=id]],t:[[=jrt_id]],xxx:'[[#Session.SessionCrypt]]'},
+              jrl_update);return false;">&#x21E4;</a>>
+           end;
          end
         else
         if Context['rd'].AsInteger=1 then

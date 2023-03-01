@@ -7,43 +7,76 @@ odl:boolean;
 ]][[
 n:=Context['n'].Value;
 d:=Context['d'].AsInteger;
-odl:=false;
-qr:=TQueryResult.Create(Session.DbCon,'SELECT MIN(Trm.obj_id) AS id, COUNT(*) AS tcount FROM Trm WHERE Trm.domain_id=? AND lower(Trm.term)=lower(?)',[d,n]);
-try
-  if qr.Read then
-    if qr.GetInt('tcount')=1 then Context.Redirect('Item.xxm?x=i'+IntToStr(qr.GetInt('id')),true);
-finally
-  qr.Free;
-end;
-Context.Include('dHead.xxmi',['Term "'+n+'"']);
-<<h2>Term "[[=n]]" <a href="Item.xxm?x=i[[=d]]" class="domainlink">&lsaquo;</a></h2>>
 
-qr:=TQueryResult.Create(Session.DbCon,
-  'SELECT Trm.domain_id, Trm.term, Trm.id as term_id, Obj.id, Obj.pid, Obj.name, Obj.'+sqlDesc+', Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename, ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
-  'FROM Trm '+
-  'LEFT JOIN Obj ON Obj.id=Trm.obj_id '+
-  'LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id '+
-  'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
-  'WHERE lower(Trm.term)=lower(?) '+
-  'ORDER BY Obj.weight, Obj.name, Obj.c_ts',[n]);
-ObjLocationCache:=TItemCache.Create;
-try
-  while qr.Read and Context.Connected do
-   begin
-    d1:=qr.GetInt('domain_id');
-    <<div[[if d1<>d then begin odl:=true;]] class="otherdomain"[[end;]]>>
-    Context.Include('dObjList.xxmi',[],[qr,ObjLocationCache]);
-    if d1<>d then begin ]] <a href="Item.xxm?x=i[[=d1]]" class="domainlink">&lsaquo;</a>> end;
-    <</div>>
-   end;
-finally
-  qr.Free;
-  ObjLocationCache.Free;
-end;
-
-if odl then
+if n='' then
  begin
-  <<div class="otherdomain" style="float:right;font-style:italic;">defined in another wiki domain</div>>
+
+  Context.Include('dHead.xxmi',['Most undefined terms']);
+  qr:=TQueryResult.Create(Session.DbCon,'select Trl.term, count(*) as lcount from Trl '+
+    'left outer join Trm on Trm.domain_id=Trl.domain_id and Trm.term=Trl.term collate nocase '+
+    'where Trl.domain_id=0 and Trm.id is null group by Trl.term order by 2 desc, 1 limit 50',[d]);
+  try
+    <<h2>Most undefined terms <a href="Item.xxm?x=i[[=d]]" class="domainlink">&lsaquo;</a></h2>>
+    <<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+    <tr>
+    <th>term</th>
+    <th style="text-align:right;">#</th>
+    </tr>>
+    while qr.Read and Context.Connected do
+     begin
+      n:=qr.GetStr('term');
+      <<tr>
+      <td><a class="newwiki" href="fTerm.xxm[[?'d',d,'n',n]]">>.term<</td>
+      <td style="text-align:right;"><a href="TermLinks.xxm[[?'d',d,'n',n]]">>.lcount<</a></td>
+      </tr>>
+     end;
+    <</table>>
+  finally
+    qr.Free;
+  end;
+
+ end
+else
+ begin
+
+  odl:=false;
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT MIN(Trm.obj_id) AS id, COUNT(*) AS tcount FROM Trm WHERE Trm.domain_id=? AND lower(Trm.term)=lower(?)',[d,n]);
+  try
+    if qr.Read then
+      if qr.GetInt('tcount')=1 then Context.Redirect('Item.xxm?x=i'+IntToStr(qr.GetInt('id')),true);
+  finally
+    qr.Free;
+  end;
+  Context.Include('dHead.xxmi',['Term "'+n+'"']);
+  <<h2>Term "[[=n]]" <a href="Item.xxm?x=i[[=d]]" class="domainlink">&lsaquo;</a></h2>>
+  
+  qr:=TQueryResult.Create(Session.DbCon,
+    'SELECT Trm.domain_id, Trm.term, Trm.id as term_id, Obj.id, Obj.pid, Obj.name, Obj.'+sqlDesc+', Obj.c_uid, Obj.c_ts, Obj.m_uid, Obj.m_ts, ObjType.icon, ObjType.name AS typename, ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML '+
+    'FROM Trm '+
+    'LEFT JOIN Obj ON Obj.id=Trm.obj_id '+
+    'LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id '+
+    'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id '+
+    'WHERE lower(Trm.term)=lower(?) '+
+    'ORDER BY Obj.weight, Obj.name, Obj.c_ts',[n]);
+  ObjLocationCache:=TItemCache.Create;
+  try
+    while qr.Read and Context.Connected do
+     begin
+      d1:=qr.GetInt('domain_id');
+      <<div[[if d1<>d then begin odl:=true;]] class="otherdomain"[[end;]]>>
+      Context.Include('dObjList.xxmi',[],[qr,ObjLocationCache]);
+      if d1<>d then begin ]] <a href="Item.xxm?x=i[[=d1]]" class="domainlink">&lsaquo;</a>> end;
+      <</div>>
+     end;
+  finally
+    qr.Free;
+    ObjLocationCache.Free;
+  end;
+  
+  if odl then
+   begin
+    <<div class="otherdomain" style="float:right;font-style:italic;">defined in another wiki domain</div>>
+   end;
  end;
 
 <<br />
@@ -53,4 +86,3 @@ if odl then
 </p>>
 
 Context.Include('dFoot.xxmi');
-]]
