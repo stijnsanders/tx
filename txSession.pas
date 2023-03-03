@@ -434,41 +434,47 @@ begin
         if fx='' then
           b:=rid=0 //no access by default, except with default realm
         else
-         begin
-          i:=0;
-          //check filter cache
-          while (i<fcl) and (fc[i].x<>fx) do inc(i);
-          if i<fcl then b:=fc[i].b else
-           begin
-            //check filter
-            f:=TtxFilter.Create;
-            fq:=TtxSqlQueryFragments.Create(itObj);
-            try
-              fq.Fields:='Obj.id';
-              fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
-              fq.Where:='Obj.id='+IntToStrU(UserID)+' AND ';
-              fq.GroupBy:='';
-              fq.Having:='';
-              fq.OrderBy:='';
-              f.FilterExpression:=UTF8Encode(fx);
-              fq.AddFilter(f);
-              qr1:=TQueryResult.Create(DbCon,fq.Sql,[]);
+          try
+            i:=0;
+            //check filter cache
+            while (i<fcl) and (fc[i].x<>fx) do inc(i);
+            if i<fcl then b:=fc[i].b else
+             begin
+              //check filter
+              f:=TtxFilter.Create;
+              fq:=TtxSqlQueryFragments.Create(itObj);
               try
-                b:=not(qr1.EOF);
+                fq.Fields:='Obj.id';
+                fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+                fq.Where:='Obj.id='+IntToStrU(UserID)+' AND ';
+                fq.GroupBy:='';
+                fq.Having:='';
+                fq.OrderBy:='';
+                f.FilterExpression:=UTF8Encode(fx);
+                fq.AddFilter(f);
+                qr1:=TQueryResult.Create(DbCon,fq.Sql,[]);
+                try
+                  b:=not(qr1.EOF);
+                finally
+                  qr1.Free;
+                end;
               finally
-                qr1.Free;
+                f.Free;
+                fq.Free;
               end;
-            finally
-              f.Free;
-              fq.Free;
-            end;
-            //add result to cache
-            SetLength(fc,fcl+1);
-            fc[fcl].x:=fx;
-            fc[fcl].b:=b;
-            inc(fcl);
-           end;
-         end;
+              //add result to cache
+              SetLength(fc,fcl+1);
+              fc[fcl].x:=fx;
+              fc[fcl].b:=b;
+              inc(fcl);
+             end;
+          except
+            on e:Exception do
+             begin
+              e.Message:='Rlm#'+IntToStr(rid)+'.'+rname[rp]+'_expression: '+e.Message;
+              raise;
+             end;
+          end;
         //add to list
         if b then Realms[rp].Ids[Grow(rp)]:=rid;
        end;
@@ -484,19 +490,27 @@ begin
           fq.GroupBy:='';
           fq.Having:='';
           fq.OrderBy:='';
-          f.FilterExpression:=UTF8Encode(fx);
-          fq.AddFilter(f);
-          qr1:=TQueryResult.Create(Session.DbCon,fq.Sql,[]);
           try
-            if not qr1.EOF then
+            f.FilterExpression:=UTF8Encode(fx);
+            fq.AddFilter(f);
+            qr1:=TQueryResult.Create(Session.DbCon,fq.Sql,[]);
+            try
+              if not qr1.EOF then
+               begin
+                s:='';
+                while qr1.Read do s:=s+IntToStr(qr1['id'])+',';
+                s[Length(s)]:=')';
+                RealmsSQLExtra:=' AND (Obj.rlm_id<>'+IntToStrU(rid)+' OR EXISTS (SELECT lvl FROM ObjPath WHERE ObjPath.oid=Obj.id AND ObjPath.pid IN ('+UTF8Encode(s)+'))';
+               end;
+            finally
+              qr1.Free;
+            end;
+          except
+            on e:Exception do
              begin
-              s:='';
-              while qr1.Read do s:=s+IntToStr(qr1['id'])+',';
-              s[Length(s)]:=')';
-              RealmsSQLExtra:=' AND (Obj.rlm_id<>'+IntToStrU(rid)+' OR EXISTS (SELECT lvl FROM ObjPath WHERE ObjPath.oid=Obj.id AND ObjPath.pid IN ('+UTF8Encode(s)+'))';
+              e.Message:='Rlm#'+IntToStr(rid)+'.limit_expression: '+e.Message;
+              raise;
              end;
-          finally
-            qr1.Free;
           end;
         finally
           f.Free;
@@ -624,35 +638,7 @@ begin
      begin
       fx:=qr.GetStr('view_expression');
       if fx='' then b1:=true else
-       begin
-        f:=TtxFilter.Create;
-        fq:=TtxSqlQueryFragments.Create(itObj);
         try
-          fq.Fields:='Obj.id';
-          fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
-          fq.Where:='Obj.id='+IntToStrU(UserID)+' AND ';
-          fq.GroupBy:='';
-          fq.Having:='';
-          fq.OrderBy:='';
-          f.FilterExpression:=UTF8Encode(fx);
-          fq.AddFilter(f);
-          qr1:=TQueryResult.Create(DbCon,fq.Sql,[]);
-          try
-            b1:=not(qr1.EOF);
-          finally
-            qr1.Free;
-          end;
-        finally
-          f.Free;
-          fq.Free;
-        end;
-       end;
-      if b1 then
-       begin
-
-        fx:=qr.GetStr('edit_expression');
-        if fx='' then b2:=false else
-        begin
           f:=TtxFilter.Create;
           fq:=TtxSqlQueryFragments.Create(itObj);
           try
@@ -666,7 +652,7 @@ begin
             fq.AddFilter(f);
             qr1:=TQueryResult.Create(DbCon,fq.Sql,[]);
             try
-              b2:=not(qr1.EOF);
+              b1:=not(qr1.EOF);
             finally
               qr1.Free;
             end;
@@ -674,7 +660,46 @@ begin
             f.Free;
             fq.Free;
           end;
+        except
+          on e:Exception do
+           begin
+            e.Message:='Jrl#'+IntToStr(qr.GetInt('id'))+'.view_expression: '+e.Message;
+            raise;
+           end;
         end;
+      if b1 then
+       begin
+        fx:=qr.GetStr('edit_expression');
+        if fx='' then b2:=false else
+          try
+            f:=TtxFilter.Create;
+            fq:=TtxSqlQueryFragments.Create(itObj);
+            try
+              fq.Fields:='Obj.id';
+              fq.Tables:='Obj LEFT JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10;
+              fq.Where:='Obj.id='+IntToStrU(UserID)+' AND ';
+              fq.GroupBy:='';
+              fq.Having:='';
+              fq.OrderBy:='';
+              f.FilterExpression:=UTF8Encode(fx);
+              fq.AddFilter(f);
+              qr1:=TQueryResult.Create(DbCon,fq.Sql,[]);
+              try
+                b2:=not(qr1.EOF);
+              finally
+                qr1.Free;
+              end;
+            finally
+              f.Free;
+              fq.Free;
+            end;
+          except
+            on e:Exception do
+             begin
+              e.Message:='Jrl#'+IntToStr(qr.GetInt('id'))+'.edit_expression: '+e.Message;
+              raise;
+             end;
+          end;
 
         SetLength(Journals,i+1);
         Journals[i].jrl_id:=qr.GetInt('id');
@@ -828,9 +853,16 @@ end;
 
 function TtxSession.IsAdmin(const Key: string): boolean;
 begin
-  Result:=(UserID=-1) or (DbCon.Exists(
+  Result:=(UserID=-1)
+    or (DbCon.Exists(
     'SELECT Tok.id FROM Tok LEFT JOIN TokType ON TokType.id=Tok.toktype_id '+
-    'WHERE Tok.obj_id=? AND TokType.system=?',[UserID,'auth.'+Key]));
+    'WHERE Tok.obj_id=? AND TokType.system=?',[UserID,'auth.'+Key]))
+    //TODO: or (Use_Roles and
+    or (DbCon.Exists(
+    'SELECT Tok.id FROM Tok LEFT JOIN TokType ON TokType.id=Tok.toktype_id '+
+    'LEFT JOIN Obj R ON R.id=Tok.obj_id '+
+    'LEFT JOIN ObjType RT on RT.id=R.objtype_id '+
+    'WHERE RT.system=''role'' AND R.pid=? AND TokType.system=?',[UserID,'auth.'+Key]));
 end;
 
 procedure TtxSession.LogonAttemptCheck;

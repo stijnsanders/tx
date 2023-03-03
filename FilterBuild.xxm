@@ -109,6 +109,7 @@ if (action='') and (filter<>'') then
             'is of the parent object type to',//faPathObjType
             'has a token of the parent type to',//faPathTokType
             'has a reference of the parent type to',//faPathRefType
+            'in on the path of',//faPathInclSelf
             'contains',//faSearch
             'has a report that contains',//faSearchReports
             'is called',//faSearchName
@@ -135,7 +136,7 @@ if (action='') and (filter<>'') then
       Context.SendHTML(FilterActionDescription[Action]);
       Context.Include('dFilterID.xxmi',[txFilterActionItemType[Action],IDType,ID]);
       if Descending then
-        if Action in [faPath,faPathObjType,faPathTokType,faPathRefType] then
+        if Action in [faPath,faPathObjType,faPathTokType,faPathRefType,faPathInclSelf] then
           Context.SendHTML(' or member of its path')
         else
           Context.SendHTML(' or one of its descendants');

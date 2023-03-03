@@ -16,7 +16,8 @@ type
     faChild,faObj,faObjType,faTokType,faRefType,faRef,faBackRef,
     faCreated,faTokCreated,faRefCreated,faBackRefCreated,
     faRecentObj,faRecentTok,faRecentRef,faRecentBackRef,
-    faFilter,faParent,faPath,faPathObjType,faPathTokType,faPathRefType,
+    faFilter,faParent,
+    faPath,faPathObjType,faPathTokType,faPathRefType,faPathInclSelf,
 
     faSearch,faSearchReports,faSearchName,faName,faDesc,faTerm,faModified,faFrom,faTill,
     faAlwaysTrue,faAlwaysFalse,faExtra,faSQL,faUser,faRealm,faUnread,
@@ -33,7 +34,8 @@ const
     itObj,itObj,itObjType,itTokType,itRefType,itObj,itObj,
     itObj,itObj,itObj,itObj,
     itObj,itTokType,itRefType,itObj,
-    itFilter,itObj,itObj,itObjType,itTokType,itRefType,
+    itFilter,itObj,
+    itObj,itObjType,itTokType,itRefType,itObj,
 
     itObj,itObj,itObj,itObj,itObj,itObj,it_Unknown,it_Unknown,it_Unknown,
     it_Unknown,it_Unknown,it_Unknown,it_Unknown,itUser,itRealm,itUser,
@@ -47,7 +49,7 @@ const
   txFilterOperatorChar:array[TtxFilterOperator] of AnsiChar=('+','.','/',',',#0);
   txFilterOperatorSQL:array[TtxFilterOperator] of UTF8String=('AND','OR','AND NOT','OR NOT','');
 
-  txFilterActionNameCount=109;
+  txFilterActionNameCount=115;
   txFilterActionName:array[0..txFilterActionNameCount-1] of record
     a:TtxFilterAction;
     n:UTF8String;
@@ -87,6 +89,7 @@ const
     (a:faPathTokType         ;n:'ptt'),
     (a:faPathRefType         ;n:'pr'),
     (a:faPathRefType         ;n:'prt'),
+    (a:faPathInclSelf        ;n:'pp'),
 
     (a:faRealm               ;n:'rlm'),
     (a:faUser                ;n:'u'),
@@ -119,7 +122,10 @@ const
     (a:faChild               ;n:'children'),
     (a:faParent              ;n:'parent'),
     (a:faPath                ;n:'path'),
+    (a:faPathInclSelf        ;n:'pathself'),
+    (a:faPathInclSelf        ;n:'trail'),
     (a:faObj                 ;n:'item'),
+
     (a:faObj                 ;n:'obj'),
     (a:faObjType             ;n:'objtype'),
     (a:faTokType             ;n:'toktype'),
@@ -133,6 +139,8 @@ const
     (a:faPathObjType         ;n:'pathobjtype'),
     (a:faPathTokType         ;n:'pathtoktype'),
     (a:faPathRefType         ;n:'pathreftype'),
+    (a:faPathInclSelf        ;n:'objpath'),
+
     (a:faObj                 ;n:'object'),
     (a:faObjType             ;n:'objecttype'),
     (a:faTokType             ;n:'tokentype'),
@@ -149,6 +157,9 @@ const
     (a:faPathObjType         ;n:'parentobjecttype'),
     (a:faPathTokType         ;n:'parenttokentype'),
     (a:faPathRefType         ;n:'parentreferencetype'),
+    (a:faPathInclSelf        ;n:'itempath'),
+    (a:faPathInclSelf        ;n:'objectpath'),
+
     (a:faRealm               ;n:'realm'),
     (a:faUser                ;n:'usr'),
     (a:faUser                ;n:'user'),
@@ -430,6 +441,7 @@ begin
       end;
       if b then inc(i);
      end;
+    if x.Action=faPathInclSelf then x.Descending:=true;//always full path
 
     //parameters
     if (i<=l) and (Ex[i]='[') then

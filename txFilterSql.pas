@@ -154,11 +154,16 @@ begin
 end;
 
 function CritDate(fx:TtxFilterElement):UTF8String;
+var
+  i:integer;
 begin
   case fx.IDType of
     dtNumber:
-      //Result:='{d '''+FormatDate('yyyy-mm-dd',Date-StrToInt(fx.ID))+'''}';
-      Result:=UTF8String(FloatToStr(Date-StrToInt(string(fx.ID))));//SQLite allows storing Delphi date-as-float
+      if TryStrToInt(string(fx.ID),i) then
+        //Result:='{d '''+FormatDate('yyyy-mm-dd',Date-i)+'''}'
+        Result:=UTF8String(FloatToStr(Date-i))//SQLite allows storing Delphi date-as-float
+      else
+        raise EtxSqlQueryError.Create('Invalid ID at position: '+IntToStr(fx.Idx1));
     //TODO
     else
       raise EtxSqlQueryError.Create('Unsupported IDType at position: '+IntToStr(fx.Idx1));
@@ -386,7 +391,9 @@ begin
 
       faParent:
         case f[i].IDType of
-          dtNumber:FParentID:=StrToInt(string(f[i].ID));
+          dtNumber:
+            if TryStrToInt(string(f[i].ID),j) then FParentID:=j else
+              raise EtxSqlQueryError.Create('Invalid ID at position: '+IntToStr(f[i].Idx1));
           //TODO
           //dtSystem:;
           //dtSubQuery:;
@@ -541,7 +548,6 @@ begin
 
       faPath:
         AddWhere('Obj.id'+Criterium(f[i],'Obj.pid','',false,true));
-        //descending?
       faPathObjType:
         AddWhere('Obj.objtype_id'+Criterium(f[i],'DISTINCT ObjType.pid','',false,true));
       faPathTokType:
@@ -558,6 +564,8 @@ begin
         AddWhereQuery('Obj.id','SELECT DISTINCT Ref.obj1_id FROM Ref WHERE Ref.reftype_id'+Criterium(f[i],
           'DISTINCT '+t+'.reftype_pid','RIGHT JOIN Ref AS '+t+' ON '+t+'.obj1_id=Obj.id',false,true));
        end;
+      faPathInclSelf:
+        AddWhere('Obj.id'+Criterium(f[i],'Obj.id','',false,true));
 
       faCreated:
         AddWhere('Obj.c_uid'+Criterium(f[i],'Obj.id','',false,false));
@@ -866,7 +874,8 @@ begin
     t:=txItemTypeTable[ItemType];
     case El.IDType of
       dtNumber:
-        ids.Add(StrToInt(string(El.ID)));
+        if TryStrToInt(string(El.ID),i) then ids.Add(i) else
+          raise EtxSqlQueryError.Create('Invalid ID at position: '+IntToStr(El.Idx1));
       dtNumberList:
        begin
         i:=1;
