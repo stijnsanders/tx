@@ -356,6 +356,7 @@ insert into ObjType (id,pid,icon,name,system,weight,dft) values (2,0,10,'project
 insert into ObjType (id,pid,icon,name,system,weight) values (3,0,20,'user','user',200);
 insert into ObjType (id,pid,icon,name,system,weight,dft) values (4,0,17,'user group','usergroup',-800,3);
 insert into ObjType (id,pid,icon,name,system,weight) values (5,3,22,'administrator','administrator',200);
+insert into ObjType (id,pid,icon,name,system,weight) values (6,0,358,'role','role',500);
 
 insert into TokType (id,pid,icon,name,system,weight) values (1,0,9,'[system tokens]','',0);
 insert into TokType (id,pid,icon,name,system,weight) values (2,1,42,'wiki domain','wiki.prefix',0);
@@ -370,10 +371,12 @@ insert into RefType (pid,icon,name,system,weight) values (0,63,'see also','see-a
 insert into Obj (id,pid,objtype_id,name,url,weight,rlm_id) values (1,0,4,'users','',1000,2);
 insert into Obj (id,pid,objtype_id,name,url,weight,rlm_id) values (2,1,3,'anonymous user','',-100,2);
 --insert into Obj (id,pid,objtype_id,name,url,weight,rlm_id) values (3,1,4,'new users','',-100,0);
+--insert into Obj (id,pid,objtype_id,name,url,weight,rlm_id) values (4,2,6,'site administrator','',500,2);
 
 insert into Tok (obj_id,toktype_id,[desc],weight) values (2,2,'',0);
 insert into Tok (obj_id,toktype_id,[desc],weight) values (2,3,'',0);
 insert into Tok (obj_id,toktype_id,[desc],weight) values (2,4,'',0);
 insert into Tok (obj_id,toktype_id,[desc],weight) values (2,5,'',0);
+--obj_id=4 above?
 
 insert into Usr (id,uid,login,email,auth,salt,pwd) values (1,2,'anonymous','anonymous','anonymous','','');

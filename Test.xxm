@@ -47,6 +47,22 @@ for di:=0 to d1.Count-1 do
  end;
 <</dl>
 
+<h1>permissions</h1>
+[[Context.Flush;]][[!
+  procedure aa(const Key:string);
+  begin
+    if Session.IsAdmin(Key) then
+      Context.SendHTML('<b style="color:#00CC00;">'+Key+'</b> ')
+    else
+      Context.SendHTML('<s style="color:#CC0000;">'+Key+'</s> ');
+  end;
+<<p>>
+aa('config');
+aa('realms');
+aa('reports');
+aa('logins');
+if Use_Journals then aa('journals');
+<</p>
 
 <h1>realm permissions</h1>
 [[Context.Flush;]]

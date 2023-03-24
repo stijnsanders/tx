@@ -28,5 +28,5 @@ copy D:\Data\2022\TSQLite\SQLiteAdmin.exe rel_1\
 copy D:\Data\2022\TSQLite\SQLiteBatch.exe rel_1\
 echo DB=tx.db > rel_1\tx.ini
 rel_1\SQLiteBatch.exe rel_1\tx.db tx.sql
-"C:\Program Files (x86)\Inno Setup 5\ISCC.exe" "tx_so.iss"
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "tx_so.iss"
 pause
