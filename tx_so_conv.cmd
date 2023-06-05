@@ -12,6 +12,7 @@ copy WikiEngine.dll rel_1\
 copy txWikiEngine.xml rel_1\
 copy txSafeHTML.xml rel_1\
 xcopy js rel_1\js\ /s /q
+xcopy img\ic*.png rel_1\img\ /q
 xcopy img\ic*.svg rel_1\img\ /q
 mkdir rel_1\fcount
 copy LICENSE rel_1\
@@ -21,6 +22,7 @@ copy tx*.txt rel_1\
 copy tx*.xml rel_1\ /y
 copy tx_UPGRADE.sql rel_1\ /y
 copy tx_v1.2.5_collate_nocase.sql rel_1\ /y
+copy img_*.png rel_1\
 copy img_*.svg rel_1\
 copy Maint*.txt rel_1\
 copy robots.txt rel_1\
