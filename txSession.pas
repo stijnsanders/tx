@@ -285,7 +285,7 @@ const
 begin
   inherited Create;
   FSessionID:=SessionID;
-  FSessionCrypt:=Copy(string(Base64Encode(SHA1Hash(UTF8Encode(SessionCryptSalt+FSessionID)))),7,17);
+  FSessionCrypt:=Copy(string(HexEncode(SHA1Hash(UTF8Encode(SessionCryptSalt+FSessionID)))),7,17);
   FIsAnonymous:=false;
   FLogonAttemptCount:=0;
   FilterCache:=TStringList.Create;
@@ -1017,7 +1017,7 @@ end;
 
 function PasswordToken(const Salt,Password:string):string;
 begin
-  if Password='' then Result:='' else Result:=string(Base64Encode(SHA1Hash(UTF8Encode('[[[tx]]]'+Salt+'[[[tx]]]'+Password))));
+  if Password='' then Result:='' else Result:=string(HexEncode(SHA1Hash(UTF8Encode('[[[tx]]]'+Salt+'[[[tx]]]'+Password))));
 end;
 
 procedure NewAutoLogonToken(Context:IXxmContext;UslID:integer);
@@ -1025,7 +1025,7 @@ var
   x:string;
 begin
   //assert caller does transaction
-  x:=string(Base64Encode(SHA1Hash(UTF8Encode(
+  x:=string(HexEncode(SHA1Hash(UTF8Encode(
       IntToHex(integer(Session),8)+'_'+Context.ContextString(csRemoteAddress)+
       '_'+IntToStr(GetTickCount)+'_'+FormatDateTime('yyyymmss_hhnnss_zzz',Now)))));
   //assert called did UPDATE Ust SET seq=seq+1 WHERE usl_id=?
