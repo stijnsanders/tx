@@ -186,7 +186,7 @@ try
          begin
           <<p>
           [[#lblTokens]]
-          <a href="Log.xxm?filter=tt[[=qr2['toktype_id']]]*" title="[[=qr2['tokname']]]"><img src="img/cat_[[=Copy(s,2,Length(s)-1)]].png" width="54" height="16" alt="[[=qr2['tokname']]]" [[#globalIconAlign]]/></a>
+          <a href="Log.xxm?filter=tt[[=qr2['toktype_id']]]*" title="[[=qr2['tokname']]]"><img src="img/cat_[[=Copy(s,2,Length(s)-1)+'.'+globalImgExt+globalImgVer]]" width="54" height="16" alt="[[=qr2['tokname']]]" [[#globalIconAlign]]/></a>
           </p>>
          end
         else

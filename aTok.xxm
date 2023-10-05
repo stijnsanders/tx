@@ -117,6 +117,8 @@ try
         if newWeight<>oldWeight then Session.DbCon.Execute('UPDATE Obj SET weight=weight+(?) WHERE id=?',[newWeight-oldWeight,id]);
 
         //report
+        if not((desc='') and (Copy(DBSingleValue('SELECT system FROM TokType WHERE id=?',[newTokTypeID],0),1,1)=':')) then
+
         Session.DbCon.Insert('Rpt',
           ['obj_id',id
           ,'ts',VNow

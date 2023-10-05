@@ -30,7 +30,7 @@ if not(qr.IsNull('tokicon')) then
   s:=qr.GetStr('toksystem');
   if (s<>'') and (s[1]=':') then
    begin
-    <<a href="Log.xxm?filter=tt[[.toktype_id]]*" title="[[.tokname]]"><img src="img/cat_[[=Copy(s,2,Length(s)-1)]].png" width="54" height="16" alt="[[.tokname]]" [[#globalIconAlign]]/></a>>
+    <<a href="Log.xxm?filter=tt[[.toktype_id]]*" title="[[.tokname]]"><img src="img/cat_[[=Copy(s,2,Length(s)-1)+'.'+globalImgExt+globalImgVer]]" width="54" height="16" alt="[[.tokname]]" [[#globalIconAlign]]/></a>>
    end
   else
    begin

@@ -31,13 +31,11 @@ SomeLimits:=false;
 
 s:=Context['a'].Value;
 if s<>'' then
- begin
   case s[1] of
     'r':Session.LoadRealmPermissions;//test
     's':Session.SetViewRealm(true,StrToInt(Copy(s,2,Length(s)-1)));//set
     'c':Session.SetViewRealm(false,StrToInt(Copy(s,2,Length(s)-1)));//clear
   end;
- end;
 
 if Session.Realms[rpView].Count=0 then Session.LoadRealmPermissions;
 if IsAdmin then
@@ -88,7 +86,7 @@ try
     <</td>>
     if IsAdmin or InControl then
      begin
-      <<td onclick="document.getElementById('toggle[[=id]]').click();">
+      <<td onclick="return rlmToggle([[=id]]);">
       <a href="[[=USelf]][[=SetClear[InView]]][[=id]]" id="toggle[[=id]]"><img src="img_check[[#ImgSuffix[InView]+'.'+globalImgExt+globalImgVer]]" width="16" height="16" [[#globalIconAlign]]/></a>>
      end
     else
@@ -163,14 +161,14 @@ try
    begin
     <<th>&nbsp;</th>>
    end;
-  <<th style="text-align:left;">
-    <a href="[[=USelf]][[=SetClear[InView]]][[=id]]"><img src="img_check[[#ImgSuffix[InView]+'.'+globalImgExt+globalImgVer]]" width="16" height="16" [[#globalIconAlign]]/></a>
+  <<th style="text-align:left;" onclick="return rlmToggle(0);">
+    <a href="[[=USelf]][[=SetClear[InView]]][[=id]]" id="toggle0"><img src="img_check[[#ImgSuffix[InView]+'.'+globalImgExt+globalImgVer]]" width="16" height="16" [[#globalIconAlign]]/></a>
     Default realm<br />
     <img src="img_trx.[[#globalImgExt+globalImgVer]]" width="16" height="16" [[#globalIconAlign]]/>
     #0
   </th>
   <th style="text-align:left;font-weight:normal;">
-    View <b>>=BriefSQL(Session.Realms[rpView].SQL)<</b>
+    View <b id="vList">>=BriefSQL(Session.Realms[rpView].SQL)<</b>
     Control <b>>=BriefSQL(Session.Realms[rpEdit].SQL)<</b>
     <br />
     Uncheck all or <a href="[[=USelf]]reset">click here to reset defaults</a>.
@@ -218,7 +216,19 @@ try
     <<th colspan="[[if Use_ObjPath then Context.SendHTML('5') else Context.SendHTML('4');]]">&nbsp;</th>>
    end;
   <</tr>
-  </table>>
+  </table>
+  <script><!--
+  var rr=[[=Random(100000000)]];
+  function rlmToggle(r){
+    var a=document.getElementById("toggle"+r);
+    var b=a.href.split("=");
+    var c=b[1][0];
+    a.href=b[0]+"="+((c=="c")?"s":"c")+r;
+    a.children[0].src="aRealms.xxm?a="+c+r+"&rr="+(rr++)+"[[#txCallProtect]]";
+    document.getElementById("vList").textContent="(...)";
+    return false;
+  }
+  //--></script>>
 
 finally
   qr.Free;

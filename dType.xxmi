@@ -14,7 +14,12 @@ id:=qr.GetInt('id');
 pid:=qr.GetInt('pid');
 if s<>'' then
  begin
-  <<p><span class="label">label:</span> <span class="sysref">>=s<</span></p>
+  <<p><span class="label">label:</span> <span class="sysref">>=s<</span>>
+  if (ItemType=itTokType) and (s[1]=':') then
+   begin
+    ]]&nbsp;<img src="img/cat_[[=Copy(s,2,Length(s)-1)+'.'+globalImgExt+globalImgVer]]" width="54" height="16" [[=globalIconAlign]]/>>
+   end;
+  <</p>
   [[
  end;
 //TODO: count items of type?

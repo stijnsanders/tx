@@ -1,0 +1,26 @@
+[[@txSession,txDefs]][[!var
+s,p:string;
+rr:integer;
+]][[
+
+//assert Use_Unread
+//assert Session.QryUnread
+
+CheckCallProtect(Context);
+s:=Context['a'].Value;
+rr:=Context['rr'].AsInteger;
+
+case s[1] of
+  'r':Session.LoadRealmPermissions;//test
+  's':Session.SetViewRealm(true,StrToInt(Copy(s,2,Length(s)-1)));//set
+  'c':Session.SetViewRealm(false,StrToInt(Copy(s,2,Length(s)-1)));//clear
+end;
+
+
+case s[1] of
+  'r':p:='radio1';//img_trx?
+  's':p:='check1';
+  'c':p:='check0';
+  else p:='radio0';//raise?
+end;
+Context.Redirect('img_'+p+'.'+globalImgExt+globalImgVer+'&rr='+IntToStr(rr),true);
