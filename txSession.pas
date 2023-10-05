@@ -155,7 +155,7 @@ var
 
 implementation
 
-uses Windows, txFilter, txFilterSql, sha1, Math;
+uses Windows, txFilter, txFilterSql, HashUtils, sha1, Math;
 
 //TODO: something better than plain objectlist
 //TODO: thread to check session expiry
@@ -285,7 +285,7 @@ const
 begin
   inherited Create;
   FSessionID:=SessionID;
-  FSessionCrypt:=Copy(string(SHA1Hash(UTF8Encode(SessionCryptSalt+FSessionID))),7,17);
+  FSessionCrypt:=Copy(string(Base64Encode(SHA1Hash(UTF8Encode(SessionCryptSalt+FSessionID)))),7,17);
   FIsAnonymous:=false;
   FLogonAttemptCount:=0;
   FilterCache:=TStringList.Create;
@@ -1017,7 +1017,7 @@ end;
 
 function PasswordToken(const Salt,Password:string):string;
 begin
-  if Password='' then Result:='' else Result:=string(SHA1Hash(UTF8Encode('[[[tx]]]'+Salt+'[[[tx]]]'+Password)));
+  if Password='' then Result:='' else Result:=string(Base64Encode(SHA1Hash(UTF8Encode('[[[tx]]]'+Salt+'[[[tx]]]'+Password))));
 end;
 
 procedure NewAutoLogonToken(Context:IXxmContext;UslID:integer);
@@ -1025,9 +1025,9 @@ var
   x:string;
 begin
   //assert caller does transaction
-  x:=string(SHA1Hash(UTF8Encode(
+  x:=string(Base64Encode(SHA1Hash(UTF8Encode(
       IntToHex(integer(Session),8)+'_'+Context.ContextString(csRemoteAddress)+
-      '_'+IntToStr(GetTickCount)+'_'+FormatDateTime('yyyymmss_hhnnss_zzz',Now))));
+      '_'+IntToStr(GetTickCount)+'_'+FormatDateTime('yyyymmss_hhnnss_zzz',Now)))));
   //assert called did UPDATE Ust SET seq=seq+1 WHERE usl_id=?
   Session.DbCon.Insert('Ust',
     ['usl_id',UslID

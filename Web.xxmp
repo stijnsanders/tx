@@ -1034,7 +1034,8 @@
 		"txTerms": {},
 		"WikiEngine_TLB": {},
 		"VBScript_RegExp_55_TLB": {},
-		"sha1": {}
+		"sha1": {},
+		"HashUtils": {}
 	},
 	"resources": {
 		"xxmp.pas": {},
@@ -1050,5 +1051,5 @@
 		"Extra4Open": "Context.Send(qr1['",
 		"Extra4Close": "']);"
 	},
-	"lastModified": "2016-06-14T00:14:04"
+	"lastModified": "2023-10-05T18:24:44"
 }

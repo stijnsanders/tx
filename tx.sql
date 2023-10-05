@@ -349,7 +349,7 @@ constraint FK_Umr_Rpt foreign key (rpt_id) references Rpt (id)
 
 --insert into Rlm (id,name,[desc],system) values (0,'default','default realm','default');
 insert into Rlm (id,name,[desc],system,view_expression,edit_expression) values (1,'deleted','deleted items','deleted','','ot"administrator"');
-insert into Rlm (id,name,[desc],system,view_expression,edit_expression) values (2,'user data','','users','true1','tt"auth.logins"');
+insert into Rlm (id,name,[desc],system,view_expression,edit_expression) values (2,'user data','','users','true1','pp{tt"auth.logins"}');
 
 insert into ObjType (id,pid,icon,name,system,weight) values (1,0,0,'item','item',0);
 insert into ObjType (id,pid,icon,name,system,weight,dft) values (2,0,10,'project','project',-1000,1);
