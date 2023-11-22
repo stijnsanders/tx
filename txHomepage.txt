@@ -70,5 +70,18 @@ order by Tok.weight, Tok.c_ts desc
 limit 25
 
 <div style="border:1px solid #CCCCCC;"><p>[[name]]</p>[[desc]]</div>
+
+--query
+select Obj.id, Obj.name, ObjType.name as typename, ObjType.icon, Ref.desc
+from Ref
+inner join RefType on RefType.id=Ref.reftype_id
+inner join Obj on Obj.id=Ref.obj1_id
+inner join ObjType on ObjType.id=Obj.objtype_id
+where RefType.system='on homepage' and Ref.obj2_id=[[me]] and Obj.rlm_id[[realms]]
+order by Ref.weight, Ref.c_ts desc
+limit 25
+
+<div style="border:1px solid #0099CC;"><p>[[name]]</p>[[desc]]</div>
+
 --content
 </div>

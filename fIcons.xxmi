@@ -15,7 +15,7 @@ function seticon[[=fname]](x)
 <input type="hidden" name="[[=fname]]" id="[[=fname]]_value" value="[[=i]]" />
 <img id="[[=fname]]_icon" width="16" height="16" border="0" vspace="4" src="img_trx.[[#globalImgExt+globalImgVer]]" align="left" />
 <div style="border: 2px inset; margin-left:24px; margin-bottom: 0.2em; margin-top:0em; margin-right: 0em; padding: 4px;" id="[[=fname]]_usage">
-<i style="color:#999999;">select an icon below, here is shown if it's in use.</i>
+<i style="color:#999999;">select an icon below, here is shown if it&#x27;s in use.</i>
 </div>>
 if i<>-1 then begin <<script>seticon[[=fname]]([[=i]]);</script>> end;
 <<div style="max-height:8em;overflow-y:scroll;border:1px solid silver;padding:4px;">>

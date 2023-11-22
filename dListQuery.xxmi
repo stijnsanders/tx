@@ -28,7 +28,14 @@ while i<l do
  end;
 
 //TODO: getdomain?
-qr:=TQueryResult.Create(Session.DbCon,UTF8String(StringReplace(string(Values[0]),'[[realms]]',string(Session.Realms[rpView].SQL),[])),[]);
+qr:=TQueryResult.Create(Session.DbCon,UTF8String(
+  StringReplace(
+  StringReplace(
+    string(Values[0])
+    ,'[[realms]]',string(Session.Realms[rpView].SQL),[])
+    ,'[[me]]',IntToStr(Session.UserID),[])
+    //TODO: more, proper parse?
+    ),[]);
 try
   while qr.Read and Context.Connected do
    begin
