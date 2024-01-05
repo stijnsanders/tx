@@ -5,7 +5,7 @@
 #define MyAppVersion "1.4.0"
 #define MyAppPublisher "yoy.be"
 #define MyAppURL "http://yoy.be/tx.html"
-#define MyAppExeName "tx.exe"
+#define MyAppExeName "txSvc.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -26,7 +26,7 @@ LicenseFile=LICENSE
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputBaseFilename=txLocalOnlySetup
-SetupIconFile=rel_1\favicon.ico
+SetupIconFile=rel_2\favicon.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -39,8 +39,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "rel_1\*"; Excludes: "tx.db"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs restartreplace
-Source: "rel_1\tx.db"; DestDir: "{app}"; Flags: onlyifdoesntexist uninsneveruninstall
+Source: "rel_2\*"; Excludes: "tx.db"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs restartreplace
+Source: "rel_2\tx.db"; DestDir: "{app}"; Flags: onlyifdoesntexist uninsneveruninstall
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -52,4 +52,4 @@ Filename: "{app}\SQLiteBatch.exe"; WorkingDir: "{app}"; Parameters: "tx.db -I tx
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: {sys}\taskkill.exe; Parameters: "/f /im tx.exe"; Flags: skipifdoesntexist runhidden; RunOnceId: "txUninstKill"
+Filename: {sys}\taskkill.exe; Parameters: "/f /im txSvc.exe"; Flags: skipifdoesntexist runhidden; RunOnceId: "txUninstKill"

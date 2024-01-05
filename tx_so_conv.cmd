@@ -2,7 +2,7 @@
 cls
 attrib -h rel_1
 rmdir rel_1 /s /q
-D:\Data\xxm\Delphi\bin\xxmConv /proto D:\Data\xxm\Delphi\conv\proto_http_localOnly /src D:\Data\2022\tx\src_1 /x:XxmSourcePath D:\Data\xxm\Delphi "."
+D:\Data\xxm\Delphi\bin32\xxmConv /proto D:\Data\xxm\Delphi\conv\proto_http_localOnly /src D:\Data\2022\tx\src_1 /x:XxmSourcePath D:\Data\xxm\Delphi "."
 mkdir rel_1
 attrib +h src_1
 attrib +h rel_1
@@ -14,6 +14,7 @@ copy txSafeHTML.xml rel_1\
 xcopy js rel_1\js\ /s /q
 xcopy img\ic*.png rel_1\img\ /q
 xcopy img\ic*.svg rel_1\img\ /q
+xcopy img\tx_bg.png rel_1\img\ /q
 mkdir rel_1\fcount
 copy LICENSE rel_1\
 copy loading.gif rel_1\

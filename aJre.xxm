@@ -15,6 +15,11 @@ id:=Context['id'].AsInteger;
 new_jrt_id:=Context['jrt'].AsInteger;
 new_obj_id:=Context['obj'].AsInteger;
 
+jrl_id:=0;//counter warning
+jrt_id:=0;//counter warning
+obj_id:=0;//counter warning
+d1:=0.0;//counter warning
+
 qr:=TQueryResult.Create(Session.DbCon,'select Jre.uid,Jre.ts,Jrt.jrl_id,Jre.jrt_id,Jre.obj_id from Jre inner join Jrt on Jrt.id=Jre.jrt_id where Jre.id=?',[id]);
 try
   if qr.GetInt('uid')<>Session.UserID then
