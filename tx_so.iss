@@ -48,7 +48,7 @@ Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\SQLiteBatch.exe"; WorkingDir: "{app}"; Parameters: "tx.db -I tx_UPGRADE.sql"; Flags: runhidden
+Filename: "{app}\SQLiteBatch.exe"; WorkingDir: "{app}"; Parameters: "tx.db -I tx_UPGRADE.sql"; Description: "Prepare database..."; Flags: runhidden
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]

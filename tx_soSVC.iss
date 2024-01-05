@@ -19,13 +19,13 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName=C:\txLocalOnly
+DefaultDirName=C:\txService
 DisableProgramGroupPage=yes
 LicenseFile=LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputBaseFilename=txLocalOnlySetup
+OutputBaseFilename=txServiceSetup
 SetupIconFile=rel_2\favicon.ico
 Compression=lzma
 SolidCompression=yes
@@ -35,21 +35,21 @@ WizardStyle=modern
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
+Name: "startsvc"; Description: "Start the service after installing"; GroupDescription: "Service"
+Name: "openweb"; Description: "Start the website in a browser"; GroupDescription: "Service"
 
 [Files]
 Source: "rel_2\*"; Excludes: "tx.db"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs restartreplace
 Source: "rel_2\tx.db"; DestDir: "{app}"; Flags: onlyifdoesntexist uninsneveruninstall
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
-[Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-
 [Run]
-Filename: "{app}\SQLiteBatch.exe"; WorkingDir: "{app}"; Parameters: "tx.db -I tx_UPGRADE.sql"; Flags: runhidden
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\SQLiteBatch.exe"; WorkingDir: "{app}"; Parameters: "tx.db -I tx_UPGRADE.sql"; Description: "Prepare database..."; Flags: runhidden
+Filename: "{app}\{#MyAppExeName}"; Parameters: "/install /silent"; Description: "Registering service..."
+Filename: "{sys}\net.exe"; Parameters: "start tx"; Description: "Starting service..."; Flags: runhidden; Tasks: startsvc
+Filename: "{sys}\cmd.exe"; Parameters: "/c start http://localhost/"; Description: "Opening website..."; Flags: runhidden; Tasks: openweb
 
 [UninstallRun]
-Filename: {sys}\taskkill.exe; Parameters: "/f /im txSvc.exe"; Flags: skipifdoesntexist runhidden; RunOnceId: "txUninstKill"
+Filename: "{sys}\net.exe"; Parameters: "stop tx"; Flags: runhidden; RunOnceId: "txSvcStop"
+Filename: "{sys}\taskkill.exe"; Parameters: "/f /im txSvc.exe"; Flags: skipifdoesntexist runhidden; RunOnceId: "txUninstKill"
+Filename: "{app}\{#MyAppExeName}"; Parameters: "/uninstall /silent"; RunOnceId: "txSvcUninst"
