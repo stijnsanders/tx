@@ -144,6 +144,7 @@ begin
    end;
   for fe:=TtxFilterEnvVar(0) to fe_Unknown do EnvVars[feMe]:=0;
   EnvVars[feMe]:=Session.UserID;
+  //TODO: EnvVars[feUs]:=?
 end;
 
 destructor TtxSqlQueryFragments.Destroy;

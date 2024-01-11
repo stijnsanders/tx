@@ -8,11 +8,11 @@ fq,fq1,fq2:TtxSqlQueryFragments;
 fs,fsu,s,msgURL,msgFrom,msgSubject:string;
 sql1,sql2:UTF8String;
 users:array of record
-  id,uid:integer;
-  email,name:string;
+  id,sid,uid:integer;
+  email,name,subject:string;
 end;
 tc1,tc2,tc3,tc4:TTimerIndex;
-qs1,qs2,dryrun:boolean;
+qs1,qs2,dryrun,msgSubjDyn:boolean;
 d1,d2:TDateTime;
 rpFilter:TtxRealmPermission;
 LocationCache:TItemCache;
@@ -200,16 +200,30 @@ try
       else
       if Copy(s,1,4)='URL=' then msgURL:=Copy(s,5,Length(s)-4)
       else
+      if Copy(s,1,6)='Title=' then Context.SendHTML(Copy(s,7,Length(s)-6)+#13#10)
+      else
        begin
+        if msgSubject='' then msgSubject:='tx Updates';//default
+        msgSubjDyn:=msgSubject[1]='*';
+        if msgSubjDyn then msgSubject:=Copy(msgSubject,2,Length(msgSubject)-1);
         f:=TtxFilter.Create;
         fq:=TtxSqlQueryFragments.Create(itObj);//(itUser);
         try
           Context.SendHTML('Users...'#13#10);
           f.FilterExpression:=UTF8Encode(sl[sl_i]);
           if f.ParseError<>'' then raise Exception.Create('User filter: '+f.ParseError);
-          fq.AddFrom('INNER JOIN Usr ON Usr.uid=Obj.id AND Usr.email<>''''');
+          if msgSubjDyn then
+           begin
+            fq.Fields:='Usr.id, Usr.uid, Usr.email, UObj.name, Obj.id as sid, Obj.name as subject';
+            fq.AddFrom('INNER JOIN Obj UObj ON UObj.id=Obj.pid');
+            fq.AddFrom('INNER JOIN Usr ON Usr.uid=UObj.id AND Usr.email<>''''');
+           end
+          else
+           begin
+            fq.Fields:='Usr.id, Usr.uid, Usr.email, Obj.id as sid, Obj.name';
+            fq.AddFrom('INNER JOIN Usr ON Usr.uid=Obj.id AND Usr.email<>''''');
+           end;
           fq.AddFilter(f);
-          fq.Fields:='Usr.id, Usr.uid, Usr.email, Obj.name';
           fq.OrderBy:='';
           //fq.GroupBy
           sql1:=fq.SQL;
@@ -229,9 +243,11 @@ try
               SetLength(users,l);
              end;
             users[i].id:=qr.GetInt('id');
+            users[i].sid:=qr.GetInt('sid');
             users[i].uid:=qr.GetInt('uid');
             users[i].email:=qr.GetStr('email');
             users[i].name:=qr.GetStr('name');
+            if msgSubjDyn then users[i].subject:=qr.GetStr('subject') else users[i].subject:='';
             inc(i);
            end;
           users_l:=i;
@@ -247,7 +263,10 @@ try
         fsu:=string(URLEncode(fs));
         for users_i:=0 to users_l-1 do
           try
-            Context.SendHTML(users[users_i].name+' <'+users[users_i].email+'>...'#13#10);
+            if msgSubjDyn then
+              Context.SendHTML(users[users_i].name+' <'+users[users_i].email+'> ('+users[users_i].subject+')...'#13#10)
+            else
+              Context.SendHTML(users[users_i].name+' <'+users[users_i].email+'>...'#13#10);
             if not CheckEmail(users[users_i].email) then
               raise Exception.Create('Invalid e-mail address "'+users[users_i].email+'"');
             tc1:=GetTimerIndex;
@@ -265,9 +284,11 @@ try
 
             f:=TtxFilter.Create;
             fq1:=TtxSqlQueryFragments.Create(itObj);
+            fq1.EnvVars[feThis]:=users[users_i].sid;
             fq1.OrderBy:='Obj.c_ts '+sql1+', Obj.weight, Obj.name';//m_ts?
             if limit<>0 then fq1.Limit:=limit;
             fq2:=TtxSqlQueryFragments.Create(itReport);
+            fq2.EnvVars[feThis]:=users[users_i].sid;
             fq2.OrderBy:='Rpt.ts '+sql1;
             if limit<>0 then fq2.Limit:=limit;
             try
@@ -411,7 +432,7 @@ try
                     #13#10'</body></html>'#13#10]);
 
                   tc1:=GetTimerIndex;
-                  mm:=AnsiString('Subject: '+msgSubject+
+                  mm:=AnsiString('Subject: '+msgSubject+users[users_i].subject+
                     #13#10'To: "'+users[users_i].name+'" <'+users[users_i].email+'>'+
                     #13#10'From: '+msgFrom)+
                     ProcessImages(AnsiString(msgURL+'Log.xxm?filter='+fsu),UTF8Encode(msg.Result));
@@ -419,7 +440,7 @@ try
                     Context.SendHTML([' dry-run:',GetTimerIndexMS(tc1),' [bytes] ',Length(mm)])
                   else
                    begin
-                    ff:=TFileStream.Create('C:\InetPub\mailroot\PickUp\txUpdate'+IntToStr(users[users_i].id)+'_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml',fmCreate);
+                    ff:=TFileStream.Create(EmailPickupFolder+'\txUpdate'+IntToStr(users[users_i].id)+'_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml',fmCreate);
                     try
                       ff.Write(mm[1],Length(mm));
                     finally

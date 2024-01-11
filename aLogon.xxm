@@ -80,7 +80,7 @@ if Use_NewUserEmailActivation then
   try
     sc.AutoEncoding:=aeIso8859;
     sc.Include('LogonMail_New.xxmi',[id,login,name,email],[]);
-    sc.SaveToFile('C:\InetPub\mailroot\PickUp\txLogon_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
+    sc.SaveToFile(EmailPickupFolder+'\txLogon_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
   finally
     sc.Free;
   end;

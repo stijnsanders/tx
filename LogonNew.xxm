@@ -34,7 +34,7 @@ try
     '?':
       if Context['id'].Value='' then //if Context.ContextString(csVerb)<>'Post' then
        begin
-        <<h3>Password reset {[[.pwd]]}</h3>
+        <<h3>Password reset</h3>
         <script><!--
         [[Context.Include('iLogonJS.xxmi');]]
         //--></script>

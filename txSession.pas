@@ -28,7 +28,7 @@ function sqlObjsByPid:UTF8String;
 
 var
   //see LoadProjectSettings
-  AdministratorEmailAddress: string;
+  EmailPickupFolder, AdministratorEmailAddress: string;
   UseNTAuth: boolean;
 
 type
@@ -243,7 +243,10 @@ begin
     //relative?
     if (DbFilePath<>'') and not(AnsiChar(DbFilePath[2]) in [':','\']) then DbFilePath:=ModulePath+DbFilePath;
     MaintAuthKey:=sl.Values['AuthKey'];
+    EmailPickupFolder:=sl.Values['EmailPickupFolder'];
+    if EmailPickupFolder='' then  EmailPickupFolder:='C:\InetPub\MailRoot\PickUp';//default
     AdministratorEmailAddress:=sl.Values['AdministratorEmailAddress'];
+    //if AdministratorEmailAddress='' then AdministratorEmailAddress:=?//default
     UseNTAuth:=sl.Values['NTAuth']='1';
   finally
     sl.Free;

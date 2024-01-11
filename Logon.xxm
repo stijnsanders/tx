@@ -91,7 +91,7 @@ if ntauth then
     try
       sc.AutoEncoding:=aeIso8859;
       sc.Include('LogonMail_NTAuth.xxmi',Values,Objects);
-      sc.SaveToFile('C:\InetPub\mailroot\PickUp\txNTauth_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
+      sc.SaveToFile(EmailPickupFolder+'\txNTauth_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
     finally
       sc.Free;
     end;

@@ -6,5 +6,5 @@ if Session<>nil then
   Context.Send(Session.FooterDisplay);
  end;
 ]]
-- v1.4.0 r665
+- v1.4.0 r668
 &nbsp;</div></body></html>

@@ -36,13 +36,13 @@ for i:=0 to Length(Values)-1 do
   <<p><b>>=i<</b>: [[=Values[i]<</p>>
  end;
 //send mail
-if DirectoryExists('C:\InetPub\mailroot\PickUp') then
+if DirectoryExists(EmailPickupFolder) then
  begin
   sc:=TStringContext.Create(Context,Self);
   try
     sc.AutoEncoding:=aeIso8859;
     sc.Include('404mail.xxmi',Values,Objects);
-    sc.SaveToFile('C:\InetPub\mailroot\PickUp\tx404_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
+    sc.SaveToFile(EmailPickupFolder+'\tx404_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
   finally
     sc.Free;
   end;

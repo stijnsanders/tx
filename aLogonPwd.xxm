@@ -28,7 +28,7 @@ try
     try
       sc.AutoEncoding:=aeIso8859;
       sc.Include('LogonMail_'+s+'.xxmi',[id1,qr.GetStr('login'),qr.GetStr('name'),qr.GetStr('email')],[]);
-      sc.SaveToFile('C:\InetPub\mailroot\PickUp\txLogonPwd_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
+      sc.SaveToFile(EmailPickupFolder+'\txLogonPwd_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml');
     finally
       sc.Free;
     end;
