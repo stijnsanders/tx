@@ -1,9 +1,17 @@
 [[@txDefs,DataLank,txSession]][[!var
 qr:TQueryResult;
 id,c:integer;
+b:boolean;
 ]][[
 qr:=Objects[0] as TQueryResult;
 id:=qr.GetInt('id');
+if (Length(Values)<>0) and (Values[0]='x=i'+IntToStr(id)) then
+ begin
+  <<span class="highlighteditem">>
+  b:=true;
+ end
+else
+  b:=false;
 <<a href="Item.xxm?x=i[[=id]]" title="[[.typename]]"[[
 if Session.QryUnread and (qr.GetInt('r0')<>0) then begin ]] class="u"[[ end;
 ]]>>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
@@ -17,4 +25,5 @@ if Session.QryUnread then
  end;
 Context.Include('dObjTokRef.xxmi',[id,#13#10' ',' '],[qr]);
 Context.Include('d_cmw.xxmi',[],[qr]);
+if b then begin <</span>> end;
 ]]

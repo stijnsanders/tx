@@ -181,10 +181,16 @@ if Use_Journals then
          end;
       <</p>
       <p class="objectlist">>
-      //TODO: extra queries with all tokens/references?
+      s:=Context.ContextString(csReferer);
+      i:=8;
+      while (i<=Length(s)) and (s[i]<>'?') do inc(i);
+      if i<=Length(s) then s:=Copy(s,i+1,Length(s)-i) else s:='';
+      i:=1;
+      while (i<=Length(s)) and (s[i]<>'&') do inc(i);
+      SetLength(s,i-1);
       while qr.Read and Context.Connected do
        begin
-        Context.Include('dObjLinkList.xxmi',[],[qr]);
+        Context.Include('dObjLinkList.xxmi',[s],[qr]);
         ]]<br />
         [[
        end;
