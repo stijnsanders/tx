@@ -59,4 +59,11 @@ doAddNew:=Length(Values)=0;//?boolean(Values[0])?
     <a class="quickaddoption" id="quickaddrefNew" href="#" title="new reference..." onclick="return quickadd_toggle('ref');">...</a>>
    end;
 
-<</dd>>
+]]&nbsp;
+<span id="qaoTitle" class="highlight1"></span>
+</dd>
+<script><!--
+$(".quickaddoption")
+.mouseenter(function(){$("#qaoTitle").text(this.title);console.log("1");})
+.mouseleave(function(){$("#qaoTitle").text("");console.log("2");});
+//--></script>
