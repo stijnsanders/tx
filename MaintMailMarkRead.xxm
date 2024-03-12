@@ -1,0 +1,181 @@
+[[@txDefs,txSession,Windows,Classes,DataLank,
+txFilter,txFilterSql,Variants,txCache,txTerms,txNodes,xxmString]][[!var
+sl:TStringList;
+qr,qr1,qr2:TQueryResult;
+sl_i,uid,user_id,mid,mc,id,c1,c2:integer;
+f:TtxFilter;
+fq1,fq2:TtxSqlQueryFragments;
+fs,fsu,s:string;
+sql1,sql2:UTF8String;
+d0:TDateTime;
+rpFilter:TtxRealmPermission;
+
+]][[
+Context.ContentType:='text/plain';
+Context.BufferSize:=0;
+CheckMaintProtect(Context);
+
+uid:=Context['uid'].AsInteger;
+mid:=Context['mid'].AsInteger;
+d0:=Date-Context['dd'].AsInteger;
+mc:=0;
+if uid=0 then raise Exception.Create('No user ID provided (add "?uid=")');
+
+sl:=TStringList.Create;
+try
+  fs:=Context['f'].Value;
+  if fs='' then sl.LoadFromFile(ModulePath+'MaintMail.txt');
+  sl_i:=0;
+  while sl_i<sl.Count do
+   begin
+    if (sl[sl_i]<>'') and not(AnsiChar(sl[sl_i][1]) in [';','#']) then
+     begin
+      s:=sl[sl_i];
+      if Copy(s,1,5)='From=' then //msgFrom:=Copy(s,6,Length(s)-5)
+      else
+      if Copy(s,1,8)='Subject=' then //msgSubject:=Copy(s,9,Length(s)-8)
+      else
+      if Copy(s,1,4)='URL=' then //msgURL:=Copy(s,5,Length(s)-4)
+      else
+      if Copy(s,1,6)='Title=' then Context.SendHTML(Copy(s,7,Length(s)-6)+#13#10)
+      else
+       begin
+        //TODO: check uid in filter?
+        {
+        f:=TtxFilter.Create;
+        fq:=TtxSqlQueryFragments.Create(itObj);//(itUser);
+        try
+          Context.SendHTML('Users...'#13#10);
+          f.FilterExpression:=UTF8Encode(sl[sl_i]);
+          if f.ParseError<>'' then raise Exception.Create('User filter: '+f.ParseError);
+          if msgSubjDyn then
+           begin
+            fq.Fields:='Usr.id, Usr.uid, Usr.email, UObj.name, Obj.id as sid, Obj.name as subject';
+            fq.AddFrom('INNER JOIN Obj UObj ON UObj.id=Obj.pid');
+            fq.AddFrom('INNER JOIN Usr ON Usr.uid=UObj.id AND Usr.email<>''''');
+           end
+          else
+           begin
+            fq.Fields:='Usr.id, Usr.uid, Usr.email, Obj.id as sid, Obj.name';
+            fq.AddFrom('INNER JOIN Usr ON Usr.uid=Obj.id AND Usr.email<>''''');
+           end;
+          fq.AddFilter(f);
+          fq.OrderBy:='';
+          //fq.GroupBy
+          sql1:=fq.SQL;
+        finally
+          f.Free;
+          fq.Free;
+        end;
+        qr:=TQueryResult.Create(Session.DbCon,sql1,[]);
+        try
+          while qr.Read do
+            ...
+        finally
+          qr.Free;
+        end;
+        }
+        inc(sl_i);
+        while (sl_i<sl.Count) and not((sl[sl_i]<>'') and not(AnsiChar(sl[sl_i][1]) in [';','#'])) do inc(sl_i);
+        if sl_i=sl.Count then
+          raise Exception.Create('Update items filter expression missing');
+        fs:=sl[sl_i];
+        fsu:=string(URLEncode(fs));
+
+        if mid=mc then //TODO: -1 for select all?
+         begin
+
+          try
+            //qr:=TQueryResult.Create(Session.DbCon,'SELECT ? AS uid, ? AS email, 0 AS isanon',[users[users_i].uid,users[users_i].email]);
+            qr:=TQueryResult.Create(Session.DbCon,'SELECT id,uid,email,0 AS isanon FROM Usr WHERE uid=?',[uid]);
+            try
+              user_id:=qr.GetInt('id');
+              Session.LoadUser(qr);
+            finally
+              qr.Free;
+            end;
+            rpFilter:=rpView;//?
+            sql1:='ASC';//?
+
+            f:=TtxFilter.Create;
+            fq1:=TtxSqlQueryFragments.Create(itObj);
+            fq1.EnvVars[feThis]:=uid;
+            fq1.OrderBy:='Obj.c_ts '+sql1+', Obj.weight, Obj.name';//m_ts?
+            fq2:=TtxSqlQueryFragments.Create(itReport);
+            fq2.EnvVars[feThis]:=uid;
+            fq2.OrderBy:='Rpt.ts '+sql1;
+            try
+              f.FilterExpression:=UTF8Encode(fs);
+              if f.ParseError<>'' then raise Exception.Create('User filter: '+f.ParseError);
+
+              fq1.AddFrom('LEFT OUTER JOIN Umi ON Umi.usr_id='+IntToStrU(user_id)+' AND Umi.obj_id=Obj.id');
+              fq1.AddFilter(f);
+              fq1.Where:='Umi.id IS NULL AND Obj.c_uid<>'+IntToStrU(Session.UserID)+
+                ' AND Obj.m_uid<>'+IntToStrU(Session.UserID)+
+                ' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq1.Where+')';
+
+              fq2.AddFrom('LEFT OUTER JOIN Umr ON Umr.usr_id='+IntToStrU(user_id)+' AND Umr.rpt_id=Rpt.id');
+              fq2.AddFilter(f);
+              fq2.Where:='Umr.id IS NULL AND Rpt.uid<>'+IntToStrU(Session.UserID)+
+                ' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq2.Where+')';
+
+              sql1:=fq1.SQL;
+              sql2:=fq2.SQL;
+            finally
+              f.Free;
+              fq1.Free;
+              fq2.Free;
+            end;
+
+            Session.DbCon.BeginTrans;
+            try
+              qr1:=TQueryResult.Create(Session.DbCon,sql1,[]);
+              qr2:=TQueryResult.Create(Session.DbCon,sql2,[]);
+              c1:=0;
+              c2:=0;
+              try
+
+                while qr1.Read do
+                 begin
+                  id:=qr1.GetInt('id');
+                  if qr1.GetDate('c_ts')<d0 then
+                    Session.DbCon.Insert('Umi',['usr_id',user_id,'obj_id',id]);
+                  inc(c1);
+                 end;
+                while qr2.Read do
+                 begin
+                  //id:=qr2.GetInt('obj_id');
+                  if qr2.GetDate('ts')<d0 then
+                    Session.DbCon.Insert('Umr',['usr_id',user_id,'rpt_id',qr2['id']]);
+                  inc(c2);
+                 end;
+
+                Context.SendHTML(['  i#',c1,' r#',c2]);
+                Context.SendHTML(#13#10);
+
+              finally
+                qr1.Free;
+                qr2.Free;
+              end;
+              Session.DbCon.CommitTrans;
+            except
+              Session.DbCon.RollbackTrans;
+              raise;
+            end;
+
+          except
+            on e:Exception do
+              Context.SendHTML('EXCEPTION!!!'#13#10+e.Message+#13#10#13#10);
+          end;
+         end;
+        inc(mc);
+       end;
+     end;
+
+    inc(sl_i);
+   end;
+finally
+  sl.Free;
+  Session.Abandon;//kill session, was used for several LoadUser calls, don't use for other requests
+end;
+Context.SendHTML('---'#13#10);

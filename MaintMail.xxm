@@ -361,7 +361,8 @@ try
                     msg.Include('dObjTokRef.xxmi',[id,'','','<p class="objectinfo">','</p>'],[qr1]);
                     msg.SendHTML('</div>');
 
-                    Session.DbCon.Insert('Umi',['usr_id',users[users_i].id,'obj_id',id]);
+                    if not dryrun then
+                      Session.DbCon.Insert('Umi',['usr_id',users[users_i].id,'obj_id',id]);
                     inc(c1);
                     qs1:=qr1.Read;
                    end
@@ -414,7 +415,8 @@ try
                       msg.SendHTML(['<p><a href="Item.xxm?x=i',qr2['obj2_id'],'" title="',HTMLEncode(qr2.GetStr('reltypename')),'">',txImg(qr2['relicon']),' ',HTMLEncode(qr2.GetStr('relname')),'</a></p>']);
                     msg.SendHTML('</div>');
 
-                    Session.DbCon.Insert('Umr',['usr_id',users[users_i].id,'rpt_id',qr2['id']]);
+                    if not dryrun then
+                      Session.DbCon.Insert('Umr',['usr_id',users[users_i].id,'rpt_id',qr2['id']]);
                     inc(c2);
                     qs2:=qr2.Read;
                    end;
