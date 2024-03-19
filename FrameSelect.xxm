@@ -10,7 +10,7 @@
 
 [[!var
 i:integer;
-filterU:string;
+filterU:AnsiString;
 ]][[
   if Session.FilterCache.Count=0 then
    begin

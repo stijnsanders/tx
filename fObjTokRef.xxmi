@@ -64,6 +64,6 @@ doAddNew:=Length(Values)=0;//?boolean(Values[0])?
 </dd>
 <script><!--
 $(".quickaddoption")
-.mouseenter(function(){$("#qaoTitle").text(this.title);console.log("1");})
-.mouseleave(function(){$("#qaoTitle").text("");console.log("2");});
+.mouseenter(function(){$("#qaoTitle").text(this.title);})
+.mouseleave(function(){$("#qaoTitle").text("");});
 //--></script>

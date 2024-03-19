@@ -46,7 +46,7 @@ if Session.FilterRecent[ItemType,i]<>0 then
     try
       if qr.Read then
        begin
-        <<a class="recentselect" href="Item.xxm?x=[[=txItemTypeKey[ItemType]]][[=id1]]" onclick="recent_select('[[=name]]',this,[[=id1]]);return(event||window.event||this).ctrlKey;" title="[[.name]]">>#txImg(qr.GetInt('icon'))<<span class="recenttitle"> [[.name]]</span></a>
+        <<a class="recentselect rt[[=name]]option" href="Item.xxm?x=[[=txItemTypeKey[ItemType]]][[=id1]]" onclick="recent_select('[[=name]]',this,[[=id1]]);return(event||window.event||this).ctrlKey;" title="[[.name]]">>#txImg(qr.GetInt('icon'))<<span class="recenttitle"> [[.name]]</span></a>
         [[
        end;
     finally
@@ -54,6 +54,13 @@ if Session.FilterRecent[ItemType,i]<>0 then
     end;
     inc(i);
    end;
+  ]]&nbsp;
+  <span id="rt[[=name]]Title" class="highlight1"></span>
+  <script><!--
+  $(".rt[[=name]]option")
+  .mouseenter(function(){$("#rt[[=name]]Title").text(this.title);})
+  .mouseleave(function(){$("#rt[[=name]]Title").text("");});
+  //--></script>>
  end;
 
 <<br />
