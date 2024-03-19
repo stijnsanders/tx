@@ -402,7 +402,7 @@ $().ajaxError(function(event,request){$("#topnav").after("<p style='color:red'>"
 
       //doc:=CoDOMDocument.Create;
       //doc:=CoDOMFreeThreadedDocument.Create;
-      doc:=CreateComObject(CLASS_FreeThreadedDOMDocument) as IXMLDOMDocument;
+      doc:=CreateComObject(CLASS_FreeThreadedDOMDocument) as DOMDocument;
       try
         //TODO: use IStream on DOMDocument?
         ss:=TStringStream.Create('');
