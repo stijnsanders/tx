@@ -1,7 +1,8 @@
 [[@txSession,txDefs,txFilter,txFilterSql,txCache,txNodes,DataLank,Variants,xxmString]][[!var
 IsAdmin,AnyConsultable:boolean;
 qr:TQueryResult;
-i,id,pid,d,d1,dt,g,m,c,mi,mj,mk,ml,mm,jrt_id:integer;
+i,id,pid,d,d1,dt,dd,g,m,c,mi,mj,mk,ml,mm,md,jrt_id:integer;
+p0,p1,p2:TDateTime;
 rpFilter:TtxRealmPermission;
 filter,s,current:string;
 fs:UTF8String;
@@ -228,6 +229,7 @@ else
       <th>start</th>
       <th title="minutes">&#x27;</th>
       <th>end</th>
+      <th>-</th>
       </tr>>
       m:=0;
       mi:=0;
@@ -235,6 +237,8 @@ else
       c:=0;
       d:=0;
       dt:=0;
+      dd:=0;
+      p0:=0.0;
       while qr.Read do
        begin
         if filter<>'' then
@@ -278,9 +282,10 @@ else
         d1:=Trunc(qr.GetDate('ts'));
         if d<>d1 then
          begin
-          if (d<>0) and (dt<>0) then
+          if d<>0 then
            begin
-            <<script>document.getElementById("dt[[=d]]").innerText="[[=JournalMinutes(dt)]]";</script>>
+            if dt<>0 then begin <<script>document.getElementById("dt[[=d]]").innerText="[[=JournalMinutes(dt)]]";</script>> end;
+            if dd<>0 then begin <<script>document.getElementById("dd[[=d]]").innerText="[[=JournalMinutes(dd)]]";</script>> end;
            end;
           <<tr>
           <td>&nbsp;</td>
@@ -289,9 +294,12 @@ else
           <td>&nbsp;</td>
           <td id="dt[[=Trunc(d1)]]" style="text-align:right;color:silver;font-weight:bold;">&nbsp;</td>
           <td>&nbsp;</td>
+          <td id="dd[[=Trunc(d1)]]" style="text-align:right;color:silver;">&nbsp;</td>
           </tr>>
           d:=d1;
           dt:=0;
+          dd:=0;
+          p0:=0.0;
          end;
         <<tr>
         <td>
@@ -313,13 +321,29 @@ else
         //Context.Include('d_cmw.xxmi',[],[qr]);
         mm:=qr.GetInt('minutes');
         inc(dt,mm);
+        p1:=qr['ts'];
+        p2:=p1+mm/1440.0;
+        if (p0<>0.0) and (p0<>p2) then
+         begin
+          md:=Round((p0-p2)*1440.0);
+          inc(dd,md);
+         end
+        else
+          md:=0;
+        p0:=p1;
         <</td>
         <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
-        <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
+        <td style="text-align:right;">>=JournalDateTime(p1)<</td>
         [[#JournalMinutesTD(mm)]]
-        <td style="text-align:right;">>=JournalDateTime(double(qr['ts'])+mm/1440.0)<</td>
+        <td style="text-align:right;">>=JournalDateTime(p2)<</td>
+        [[#JournalMinutesTD(md,'color:silver;')]]
         </tr>>
        end;
+      if d<>0 then
+        begin
+        if dt<>0 then begin <<script>document.getElementById("dt[[=d]]").innerText="[[=JournalMinutes(dt)]]";</script>> end;
+        if dd<>0 then begin <<script>document.getElementById("dd[[=d]]").innerText="[[=JournalMinutes(dd)]]";</script>> end;
+        end;
       <</table>
       <script><!--
       $(".fli")
