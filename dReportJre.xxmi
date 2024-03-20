@@ -1,0 +1,63 @@
+[[@txDefs,DataLank,txCache,txNodes]][[!var
+qr:TQueryResult;
+LocationCache:TItemCache;
+ln:TLocationNode;
+pid:integer;
+s:string;
+]][[
+qr:=Objects[0] as TQueryResult;
+LocationCache:=TItemCache.Create;
+try
+
+<<style>
+TABLE.listtable TH {
+	background-color: #CCCCCC;
+	vertical-align: top;
+}
+TABLE.listtable TD {
+	border-bottom: 0.1em solid #CCCCCC;
+	vertical-align: top;
+}
+</style>>
+
+<<table cellspacing="2" cellpadding="2" border="0" class="listtable">
+<tr>
+<th>user</th>
+<th>object</th>
+<th>entry</th>
+<th>start</th>
+<th title="minutes">&#x27;</th>
+<th>end</th>
+</tr>>
+while qr.Read do
+ begin
+  <<tr>
+  <td>
+  <a href="Item.xxm?x=i[[.uid]]" title="[[.usrtypename]]">>#txImg(qr.GetInt('usricon'))]] [[.usrname<</a>
+  [[//TODO: IsAdmin fJre, delete?]]
+  </td>
+  <td>>
+  pid:=qr.GetInt('pid');
+  s:=' ';
+  while (pid<>0) and Context.Connected do
+   begin
+    ln:=LocationCache[pid] as TLocationNode;
+    if ln=nil then ln:=LocationCache.Add(pid,TLocationNode.Create(itObj,pid)) as TLocationNode;
+    s:=ln.GetHTML([ghLink,ghIcon,ghTitle,ghFrameListClass],pid)+s;
+   end;
+  Context.SendHTML(s);
+  <<a href="Item.xxm?x=i[[.obj_id]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]]&nbsp;[[.name<</a>>
+  Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
+  //Context.Include('d_cmw.xxmi',[],[qr]);
+  <</td>
+  <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
+  <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
+  [[#JournalMinutesTD(qr.GetInt('minutes'))]]
+  <td style="text-align:right;">>=JournalDateTime(double(qr['ts'])+qr.GetInt('minutes')/1440.0)<</td>
+  </tr>>
+ end;
+<</table>>
+
+finally
+  LocationCache.Free;
+end;

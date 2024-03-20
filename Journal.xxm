@@ -336,7 +336,7 @@ else
         <td style="text-align:right;">>=JournalDateTime(p1)<</td>
         [[#JournalMinutesTD(mm)]]
         <td style="text-align:right;">>=JournalDateTime(p2)<</td>
-        [[#JournalMinutesTD(md,'color:silver;')]]
+        [[#JournalMinutesTDx(md)]]
         </tr>>
        end;
       if d<>0 then

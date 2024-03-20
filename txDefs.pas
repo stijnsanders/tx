@@ -104,7 +104,8 @@ function JournalDateTime(d:TDateTime):string;
 function JournalGranulate(d:TDateTime;granularity:integer):TDateTime;
 function JournalTime(d:TDateTime;granularity:integer):string;
 function JournalMinutes(minutes:integer):string;
-function JournalMinutesTD(minutes:integer;const extraStyle:string=''):string;
+function JournalMinutesTD(minutes:integer):string;
+function JournalMinutesTDx(minutes:integer):string;
 function jtToDateTime(const jt:string):TDateTime;
 function jtFromDateTime(d:TDateTime):string;
 
@@ -270,12 +271,20 @@ begin
   Result:=Format('%d:%.2d',[minutes div 60,minutes mod 60]);
 end;
 
-function JournalMinutesTD(minutes:integer;const extraStyle:string=''):string; //inline;
+function JournalMinutesTD(minutes:integer):string; //inline;
 begin
   if minutes=0 then
     Result:='<td style="text-align:center;color:#C0C0C0;">&mdash;</td>'
   else
-    Result:='<td style="text-align:right;'+extraStyle+'">'+Format('%d:%.2d',[minutes div 60,minutes mod 60])+'</td>';
+    Result:='<td style="text-align:right;">'+Format('%d:%.2d',[minutes div 60,minutes mod 60])+'</td>';
+end;
+
+function JournalMinutesTDx(minutes:integer):string; //inline;
+begin
+  if minutes=0 then
+    Result:='<td>&nbsp;</td>'
+  else
+    Result:='<td style="text-align:right;color:#C0C0C0;">'+Format('%d:%.2d',[minutes div 60,minutes mod 60])+'</td>';
 end;
 
 const

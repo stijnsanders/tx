@@ -1,0 +1,315 @@
+[[@txDefs,txSession,Windows,Classes,DataLank,
+txFilter,txFilterSql,Variants,xxmString]][[!var
+qr:TQueryResult;
+jrl_id,users_i,users_l:integer;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+fs,msgURL,msgFrom,msgSubject,jrl_name:string;
+sql1:UTF8String;
+users:array of record
+  id,sid,uid:integer;
+  email,name:string;
+end;
+d0:TDateTime;
+msg:TStringContext;
+msgBody,mm:AnsiString;
+ff:TFileStream;
+
+const
+  Base64Codes:array[0..63] of AnsiChar=
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+function base64encode(var Data;DataSize:cardinal):AnsiString;
+type
+  PByte=^byte;
+var
+  i:integer;
+  d1,d2,d3:byte;
+  p,pl:PByte;
+begin
+  i:=(DataSize div 3);
+  if (DataSize mod 3)<>0 then inc(i);
+  SetLength(Result,i*4);//+(DataSize div 57)*2);
+  p:=@Data;
+  pl:=p;inc(pl,DataSize);
+  i:=0;
+  while cardinal(p)<cardinal(pl) do
+   begin
+    d1:=p^;inc(p);
+    if p=pl then
+     begin
+      inc(i);Result[i]:=Base64Codes[  d1 shr  2];
+      inc(i);Result[i]:=Base64Codes[((d1 and $3) shl 4)];
+      inc(i);Result[i]:='=';
+      inc(i);Result[i]:='=';
+     end
+    else
+     begin
+      d2:=p^;inc(p);
+      if p=pl then
+       begin
+        inc(i);Result[i]:=Base64Codes[  d1 shr  2];
+        inc(i);Result[i]:=Base64Codes[((d1 and $3) shl 4) or (d2 shr 4)];
+        inc(i);Result[i]:=Base64Codes[((d2 and $F) shl 2)];
+        inc(i);Result[i]:='=';
+       end
+      else
+       begin
+        d3:=p^;inc(p);
+        inc(i);Result[i]:=Base64Codes[  d1 shr  2];
+        inc(i);Result[i]:=Base64Codes[((d1 and $3) shl 4) or (d2 shr 4)];
+        inc(i);Result[i]:=Base64Codes[((d2 and $F) shl 2) or (d3 shr 6)];
+        inc(i);Result[i]:=Base64Codes[  d3 and $3F];
+       end;
+      //if ((cardinal(p)-cardinal(@Data)) mod 57)=0 then Result:=Result+#13#10;
+     end;
+   end;
+end;
+
+function ProcessImages(const FallbackURL,Body:AnsiString):AnsiString;
+var
+  bi,bj,bl,i:integer;
+  newBody,fn,fd,fx,fn1,bn1,bn2:AnsiString;
+  sl:TStringList;
+  m:TMemoryStream;
+begin
+  bn1:=AnsiString('txUpdate'+FormatDateTime('yyyymmddhhnnsszzz',Now)+Format('%.4x%.4x%.8x',[GetCurrentProcessID,GetCurrentThreadID,integer(Self)]));
+  bn2:=AnsiString('txBody'+FormatDateTime('yyyymmddhhnnsszzz',Now)+Format('%.4x%.4x%.8x',[GetCurrentProcessID,GetCurrentThreadID,integer(Self)]));
+  sl:=TStringList.Create;
+  m:=TMemoryStream.Create;
+  try
+    Result:='';
+    newBody:='';
+    //TODO: quoted-printable?
+    sl.Sorted:=true;
+    bl:=Length(Body);
+    bi:=1;
+    while bi<=bl do
+     begin
+      bj:=bi;
+      while (bi<=bl) and (Copy(Body,bi,13)<>'<img src="img') do inc(bi);
+      newBody:=newBody+Copy(Body,bj,bi-bj);
+      if (bi<=bl) then
+       begin
+        inc(bi,13);
+        bj:=bi;
+        while (bi<=bl) and (Body[bi]<>'"') do inc(bi);
+
+        if Body[bj]='/' then
+         begin
+          inc(bj);
+          fd:='img\';
+          fn:=Copy(Body,bj,bi-bj);
+         end
+        else
+         begin
+          fd:='';
+          fn:='img'+Copy(Body,bj,bi-bj);
+         end;
+        fx:=fn;
+        for i:=1 to Length(fx)-1 do if AnsiChar(fx[i]) in ['.','_','/','\','?'] then fx[i]:='X';
+        newBody:=newBody+'<img src="cid:'+fx;
+        if sl.IndexOf(string(fn))=-1 then
+         begin
+          i:=Length(globalImgExt+globalImgVer);
+          if Copy(fn,Length(fn)-i+1,i)=globalImgExt+globalImgVer then
+            fn1:=Copy(fn,1,Length(fn)-i-1)+'.png'
+          else
+            fn1:=fn;//raise? skip?
+          m.LoadFromFile(ModulePath+string(fd+fn1));
+          sl.Add(string(fn));
+          //
+          Result:=Result+'--'+bn1+
+            #13#10'Content-Type: image/png; name="'+fn1+'"'+
+            #13#10'Content-Disposition: inline; filename="'+fn1+'"'+
+            #13#10'Content-Transfer-Encoding: base64'+
+            #13#10'Content-ID: <'+fx+'>'+
+            #13#10'X-Attachment-Id: '+fx+
+            #13#10#13#10+
+            base64Encode(m.Memory^,m.Size)+
+            #13#10#13#10;
+         end;
+       end;
+     end;
+    Result:=
+      #13#10'MIME-version: 1.0'+
+      #13#10'Content-Type: multipart/related; boundary="'+bn1+'"'+
+      #13#10#13#10'--'+bn1+
+      #13#10'Content-Type: multipart/alternative; boundary="'+bn2+'"'+
+      #13#10#13#10'--'+bn2+
+      #13#10'Content-Type: text/plain'+
+      #13#10#13#10'[This e-mail has the body text in HTML format only]'+
+      #13#10#13#10+FallbackURL+
+      #13#10#13#10'--'+bn2+
+      #13#10'Content-Type: text/html; charset="UTF-8"'+
+      #13#10#13#10+newBody+
+      #13#10#13#10'--'+bn2+'--'+
+      #13#10#13#10+Result+'--'+bn1+'--'#13#10;
+  finally
+    sl.Free;
+    m.Free;
+  end;
+end;
+
+function CheckEmail(const emailaddress:string):boolean;
+var
+  i:integer;
+begin
+  i:=Length(emailaddress);
+  while (i<>0) and (emailaddress[i]<>'.') do dec(i);
+  while (i<>0) and (emailaddress[i]<>'@') do dec(i);
+  //TODO: more? regex?
+  Result:=i<>0;
+end;
+
+]][[
+
+jrl_id:=Context['j'].AsInteger;
+if jrl_id=0 then //if Context.ContextString(csQueryString)='' then
+ begin
+  <<p>No journal ID provided, provide these parameters:</p>
+  <dl>
+  <dt>?j=</dt><dd>a journal id</dd>
+  <dt>&u=</dd><dd>a filter of users to mail to, e.g. <code>tt"auth.journals"</code></dd>
+  </dl>>
+ end
+else
+ begin
+
+  Context.ContentType:='text/plain';
+  Context.BufferSize:=0;
+  CheckMaintProtect(Context);
+
+  qr:=TQueryResult.Create(Session.DbCon,'select * from Jrl where id=?',[jrl_id]);
+  try
+    jrl_name:=qr.GetStr('name');
+  finally
+    qr.Free;
+  end;
+
+  //defaults
+  msgFrom:=AdministratorEmailAddress;
+  msgSubject:='tx Journal: '+jrl_name;
+  //d0:=Now-1.0;//24 hours? d0:=Trunc(Now)-1.0?
+  d0:=0.0;
+
+  msgURL:=Context.URL;
+  SetLength(msgUrl,Pos('MaintMailJrl.xxm',msgURL)-1);//TODO
+
+  //TODO: extra config
+  //msgFrom:=
+  //msgSubject:=
+  //msgURL:=
+
+  f:=TtxFilter.Create;
+  fq:=TtxSqlQueryFragments.Create(itObj);//(itUser);
+  try
+    Context.SendHTML('Users...'#13#10);
+    f.FilterExpression:=UTF8Encode(Context['u'].Value);
+    if f.ParseError<>'' then raise Exception.Create('User filter: '+f.ParseError);
+    fq.Fields:='Usr.id, Usr.uid, Usr.email, Obj.id as sid, Obj.name';
+    fq.AddFrom('INNER JOIN Usr ON Usr.uid=Obj.id AND Usr.email<>''''');
+    fq.AddFilter(f);
+    fq.OrderBy:='';
+    //fq.GroupBy
+    sql1:=fq.SQL;
+  finally
+    f.Free;
+    fq.Free;
+  end;
+  qr:=TQueryResult.Create(Session.DbCon,sql1,[]);
+  try
+    users_i:=0;
+    users_l:=0;
+    while qr.Read do
+     begin
+      if users_i=users_l then
+       begin
+        inc(users_l,$100);//growstep
+        SetLength(users,users_l);
+       end;
+      users[users_i].id:=qr.GetInt('id');
+      users[users_i].sid:=qr.GetInt('sid');
+      users[users_i].uid:=qr.GetInt('uid');
+      users[users_i].email:=qr.GetStr('email');
+      users[users_i].name:=qr.GetStr('name');
+      if not CheckEmail(users[users_i].email) then
+        raise Exception.Create('Invalid e-mail address "'+users[users_i].email+'"');
+      inc(users_i);
+     end;
+    users_l:=users_i;
+  finally
+    qr.Free;
+  end;
+  Context.SendHTML(IntToStr(users_l)+' users'#13#10);
+
+  try
+    msg:=TStringContext.Create(Context,Self);
+    try
+      msg.Include('dMailHead.xxmi',[msgURL]);
+
+      if false then //?
+        msg.SendHTML('<h2>'+HTMLEncode(jrl_name)+'</h2>');
+
+      //TODO:fq:=TtxSqlQueryFragments.Create(itJournalEntry);
+      fs:='SELECT Jre.id, Jre.obj_id, Jre.ts, Jre.minutes, Jre.uid,'+
+        ' Jre.jrt_id, Jrt.icon AS jrt_icon, Jrt.name AS jrt_name,'+
+        ' Obj.name, Obj.pid, ObjType.icon, ObjType.name AS typename,'+
+        ' UsrObj.id AS usrid, UsrObj.name AS usrname, UsrObjType.icon AS usricon, UsrObjType.name AS usrtypename';
+      if Use_ObjTokRefCache then
+        fs:=fs+', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML';
+      fs:=fs+#13#10+
+        'FROM Jre'#13#10+
+        'INNER JOIN Jrt ON Jrt.id=Jre.jrt_id'#13#10+
+        //'INNER JOIN Jrl ON Jrl.id=Jrt.jrl_id'#13#10+
+        'INNER JOIN Obj ON Obj.id=Jre.obj_id'#13#10+
+        'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id'#13#10+
+        'INNER JOIN Obj AS UsrObj ON UsrObj.id=Jre.uid'#13#10+
+        'INNER JOIN ObjType AS UsrObjType ON UsrObjType.id=UsrObj.objtype_id'#13#10;
+      if Use_ObjTokRefCache then
+        fs:=fs+'LEFT OUTER JOIN ObjTokRefCache ON ObjTokRefCache.id=Obj.id'#13#10;
+      fs:=fs+
+        'WHERE Jrt.jrl_id=? AND Jre.ts>?'#13#10+
+        'ORDER BY Jre.ts';
+
+      qr:=TQueryResult.Create(Session.DbCon,fs,[jrl_id,d0]);
+      try
+        if qr.EOF then
+          msg.SendHTML('<p><i>No journal entries found.</i></p>') //TODO: config no entries no mail?
+        else
+          msg.Include('dReportJre.xxmi',[jrl_id],[qr]);
+      finally
+        qr.Free;
+      end;
+
+      msg.SendHTML([#13#10'</body></html>'#13#10]);
+
+      msgBody:=ProcessImages(AnsiString(msgURL+'Journals.xxm?id='+IntToStr(jrl_id)),UTF8Encode(msg.Result));
+    finally
+      msg.Free;
+    end;
+  except
+    on e:Exception do
+      Context.SendHTML('EXCEPTION!!!'#13#10+e.Message+#13#10#13#10);
+  end;
+
+  for users_i:=0 to users_l-1 do
+   begin
+    Context.SendHTML(users[users_i].name+' <'+users[users_i].email+'>...'#13#10);
+
+    mm:=AnsiString('Subject: '+msgSubject+
+      #13#10'To: "'+users[users_i].name+'" <'+users[users_i].email+'>'+
+      #13#10'From: '+msgFrom)+
+      msgBody;
+    ff:=TFileStream.Create(EmailPickupFolder+'\txUpdate'+IntToStr(users[users_i].id)+'_'+FormatDateTime('yyyymmddhhnnss',Now)+'.eml',fmCreate);
+    try
+      ff.Write(mm[1],Length(mm));
+    finally
+      ff.Free;
+    end;
+    Context.SendHTML([' [bytes] ',Length(mm)]);
+    Context.SendHTML(#13#10);
+   end;
+
+  Context.SendHTML('---'#13#10);
+ end;
