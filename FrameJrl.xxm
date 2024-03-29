@@ -83,7 +83,7 @@ else
       try
         while qr.Read do
          begin
-          <<a target="MainFrame" href="Item.xxm?x=i[[.id]]" title="[[.name]]">>#txImg(qr.GetInt('icon'))<</a>>
+          <<a target="MainFrame" href="Item.xxm?x=i[[.id]]" class="jiOption" title="[[.name]]">>#txImg(qr.GetInt('icon'))<</a>>
          end;
       finally
         qr.Free;
@@ -93,6 +93,13 @@ else
         <<span class="small" style="color:silver;">&nbsp;&rsaquo;[[=Session.Journals[i].fDisplay<</span>>
         Session.Journals[i].fDisplay:='';
        end;
+      ]]&nbsp;
+      <span id="jiTitle" class="highlight1"></span>
+      <script><!--
+      $(".jiOption")
+      .mouseenter(function(){$("#jiTitle").text(this.title);})
+      .mouseleave(function(){$("#jiTitle").text("");});
+      //--></script>>       
       <</td>>
      end;
     <</tr>>

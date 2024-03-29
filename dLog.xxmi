@@ -5,7 +5,7 @@ f:TtxFilter;
 fq1,fq2:TtxSqlQueryFragments;
 id,pid,limit,d,c1,c2:integer;
 qr1,qr2:TQueryResult;
-qs1,qs2,showAsc:boolean;
+qs1,qs2,showAsc,rr:boolean;
 tc1,tc2,tc3,tc4:TTimerIndex;
 d1,d2:TDateTime;
 rpFilter:TtxRealmPermission;
@@ -204,12 +204,15 @@ try
         [[#lblReferences]]
         [[#txImg(qr2['reficon'])]]
         [[=qr2['refname']]]
-        </p>>
+        [[
+        rr:=qr2.IsNull('relicon') or (qr2.GetStr('desc')<>'');
+        if rr then begin <</p>> end;
        end;
       Context.SendHTML(TermStore.TermLinks(itObj,id,d,qr2.GetStr('desc')));
       if not(qr2.IsNull('relicon')) then
        begin
-        <<p><a href="Item.xxm?x=i[[=qr2['obj2_id']]]" title="[[=qr2['reltypename']]]">>#txImg(qr2['relicon'])]] [[=qr2['relname']<</a></p>>
+        if rr then begin <<p>> end;
+        <<a href="Item.xxm?x=i[[=qr2['obj2_id']]]" title="[[=qr2['reltypename']]]">>#txImg(qr2['relicon'])]] [[=qr2['relname']<</a></p>>
        end;
       <</div>>
 
