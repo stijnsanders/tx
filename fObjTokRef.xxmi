@@ -5,7 +5,7 @@ doAddNew:boolean;
 ]][[
 doAddNew:=Length(Values)=0;//?boolean(Values[0])?
 <<dt>Quick add tokens, references</dt>
-<dd>>
+<dd style="white-space:nowrap;">>
 
   Context.SendHTML(lblTokens);
   i:=0;

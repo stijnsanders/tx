@@ -67,7 +67,7 @@ else
     end;
     if id=0 then
      begin
-      <<td colspan="3">
+      <<td colspan="3" style="white-space:nowrap;">
       <a class="linkbutton" target="MainFrame" href="Journal.xxm?id=[[=Session.Journals[i].jrl_id]]" title="[[=Session.Journals[i].jrl_name]]">...</a>
       &nbsp;
       [[

@@ -25,6 +25,7 @@ finally
 end;
 <<div class="itemselect" id="[[=name]]_dsp" onclick="selectnode_toggle('[[=name]]','[[=txItemTypeKey[ItemType]]]',[[=id]],[[=exclude]]);">>#defHTML<</div>
 <input type="hidden" id="[[=name]]_id" name="[[=name]]" value="[[=id]]" />
+<span style="white-space:nowrap;">
 <a class="linkbutton" href="#" onclick="return selectnode_toggle('[[=name]]','[[=txItemTypeKey[ItemType]]]',[[=id]],[[=exclude]]);">select</a>
 <a class="linkbutton" href="#" onclick="return selectnode_clear('[[=name]]');">clear</a>
 <a class="linkbutton" href="#" onclick="return selectnode_searchtype('[[=name]]','[[=txItemTypeKey[ItemType]]]',[[=exclude]]);">search...</a>
@@ -63,6 +64,6 @@ if Session.FilterRecent[ItemType,i]<>0 then
   //--></script>>
  end;
 
-<<br />
+<</span><br />
 <div id="[[=name]]_selbox" class="itemselectbox" style="position:relative;display:none;">>#lblLoading<</div>
 <span id="[[=name]]_default" style="display:none;">>#defHTML<</span>

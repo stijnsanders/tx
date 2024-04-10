@@ -1,6 +1,6 @@
 [[@Variants,txDefs,DataLank,txSession,txFilter,txFilterSql,txCache,]][[!var
 title:WideString;
-urlprefix:string;
+urlprefix,cn:string;
 fs1,fs2,s:UTF8String;
 sy,sm,sd,ey,em,ed:word;
 fv:TtxFilterViewInfo;
@@ -8,7 +8,7 @@ f:TtxFilter;
 fq1,fq2:TtxSqlQueryFragments;
 id,limit:integer;
 qr1,qr2:TQueryResult;
-qs1,qs2,filterme:boolean;
+qs1,qs2,filterme,rr:boolean;
 d1,d2:TDateTime;
 ObjLocationCache:TItemCache;
   procedure SwapDates;
@@ -146,11 +146,12 @@ end;
            begin
             id:=qr1.GetInt('id');
             title:=qr1.GetStr('name');
+            cn:=qr1.GetStr('typename');
             ]]
             <item><guid isPermaLink="true">>=urlprefix]]Item.xxm?x=i[[=id<</guid>
             <title>>=title<</title>
             <link>>=urlprefix]]Item.xxm?x=i[[,id<</link>
-            <description><![CDATA[<p><a href="[[=urlprefix]]Item.xxm?x=i[[,id]]" title="[[,typename]]">>#txImg(qr1.GetInt('icon'))]]&nbsp;[[=title<</a></p>
+            <description><![CDATA[<p><a href="[[=urlprefix]]Item.xxm?x=i[[,id]]" title="[[=cn]]">>#txImg(qr1.GetInt('icon'))]]&nbsp;[[=title<</a></p>
             [[
             Context.SendHTML(qr1.GetStr('desc'));//TODO: SafeHTML
             Context.SendHTML('<p>'+lblLocation+' ');
@@ -161,6 +162,7 @@ end;
             Context.Include('dObjTokRef.xxmi',[id,'','','<p>','</p>'],[qr1]);
             ]]]]></description>
             <pubDate>>=DateToXml(qr1.GetDate('m_ts'))<</pubDate>
+            <category>>=cn<</category>
             </item>
             [[
            end;
@@ -184,6 +186,7 @@ end;
             <a href="Item.xxm?x=i[[=id]]" title="[[=qr2['typename']]]">>#txImg(qr2.GetInt('icon'))]] [[=qr2['name']<</a>
             </p>
             [[
+            cn:='::report';//default
             //TODO: path of obj_id?
             if not(qr2.IsNull('tokicon')) then
              begin
@@ -194,6 +197,7 @@ end;
               [[=qr2['tokname']]]
               </p>
               [[
+              cn:='::token';
              end;
             if not(qr2.IsNull('reficon')) then
              begin
@@ -202,20 +206,23 @@ end;
               [[#lblReferences]]
               [[#txImg(qr2['reficon'])]]
               [[=qr2['refname']]]
-              </p>
               [[
+              rr:=qr2.IsNull('relicon') or (qr2.GetStr('desc')<>'');
+              if rr then begin <</p>> end;
+              cn:='::reference';
              end;
             Context.SendHTML(qr2.GetStr('desc'));//TODO: SafeHTML
             if not(qr2.IsNull('relicon')) then
              begin
+              if rr then begin <<p>> end;
               ]]
-              <p>
               <a href="Item.xxm?x=i[[=qr2['obj2_id']]]" title="[[=qr2['reltypename']]]">>#txImg(qr2['relicon'])]] [[=qr2['relname']<</a>
               </p>
               [[
              end;
             ]]]]></description>
             <pubDate>>=DateToXml(qr2.GetDate('ts'))<</pubDate>
+            <category>>=cn<</category>
             </item>
             [[
            end;

@@ -29,6 +29,7 @@ finally
 end;
 <<div class="itemselect" id="[[=name]]_dsp" onclick="return selectnode_toggle('[[=name]]','i',[[=idp]],[[=exclude]]);">>#defHTML<</div>
 <input type="hidden" id="[[=name]]_id" name="[[=name]]" value="[[=id]]" />
+<span style="white-space:nowrap;">
 <a class="linkbutton" href="#" onclick="return selectnode_toggle('[[=name]]','i',[[=idp]],[[=exclude]]);">select</a>
 <a class="linkbutton" href="#" onclick="return selectnode_clear('[[=name]]');">clear</a>
 <a class="linkbutton" href="#" onclick="return selectnode_search('[[=name]]',[[=exclude]],'[[=URLEncode(dss)]]');">search...</a>
@@ -67,7 +68,7 @@ if not(Session.FilterRecent[itObj,i]=0) then
   //--></script>>
  end;
 
-<<br />
+<</span><br />
 <div id="[[=name]]_selbox" class="itemselectbox" style="position:relative;display:none;">>#lblLoading<</div>
 <span id="[[=name]]_default" style="display:none;">>#defHTML<</span>>
 if catchesFromFrame then
