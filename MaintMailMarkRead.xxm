@@ -2,7 +2,7 @@
 txFilter,txFilterSql,Variants,txCache,txTerms,txNodes,xxmString]][[!var
 sl:TStringList;
 qr,qr1,qr2:TQueryResult;
-sl_i,uid,user_id,mid,mc,id,c1,c2:integer;
+sl_i,uid,user_id,mn,mc,id,c1,c2:integer;
 f:TtxFilter;
 fq1,fq2:TtxSqlQueryFragments;
 fs,fsu,s:string;
@@ -16,7 +16,7 @@ Context.BufferSize:=0;
 CheckMaintProtect(Context);
 
 uid:=Context['uid'].AsInteger;
-mid:=Context['mid'].AsInteger;
+mn:=Context['m'].AsInteger;
 d0:=Date-Context['dd'].AsInteger;
 mc:=0;
 if uid=0 then raise Exception.Create('No user ID provided (add "?uid=")');
@@ -82,13 +82,16 @@ try
         fs:=sl[sl_i];
         fsu:=string(URLEncode(fs));
 
-        if mid=mc then //TODO: -1 for select all?
+        inc(mc);
+        if (mn=0) or (mn=mc) then
          begin
 
           try
             //qr:=TQueryResult.Create(Session.DbCon,'SELECT ? AS uid, ? AS email, 0 AS isanon',[users[users_i].uid,users[users_i].email]);
             qr:=TQueryResult.Create(Session.DbCon,'SELECT id,uid,email,0 AS isanon FROM Usr WHERE uid=?',[uid]);
             try
+              if qr.EOF then 
+                raise Exception.Create('User not found (possibly an incorrect uid)');
               user_id:=qr.GetInt('id');
               Session.LoadUser(qr);
             finally
@@ -112,11 +115,13 @@ try
               fq1.AddFilter(f);
               fq1.Where:='Umi.id IS NULL AND Obj.c_uid<>'+IntToStrU(Session.UserID)+
                 ' AND Obj.m_uid<>'+IntToStrU(Session.UserID)+
+                ' AND Obj.c_ts<?'+
                 ' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq1.Where+')';
 
               fq2.AddFrom('LEFT OUTER JOIN Umr ON Umr.usr_id='+IntToStrU(user_id)+' AND Umr.rpt_id=Rpt.id');
               fq2.AddFilter(f);
               fq2.Where:='Umr.id IS NULL AND Rpt.uid<>'+IntToStrU(Session.UserID)+
+                ' AND Rpt.ts<?'+
                 ' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq2.Where+')';
 
               sql1:=fq1.SQL;
@@ -129,8 +134,8 @@ try
 
             Session.DbCon.BeginTrans;
             try
-              qr1:=TQueryResult.Create(Session.DbCon,sql1,[]);
-              qr2:=TQueryResult.Create(Session.DbCon,sql2,[]);
+              qr1:=TQueryResult.Create(Session.DbCon,sql1,[d0]);
+              qr2:=TQueryResult.Create(Session.DbCon,sql2,[d0]);
               c1:=0;
               c2:=0;
               try
@@ -138,15 +143,13 @@ try
                 while qr1.Read do
                  begin
                   id:=qr1.GetInt('id');
-                  if qr1.GetDate('c_ts')<d0 then
-                    Session.DbCon.Insert('Umi',['usr_id',user_id,'obj_id',id]);
+                  Session.DbCon.Insert('Umi',['usr_id',user_id,'obj_id',id]);
                   inc(c1);
                  end;
                 while qr2.Read do
                  begin
                   //id:=qr2.GetInt('obj_id');
-                  if qr2.GetDate('ts')<d0 then
-                    Session.DbCon.Insert('Umr',['usr_id',user_id,'rpt_id',qr2['id']]);
+                  Session.DbCon.Insert('Umr',['usr_id',user_id,'rpt_id',qr2['id']]);
                   inc(c2);
                  end;
 
@@ -168,7 +171,6 @@ try
               Context.SendHTML('EXCEPTION!!!'#13#10+e.Message+#13#10#13#10);
           end;
          end;
-        inc(mc);
        end;
      end;
 

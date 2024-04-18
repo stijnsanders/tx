@@ -2,7 +2,7 @@
 txFilter,txFilterSql,Variants,txCache,txTerms,txNodes,xxmString]][[!var
 sl:TStringList;
 qr,qr1,qr2:TQueryResult;
-sl_i,users_i,users_l,limit,id,pid,i,j,l,d,c1,c2:integer;
+sl_i,users_i,users_l,limit,dMax,id,pid,i,j,l,d,c1,c2:integer;
 f:TtxFilter;
 fq,fq1,fq2:TtxSqlQueryFragments;
 fs,fsu,s,msgURL,msgFrom,msgSubject:string;
@@ -13,7 +13,7 @@ users:array of record
 end;
 tc1,tc2,tc3,tc4:TTimerIndex;
 qs1,qs2,dryrun,msgSubjDyn:boolean;
-d1,d2:TDateTime;
+d0,d1,d2:TDateTime;
 rpFilter:TtxRealmPermission;
 LocationCache:TItemCache;
 TermDomains:TIndexCache;
@@ -177,6 +177,8 @@ CheckMaintProtect(Context);
 //defaults
 msgFrom:=AdministratorEmailAddress;
 msgSubject:='tx Updates';
+limit:=100;
+dMax:=7;
 
 msgURL:=Context.URL;
 i:=Length(msgURL)-13;
@@ -202,6 +204,10 @@ try
       if Copy(s,1,4)='URL=' then msgURL:=Copy(s,5,Length(s)-4)
       else
       if Copy(s,1,6)='Title=' then Context.SendHTML(Copy(s,7,Length(s)-6)+#13#10)
+      else
+      if Copy(s,1,6)='Limit=' then limit:=StrToInt(Copy(s,7,Length(s)-6))
+      else
+      if Copy(s,1,5)='DMax=' then dMax:=StrToInt(Copy(s,6,Length(s)-5))
       else
        begin
         if msgSubject='' then msgSubject:='tx Updates';//default
@@ -238,20 +244,24 @@ try
           l:=0;
           while qr.Read do
            begin
-            if i=l then
+            s:=qr.GetStr('email');
+            if CheckEmail(s) then
              begin
-              inc(l,$100);//growstep
-              SetLength(users,l);
-             end;
-            users[i].id:=qr.GetInt('id');
-            users[i].sid:=qr.GetInt('sid');
-            users[i].uid:=qr.GetInt('uid');
-            users[i].email:=qr.GetStr('email');
-            users[i].name:=qr.GetStr('name');
-            if msgSubjDyn then users[i].subject:=qr.GetStr('subject') else users[i].subject:='';
-            if not CheckEmail(users[i].email) then
-              raise Exception.Create('Invalid e-mail address "'+users[i].email+'"');
-            inc(i);
+              if i=l then
+               begin
+                inc(l,$100);//growstep
+                SetLength(users,l);
+               end;
+              users[i].id:=qr.GetInt('id');
+              users[i].sid:=qr.GetInt('sid');
+              users[i].uid:=qr.GetInt('uid');
+              users[i].email:=s;//qr.GetStr('email')
+              users[i].name:=qr.GetStr('name');
+              if msgSubjDyn then users[i].subject:=qr.GetStr('subject') else users[i].subject:='';
+              inc(i);
+             end
+            else
+              Context.SendHTML('ERROR: Invalid e-mail address "'+s+'"'#13#10);
            end;
           users_l:=i;
         finally
@@ -281,7 +291,6 @@ try
             tc2:=GetTimerIndex;
             rpFilter:=rpView;//?
             sql1:='ASC';//?
-            limit:=100;//?
 
             f:=TtxFilter.Create;
             fq1:=TtxSqlQueryFragments.Create(itObj);
@@ -300,11 +309,13 @@ try
               fq1.AddFilter(f);
               fq1.Where:='Umi.id IS NULL AND Obj.c_uid<>'+IntToStrU(Session.UserID)+
                 ' AND Obj.m_uid<>'+IntToStrU(Session.UserID)+
+                ' AND Obj.c_ts>?'+
                 ' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq1.Where+')';
 
               fq2.AddFrom('LEFT OUTER JOIN Umr ON Umr.usr_id='+IntToStrU(users[users_i].id)+' AND Umr.rpt_id=Rpt.id');
               fq2.AddFilter(f);
               fq2.Where:='Umr.id IS NULL AND Rpt.uid<>'+IntToStrU(Session.UserID)+
+                ' AND Rpt.ts>?'+
                 ' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq2.Where+')';
 
               sql1:=fq1.SQL;
@@ -318,8 +329,9 @@ try
             Session.DbCon.BeginTrans;
             try
               tc3:=GetTimerIndex;
-              qr1:=TQueryResult.Create(Session.DbCon,sql1,[]);
-              qr2:=TQueryResult.Create(Session.DbCon,sql2,[]);
+              d0:=Now-dMax;
+              qr1:=TQueryResult.Create(Session.DbCon,sql1,[d0]);
+              qr2:=TQueryResult.Create(Session.DbCon,sql2,[d0]);
               c1:=0;
               c2:=0;
               LocationCache:=TItemCache.Create;

@@ -132,7 +132,7 @@ else
             [id,Session.Journals[i].jrl_id,Session.UserID,d1]);
           try
             rd:=Context['rd'].AsInteger;
-            if (rd=1) and (qr.EOF or (qr.GetDate('ts')+HalfAMinute<d1-g/1440.0)) then
+            if (rd=1) and (qr.EOF or (qr.GetDate('ts')<d1-g/1440.0)) then
              begin
               d1:=d1-g/1440.0;
               b:=true;
@@ -144,7 +144,7 @@ else
              end;
             if qr.EOF then
               CanReverseDate:=1
-            else if qr.GetDate('ts')+HalfAMinute<d1-g/1440.0 then
+            else if qr.GetDate('ts')<d1-g/1440.0 then
               CanReverseDate:=2;
           finally
             qr.Free;
