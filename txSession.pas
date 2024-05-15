@@ -155,7 +155,7 @@ var
 
 implementation
 
-uses Windows, txFilter, txFilterSql, HashUtils, sha1, Math;
+uses Windows, txFilter, txFilterSql, txHomePage, HashUtils, sha1, Math;
 
 //TODO: something better than plain objectlist
 //TODO: thread to check session expiry
@@ -251,6 +251,8 @@ begin
   finally
     sl.Free;
   end;
+
+  HomePages:=THomePages.Create(ModulePath);
 end;
 
 function PageRenderTimeMS:cardinal;

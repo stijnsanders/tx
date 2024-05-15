@@ -1,4 +1,4 @@
-[[@Classes,Variants,txSession]][[!var
+[[@Classes,Variants,txSession,txHomePage]][[!var
 sl,p:TStringList;
 si:integer;
 s,t:string;
@@ -9,8 +9,8 @@ s:=Context.ContextString(csQueryString);
 if s='' then s:='txHomePage' else s:=StringReplace(s,'\','',[rfReplaceAll]);//TODO: default directory from setting?
 sl:=TStringList.Create;
 try
-  //TODO: if FileExists (or EFOpenError)
-  sl.LoadFromFile(ModulePath+s+'.txt');
+  //sl.LoadFromFile(ModulePath+s+'.txt');
+  sl.Assign(HomePages.GetPage(s));
   si:=0;
   while (si<sl.Count) and Context.Connected do
    begin
@@ -107,3 +107,6 @@ finally
 end;
 
 Context.Include('dFoot.xxmi');
+
+Context.Flush;
+HomePages.CheckFiles;//TODO: dispatch to background thread?
