@@ -9,7 +9,7 @@ type
   private
     FItemType:TtxItemType;
     AliasCount,FParentID:integer;
-    AddedWhere:boolean;
+    AddedWhere,Distinct:boolean;
     DbCon:TDataConnection;
     function BuildSQL:UTF8String;
 
@@ -73,6 +73,8 @@ begin
   inherited Create;
   AliasCount:=0;
   Limit:=-1;
+  AddedWhere:=false;
+  Distinct:=false;
   FParentID:=0;
   FItemType:=ItemType;
   DbCon:=Session.DbCon;
@@ -503,6 +505,7 @@ begin
        end;
       faTerm:
        begin
+        Distinct:=true;
         AddFrom('INNER JOIN Trm ON Trm.obj_id=Obj.id');
         //parameters?
         k:=1;
@@ -776,6 +779,7 @@ begin
   m:=TMemoryStream.Create;
   try
     Add1('SELECT ');
+    if Distinct then Add1('DISTINCT ');
     Add1(Fields);
     Add1(#13#10'FROM ');
     Add1(Tables);//assert ends in #13#10

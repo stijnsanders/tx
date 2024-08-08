@@ -20,10 +20,10 @@ if (keywords='') and (filter='') then
   <input type="text" id="searchText_[[=name]]" name="keywords" value="[[=Context['dss'].Value]]" size="50"
   onfocus="search_textEnter('[[=name]]','[[=exclude]]',this);" onblur="search_textLeave(this);" />
   <br />
-  <label><input type="radio" name="action" id="" value="search" checked="1" /> objects</label>
-  <label><input type="radio" name="action" id="" value="name" /> match whole name</label>
-  <label><input type="radio" name="action" id="" value="rsearch" /> reports</label>
-  <label><input type="radio" name="action" id="" value="term" /> terms</label>
+  <label><input type="radio" name="action" value="search" checked="1" /> objects</label>
+  <label><input type="radio" name="action" value="name" /> match whole name</label>
+  <label><input type="radio" name="action" value="rsearch" /> reports</label>
+  <label><input type="radio" name="action" value="term" /> terms</label>
   <br />
   <button id="searchButton_[[=name]]" onclick="return search_textSubmit('[[=name]]',[[=exclude]]);">Search</button>
   |
