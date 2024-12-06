@@ -1028,6 +1028,11 @@
 			"unitName": "maintmailmarkread_xxm1",
 			"unitPath": ""
 		},
+		"img_xxm": {
+			"path": "Img.xxm",
+			"unitName": "img_xxm1",
+			"unitPath": ""
+		},
 		"maintmailjrl_xxm": {
 			"path": "MaintMailJrl.xxm",
 			"unitName": "maintmailjrl_xxm1",
@@ -1036,6 +1041,11 @@
 		"dreportjre_xxmi": {
 			"path": "dReportJre.xxmi",
 			"unitName": "dreportjre_xxmi1",
+			"unitPath": ""
+		},
+		"iimg_xxm": {
+			"path": "iImg.xxm",
+			"unitName": "iimg_xxm1",
 			"unitPath": ""
 		}
 	},
@@ -1056,7 +1066,8 @@
 		"WikiEngine_TLB": {},
 		"VBScript_RegExp_55_TLB": {},
 		"sha1": {},
-		"HashUtils": {}
+		"HashUtils": {},
+		"txImgs": {}
 	},
 	"resources": {
 		"xxmp.pas": {},
@@ -1072,5 +1083,5 @@
 		"Extra4Open": "Context.Send(qr1['",
 		"Extra4Close": "']);"
 	},
-	"lastModified": "2023-10-05T18:24:44"
+	"lastModified": "2024-12-06T21:47:48"
 }

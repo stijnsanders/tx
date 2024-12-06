@@ -3,6 +3,7 @@ v1.4.0
 - switch to Delphi Community Edition
 - Frame.xxm does window.history.replaceState (actually dHead.xxmi but only from Frame.xxm's MainFrame)
 - suspended accounts
+- serve images from memory
 
 v1.3.4
 - MaintMail: send update mails

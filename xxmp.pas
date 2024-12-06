@@ -17,11 +17,12 @@ function XxmProjectLoad(const AProjectName:WideString): IXxmProject; stdcall;
 
 implementation
 
-uses txSession, DataLank, xxmFReg, Windows, Classes, xxmHeaders;
+uses txSession, DataLank, xxmFReg, Windows, Classes, xxmHeaders, txImgs;
 
 function XxmProjectLoad(const AProjectName:WideString): IXxmProject;
 begin
   LoadProjectSettings;
+  ImgsLoadLibrary;
   Result:=TXxmtx.Create(AProjectName);
 end;
 
@@ -93,26 +94,32 @@ begin
        end;
       if qr.EOF then
        begin
-         if (s<>'logon.xxm') and (s<>'logonnew.xxm') and (copy(s,2,5)<>'logon') and
+         if (s<>'logon.xxm') and (s<>'logonnew.xxm') and (Copy(s,2,5)<>'logon') and
            (s<>'404.xxm') and
            (s<>'sql.xxm') and
-           (s<>'tx.js.xxm') and (copy(s,1,3)<>'js/') and
-           (s<>'tx.css.xxm') and (copy(s,1,4)<>'img/') then
+           (s<>'tx.js.xxm') and (Copy(s,1,3)<>'js/') and
+           (s<>'tx.css.xxm') and (Copy(s,1,4)<>'img/') then
            Result:=XxmFragmentRegistry.GetFragment(Self,'LogonRedir.xxm','');
        end;
       Session.LoadUser(qr);
     finally
       if qr<>nil then qr.Free;
     end;
-  if (s='tx.ini') or (s='tx.db') or (s='tx.xxl') then
-    Result:=XxmFragmentRegistry.GetFragment(Self,'404.xxm','');
   if s='f' then
-    Result:=XxmFragmentRegistry.GetFragment(Self,'Frame.xxm','');
+    Result:=XxmFragmentRegistry.GetFragment(Self,'Frame.xxm','')
+  else
+  if (s='tx.ini') or (s='tx.db') or (s='tx.xxl') then
+    Result:=XxmFragmentRegistry.GetFragment(Self,'404.xxm','')
+  else
+  if Copy(s,1,4)='img/' then
+    Result:=XxmFragmentRegistry.GetFragment(Self,'iImg.xxm','')
+  else
+    ;
   if Result=nil then
    begin
     Result:=XxmFragmentRegistry.GetFragment(Self,Address,'');
     Context.BufferSize:=$40000;//256KiB
-    if (Result=nil) and (copy(s,1,4)<>'img/') then
+    if (Result=nil) and (Copy(s,1,4)<>'img/') then
       (Context as IxxmHttpHeaders).ResponseHeaders['Cache-Control']:='max-age=20000000, public';
    end;
 end;
