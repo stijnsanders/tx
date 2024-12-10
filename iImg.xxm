@@ -1,0 +1,24 @@
+[[@txImgs,Classes]][[!var
+url,s:string;
+f:TForwardStream;
+]][[
+url:=Context.ContextString(csLocalURL);
+//assert Copy(url,1,4)='img/';
+url:=LowerCase(Copy(url,5,Length(url)-4));
+
+f:=ImgByName(url);
+if f=nil then
+ begin
+  Context.SetStatus(404,'File Not Found');
+  Context.SendHTML('File Not Found');
+  //TODO: default data?
+ end
+else
+ begin
+  s:=Copy(url,Length(url)-3,4);
+  if s='.svg' then Context.ContentType:='image/svg+xml' else
+  if s='.png' then Context.ContentType:='image/png' else
+  //TODO: more?
+    Context.ContentType:='application/octet-stream';
+  Context.SendStream(TStreamAdapter.Create(f,soOwned));
+ end;
