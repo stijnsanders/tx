@@ -27,7 +27,7 @@ else
    
   LocationCache:=TItemCache.Create;
   try
-    <<p id="sliTitle" class="highlight1" style="position:absolute;margin:0em;font-weight:bold;"></p>
+    <<p id="sliTitle" class="highlight1" style="position:fixed;margin:0em;font-weight:bold;"></p>
     <p>>
 
     i:=0;

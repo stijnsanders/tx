@@ -25,7 +25,7 @@ else
 
   LocationCache:=TItemCache.Create;
   try
-    <<p id="rliTitle" class="highlight1" style="position:absolute;margin:0em;font-weight:bold;"></p>
+    <<p id="rliTitle" class="highlight1" style="position:fixed;margin:0em;font-weight:bold;"></p>
     <p>>
     i:=0;
     while not(i=FilterRecentCount) and not(Session.RecentReferences[i].obj2=0) and Context.Connected do

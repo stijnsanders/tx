@@ -72,7 +72,7 @@ filter:=Context['filter'].Value;
     fq.Free;
   end;
 
-  <<p id="fliTitle" class="highlight1" style="position:absolute;margin:0em;font-weight:bold;"></p>
+  <<p id="fliTitle" class="highlight1" style="position:fixed;margin:0em;font-weight:bold;"></p>
   <p>
   <span class="litref">>=filter<</span>
   <a class="linkbutton" href="Filter.xxm?filter=[[=URLEncode(filter)]]" target="MainFrame">filter</a>

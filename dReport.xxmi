@@ -10,7 +10,10 @@ IsAdmin:=Values[1];
 id:=qr.GetInt('id');
 IsRef:=false;//see below
 hr:=Context['hr'].AsInteger;
-if hr=id then begin]]<div class="highlighteditem">[[end;
+s:='';
+if hr=id then s:=s+' class="highlighteditem"';
+if qr.GetInt('uid')<>Session.UserID then s:=s+' style="border-right:3px dotted #8080FF;"';
+<<div[[#s]]>>
 <<p class="reportheader"><a name="rpt[[=id]]"></a><a href="Item.xxm?x=i[[.usrid]]" title="[[.usrtypename]]">>#txImg(qr.GetInt('usricon'))]] [[.usrname<</a>
 <span class="date">reported on [[=NiceDateTime(qr['ts'])]] <a href="Item.xxm?x=i[[=qr['obj_id']]]&amp;hr=[[=id]]">&lsaquo;</a></span>>
 //TODO: revoke only own? only last?
@@ -62,4 +65,4 @@ if not(IsRef) and not(qr.IsNull('relicon')) then
   Context.Include('dObjTokRef.xxmi',[id1,'&nbsp;','&nbsp;'],[qr]);
   <</p>>
  end;
-if hr=id then begin <</div>> end;
+<</div>>

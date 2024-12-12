@@ -61,7 +61,7 @@ IsAdmin:=Session.IsAdmin('journals');
      end
     else
      begin
-      <<p id="fliTitle" class="highlight1" style="position:absolute;margin:0em;font-weight:bold;"></p>
+      <<p id="fliTitle" class="highlight1" style="position:fixed;margin:0em;font-weight:bold;"></p>
       <table cellspacing="2" cellpadding="2" border="0" class="listtable">
       <tr>
       <th>journal</th>
