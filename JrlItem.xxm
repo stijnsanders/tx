@@ -125,7 +125,7 @@ try
      begin
       <<td>>.jrl_name<</td>>
      end;
-    <<td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
+    <<td>>#txImg(qr.GetInt('jrt_icon'))]]&nbsp;[[.jrt_name<</td>
     <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
     [[#JournalMinutesTD(qr.GetInt('minutes'))]]
     <td style="text-align:right;">>=JournalDateTime(double(qr['ts'])+qr.GetInt('minutes')/1440.0)<</td>

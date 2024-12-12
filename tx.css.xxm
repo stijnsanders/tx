@@ -249,6 +249,13 @@ A.ref:hover {
 .highlight2 {
 	background-color: #C0FFC0;
 }
+#xliTitle {
+	position:fixed;
+	background-color: #C0C0FF;
+	font-weight:bold;
+	margin:0em;
+	padding:0.2em;"
+}
 
 .nc {
 	color: #CC0000;

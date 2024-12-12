@@ -33,7 +33,7 @@ m:integer;
       Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
       //Context.Include('d_cmw.xxmi',[],[qr]);
       <</td>
-      <td>>#txImg(qr.GetInt('jrt_icon'))]][[=qr.GetStr('jrt_name')<</td>
+      <td>>#txImg(qr.GetInt('jrt_icon'))]]&nbsp;[[.jrt_name<</td>
       <td style="text-align:right;">>=JournalDateTime(d)<</td>
       [[#JournalMinutesTD(m)]]
       <td>

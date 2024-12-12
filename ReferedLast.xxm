@@ -25,7 +25,7 @@ else
 
   LocationCache:=TItemCache.Create;
   try
-    <<p id="rliTitle" class="highlight1" style="position:fixed;margin:0em;font-weight:bold;"></p>
+    <<p id="xliTitle"></p>
     <p>>
     i:=0;
     while not(i=FilterRecentCount) and not(Session.RecentReferences[i].obj2=0) and Context.Connected do
@@ -62,8 +62,8 @@ else
     <</p>
     <script><!--
     $(".fli")
-    .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#rliTitle").text(this.title);})
-    .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#rliTitle").text("");});
+    .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#xliTitle").text(this.title);})
+    .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#xliTitle").text("");});
     //--></script>>
   finally
     LocationCache.Free;

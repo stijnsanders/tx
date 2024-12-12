@@ -72,8 +72,8 @@ filter:=Context['filter'].Value;
     fq.Free;
   end;
 
-  <<p id="fliTitle" class="highlight1" style="position:fixed;margin:0em;font-weight:bold;"></p>
-  <p>
+  <<p id="xliTitle"></p>
+  <p>&nbsp;
   <span class="litref">>=filter<</span>
   <a class="linkbutton" href="Filter.xxm?filter=[[=URLEncode(filter)]]" target="MainFrame">filter</a>
   <a class="linkbutton" href="FilterBuild.xxm?filter=[[=URLEncode(filter)]]" target="MainFrame">build</a>
@@ -101,7 +101,7 @@ filter:=Context['filter'].Value;
 <</span>
 <script><!--
 $(".fli")
-.mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#fliTitle").text(this.title);})
-.mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#fliTitle").text("");});
+.mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#xliTitle").text(this.title);})
+.mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#xliTitle").text("");});
 //--></script>>
 Context.Include('dFrameFoot.xxmi');

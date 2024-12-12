@@ -2,6 +2,7 @@
 b:boolean;
 qr:TQueryResult;
 i,id,g:integer;
+hs:string;
 ]][[
 
 Context.Include('dFrameHead.xxmi',['Journal',false]);
@@ -36,16 +37,17 @@ else
   for i:=0 to Length(Session.Journals)-1 do
    begin
     <<tr>>
-      qr:=TQueryResult.Create(Session.DbCon,
-        'select Obj.id, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', ObjType.icon, ObjType.name as typename,'+
-        ' Jrx.ts, Jrt.icon as jrt_icon, Jrt.name as jrt_name'+
-        //', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML'+
-        ' from Jrx inner join Jrt on Jrt.id=Jrx.jrt_id'+
-        ' inner join Obj on Obj.id=Jrx.obj_id'+
-        ' inner join ObjType on ObjType.id=Obj.objtype_id'+
-        //' left outer join ObjTokRefCache on ObjTokRefCache.id=Obj.id'+
-        ' where Jrx.uid=? and Jrt.jrl_id=?',
-        [Session.UserID,Session.Journals[i].jrl_id]);
+    qr:=TQueryResult.Create(Session.DbCon,
+      'select Obj.id, Obj.objtype_id, Obj.name, Obj.'+sqlDesc+', ObjType.icon, ObjType.name as typename,'+
+      ' Jrx.ts, Jrt.icon as jrt_icon, Jrt.name as jrt_name'+
+      //', ObjTokRefCache.tokHTML, ObjTokRefCache.refHTML'+
+      ' from Jrx inner join Jrt on Jrt.id=Jrx.jrt_id'+
+      ' inner join Obj on Obj.id=Jrx.obj_id'+
+      ' inner join ObjType on ObjType.id=Obj.objtype_id'+
+      //' left outer join ObjTokRefCache on ObjTokRefCache.id=Obj.id'+
+      ' where Jrx.uid=? and Jrt.jrl_id=?',
+      [Session.UserID,Session.Journals[i].jrl_id]);
+    hs:='j'+IntToStr(Session.Journals[i].jrl_id);
     try
       if qr.Read then id:=qr.GetInt('id') else id:=0;
       if id<>0 then
@@ -85,7 +87,7 @@ else
       try
         while qr.Read do
          begin
-          <<a target="MainFrame" href="Item.xxm?x=i[[.id]]" class="jiOption" title="[[.name]]">>#txImg(qr.GetInt('icon'))<</a>>
+          <<a target="MainFrame" href="Item.xxm?x=i[[.id]]" class="[[=hs]]Option" title="[[.name]]">>#txImg(qr.GetInt('icon'))<</a>>
          end;
       finally
         qr.Free;
@@ -96,11 +98,11 @@ else
         Session.Journals[i].fDisplay:='';
        end;
       ]]&nbsp;
-      <span id="jiTitle" class="highlight1"></span>
+      <span id="[[=hs]]Title" class="highlight1"></span>
       <script><!--
-      $(".jiOption")
-      .mouseenter(function(){$("#jiTitle").text(this.title);})
-      .mouseleave(function(){$("#jiTitle").text("");});
+      $(".[[=hs]]Option")
+      .mouseenter(function(){$("#[[=hs]]Title").text(this.title);})
+      .mouseleave(function(){$("#[[=hs]]Title").text("");});
       //--></script>>       
       <</td>>
      end;

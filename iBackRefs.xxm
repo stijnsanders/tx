@@ -18,7 +18,7 @@ qrRef:=TQueryResult.Create(Session.DbCon,
   'INNER JOIN ObjType ON ObjType.id=Obj.objtype_id '+
   'WHERE Ref.obj2_id=? AND Obj.rlm_id'+Session.Realms[rpView].SQL+' ORDER BY Ref.weight, Obj.weight',[id]);
 try
-  <<p id="rxiTitle" class="highlight1" style="position:fixed;margin:0em;font-weight:bold;"></p>
+  <<p id="xliTitle"></p>
   <p class="midnav">[[/#lblReferences]]references to object
     <a href="Filter.xxm?filter=rx[[#id]]" class="linkbutton">filter...</a>
     <a href="FilterBuild.xxm[[?'x','rx','id',id]]" class="linkbutton">build...</a>
@@ -56,8 +56,8 @@ try
        end;
       <<script><!--
       $(".fli")
-      .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#rxiTitle").text(this.title);})
-      .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#rxiTitle").text("");});
+      .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#xliTitle").text(this.title);})
+      .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#xliTitle").text("");});
       //--></script>>
     finally
       LocationCache.Free;

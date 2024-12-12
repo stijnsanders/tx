@@ -50,7 +50,7 @@ while qr.Read do
   Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
   //Context.Include('d_cmw.xxmi',[],[qr]);
   <</td>
-  <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
+  <td>>#txImg(qr.GetInt('jrt_icon'))]]&nbsp[[.jrt_name<</td>
   <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
   [[#JournalMinutesTD(qr.GetInt('minutes'))]]
   <td style="text-align:right;">>=JournalDateTime(double(qr['ts'])+qr.GetInt('minutes')/1440.0)<</td>

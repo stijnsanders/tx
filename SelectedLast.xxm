@@ -27,7 +27,7 @@ else
    
   LocationCache:=TItemCache.Create;
   try
-    <<p id="sliTitle" class="highlight1" style="position:fixed;margin:0em;font-weight:bold;"></p>
+    <<p id="xliTitle"></p>
     <p>>
 
     i:=0;
@@ -70,8 +70,8 @@ else
     <</p>
     <script><!--
     $(".fli")
-    .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#sliTitle").text(this.title);})
-    .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#sliTitle").text("");});
+    .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#xliTitle").text(this.title);})
+    .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#xliTitle").text("");});
     //--></script>>
   finally
     LocationCache.Free;

@@ -320,7 +320,7 @@ else
      end
     else
      begin
-      <<p id="fliTitle" class="highlight1" style="position:fixed;margin:0em;font-weight:bold;"></p>
+      <<p id="xliTitle"></p>
       <table cellspacing="2" cellpadding="2" border="0" class="listtable">
       <tr>
       <th>user</th>
@@ -388,7 +388,7 @@ else
         Context.Include('dObjTokRef.xxmi',[qr.GetInt('id'),#13#10' ','&nbsp;'],[qr]);
         //Context.Include('d_cmw.xxmi',[],[qr]);
         <</td>
-        <td>>#txImg(qr.GetInt('jrt_icon'))]][[.jrt_name<</td>
+        <td>>#txImg(qr.GetInt('jrt_icon'))]]&nbsp;[[.jrt_name<</td>
         <td style="text-align:right;">>=JournalDateTime(qr['ts'])<</td>
         [[#JournalMinutesTD(qr.GetInt('minutes'))]]
         <td style="text-align:right;">>=JournalDateTime(double(qr['ts'])+qr.GetInt('minutes')/1440.0)<</td>
@@ -397,8 +397,8 @@ else
       <</table>
       <script><!--
       $(".fli")
-      .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#fliTitle").text(this.title);})
-      .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#fliTitle").text("");});
+      .mouseenter(function(){$("."+this.className.split(" ")[1]).addClass("highlight1");$("#xliTitle").text(this.title);})
+      .mouseleave(function(){$("."+this.className.split(" ")[1]).removeClass("highlight1");$("#xliTitle").text("");});
       //--></script>>
 
       if (filter<>'') and (mi<>0) then
