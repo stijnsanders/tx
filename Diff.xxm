@@ -87,10 +87,10 @@ else
         h1:=qr.GetInt('id');
         did:=TermStore.GetDomainID(id);
         s1:=BuildDiff;
-        <<span class="diffDeleted"><p class="objecttitle"><b>>.name<</b><br />
+        <<div class="diffDeleted"><p class="objecttitle"><b>>.name<</b><br />
         on [[=NiceDateTime(qr['ts'])]]
         by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
-        <span class="weight">weight: [[.weight]]</span></p></span>>
+        <span class="weight">weight: [[.weight]]</span></p></div>>
        end;
     finally
       qr.Free;
@@ -105,10 +105,10 @@ else
        begin
         h2:=qr.GetInt('id');
         s2:=BuildDiff;
-        <<span class="diffInserted"><p class="objecttitle"><b>>.name<</b><br />
+        <<div class="diffInserted"><p class="objecttitle"><b>>.name<</b><br />
         on [[=NiceDateTime(qr['ts'])]]
           by <a href="Item.xxm?x=i[[.uid]]">>#txImg(qr.GetInt('usricon'))]][[.usrname<</a>
-        <span class="weight">weight: [[.weight]]</span></p></span>>
+        <span class="weight">weight: [[.weight]]</span></p></div>>
        end;
     finally
       qr.Free;
@@ -123,14 +123,16 @@ else
       <a class="linkbutton" href="Item.xxm?x=i[[=id]]">back</a>
       </p>
 <style type="text/css"><!--
-SPAN.diffInserted, SPAN.diffInserted DIV, SPAN.diffInserted P {background-color:#99FF99;}
-SPAN.diffDeleted, SPAN.diffDeleted DIV, SPAN.diffDeleted P {background-color:#FF9999;}
-SPAN.diffInserted IMG {border: 2px solid #99FF99;}
-SPAN.diffDeleted IMG {border: 2px solid #FF9999;}
-SPAN.diffInserted TABLE TD {background-color:#99FF99;}
-SPAN.diffInserted TABLE TH {background-color:#339933;color:#EEEEEE;}
-SPAN.diffDeleted TABLE TD {background-color:#FF9999;}
-SPAN.diffDeleted TABLE TH {background-color:#993333;color:#EEEEEE;}
+DIV.diffInserted {background-color:#99FF99;display:inline;margin:0em;}
+DIV.diffDeleted {background-color:#FF9999;display:inline;margin:0em;}
+DIV.diffInserted DIV, DIV.diffInserted P {background-color:#99FF99;}
+DIV.diffDeleted DIV, DIV.diffDeleted P {background-color:#FF9999;}
+DIV.diffInserted IMG {border: 2px solid #99FF99;}
+DIV.diffDeleted IMG {border: 2px solid #FF9999;}
+DIV.diffInserted TABLE TD {background-color:#99FF99;}
+DIV.diffInserted TABLE TH {background-color:#339933;color:#EEEEEE;}
+DIV.diffDeleted TABLE TD {background-color:#FF9999;}
+DIV.diffDeleted TABLE TH {background-color:#993333;color:#EEEEEE;}
 //--></style>
 
 [[
@@ -159,8 +161,8 @@ repeat
    begin
     if showAll then
      begin
-      if inDel then begin <</span>> InDel:=false; end;
-      if inIns then begin <</span>> InIns:=false; end;
+      if inDel then begin <</div>> InDel:=false; end;
+      if inIns then begin <</div>> InIns:=false; end;
       Context.SendHTML(f1);
      end;
     //fwd right
@@ -177,8 +179,8 @@ repeat
     if f1=f2 then
      begin
       //found
-      if inDel then begin inDel:=false; <</span>> end;
-      if not inIns then begin inIns:=true; <<span class="diffInserted">> end;
+      if inDel then begin inDel:=false; <</div>> end;
+      if not inIns then begin inIns:=true; <<div class="diffInserted">> end;
       while (x1<r) and (x1<mc1.Count) and Context.Connected do
        begin
         Context.SendHTML(GetSection(s1,mc1,x1));
@@ -190,8 +192,8 @@ repeat
     else
      begin
       //not found
-      if inIns then begin inIns:=false; <</span>> end;
-      if not inDel then begin inDel:=true; <<span class="diffDeleted">> end;
+      if inIns then begin inIns:=false; <</div>> end;
+      if not inDel then begin inDel:=true; <<div class="diffDeleted">> end;
       Context.SendHTML(f2);
       inc(cc);
      end;
@@ -203,8 +205,8 @@ until (x2>=mc2.Count) or not Context.Connected;
 
 if x1<mc1.Count then
  begin
-  if inDel then begin inDel:=false; <</span>> end;
-  if not inIns then begin inIns:=true; <<span class="diffInserted">> end;
+  if inDel then begin inDel:=false; <</div>> end;
+  if not inIns then begin inIns:=true; <<div class="diffInserted">> end;
   while (x1<mc1.Count) and Context.Connected do
    begin
     Context.SendHTML(GetSection(s1,mc1,x1));
@@ -213,8 +215,8 @@ if x1<mc1.Count then
   inc(cc);
  end;
 
-if inDel then begin <</span>> end;
-if inIns then begin <</span>> end;
+if inDel then begin <</div>> end;
+if inIns then begin <</div>> end;
 
 if cc=0 then begin <<p><i>no changes found</i></p>> end;
 

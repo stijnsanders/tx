@@ -48,7 +48,7 @@ try
     'select Jre.ts from Jre inner join Jrt on Jrt.id=Jre.jrt_id'+
     ' where Jre.id<>? and Jrt.jrl_id=? and Jre.uid=? and Jre.ts>? order by Jre.ts limit 1',[id,jrl_id,Session.UserID,d1]);
   try
-    dd:=d1+8.0/24.0;//?
+    dd:=JournalGranulate(d1+8.0/24.0,g);
     if dd>Now then dd:=Now;
     if qr1.EOF then
       d2:=dd

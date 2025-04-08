@@ -251,7 +251,7 @@ if TermStore.InitError<>'' then
 <dt>Use_ObjPath</dt><dd>>=Use_ObjPath]] (<a href="MaintPath.xxm" rel="nofollow" onclick="return confirm('Are you sure to redo ObjPath?');">redo...</a>)</dd>
 <dt>Use_NewUserEmailActivation</dt><dd>>=Use_NewUserEmailActivation<</dd>
 <dt>Use_Unread</dt><dd>>=Use_Unread]] (<a href="MaintUrx.xxm" rel="nofollow">collapse...</a>)</dd>
-<dt>Use_Journals</dt><dd>>=Use_Journals<</dd>
+<dt>Use_Journals</dt><dd>>=Use_Journals]] (<a href="Journals.xxm" rel="nofollow">manage...</a>)</dd>
 </dl>
 
 Context.Include('dFoot.xxmi');
