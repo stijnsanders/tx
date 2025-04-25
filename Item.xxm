@@ -14,6 +14,40 @@ const
     //add new here above
     ''
   );
+
+procedure MarkItemRead(DbCon:TDataConnection;UserID,ItemID:integer);
+var
+  bt:integer;
+begin
+  bt:=DbCon.BusyTimeout;
+  try
+    DbCon.BusyTimeout:=1200;//TODO: from config, check less than bt
+    DbCon.BeginTrans;
+    try
+      qr:=TQueryResult.Create(DbCon,'SELECT Obx.id, X2.id FROM Obx'+
+        ' LEFT OUTER JOIN Urx X1 ON X1.uid=? AND X1.id1<=Obx.id AND X1.id2>=Obx.id'+
+        ' LEFT OUTER JOIN Urx X2 ON X2.uid=? AND X2.id2=Obx.id-1'+
+        ' WHERE Obx.obj_id=? AND X1.id IS NULL',[UserID,UserID,ItemID]);
+      try
+        while qr.Read do
+          if qr.IsNull(1) then
+            DbCon.Execute('INSERT INTO Urx (uid,id1,id2) VALUES (?,?,?)',[UserID,qr[0],qr[0]])
+          else
+            DbCon.Execute('UPDATE Urx SET id2=? WHERE id=?',[qr[0],qr[1]]);
+      finally
+        qr.Free;
+      end;
+      DbCon.CommitTrans;
+    except
+      DbCon.RollbackTrans;
+      //raise;//silent
+    end;
+  finally
+    DbCon.BusyTimeout:=bt;
+  end;
+end;
+
+
 ]][[
 
 txItem(Context['x'].Value,ItemType,ItemID);
@@ -285,25 +319,5 @@ Context.Include('dFoot.xxmi');
 if (ItemType=itObj) and Use_Unread then
  begin
   Context.Flush;
-  //mark read
-  Session.DbCon.BeginTrans;
-  try
-    qr:=TQueryResult.Create(Session.DbCon,'SELECT Obx.id, X2.id FROM Obx'+
-      ' LEFT OUTER JOIN Urx X1 ON X1.uid=? AND X1.id1<=Obx.id AND X1.id2>=Obx.id'+
-      ' LEFT OUTER JOIN Urx X2 ON X2.uid=? AND X2.id2=Obx.id-1'+
-      ' WHERE Obx.obj_id=? AND X1.id IS NULL',[Session.UserID,Session.UserID,ItemID]);
-    try
-      while qr.Read do
-        if qr.IsNull(1) then
-          Session.DbCon.Execute('INSERT INTO Urx (uid,id1,id2) VALUES (?,?,?)',[Session.UserID,qr[0],qr[0]])
-        else
-          Session.DbCon.Execute('UPDATE Urx SET id2=? WHERE id=?',[qr[0],qr[1]]);
-    finally
-      qr.Free;
-    end;
-    Session.DbCon.CommitTrans;
-  except
-    Session.DbCon.RollbackTrans;
-    raise;
-  end;
+  MarkItemRead(Session.DbCon,Session.UserID,ItemID);
  end;
