@@ -9,7 +9,7 @@ Read more about how to get started here:
 </p>
 
 <style><!--
-.lbox{display:inline-block;margin:2px;border:1px solid #CCCC99;padding:4px;vertical-align:top;}
+.lbox{display:inline-block;border:1px solid #CCCC99;padding:4px;vertical-align:top;}
 //--></style>
 <div style="margin:0;">
 <div class="lbox"><b>View items</b>

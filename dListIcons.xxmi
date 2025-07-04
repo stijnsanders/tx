@@ -1,9 +1,12 @@
-[[@Variants,Classes,txDefs,txSession,DataLank,txFilterSql,]][[!var
+[[@Variants,Classes,txDefs,txSession,DataLank,txFilter,txFilterSql,]][[!var
 p:TStringList;
 ids:TIdList;
 s,t:string;
 qr:TQueryResult;
 i,max:integer;
+f:TtxFilter;
+fq:TtxSqlQueryFragments;
+rpFilter:TtxRealmPermission;
 ]][[
 
 p:=TStringList.Create;
@@ -48,12 +51,49 @@ try
      end;
    end
   else
+  if s='query' then
+   begin
+    t:=p.Values['sql'];
+    if t='' then t:=p.Values['query'];
+    t:=StringReplace(t,'$me',IntToStr(Session.UserID),[rfReplaceAll]);
+    qr:=TQueryResult.Create(Session.DbCon,UTF8Encode(t),[]);
+    try
+      while qr.Read do ids.Add(qr.GetInt(0));
+    finally
+      qr.Free;
+    end;
+   end
+  else
+  if s='filter' then
+   begin
+    if p.Values['view']='any' then rpFilter:=rpAny else rpFilter:=rpView;
+    f:=TtxFilter.Create;
+    fq:=TtxSqlQueryFragments.Create(itObj);
+    try
+      f.FilterExpression:=UTF8Encode(p.Values['filter']);
+      if f.parseError<>'' then raise Exception.Create(f.parseError);
+      fq.AddFilter(f);
+      fq.Fields:='Obj.id';//?
+      fq.Where:='Obj.rlm_id'+Session.Realms[rpFilter].SQL+' AND ('+fq.Where+')';
+      t:=fq.SQL;
+    finally
+      f.Free;
+      fq.Free;
+    end;
+    qr:=TQueryResult.Create(Session.DbCon,UTF8Encode(t),[]);
+    try
+      while qr.Read do ids.Add(qr.GetInt('id'));
+    finally
+      qr.Free;
+    end;
+   end
+  else
    begin
     <<p style="color:red;fnot-weight:bold">[Unknown icons list "[[=s]]"]</p>>
    end;
 
   t:=p.Values['style'];
-  if t='' then t:='margin:2px;border:1px solid #CCCC99;padding:4px;white-space:nowrap;overflow:hidden;';
+  if t='' then t:='border:1px solid #CCCC99;padding:4px;white-space:nowrap;overflow:hidden;';
   <<div style="[[=t]]">>
   if p.Values['prefix']<>'' then Context.Send(p.Values['prefix']);
   if p.Values['prefixHTML']<>'' then Context.SendHTML(p.Values['prefixHTML']);
@@ -66,7 +106,9 @@ try
       else
         Context.SendHTML(p.Values['noneHTML'])
     else
-      Context.Send(p.Values['none'])
+     begin
+      <<i style="color:#CCCC99;">>=p.Values['none']<</i>>
+     end
   else
    for i:=0 to ids.Count-1 do
     begin

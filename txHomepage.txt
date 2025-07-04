@@ -15,7 +15,7 @@ Read more about how to get started here:
 </p>
 
 <style><!--
-.lbox{display:inline-block;margin:2px;border:1px solid #CCCC99;padding:4px;vertical-align:top;}
+.lbox{display:inline-block;border:1px solid #CCCC99;padding:4px;vertical-align:top;}
 //--></style>
 <div style="margin:0;">
 <div class="lbox"><b>View items</b>
@@ -84,6 +84,11 @@ order by Ref.weight, Ref.c_ts desc
 limit 25
 
 <div style="border:1px solid #0099CC;"><p>[[name]]</p>[[desc]]</div>
+
+--icons
+list=query
+sql=select obj_id from Jre where uid=$me order by ts desc limit 20
+none=no items on journals yet
 
 --content
 </div>
