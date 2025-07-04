@@ -53,7 +53,7 @@ type
     Data:TObject;//used with import for now, maybe more later, then review this
 
     //TODO: properties
-    UserID,UpdateID,DeleteID:integer;
+    AccountID,UserID,UpdateID,DeleteID:integer;
     JsLoaded,QryUnread,Stealth,JournalsUsed:boolean;
     Realms:array[TtxRealmPermission] of record
       Ids:array of integer;
@@ -303,7 +303,8 @@ begin
   JournalsUsed:=false;
 
   //start session
-  UserID:=0;
+  AccountID:=0; //table Usr.id!
+  UserID:=0; //table Obj.id! (from Usr.uid!)
   UpdateID:=0;
   DeleteID:=0;
   FooterDisplay:='';
@@ -368,12 +369,14 @@ begin
   FIsAnonymous:=qr.EOF or (qr.GetInt('isanon')=1);
   if qr.EOF then
    begin
+    AccountID:=0;
     UserID:=0;
     FooterDisplay:='-';
    end
   else
    begin
-    UserID:=qr.GetInt('uid');
+    AccountID:=qr.GetInt('id');//Usr.id!
+    UserID:=qr.GetInt('uid');//Obj.id! via Usr.uid
     FooterDisplay:=qr.GetStr('email');
     AddFilterRecent(itObj,UserID);
    end;

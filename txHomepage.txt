@@ -49,6 +49,8 @@ Read more about how to get started here:
 <br /><a href="Menu.xxm" rel="nofollow">more...</a>
 </div>
 
+--icons
+list=viewed
 
 --content
 <p class="midnav">recent changes</p>

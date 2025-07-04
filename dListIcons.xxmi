@@ -1,0 +1,89 @@
+[[@Variants,Classes,txDefs,txSession,DataLank,txFilterSql,]][[!var
+p:TStringList;
+ids:TIdList;
+s,t:string;
+qr:TQueryResult;
+i,max:integer;
+]][[
+
+p:=TStringList.Create;
+ids:=TIdList.Create;
+try
+  p.Text:=Values[0];
+
+  if p.Values['max']='' then max:=100 else max:=StrToInt(p.Values['max']);
+
+  s:=p.Values['list'];
+  if s='viewed' then
+   begin
+    i:=0;
+    while (i<>ViewedLastCount) and (ids.Count<max) do
+     begin
+      if Session.ViewedLast[i]<>0 then
+        ids.Add(Session.ViewedLast[i]);
+      inc(i);
+     end;
+   end
+  else
+  if s='selected' then 
+   begin
+    i:=0;
+    while (i<>FilterRecentCount) and (ids.Count<max) do
+     begin
+      if Session.FilterRecent[itObj,i]<>0 then
+        ids.Add(Session.FilterRecent[itObj,i]);
+      inc(i);
+     end;
+   end
+  else
+  if s='refered' then
+   begin
+    i:=0;
+    while (i<>FilterRecentCount) and (ids.Count<max) do
+     begin
+      if Session.RecentReferences[i].obj2<>0 then
+        //Session.RecentReferences[i].reftype?
+        ids.Add(Session.RecentReferences[i].obj2);
+      inc(i);
+     end;
+   end
+  else
+   begin
+    <<p style="color:red;fnot-weight:bold">[Unknown icons list "[[=s]]"]</p>>
+   end;
+
+  t:=p.Values['style'];
+  if t='' then t:='margin:2px;border:1px solid #CCCC99;padding:4px;white-space:nowrap;overflow:hidden;';
+  <<div style="[[=t]]">>
+  if p.Values['prefix']<>'' then Context.Send(p.Values['prefix']);
+  if p.Values['prefixHTML']<>'' then Context.SendHTML(p.Values['prefixHTML']);
+  if ids.Count=0 then
+    if p.Values['none']='' then
+      if p.Values['noneHTML']='' then
+       begin
+        <<i style="color:#CCCC99;">no items on list "[[=s]]" yet...</i>>
+       end
+      else
+        Context.SendHTML(p.Values['noneHTML'])
+    else
+      Context.Send(p.Values['none'])
+  else
+   for i:=0 to ids.Count-1 do
+    begin
+     qr:=TQueryResult.Create(Session.DbCon,sqlObjByID,[ids[i]]);
+     try
+       <<a href="Item.xxm?x=i[[.id]]" title="[[.name]]">>#txImg(qr.GetInt('icon'))<</a>>
+     finally
+       qr.Free;
+     end;
+    end;
+  if p.Values['suffix']<>'' then Context.Send(p.Values['suffix']);
+  if p.Values['suffixHTML']<>'' then Context.SendHTML(p.Values['suffixHTML']);
+  <</div>>
+
+finally
+  ids.Free;
+  p.Free;
+end;
+
+]]

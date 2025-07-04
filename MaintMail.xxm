@@ -281,7 +281,8 @@ try
             else
               Context.SendHTML(users[users_i].name+' <'+users[users_i].email+'>...'#13#10);
             tc1:=GetTimerIndex;
-            qr:=TQueryResult.Create(Session.DbCon,'SELECT ? AS uid, ? AS email, 0 AS isanon',[users[users_i].uid,users[users_i].email]);
+            qr:=TQueryResult.Create(Session.DbCon,'SELECT ? AS id, ? AS uid, ? AS email, 0 AS isanon',
+              [users[users_i].id,users[users_i].uid,users[users_i].email]);
             try
               Session.LoadUser(qr);
             finally

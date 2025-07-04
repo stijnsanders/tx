@@ -8,7 +8,11 @@ url:='Users.xxm';
 id:=Context['u'].AsInteger;
 if (id=0) and (Session.RevertUserID<>0) and (Session.RevertUserID=Context['r'].AsInteger) then
  begin
-  qr:=TQueryResult.Create(Session.DbCon,'SELECT ? AS uid, ? AS email, 0 AS isanon',[Session.RevertUserID,Session.RevertFooterDisplay]);
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT ? AS id, ? AS uid, ? AS email, 0 AS isanon',
+    [Session.AccountID //! impersonate using same account
+    ,Session.RevertUserID
+    ,Session.RevertFooterDisplay
+    ]);
   try
     //end impersonating
     Session.RevertUserID:=0;
@@ -19,7 +23,8 @@ if (id=0) and (Session.RevertUserID<>0) and (Session.RevertUserID=Context['r'].A
  end
 else
  begin
-  qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 0 AS isanon FROM Usr WHERE id=?',[id]);//AND suspended IS NULL?
+  qr:=TQueryResult.Create(Session.DbCon,'SELECT id, uid, email, 0 AS isanon FROM Usr WHERE id=?',
+    [id]);//AND suspended IS NULL?
   try
     if not Session.IsAdmin('logins') then
       raise Exception.Create('Impersonating is only allowed by login-admininistrator.');

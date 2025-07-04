@@ -41,7 +41,7 @@ begin
     try
       uname:=Context.ContextString(csAuthUser);
       if uname='' then qr:=nil else
-        qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 0 AS isanon FROM Usr WHERE LOWER(auth)=LOWER(?) AND suspended IS NULL',[uname]);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT id, uid, email, 0 AS isanon FROM Usr WHERE LOWER(auth)=LOWER(?) AND suspended IS NULL',[uname]);
       if (qr=nil) or (qr.EOF) then
        begin
         if qr<>nil then FreeAndNil(qr);
@@ -90,7 +90,7 @@ begin
       if (qr=nil) or (qr.EOF) then
        begin
         if qr<>nil then qr.Free;
-        qr:=TQueryResult.Create(Session.DbCon,'SELECT uid, email, 1 AS isanon FROM Usr WHERE auth=? AND suspended IS NULL',['anonymous']);
+        qr:=TQueryResult.Create(Session.DbCon,'SELECT id, uid, email, 1 AS isanon FROM Usr WHERE auth=? AND suspended IS NULL',['anonymous']);
        end;
       if qr.EOF then
        begin
@@ -111,8 +111,9 @@ begin
   if (s='tx.ini') or (s='tx.db') or (s='tx.xxl') then
     Result:=XxmFragmentRegistry.GetFragment(Self,'404.xxm','')
   else
-  if Copy(s,1,4)='img/' then
-    Result:=XxmFragmentRegistry.GetFragment(Self,'iImg.xxm','')
+  if Copy(s,1,6)='img/ic' then
+    //Result:=XxmFragmentRegistry.GetFragment(Self,'iImg.xxm','')
+    Result:=XxmFragmentRegistry.GetFragment(Self,'Img.xxm','')
   else
     ;
   if Result=nil then

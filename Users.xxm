@@ -80,6 +80,8 @@ try
        ]] <a href="fDelete.xxm?x=u[[=id]]" class="linkbutton">delete</a>>
        ]] <a href="aUserImp.xxm?u=[[=id]][[=txCallProtect]]" class="linkbutton" onclick="return confirm('Attention this will switch your current web session (all windows) to the selected user.');">impersonate</a>>
       end;
+     if id=Session.AccountID then
+       Context.SendHTML('&nbsp;&lsaquo;');
      <</td>
      <td style="white-space: nowrap;"><a href="Item.xxm?x=i[[=uid]]" title="[[.typename]]">>#txImg(qr.GetInt('icon'))]] [[.name<</a>>
      Context.Include('dObjTokRef.xxmi',[id,#13#10' ','&nbsp;'],[qr]);<</td>

@@ -97,6 +97,18 @@ try
       Context.Include('dListQuery.xxmi',[s,t]);
      end
     else
+    if s='--icons' then
+     begin
+      t:='';
+      while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') do
+       begin
+        t:=t+sl[si]+#13#10;
+        inc(si);
+       end;
+      Context.Flush;
+      Context.Include('dListIcons.xxmi',[t]);
+     end
+    else
      begin
       //raise? ignore:
       while (si<sl.Count) and (Copy(sl[si],1,2)<>'--') and Context.Connected do inc(si);
