@@ -112,8 +112,7 @@ begin
     Result:=XxmFragmentRegistry.GetFragment(Self,'404.xxm','')
   else
   if Copy(s,1,6)='img/ic' then
-    //Result:=XxmFragmentRegistry.GetFragment(Self,'iImg.xxm','')
-    Result:=XxmFragmentRegistry.GetFragment(Self,'Img.xxm','')
+    Result:=XxmFragmentRegistry.GetFragment(Self,'iImg.xxm','')
   else
     ;
   if Result=nil then

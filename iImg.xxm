@@ -1,4 +1,4 @@
-[[@txImgs,Classes]][[!var
+[[@txImgs,txSession,Classes,xxmHeaders]][[!var
 url,s:string;
 f:TForwardStream;
 ]][[
@@ -20,5 +20,6 @@ else
   if s='.png' then Context.ContentType:='image/png' else
   //TODO: more?
     Context.ContentType:='application/octet-stream';
+  (Context as IxxmHttpHeaders).ResponseHeaders['Last-Modified']:=RFC822DateGMT(ImgBankDate);
   Context.SendStream(TStreamAdapter.Create(f,soOwned));
  end;

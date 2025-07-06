@@ -10,6 +10,9 @@ type
 procedure ImgsLoadLibrary;
 function ImgByName(const ImgPath:string):TForwardStream;
 
+var
+  ImgBankDate:TDateTime;
+
 implementation
 
 uses Windows, txSession;
@@ -69,6 +72,9 @@ var
   d:TImgInfo;
   p:pointer;
 begin
+
+  if ImgBank=nil then ImgsLoadLibrary;//assert done by xxmp.pas XxmProjectLoad!
+
   i:=ImgBank.IndexOf(ImgPath);
   if i=-1 then Result:=nil else 
    begin
@@ -80,4 +86,9 @@ begin
    end;
 end;
 
+initialization
+  //see ImgsLoadLibrary
+  ImgData:=nil;
+  ImgBank:=nil;
+  ImgBankDate:=UTCNow;
 end.

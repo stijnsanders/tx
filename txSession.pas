@@ -126,6 +126,7 @@ procedure ClearAutoLogonToken(Context:IXxmContext);
 
 procedure GetFilterViewInfo(ctx:IXxmContext;var fv:TtxFilterViewInfo);
 
+function UTCNow:TDateTime;
 function RFC822DateGMT(dd: TDateTime): string;
 
 type
@@ -180,7 +181,7 @@ begin
     {
     i:=0;
     while (i<SessionStore.Count) and (SessionStore[i]<>sid) do
-      if (Now>=(SessionStore.Objects[i] as TtxSession).Expires) then
+      if (UTCNow>=(SessionStore.Objects[i] as TtxSession).Expires) then
        begin
         SessionStore.Objects[i].Free;
         SessionStore.Delete(i);
@@ -297,7 +298,7 @@ begin
   Data:=nil;
   FTerms:=nil;
   JsLoaded:=false;
-  JsModSince:=RFC822DateGMT(Now);
+  JsModSince:=RFC822DateGMT(UTCNow);
   QryUnread:=false;//see LoadUser
   Stealth:=false;
   JournalsUsed:=false;
@@ -314,7 +315,7 @@ begin
   CssPrefs.DemoMode:=false;
   CssPrefs.BaseSizePt:=11;
   CssPrefs.FontName:='Calibri, Verdana, sans-serif';
-  CssModSince:=RFC822DateGMT(Now);
+  CssModSince:=RFC822DateGMT(UTCNow);
 
   for i:=itObj to itRefType do for j:=0 to FilterRecentCount-1 do FilterRecent[i,j]:=0;
   for j:=0 to FilterRecentCount-1 do begin RecentReferences[j].reftype:=0; RecentReferences[j].obj2:=0; end;
@@ -1052,6 +1053,16 @@ end;
 procedure ClearAutoLogonToken(Context:IXxmContext);
 begin
   Context.SetCookie(AutoLogonCookieName,'',0,'','','',false,true);//domain?secure?
+end;
+
+function UTCNow:TDateTime;
+var
+  st:TSystemTime;
+begin
+  GetSystemTime(st);
+  Result:=
+    EncodeDate(st.wYear,st.wMonth,st.wDay)+
+    EncodeTime(st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
 end;
 
 function RFC822DateGMT(dd: TDateTime): string;
