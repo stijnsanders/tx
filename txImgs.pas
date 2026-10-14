@@ -11,7 +11,7 @@ procedure ImgsLoadLibrary;
 function ImgByName(const ImgPath:string):TForwardStream;
 
 var
-  ImgBankDate:TDateTime;
+  ImgBankDate:string;
 
 implementation
 
@@ -90,5 +90,5 @@ initialization
   //see ImgsLoadLibrary
   ImgData:=nil;
   ImgBank:=nil;
-  ImgBankDate:=UTCNow;
+  ImgBankDate:=RFC822DateGMT(UTCNow);
 end.

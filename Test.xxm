@@ -7,6 +7,7 @@
 <dt>sessionID</dt><dd>>=Context.SessionID<</dd>
 <dt>>=AutoLogonCookieName<</dt><dd>>=Context.GetCookie(AutoLogonCookieName)<</dd>
 <dt>csVersion</dt><dd>>=Context.ContextString(csVersion)<</dd>
+<dt>dbVersion</dt><dd>[[@Sqlite]][[='SQLite '+sqlite3_libversion()]]</dd>
 <dt>csExtraInfo</dt><dd>>=Context.ContextString(csExtraInfo)<</dd>
 <dt>csVerb</dt><dd>>=Context.ContextString(csVerb)<</dd>
 <dt>csQueryString</dt><dd>>=Context.ContextString(csQueryString)<</dd>
@@ -244,7 +245,7 @@ if TermStore.InitError<>'' then
   [[=TermStore.InitError]]
   [[
  end;
-</dd>
+<</dd>
 [[//TODO: dynamic settings]]
 <dt>Use_ObjTokRefCache</dt><dd>>=Use_ObjTokRefCache]] (<a href="MaintObjTokRefCache.xxm" rel="nofollow">pending...</a>, <a href="MaintObjTokRefCache.xxm?redo=1" rel="nofollow" onclick="return confirm('Are you sure to redo the ObjTokRefCache?');">redo...</a>)</dd>
 <dt>Use_ObjHist</dt><dd>>=Use_ObjHist<</dd>
@@ -252,6 +253,6 @@ if TermStore.InitError<>'' then
 <dt>Use_NewUserEmailActivation</dt><dd>>=Use_NewUserEmailActivation<</dd>
 <dt>Use_Unread</dt><dd>>=Use_Unread]] (<a href="MaintUrx.xxm" rel="nofollow">collapse...</a>)</dd>
 <dt>Use_Journals</dt><dd>>=Use_Journals]] (<a href="Journals.xxm" rel="nofollow">manage...</a>)</dd>
-</dl>
+</dl>>
 
 Context.Include('dFoot.xxmi');

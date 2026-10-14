@@ -1,10 +1,11 @@
 [[@txDefs,txSession,Variants,DataLank]][[!var
 i,id,jrt_id,id1,jrt_id1,jrx_id,g,m:integer;
 qr:TQueryResult;
-d,d0,d1:TDateTime;
-CanReverseDate,rd:integer;
+d,d0,d1,d2:TDateTime;
+rd:integer;
 r:string;
 b:boolean;
+CanReverse:record g,p,q:boolean; end;
 const
 HalfAMinute=0.5/1440.0;
 ]][[
@@ -122,38 +123,83 @@ else
        end
       else
        begin
-        CanReverseDate:=0;//default
+        CanReverse.g:=false;//default
+        CanReverse.p:=false;//default
+        CanReverse.q:=false;//default
         if Now<d1+2.0/24.0 then
          begin
-          b:=false;
+          d2:=0.0;//default
+          id1:=0;//counter warning
+
+          b:=false;//default
           qr:=TQueryResult.Create(Session.DbCon,
-            'select Jre.ts+Jre.minutes/1440.0 as ts from Jre inner join Jrt on Jrt.id=Jre.jrt_id'+
+            'select Jre.id, Jre.minutes, Jre.ts+Jre.minutes/1440.0 as ts from Jre inner join Jrt on Jrt.id=Jre.jrt_id'+
             ' where Jre.id<>? and Jrt.jrl_id=? and Jre.uid=? and Jre.ts+Jre.minutes/1440.0<=? order by Jre.ts desc limit 1',
             [id,Session.Journals[i].jrl_id,Session.UserID,d1]);
           try
-            rd:=Context['rd'].AsInteger;
-            if (rd=1) and (qr.EOF or (qr.GetDate('ts')<d1-g/1440.0)) then
-             begin
-              d1:=d1-g/1440.0;
-              b:=true;
-             end
-            else if (rd=2) and not(qr.EOF) then
-             begin
-              d1:=qr.GetDate('ts');
-              b:=true;
-             end;
             if qr.EOF then
-              CanReverseDate:=1
-            else if qr.GetDate('ts')<d1-g/1440.0 then
-              CanReverseDate:=2;
+              CanReverse.g:=true
+            else
+             begin
+              id1:=qr.GetInt('id');
+              m:=qr.GetInt('minutes');
+              d2:=qr.GetDate('ts');
+              if d2<d1-g/1440.0 then
+               begin
+                CanReverse.g:=true;
+                CanReverse.p:=true;
+               end
+              else
+               begin
+                if m>g then
+                 begin
+                  CanReverse.q:=true;
+                 end;
+               end;
+             end;
           finally
             qr.Free;
+          end;
+          rd:=Context['rd'].AsInteger;
+          case rd of
+            1://add g
+              if CanReverse.g then
+               begin
+                d1:=d1-g/1440.0;
+                b:=true;
+                CanReverse.g:=d2<d1-g/1440.0;
+                CanReverse.p:=CanReverse.p and CanReverse.g;
+                CanReverse.q:=not(CanReverse.g) and (id1<>0) and (m>g);
+               end;
+            2://collapse to previous
+              if CanReverse.p then //assert CanReverse.g
+               begin
+                d1:=d2;
+                b:=true;
+                CanReverse.g:=false;
+                CanReverse.p:=false;
+                CanReverse.q:=m>g;//?
+               end;
+            3://nudge previous by g
+              if CanReverse.q then
+               begin
+                d1:=d1-g/1440.0;
+                b:=true;
+                CanReverse.g:=false;
+                CanReverse.p:=false;
+                CanReverse.q:=m-g>g;
+               end;
           end;
           if b then
            begin
             Session.DbCon.BeginTrans;
             try
               Session.DbCon.Execute('update Jrx set ts=? where id=?',[d1,jrx_id]);
+              if (rd=3) and CanReverse.q and (id1<>0) and (m>g) then
+               begin
+                Session.DbCon.Execute('update Jre set minutes=? where id=? and minutes=?',[m-g,id1,m]);
+                dec(m,g);
+               end;
               Session.DbCon.CommitTrans;
             except
               Session.DbCon.RollbackTrans;
@@ -169,24 +215,38 @@ else
           qr.Free;
         end;
 
-        if CanReverseDate<>0 then
+        if CanReverse.g then
          begin
           ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
             {id:[[=Session.Journals[i].jrl_id]],rd:1,x:[[=id]],t:[[=jrt_id]],xxx:'[[#Session.SessionCrypt]]'},
             jrl_update);return false;">-[[=g]]&#x27;</a>>
-          if CanReverseDate=2 then
-           begin
-            ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
-              {id:[[=Session.Journals[i].jrl_id]],rd:2,x:[[=id]],t:[[=jrt_id]],xxx:'[[#Session.SessionCrypt]]'},
-              jrl_update);return false;">&#x21E4;</a>>
-           end;
          end
         else
-        if Context['rd'].AsInteger=1 then
+          if rd=1 then
+           begin
+            //show something here to catch repeat-clicking the reverse date button
+            <<span style="user-select:none;">&emsp;&ensp;</span>>
+           end;
+        if CanReverse.p then
          begin
-          //show something here to catch repeat-clicking the reverse date button
-          <<span style="user-select:none;">&emsp;&ensp;</span>>
+          ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+            {id:[[=Session.Journals[i].jrl_id]],rd:2,x:[[=id]],t:[[=jrt_id]],xxx:'[[#Session.SessionCrypt]]'},
+            jrl_update);return false;">&#x21E4;</a>>
          end;
+        if CanReverse.q then
+          begin
+          ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
+            {id:[[=Session.Journals[i].jrl_id]],rd:3,x:[[=id]],t:[[=jrt_id]],xxx:'[[#Session.SessionCrypt]]'},
+            jrl_update);return false;" title="previous entry: [[
+            if m>60 then Context.SendHTML(Format('%d:%.2d',[m div 60,m mod 60])) else Context.SendHTML(IntToStr(m)+'&#x27;');
+            ]]">&#x21F7;[[=g]]&#x27;</a>>
+          end
+        else
+          if rd=3 then
+           begin
+            //show something here to catch repeat-clicking the reverse date button
+            <<span style="user-select:none;">&emsp;&emsp;&emsp;</span>>
+           end;
         ]] <a href="#" class="linkbutton" onclick="$('#jrl[[=Session.Journals[i].jrl_id]]').load('iJre.xxm',
           {id:[[=Session.Journals[i].jrl_id]],x:0,xx:[[=id]],xxx:'[[#Session.SessionCrypt]]'},
           jrl_update);return false;">&bullet;</a>

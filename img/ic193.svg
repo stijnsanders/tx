@@ -2,5 +2,5 @@
 <path d="M2.5,5.5L9.5,2.5L12.5,9.5L5.5,12.5Z" stroke="#066" fill="#FFC"/>
 <path d="M7.5,7.5H14.5V14.5H7.5Z" stroke="#066" fill="#FFC"/>
 <path d="M7.5,7.5H14.5V8.5H7.5Z" stroke="#033" fill="#033"/>
-<path d="M5,7H7.5V4.75L10.5,7.5L7.5,10.25V8H5Z" fill="#030"/>
+<path d="M5,7H7.5V4.75L10.5,7.5L7.5,10.25V8H5Z" fill="#090"/>
 </svg>

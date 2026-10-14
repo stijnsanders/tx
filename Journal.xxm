@@ -200,23 +200,30 @@ else
       end;
      end; 
     if fq.Where<>'' then fq.Where:=' AND ('+fq.Where+')';
-    fq.Where:='Jre.uid=? AND Jrt.jrl_id=? AND Obj.rlm_id'+Session.Realms[rpFilter].SQL+fq.Where;
+    fq.Where:='Jre.uid=? AND Jrt.jrl_id=? AND Jre.ts>?'
+      +' AND Obj.rlm_id'+Session.Realms[rpFilter].SQL
+      +fq.Where;
     fq.OrderBy:='Jre.ts DESC';
     if Context['limit'].Value<>'' then
       fq.Limit:=Context['limit'].AsInteger
     else
-      if filter='' then fq.Limit:=100;
+      ;//if filter='' then fq.Limit:=100;
     fs:=fq.SQL;
   finally
     fq.Free;
   end;
 
+  if Context['d'].Value='' then
+    p1:=Date-28.0
+  else
+    p1:=Date-Context['d'].AsInteger;
+
   LocationCache:=TItemCache.Create;
-  qr:=TQueryResult.Create(Session.DbCon,fs,[Session.UserID,id]);
+  qr:=TQueryResult.Create(Session.DbCon,fs,[Session.UserID,id,p1]);
   try
     if qr.EOF then
      begin
-      <<p><i>No journal entries found.</i></p>>
+      <<p><i>No recent journal entries found.</i></p>>
      end
     else
      begin

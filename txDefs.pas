@@ -75,7 +75,7 @@ const
 
   globalIconAlign='align="top" border="0" ';
   globalImgExt='svg';//'png';
-  globalImgVer='?v=1a';
+  globalImgVer='?v=2';
 
   lblLocation=   '<img src="img_loc.'+globalImgExt+globalImgVer+'" width="16" height="16" alt="location:" '+globalIconAlign+'/>';
   lblDescendants='<img src="img_dsc.'+globalImgExt+globalImgVer+'" width="16" height="16" alt="children:" '+globalIconAlign+'/>';

@@ -518,8 +518,8 @@ begin
           if k-j<>1 then
            begin
             if s<>'' then s:=s+' OR ';//AND?
-            //s:=s+'Trm.term LIKE '+SqlStr('%'+Copy(t,j,k-j)+'%');
-            s:=s+'Trm.term='+SqlStr(Copy(t,j,k-j));
+            //s:=s+'Trm.term ILIKE '+SqlStr('%'+Copy(t,j,k-j)+'%');
+            s:=s+'Trm.term='+SqlStr(Copy(t,j,k-j))+' collate nocase';
            end;
           inc(k);
          end;

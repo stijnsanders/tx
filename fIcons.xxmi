@@ -10,6 +10,10 @@ function seticon[[=fname]](x)
 	$("#[[=fname]]_value")[0].value=x;
 	$("#[[=fname]]_icon")[0].src="img/ic"+x+".[[#globalImgExt]]";
 	$("#[[=fname]]_usage").html("...").load("iIconUsage.xxm",{icon:x,xxx:"[[#Session.SessionCrypt]]"});//TODO: plain GET params
+
+    document.getElementById("cImg1").src="img/ic"+x+".svg";
+    document.getElementById("nImg1").textContent=x;
+
 }
 //--></script>
 <input type="hidden" name="[[=fname]]" id="[[=fname]]_value" value="[[=i]]" />
@@ -18,7 +22,7 @@ function seticon[[=fname]](x)
 <i style="color:#999999;">select an icon below, here is shown if it&#x27;s in use.</i>
 </div>>
 if i<>-1 then begin <<script>seticon[[=fname]]([[=i]]);</script>> end;
-<<div style="max-height:8em;overflow-y:scroll;border:1px solid silver;padding:4px;">>
+<<div style="max-height:20em;overflow-y:scroll;border:1px solid silver;padding:4px;">>
 i:=0;
 d:=ModulePath+'img\';
 fn:=d+'ic'+IntToStr(i)+'.png';
@@ -29,4 +33,9 @@ while FileExists(fn) do
   inc(i);
   fn:=d+'ic'+IntToStr(i)+'.'+globalImgExt;
  end;
+
+
+<<hr />>
+Context.Include('Img.xxm',[fname]);
+
 <</div>

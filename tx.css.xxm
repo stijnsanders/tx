@@ -417,6 +417,18 @@ A.domainlink {
 	color: #CC0000;
 	font-weight: bold;
 }
+SPAN.jrltime {
+	font-size: 0.8em;
+	color: #CCCCCC;
+}
+SPAN.jrltime A {
+	text-decoration: none;
+	color: #CCCCCC;
+}
+SPAN.jrltime A:hover {
+	text-decoration: underline;
+}
+
 
 A.maillink {
 	color: #006699;
