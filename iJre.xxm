@@ -1,5 +1,5 @@
 [[@txDefs,txSession,Variants,DataLank]][[!var
-i,id,jrt_id,id1,jrt_id1,jrx_id,g,m:integer;
+i,id,jrt_id,id1,jrt_id1,jrx_id,jre_id,g,m:integer;
 qr:TQueryResult;
 d,d0,d1,d2:TDateTime;
 rd:integer;
@@ -23,7 +23,8 @@ else
  begin
   id:=Context['x'].AsInteger;
   jrt_id:=Context['t'].AsInteger;
-  r:='';
+  r:='';//default
+  jre_id:=0;//default
 
   qr:=TQueryResult.Create(Session.DbCon,
     'select Jrl.granularity, Jrx.id as jrx_id, Jrx.obj_id, Jrx.jrt_id, Jrx.ts'+
@@ -55,7 +56,7 @@ else
       try
         if jrx_id<>0 then
           Session.DbCon.Execute('delete from Jrx where id=?',[jrx_id]);
-        Session.DbCon.Insert('Jre',
+        jre_id:=Session.DbCon.Insert('Jre',
           ['jrt_id',jrt_id1
           ,'obj_id',id1
           ,'uid',Session.UserID
@@ -63,7 +64,7 @@ else
           ,'minutes',m
           ,'c_ts',VarFromDateTime(d1)
           ,'m_ts',VNow
-          ]);
+          ],'id');
         r:=JournalMinutes(m);
         Session.DbCon.CommitTrans;
       except
@@ -126,10 +127,12 @@ else
         CanReverse.g:=false;//default
         CanReverse.p:=false;//default
         CanReverse.q:=false;//default
+        rd:=0;//default
+        id1:=0;//counter warning
+        m:=0;//conter warning
         if Now<d1+2.0/24.0 then
          begin
           d2:=0.0;//default
-          id1:=0;//counter warning
 
           b:=false;//default
           qr:=TQueryResult.Create(Session.DbCon,
@@ -199,6 +202,7 @@ else
                begin
                 Session.DbCon.Execute('update Jre set minutes=? where id=? and minutes=?',[m-g,id1,m]);
                 dec(m,g);
+                //r:='('+JournalMinutes(m)+')';//?
                end;
               Session.DbCon.CommitTrans;
             except
@@ -267,7 +271,17 @@ else
       end;
       if r<>'' then
        begin
-        <<span class="small" style="color:silver;">&rsaquo;[[=r<</span>>
+        Session.Journals[i].fDisplay:=r;
+        Session.Journals[i].jre_id:=jre_id;
+        if jre_id=0 then
+         begin
+          <<span class="jrltime">&rsaquo;[[=r<</span>>
+         end
+        else
+         begin
+          <<span class="jrltime">&rsaquo;<a href="fJre.xxm?id=[[=jre_id]]">>=r<</a></span>>
+         end;
+        Context.SendHTML('&nbsp;');
        end;
      end;
     1,2:
@@ -277,6 +291,7 @@ else
     3:
      begin
       Session.Journals[i].fDisplay:=r;
+      Session.Journals[i].jre_id:=jre_id;
       Context.Redirect('FrameJrl.xxm',true);
      end;
     else

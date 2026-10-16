@@ -1,9 +1,9 @@
-[[@txSession,]]<!DOCTYPE html>
+[[@txSession,txDefs,]]<!DOCTYPE html>
 <html>
 <head>
 <script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
 <script src="tx.js.xxm?uid=[[=Session.UserID]]&amp;v=1[[=txCallProtect]]" type="text/javascript"></script>
-<link rel="stylesheet" type="text/css" href="tx.css.xxm?uid=[[=Session.UserID]]" />
+<link rel="stylesheet" type="text/css" href="tx.css.xxm[[?'r',globalCSSVer,'uid',Session.UserID]]" />
 </head>
 <body bgcolor="#FFFFFF">>
 if Length(Values)<2 then

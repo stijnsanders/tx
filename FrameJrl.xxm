@@ -2,7 +2,7 @@
 b:boolean;
 qr:TQueryResult;
 i,id,g:integer;
-hs:string;
+hs,fd:string;
 ]][[
 
 Context.Include('dFrameHead.xxmi',['Journal',false]);
@@ -92,14 +92,23 @@ else
       finally
         qr.Free;
       end;
-      if Session.Journals[i].fDisplay<>'' then
-       begin
-        <<span class="jrltime">&nbsp;&rsaquo;[[=Session.Journals[i].fDisplay<</span>>
-        Session.Journals[i].fDisplay:='';
-       end;
       ]]&nbsp;
-      <span id="[[=hs]]Title" class="highlight1"></span>
-      <script><!--
+      <span id="[[=hs]]Title" class="highlight1"></span>>
+      fd:=Session.Journals[i].fDisplay;
+      if fd<>'' then
+       begin
+        if Session.Journals[i].jre_id=0 then
+         begin
+          <<span class="jrltime">&nbsp;&rsaquo;[[=fd<</span>>
+         end
+        else
+         begin
+          <<span class="jrltime">&nbsp;<a href="fJre.xxm?id=[[=Session.Journals[i].jre_id]]" target="MainFrame">&rsaquo;[[=fd<</a></span>>
+         end;
+        Session.Journals[i].fDisplay:='';
+        Session.Journals[i].jre_id:=0;
+       end;
+      <<script><!--
       $(".[[=hs]]Option")
       .mouseenter(function(){$("#[[=hs]]Title").text(this.title);})
       .mouseleave(function(){$("#[[=hs]]Title").text("");});

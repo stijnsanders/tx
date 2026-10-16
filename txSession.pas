@@ -75,7 +75,7 @@ type
     RevertFooterDisplay:string;
     RecentReferences:array[0..FilterRecentCount-1] of record reftype,obj2:integer; end;
     Journals:array of record
-      jrl_id,granularity:integer;
+      jrl_id,jre_id,granularity:integer;
       jrl_name,fDisplay:string;
       CanConsult:boolean;
     end;
@@ -717,6 +717,7 @@ begin
         Journals[i].granularity:=qr.GetInt('granularity');
         Journals[i].CanConsult:=b2;
         Journals[i].fDisplay:='';
+        Journals[i].jre_id:=0;
         inc(i);
        end;
      end;

@@ -187,6 +187,7 @@ end;
             </p>
             [[
             cn:='::report';//default
+            rr:=false;//default
             //TODO: path of obj_id?
             if not(qr2.IsNull('tokicon')) then
              begin
